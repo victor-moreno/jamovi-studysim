@@ -12,3 +12,7 @@ build/
 dist/
 *.jmo
 .jmc-docker.jmo
+tutorial/_freeze/
+tutorial/.quarto/
+tutorial/*_files/
+documents/

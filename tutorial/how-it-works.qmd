@@ -1,0 +1,53 @@
+---
+title: "How it works"
+---
+
+## The superpopulation
+
+Covariates come from a **Gaussian copula structured as a DAG**: every variable has
+a latent standard normal; those without parents are jointly normal with the
+scenario's correlations, the others are linear in their parents' latents
+(standardised path coefficients) plus noise. Each latent is mapped to its marginal
+by the quantile function (NORTA): exact marginals (truncated to their range if
+given) with the intended dependence. **Rules** then tie variables together:
+probabilities that depend on other variables, structural values and formulas.
+
+People are generated in chunks of 5000 with seeds derived from the seed, the
+scenario and the chunk, so person *k* is the same whatever the design or the sample
+size, and a student key changes the seed.
+
+## Outcomes and calibration
+
+- binary: logistic model; events: Weibull proportional hazards (inverse transform);
+  continuous: linear (optionally on the log scale); counts: Poisson or negative
+  binomial.
+- The intercept, or the baseline hazard, is **calibrated** on 100 000 simulated
+  people so the population has the scenario's prevalence, rate, risk at a time,
+  median or mean.
+- Each person has their own outcome noise, shared by their treated and untreated
+  versions, so trials compare potential outcomes of the same people.
+
+## Designs
+
+| design | sampling |
+|---|---|
+| cross-sectional | the first *n* people |
+| cohort, prognosis | follow-up with administrative censoring, loss to follow-up, staggered entry |
+| case-control | cases (events within a risk window) from as much population as needed, controls from the non-cases |
+| matched case-control | controls matched exactly on categorical variables and within a caliper on numeric ones |
+| randomised trial | permuted blocks, treatment effect on the outcome, follow-up for events |
+| 2×2 crossover | sequences AB/BA, within-subject correlation, period and carryover effects |
+
+## The answer key
+
+The *true model* lists the effects used. The *expected estimates* come from one
+large study of the same design (20 000 rows; 1500–3000 cases for case-control
+designs), analysed with the model a student would fit: logistic, conditional
+logistic, Cox, linear (with subject effects in a crossover) or Poisson; crude for
+each variable and adjusted for all measured ones.
+
+## Source
+
+The engine is plain R (`R/engine_*.R`), independent of jamovi and tested with
+`testthat`; the options panel is tested by driving jamovi in Docker with
+Playwright. Code: [github.com/victor-moreno/jamovi-studysim](https://github.com/victor-moreno/jamovi-studysim).

@@ -1,0 +1,87 @@
+---
+title: "Teaching with studysim"
+---
+
+```{r}
+source("_common.R")
+```
+
+Each exercise below names the scenario and options, then what the students should
+find. The tables are the answer key's *expected estimates* (one large simulated
+study), computed by the module itself when this page was built.
+
+## Confounding: coffee and coronary heart disease
+
+*Coronary heart disease incidence*, cohort, measure age, sex, smoking and coffee.
+Coffee has no effect, but coffee drinkers smoke more: the crude hazard ratio of
+coffee is above 1 and disappears once smoking is in the model.
+
+```{r}
+key_table("chd_incidence", "chd", "cohort", c("age", "sex", "smoking", "coffee"))
+```
+
+Exercise: leave smoking unmeasured and show that the adjusted coffee effect stays
+biased (residual confounding).
+
+## Confounding by indication: chemotherapy
+
+*Breast cancer prognosis*, prognosis design. Chemotherapy truly lowers the hazard
+(HR 0.75), but it is given to younger women with more nodes and higher grade; its
+crude hazard ratio points the wrong way.
+
+```{r}
+key_table("breast_cancer_prognosis", "death", "prognosis", c("age", "tumour_size", "nodes", "grade", "chemo"))
+```
+
+## Odds ratios from a case-control study
+
+*Breast cancer risk factors*, case-control with two controls per case. The data are
+generated as a cohort with hazard ratios; the case-control odds ratios approach them
+because the disease is rare. Menopause has no effect of its own, but is determined
+by age (a rule of the scenario): its crude odds ratio is pure confounding.
+
+```{r}
+key_table("breast_cancer_risk", "breast_cancer", "case_control", c("age", "menopause", "parity", "family_hist", "alcohol"),
+          options = list(ratio = 2))
+```
+
+Exercise: compare with *Matched case-control* on age, analysed with conditional
+logistic regression.
+
+## Effect modification
+
+In the same scenario BMI protects before menopause and raises risk after it. A
+model without the interaction gives a single, misleading BMI effect; students
+should fit `bmi × menopause`. The answer key shows the true effect per level of
+menopause in its note.
+
+## Categorising a continuous variable
+
+Systolic pressure in quartiles (*Form: quartiles*) gives a dose-response pattern
+but loses information: compare the precision of the per-10-mmHg estimate with the
+quartile contrasts, and the effect of choosing other cut points.
+
+```{r}
+key_table("chd_incidence", "chd", "cohort", c("age", "sex", "sbp"), categorize = list(sbp = list(form = "quartiles")))
+```
+
+## Trials: parallel and crossover
+
+*Antihypertensive drug vs placebo*: in the parallel trial the unadjusted difference
+is unbiased, and adjusting for baseline pressure (ANCOVA) narrows the interval. In
+the 2×2 crossover each patient is their own control: 30 patients give a precise
+estimate, and the period effect must be in the model.
+
+```{r}
+key_table("antihypertensive_trial", "sbp", "rct", c("sbp0", "age"))
+key_table("antihypertensive_trial", "sbp", "crossover", character())
+```
+
+*Bioequivalence*: AUC and Cmax are log-normal; analyse log values and back-transform
+to a geometric mean ratio, then check whether its 90% CI lies within 0.80–1.25.
+
+## Assignments with student keys
+
+Give every student the same options and their own **student key** (e.g. their ID):
+each gets a different dataset from the same superpopulation. The teacher reproduces
+any of them by typing the key, and the answer key is the same for all.

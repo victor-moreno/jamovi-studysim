@@ -1,0 +1,39 @@
+project:
+  type: website
+  output-dir: ../docs
+  execute-dir: project
+  resources:
+    - screenshots/chd_sim.csv
+
+website:
+  title: "studysim"
+  description: "Simulated medical studies for teaching, in jamovi"
+  repo-url: https://github.com/victor-moreno/jamovi-studysim
+  repo-actions: [issue]
+  page-navigation: true
+  search: true
+  sidebar:
+    style: docked
+    contents:
+      - index.qmd
+      - simulated-study.qmd
+      - teaching.qmd
+      - library.qmd
+      - derive.qmd
+      - how-it-works.qmd
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
+    number-sections: false
+    fig-align: center
+    css: styles.css
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  freeze: auto

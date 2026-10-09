@@ -1,0 +1,302 @@
+[
+  {
+    "objectID": "how-it-works.html",
+    "href": "how-it-works.html",
+    "title": "How it works",
+    "section": "",
+    "text": "Covariates come from a Gaussian copula structured as a DAG: every variable has a latent standard normal; those without parents are jointly normal with the scenario’s correlations, the others are linear in their parents’ latents (standardised path coefficients) plus noise. Each latent is mapped to its marginal by the quantile function (NORTA): exact marginals (truncated to their range if given) with the intended dependence. Rules then tie variables together: probabilities that depend on other variables, structural values and formulas.\nPeople are generated in chunks of 5000 with seeds derived from the seed, the scenario and the chunk, so person k is the same whatever the design or the sample size, and a student key changes the seed.",
+    "crumbs": [
+      "How it works"
+    ]
+  },
+  {
+    "objectID": "how-it-works.html#the-superpopulation",
+    "href": "how-it-works.html#the-superpopulation",
+    "title": "How it works",
+    "section": "",
+    "text": "Covariates come from a Gaussian copula structured as a DAG: every variable has a latent standard normal; those without parents are jointly normal with the scenario’s correlations, the others are linear in their parents’ latents (standardised path coefficients) plus noise. Each latent is mapped to its marginal by the quantile function (NORTA): exact marginals (truncated to their range if given) with the intended dependence. Rules then tie variables together: probabilities that depend on other variables, structural values and formulas.\nPeople are generated in chunks of 5000 with seeds derived from the seed, the scenario and the chunk, so person k is the same whatever the design or the sample size, and a student key changes the seed.",
+    "crumbs": [
+      "How it works"
+    ]
+  },
+  {
+    "objectID": "how-it-works.html#outcomes-and-calibration",
+    "href": "how-it-works.html#outcomes-and-calibration",
+    "title": "How it works",
+    "section": "Outcomes and calibration",
+    "text": "Outcomes and calibration\n\nbinary: logistic model; events: Weibull proportional hazards (inverse transform); continuous: linear (optionally on the log scale); counts: Poisson or negative binomial.\nThe intercept, or the baseline hazard, is calibrated on 100 000 simulated people so the population has the scenario’s prevalence, rate, risk at a time, median or mean.\nEach person has their own outcome noise, shared by their treated and untreated versions, so trials compare potential outcomes of the same people.",
+    "crumbs": [
+      "How it works"
+    ]
+  },
+  {
+    "objectID": "how-it-works.html#designs",
+    "href": "how-it-works.html#designs",
+    "title": "How it works",
+    "section": "Designs",
+    "text": "Designs\n\n\n\n\n\n\n\ndesign\nsampling\n\n\n\n\ncross-sectional\nthe first n people\n\n\ncohort, prognosis\nfollow-up with administrative censoring, loss to follow-up, staggered entry\n\n\ncase-control\ncases (events within a risk window) from as much population as needed, controls from the non-cases\n\n\nmatched case-control\ncontrols matched exactly on categorical variables and within a caliper on numeric ones\n\n\nrandomised trial\npermuted blocks, treatment effect on the outcome, follow-up for events\n\n\n2×2 crossover\nsequences AB/BA, within-subject correlation, period and carryover effects",
+    "crumbs": [
+      "How it works"
+    ]
+  },
+  {
+    "objectID": "how-it-works.html#the-answer-key",
+    "href": "how-it-works.html#the-answer-key",
+    "title": "How it works",
+    "section": "The answer key",
+    "text": "The answer key\nThe true model lists the effects used. The expected estimates come from one large study of the same design (20 000 rows; 1500–3000 cases for case-control designs), analysed with the model a student would fit: logistic, conditional logistic, Cox, linear (with subject effects in a crossover) or Poisson; crude for each variable and adjusted for all measured ones.",
+    "crumbs": [
+      "How it works"
+    ]
+  },
+  {
+    "objectID": "how-it-works.html#source",
+    "href": "how-it-works.html#source",
+    "title": "How it works",
+    "section": "Source",
+    "text": "Source\nThe engine is plain R (R/engine_*.R), independent of jamovi and tested with testthat; the options panel is tested by driving jamovi in Docker with Playwright. Code: github.com/victor-moreno/jamovi-studysim.",
+    "crumbs": [
+      "How it works"
+    ]
+  },
+  {
+    "objectID": "derive.html",
+    "href": "derive.html",
+    "title": "Derive a scenario from data",
+    "section": "",
+    "text": "Simulate ▸ Derive scenario turns a real dataset into a scenario that simulates studies like it: the plasmode idea, without sharing the data.",
+    "crumbs": [
+      "Derive a scenario from data"
+    ]
+  },
+  {
+    "objectID": "derive.html#what-it-estimates",
+    "href": "derive.html#what-it-estimates",
+    "title": "Derive a scenario from data",
+    "section": "What it estimates",
+    "text": "What it estimates\n\nthe marginal distribution of each variable (normal, log-normal, gamma or uniform; Poisson or negative binomial for counts; category proportions);\nthe latent correlations, by inverting the Gaussian copula the simulator uses, so a simulated study reproduces the observed correlations;\nthe conditional effects on the outcome (logistic, linear, Poisson or Cox, with 95% CI and the crude estimate), and the prevalence, mean, risk or Weibull shape that calibrates it.\n\nCheck by simulating analyses one large study simulated from the derived scenario with the same model: the Re-estimated column should match the adjusted estimates.\n\n\n\nThe round-trip check.\n\n\nColumns that jamovi read as nominal but hold numbers (integers from a CSV) are read as numbers. Try it with chd_sim.csv, a simulated cohort.",
+    "crumbs": [
+      "Derive a scenario from data"
+    ]
+  },
+  {
+    "objectID": "derive.html#finishing-it-with-an-ai",
+    "href": "derive.html#finishing-it-with-an-ai",
+    "title": "Derive a scenario from data",
+    "section": "Finishing it with an AI",
+    "text": "Finishing it with an AI\nThe data cannot tell causes from correlates, so a derived scenario has undirected correlations and raw column names. Export scenario writes it as YAML with a derivation: block (source, original names, missing data, estimates and correlations), which is what an AI needs to finish it:\n\nA prompt for any AI: attach the exported YAML and schema.md. It returns the scenario with names and translations, a causal structure, rules for impossible combinations, rounded effects, a teaching note and references marked to verify, plus a report of its decisions.\nA Claude skill (also as a zip in the Releases): the same steps, with a validator, check_scenario.R, that checks the file, simulates a large study and compares the re-estimated effects with the data’s, following renamed variables and changed reference categories.\n\nReview the result before teaching with it: the causal structure is a judgement, and references must be checked.",
+    "crumbs": [
+      "Derive a scenario from data"
+    ]
+  },
+  {
+    "objectID": "teaching.html",
+    "href": "teaching.html",
+    "title": "Teaching with studysim",
+    "section": "",
+    "text": "Each exercise below names the scenario and options, then what the students should find. The tables are the answer key’s expected estimates (one large simulated study), computed by the module itself when this page was built.",
+    "crumbs": [
+      "Teaching with studysim"
+    ]
+  },
+  {
+    "objectID": "teaching.html#confounding-coffee-and-coronary-heart-disease",
+    "href": "teaching.html#confounding-coffee-and-coronary-heart-disease",
+    "title": "Teaching with studysim",
+    "section": "Confounding: coffee and coronary heart disease",
+    "text": "Confounding: coffee and coronary heart disease\nCoronary heart disease incidence, cohort, measure age, sex, smoking and coffee. Coffee has no effect, but coffee drinkers smoke more: the crude hazard ratio of coffee is above 1 and disappears once smoking is in the model.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.05\n1.07\n1.07\nHR\n\n\nsex\nmale vs female\nHR\n1.60\n1.73\n1.75\nHR\n\n\nsmoking\nformer vs never\nHR\n1.20\n1.11\n1.10\nHR\n\n\nsmoking\ncurrent vs never\nHR\n1.60\n1.66\n1.66\nHR\n\n\ncoffee\nper 1 cups/day\nHR\n1.00\n1.08\n1.01\nHR\n\n\n\n\n\nExercise: leave smoking unmeasured and show that the adjusted coffee effect stays biased (residual confounding).",
+    "crumbs": [
+      "Teaching with studysim"
+    ]
+  },
+  {
+    "objectID": "teaching.html#confounding-by-indication-chemotherapy",
+    "href": "teaching.html#confounding-by-indication-chemotherapy",
+    "title": "Teaching with studysim",
+    "section": "Confounding by indication: chemotherapy",
+    "text": "Confounding by indication: chemotherapy\nBreast cancer prognosis, prognosis design. Chemotherapy truly lowers the hazard (HR 0.75), but it is given to younger women with more nodes and higher grade; its crude hazard ratio points the wrong way.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.03\n1.03\n1.03\nHR\n\n\ntumour_size\nper 10 mm\nHR\n1.15\n1.16\n1.14\nHR\n\n\nnodes\nper 1\nHR\n1.08\n1.08\n1.08\nHR\n\n\ngrade\nG2 vs G1\nHR\n1.50\n1.66\n1.74\nHR\n\n\ngrade\nG3 vs G1\nHR\n2.20\n2.59\n2.88\nHR\n\n\nchemo\nyes vs no\nHR\n0.75\n1.09\n0.76\nHR",
+    "crumbs": [
+      "Teaching with studysim"
+    ]
+  },
+  {
+    "objectID": "teaching.html#odds-ratios-from-a-case-control-study",
+    "href": "teaching.html#odds-ratios-from-a-case-control-study",
+    "title": "Teaching with studysim",
+    "section": "Odds ratios from a case-control study",
+    "text": "Odds ratios from a case-control study\nBreast cancer risk factors, case-control with two controls per case. The data are generated as a cohort with hazard ratios; the case-control odds ratios approach them because the disease is rare. Menopause has no effect of its own, but is determined by age (a rule of the scenario): its crude odds ratio is pure confounding.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.04\n1.07\n1.04\nOR\n\n\nmenopause\npost vs pre\nHR\n1.00\n6.39\n3.06\nOR\n\n\nparity\nper 1 births\nHR\n0.93\n1.06\n0.96\nOR\n\n\nfamily_hist\nyes vs no\nHR\n1.80\n1.74\n1.77\nOR\n\n\nalcohol\nper 10 g/day\nHR\n1.07\n1.07\n1.05\nOR\n\n\n\n\n\nExercise: compare with Matched case-control on age, analysed with conditional logistic regression.",
+    "crumbs": [
+      "Teaching with studysim"
+    ]
+  },
+  {
+    "objectID": "teaching.html#effect-modification",
+    "href": "teaching.html#effect-modification",
+    "title": "Teaching with studysim",
+    "section": "Effect modification",
+    "text": "Effect modification\nIn the same scenario BMI protects before menopause and raises risk after it. A model without the interaction gives a single, misleading BMI effect; students should fit bmi × menopause. The answer key shows the true effect per level of menopause in its note.",
+    "crumbs": [
+      "Teaching with studysim"
+    ]
+  },
+  {
+    "objectID": "teaching.html#categorising-a-continuous-variable",
+    "href": "teaching.html#categorising-a-continuous-variable",
+    "title": "Teaching with studysim",
+    "section": "Categorising a continuous variable",
+    "text": "Categorising a continuous variable\nSystolic pressure in quartiles (Form: quartiles) gives a dose-response pattern but loses information: compare the precision of the per-10-mmHg estimate with the quartile contrasts, and the effect of choosing other cut points.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.05\n1.07\n1.06\nHR\n\n\nsex\nmale vs female\nHR\n1.60\n1.73\n1.76\nHR\n\n\nsbp\nQ2 vs Q1\nHR\nNA\n1.48\n1.25\nHR\n\n\nsbp\nQ3 vs Q1\nHR\nNA\n2.08\n1.50\nHR\n\n\nsbp\nQ4 vs Q1\nHR\nNA\n3.55\n2.23\nHR",
+    "crumbs": [
+      "Teaching with studysim"
+    ]
+  },
+  {
+    "objectID": "teaching.html#trials-parallel-and-crossover",
+    "href": "teaching.html#trials-parallel-and-crossover",
+    "title": "Teaching with studysim",
+    "section": "Trials: parallel and crossover",
+    "text": "Trials: parallel and crossover\nAntihypertensive drug vs placebo: in the parallel trial the unadjusted difference is unbiased, and adjusting for baseline pressure (ANCOVA) narrows the interval. In the 2×2 crossover each patient is their own control: 30 patients give a precise estimate, and the period effect must be in the model.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-9.23\n-9.12\nbeta\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.8\n-8.8\nbeta\n\n\n\n\n\nBioequivalence: AUC and Cmax are log-normal; analyse log values and back-transform to a geometric mean ratio, then check whether its 90% CI lies within 0.80–1.25.",
+    "crumbs": [
+      "Teaching with studysim"
+    ]
+  },
+  {
+    "objectID": "teaching.html#assignments-with-student-keys",
+    "href": "teaching.html#assignments-with-student-keys",
+    "title": "Teaching with studysim",
+    "section": "Assignments with student keys",
+    "text": "Assignments with student keys\nGive every student the same options and their own student key (e.g. their ID): each gets a different dataset from the same superpopulation. The teacher reproduces any of them by typing the key, and the answer key is the same for all.",
+    "crumbs": [
+      "Teaching with studysim"
+    ]
+  },
+  {
+    "objectID": "library.html",
+    "href": "library.html",
+    "title": "The scenario library",
+    "section": "",
+    "text": "A library is a dictionary of shared variables plus scenarios, one clinical question each. The built-in one is in the module (inst/library/); teachers can write their own in YAML or Excel. The full format is in schema.md.",
+    "crumbs": [
+      "The scenario library"
+    ]
+  },
+  {
+    "objectID": "library.html#the-library-analysis",
+    "href": "library.html#the-library-analysis",
+    "title": "The scenario library",
+    "section": "The Library analysis",
+    "text": "The Library analysis\n\n\n\nSimulate ▸ Library: scenarios, check, and one scenario’s variables, effects and structure.\n\n\n\nBrowse… reads a custom library (.yaml, .xlsx, .json or a .zip of them); Library shown chooses built-in, custom or both.\nCheck lists problems in plain language, located by scenario and field.\nExport library writes the library or one scenario as Excel, JSON or zipped YAML; Excel template gives a workbook with a worked example and the format.\nThe Simulated study pickers read custom libraries in JSON; export a YAML or Excel library as JSON here to use it there.",
+    "crumbs": [
+      "The scenario library"
+    ]
+  },
+  {
+    "objectID": "library.html#a-scenario-in-brief",
+    "href": "library.html#a-scenario-in-brief",
+    "title": "The scenario library",
+    "section": "A scenario in brief",
+    "text": "A scenario in brief\nid: breast_cancer_risk\nlabel: {en: Breast cancer risk factors, es: Factores de riesgo de cáncer de mama}\nvariables:\n  age: {from: dictionary, dist: \"uniform(35, 75)\"}\n  menarche: {type: continuous, dist: normal(12.6, 1.4), range: [9, 17], round: 0}\n  menopause:\n    type: binary\n    levels: [pre, post]\n    p: plogis((age - 51) / 1.5)          # rule: menopause depends on age\n  hrt:\n    type: binary\n    p: 0.25\n    levels: [never, ever]\n    only_if: menopause == \"post\"         # structural value\n    otherwise: never\nstructure:                                 # latent paths among variables\n  - [age, parity, 0.25]\noutcomes:\n  breast_cancer:\n    type: event\n    rate: 2.5/1000\n    designs: [case_control, matched_cc, cohort]\n    effects:\n      age: {HR: 1.04, per: 1}\n      bmi: {HR: 1.12, per: 5, by: {menopause: {pre: 0.93, post: 1.12}}}\nnull_variables: [education, coffee]\nteaching: {en: \"Age confounds parity and menopause...\", es: \"...\"}\n\nVariables: continuous (normal, log-normal, gamma, beta, uniform), counts (Poisson, negative binomial), binary, nominal, ordinal and genotypes.\nStructure and correlations among variables, and rules: a probability that depends on other variables, structural values (only_if/otherwise) and formulas for derived variables.\nOutcomes: binary (prevalence), events (rate, risk or median; Weibull shape), continuous (also on the log scale) and counts, each with conditional effects (OR, HR, RR, ratio, beta), effect modification (by:) and interventions for trials.\nTranslations: labels in several languages, and an i18n: section with the column names and category labels students see.",
+    "crumbs": [
+      "The scenario library"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "",
+    "text": "studysim is a jamovi module that simulates plausible datasets of medical studies. A student picks a clinical scenario, one of its outcomes, a study design that fits it, a sample size and some realism, and gets a dataset in a new jamovi window. A hidden answer key gives the true parameters and what crude and adjusted analyses of that design should find.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "index.html#why-simulated-studies",
+    "href": "index.html#why-simulated-studies",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "Why simulated studies",
+    "text": "Why simulated studies\nReal teaching datasets are few, and they never come with the truth. A simulated study does: confounders, mediators, effect modifiers and null variables are built in, so students can check whether their analysis recovers the effects, see why the crude estimate differs from the adjusted one, and what a design or a missing variable does to the answer. Every student can get a different dataset from the same assignment (a student key), and the teacher can regenerate any of them.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "index.html#the-menu",
+    "href": "index.html#the-menu",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "The menu",
+    "text": "The menu\n\n\n\nAnalysis\nWhat it does\n\n\n\n\nSimulated study\nscenario → outcome → design → dataset, data dictionary, descriptives, causal diagram, answer key\n\n\nLibrary\nlists, checks, explores and exports the scenarios; reads custom libraries (YAML, Excel, JSON)\n\n\nDerive scenario\nestimates a scenario from a real dataset, to simulate studies like it\n\n\n\nTeaching with studysim has worked exercises, and How it works describes the simulation model.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "Install",
+    "text": "Install\nDownload the .jmo for your computer from the Releases page (x64 for Intel/AMD, arm64 for Apple silicon) and in jamovi go to Modules (⊕) → Sideload. It needs jamovi 28.4 or newer and no other package. The interface and the built-in scenarios are in English, Spanish and Catalan; jamovi’s language setting chooses.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "index.html#the-scenarios-of-version-0.1",
+    "href": "index.html#the-scenarios-of-version-0.1",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "The scenarios of version 0.1",
+    "text": "The scenarios of version 0.1\n\n\n\n\n\n\n\n\nScenario\nOutcome\nDesigns\n\n\n\n\nBreast cancer risk factors\nbreast cancer (event)\ncase-control, matched case-control, cohort\n\n\nBreast cancer prognosis\ndeath (event)\nprognosis, cohort\n\n\nCoronary heart disease incidence\nCHD event\ncohort, case-control, matched case-control\n\n\nAntihypertensive drug vs placebo\nsystolic pressure\nrandomised trial, 2×2 crossover\n\n\nMetformin vs placebo\nHbA1c; HbA1c below 7%\nrandomised trial\n\n\nBioequivalence of two formulations\nAUC, Cmax (log-normal)\n2×2 crossover, randomised trial\n\n\n\nEffect sizes are teaching-grade plausible values informed by the cited literature, not meta-analytic estimates.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html",
+    "href": "simulated-study.html",
+    "title": "Simulated study",
+    "section": "",
+    "text": "Simulate ▸ Simulated study builds one study and opens its data.",
+    "crumbs": [
+      "Simulated study"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html#scenario-outcome-and-design",
+    "href": "simulated-study.html#scenario-outcome-and-design",
+    "title": "Simulated study",
+    "section": "Scenario, outcome and design",
+    "text": "Scenario, outcome and design\n\n\n\nThe options panel.\n\n\n\nScenario and Outcome come from the library (built-in, or a custom one read with Browse…).\nDesign lists only the designs that fit the outcome: an event in a population can be studied with a cohort or a case-control study (unmatched or matched), a patient outcome with a prognosis cohort, a treatment effect with a randomised trial or, for continuous outcomes, a 2×2 crossover.\nVariables: tick the variables to measure. None is ticked at start. The others are not in the dataset but still act on the outcome, which is how you teach residual confounding. The second column shows units or categories.\nForm groups a numeric variable: median split, tertiles, quartiles, quintiles (cut points from the sample, as a study would compute them) or cuts typed as values (18.5, 25, 30; with a decimal comma 18,5; 25) or percentiles (10%, 90%). Labels read Q2: 120–131 or G1: ≤25.\nSample size: people in the study (cases plus controls in a case-control study).\n\n\nDesign options, realism and output\n\n\n\nDesign options: only those of the chosen design are enabled.\n\n\n\nDesign options: controls per case; follow-up, loss to follow-up and recruitment period for cohorts and trials; period and carryover effects for a crossover. A 0 keeps the scenario’s default.\nRealism: a percentage of missing values in the measured variables, completely at random or depending on the outcome.\nOutput: seed and student key (any text, e.g. a student ID: each key gives a different dataset from the same options), and which tables to show.\n\nThe same seed always gives the same study, and the people of the superpopulation do not depend on the design: the same seed under another design samples the same people. Showing the key, the diagram or a table does not draw the study again; only options that change the data do.",
+    "crumbs": [
+      "Simulated study"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html#the-data",
+    "href": "simulated-study.html#the-data",
+    "title": "Simulated study",
+    "section": "The data",
+    "text": "The data\nOpen dataset opens the data in a new jamovi window, with nominal, ordinal and ID columns typed and each column described; Export CSV saves them.\n\n\n\nThe dataset in its own window.\n\n\nColumn names and category labels follow jamovi’s language (age → edad/edat, current → fumador), from dictionaries the teacher can edit (Library).",
+    "crumbs": [
+      "Simulated study"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html#results",
+    "href": "simulated-study.html#results",
+    "title": "Simulated study",
+    "section": "Results",
+    "text": "Results\n\n\n\nData dictionary.\n\n\n\n\n\nUnivariate descriptives: mean (SD) and median [IQR], or n (%) per category.\n\n\nThe causal diagram shows the scenario’s structure: measured variables in solid boxes, unmeasured ones dashed, null variables in italics, grey arrows for paths among variables, dark arrows for effects on the outcome. Effect sizes on the diagram adds the values (red raises the outcome, blue lowers it).\n\n\n\nCausal diagram with effect sizes.",
+    "crumbs": [
+      "Simulated study"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html#the-answer-key",
+    "href": "simulated-study.html#the-answer-key",
+    "title": "Simulated study",
+    "section": "The answer key",
+    "text": "The answer key\nAnswer key adds three parts, for the teacher:\n\nTrue model: the conditional effects the data were generated with, by contrast, including the null variables (no effect).\n\n\n\nTrue model.\n\n\nWhat this design should estimate: crude and adjusted estimates from one large simulated study with the same design, measured variables and grouping. This is what a correct analysis of the student’s data should approach. Where the generating measure differs from the design’s (hazard ratios generated, odds ratios estimated by a case-control study) a note says so.\n\n\n\nExpected estimates: the crude coffee effect disappears after adjustment; systolic pressure in quartiles.\n\n\nNotes: teaching note of the scenario, calibration of the outcome, latent structure and the sources of the parameters.",
+    "crumbs": [
+      "Simulated study"
+    ]
+  }
+]

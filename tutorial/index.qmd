@@ -1,0 +1,54 @@
+---
+title: "studysim: simulated medical studies for teaching"
+---
+
+**studysim** is a [jamovi](https://www.jamovi.org) module that simulates plausible
+datasets of medical studies. A student picks a **clinical scenario**, one of its
+**outcomes**, a **study design** that fits it, a sample size and some realism, and
+gets a dataset in a new jamovi window. A hidden **answer key** gives the true
+parameters and what crude and adjusted analyses of that design should find.
+
+![The *Simulated study* analysis: options on the left, study summary, data dictionary and descriptives on the right.](screenshots/s01-simulated-study.png){.screenshot}
+
+## Why simulated studies
+
+Real teaching datasets are few, and they never come with the truth. A simulated
+study does: confounders, mediators, effect modifiers and null variables are built
+in, so students can check whether their analysis recovers the effects, see why the
+crude estimate differs from the adjusted one, and what a design or a missing
+variable does to the answer. Every student can get a different dataset from the
+same assignment (a *student key*), and the teacher can regenerate any of them.
+
+## The menu
+
+| Analysis | What it does |
+|---|---|
+| [Simulated study](simulated-study.qmd) | scenario → outcome → design → dataset, data dictionary, descriptives, causal diagram, answer key |
+| [Library](library.qmd) | lists, checks, explores and exports the scenarios; reads custom libraries (YAML, Excel, JSON) |
+| [Derive scenario](derive.qmd) | estimates a scenario from a real dataset, to simulate studies like it |
+
+[Teaching with studysim](teaching.qmd) has worked exercises, and
+[How it works](how-it-works.qmd) describes the simulation model.
+
+## Install
+
+Download the `.jmo` for your computer from the
+[Releases](https://github.com/victor-moreno/jamovi-studysim/releases) page
+(`x64` for Intel/AMD, `arm64` for Apple silicon) and in jamovi go to
+**Modules (⊕) → Sideload**. It needs jamovi 28.4 or newer and no other
+package. The interface and the built-in scenarios are in English, Spanish and
+Catalan; jamovi's language setting chooses.
+
+## The scenarios of version 0.1
+
+| Scenario | Outcome | Designs |
+|---|---|---|
+| Breast cancer risk factors | breast cancer (event) | case-control, matched case-control, cohort |
+| Breast cancer prognosis | death (event) | prognosis, cohort |
+| Coronary heart disease incidence | CHD event | cohort, case-control, matched case-control |
+| Antihypertensive drug vs placebo | systolic pressure | randomised trial, 2×2 crossover |
+| Metformin vs placebo | HbA1c; HbA1c below 7% | randomised trial |
+| Bioequivalence of two formulations | AUC, Cmax (log-normal) | 2×2 crossover, randomised trial |
+
+Effect sizes are teaching-grade plausible values informed by the cited literature,
+not meta-analytic estimates.

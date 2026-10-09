@@ -6,3 +6,6 @@
 ^.*\.jmo$
 ^\.claude$
 ^README\.md$
+^tutorial$
+^docs$
+^ai$
