@@ -19,8 +19,14 @@
             "{n} rows": [
                 "{n} files"
             ],
+            "{n} rows, {c} complete for the model": [
+                "{n} files, {c} completes per al model"
+            ],
             "2x2 crossover trial": [
                 "Assaig creuat 2x2"
+            ],
+            "95% CI": [
+                "IC 95%"
             ],
             "About the scenario": [
                 "Sobre l'escenari"
@@ -45,6 +51,9 @@
             ],
             "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
                 "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
+            ],
+            "Binary": [
+                "Binària"
             ],
             "breast_cancer_risk": [
                 ""
@@ -79,14 +88,32 @@
             "Check": [
                 "Comprovació"
             ],
+            "Check by simulating from the scenario": [
+                "Comprovar simulant des de l'escenari"
+            ],
+            "Choose the outcome and the variables of the scenario (and the follow-up time for an event outcome).": [
+                "Trieu la resposta i les variables de l'escenari (i el temps de seguiment si la resposta és un esdeveniment)."
+            ],
             "Cohort": [
                 "Cohort"
+            ],
+            "Column": [
+                "Columna"
             ],
             "Completely at random": [
                 "Completament a l'atzar"
             ],
+            "Conditional effects on the outcome": [
+                "Efectes condicionals sobre la resposta"
+            ],
             "continuous": [
                 "contínua"
+            ],
+            "Continuous": [
+                "Contínua"
+            ],
+            "Continuous outcome on the log scale": [
+                "Resposta contínua en escala logarítmica"
             ],
             "Contrast": [
                 "Contrast"
@@ -96,6 +123,9 @@
             ],
             "correlation": [
                 "correlació"
+            ],
+            "Count": [
+                "Recompte"
             ],
             "Cross-sectional": [
                 "Transversal"
@@ -127,8 +157,20 @@
             "Data dictionary": [
                 "Diccionari de dades"
             ],
+            "Data source": [
+                "Origen de les dades"
+            ],
             "Depending on the outcome": [
                 "Segons la variable resposta"
+            ],
+            "Derive scenario": [
+                "Derivar escenari"
+            ],
+            "Derive scenario from data": [
+                "Derivar escenari de les dades"
+            ],
+            "derived_scenario": [
+                ""
             ],
             "Description": [
                 "Descripció"
@@ -145,6 +187,9 @@
             "Designs": [
                 "Dissenys"
             ],
+            "Detect": [
+                "Detectar"
+            ],
             "Distribution": [
                 "Distribució"
             ],
@@ -159,6 +204,15 @@
             ],
             "Estimate": [
                 "Estimació"
+            ],
+            "Estimate a scenario from the open dataset": [
+                "Estimar un escenari a partir de les dades obertes"
+            ],
+            "Estimates a library scenario from the open dataset: the marginal distribution of each variable, their latent correlations and the conditional effects on the outcome. Simulated studies from it resemble the data. The data cannot tell causes from correlates: the scenario has undirected correlations, to be turned into a causal structure before teaching (by you, or an AI with the exported file).": [
+                "Estima un escenari de la biblioteca a partir de les dades obertes: la distribució marginal de cada variable, les seves correlacions latents i els efectes condicionals sobre la resposta. Els estudis simulats des d'ell s'assemblen a les dades. Les dades no distingeixen causes de correlacions: l'escenari té correlacions sense direcció, que cal convertir en una estructura causal abans d'usar-lo en docència (vós, o una IA amb el fitxer exportat)."
+            ],
+            "Event (with follow-up time)": [
+                "Esdeveniment (amb temps de seguiment)"
             ],
             "Excel template": [
                 "Plantilla Excel"
@@ -178,8 +232,14 @@
             "Export library": [
                 "Exportar biblioteca"
             ],
+            "Export scenario": [
+                "Exportar escenari"
+            ],
             "Follow-up (years)": [
                 "Seguiment (anys)"
+            ],
+            "Follow-up time (event outcomes)": [
+                "Temps de seguiment (esdeveniments)"
             ],
             "Form": [
                 "Forma"
@@ -190,8 +250,14 @@
             "From": [
                 "Des de"
             ],
+            "Id": [
+                "Id"
+            ],
             "Import, check, explore and export scenarios": [
                 "Importar, comprovar, explorar i exportar escenaris"
+            ],
+            "In scenario": [
+                "A l'escenari"
             ],
             "integer": [
                 "entera"
@@ -214,6 +280,12 @@
             "Label": [
                 "Etiqueta"
             ],
+            "Latent": [
+                "Latent"
+            ],
+            "Latent correlations": [
+                "Correlacions latents"
+            ],
             "Level": [
                 "Nivell"
             ],
@@ -228,6 +300,9 @@
             ],
             "Loss to follow-up (% per year)": [
                 "Pèrdues de seguiment (% anual)"
+            ],
+            "Lower": [
+                "Inferior"
             ],
             "Manages the scenario library of the Study Simulator: reads a custom library (YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and exports the library or one scenario as Excel, JSON or YAML, or an Excel template to start a new one.": [
                 "Gestiona la biblioteca d'escenaris del Simulador d'estudis: llegeix una biblioteca pròpia (YAML, Excel, JSON o un zip d'aquests), la comprova, mostra els seus escenaris i exporta la biblioteca o un escenari en Excel, JSON o YAML, o una plantilla Excel per començar-ne una de nova."
@@ -265,6 +340,9 @@
             "Missingness": [
                 "Mecanisme de pèrdua"
             ],
+            "no": [
+                "no"
+            ],
             "No problems found in {n} scenarios.": [
                 "No s'han trobat problemes en {n} escenaris."
             ],
@@ -280,6 +358,9 @@
             "Note": [
                 "Nota"
             ],
+            "Observed r": [
+                "r observada"
+            ],
             "Open dataset": [
                 "Obrir dades"
             ],
@@ -288,6 +369,12 @@
             ],
             "Outcome": [
                 "Variable resposta"
+            ],
+            "Outcome {o} ({type}): {target}": [
+                "Resposta {o} ({type}): {target}"
+            ],
+            "Outcome type": [
+                "Tipus de resposta"
             ],
             "Outcomes": [
                 "Variables resposta"
@@ -325,6 +412,15 @@
             "rate {r} per year": [
                 "taxa {r} per any"
             ],
+            "Re-estimated": [
+                "Re-estimat"
+            ],
+            "Re-estimated: the same model fitted to one study of {n} rows simulated from the derived scenario; it should be close to the adjusted estimate.": [
+                "Re-estimat: el mateix model ajustat a un estudi de {n} files simulat des de l'escenari derivat; s'hauria d'assemblar a l'estimació ajustada."
+            ],
+            "read as numbers although their type is nominal: {vars}": [
+                "llegides com a nombres tot i que el seu tipus és nominal: {vars}"
+            ],
             "Realism": [
                 "Realisme"
             ],
@@ -345,6 +441,12 @@
             ],
             "Scenario": [
                 "Escenari"
+            ],
+            "Scenario file (YAML)": [
+                "Fitxer de l'escenari (YAML)"
+            ],
+            "Scenario id": [
+                "Identificador de l'escenari"
             ],
             "Scenario, design, dataset and answer key": [
                 "Escenari, disseny, dades i clau de respostes"
@@ -424,6 +526,9 @@
             "The {design} design does not fit this outcome. Possible designs: {list}.": [
                 "El disseny {design} no encaixa amb aquesta variable resposta. Dissenys possibles: {list}."
             ],
+            "The correlations are undirected: before teaching with this scenario, decide which variables cause which (structure), add rules for impossible combinations, labels and a teaching note. Export it and edit the file, or give it to an AI with the prompt in the module's documentation.": [
+                "Les correlacions no tenen direcció: abans d'usar aquest escenari en docència, decidiu quines variables causen quines (estructura), afegiu regles per a combinacions impossibles, etiquetes i una nota docent. Exporteu-lo i editeu el fitxer, o doneu-lo a una IA amb el prompt de la documentació del mòdul."
+            ],
             "The library has no scenarios. Press Browse… to read a custom library.": [
                 "La biblioteca no té escenaris. Premeu Browse… per llegir una biblioteca pròpia."
             ],
@@ -448,6 +553,9 @@
             "Type": [
                 "Tipus"
             ],
+            "Upper": [
+                "Superior"
+            ],
             "Value": [
                 "Valor"
             ],
@@ -466,8 +574,14 @@
             "Whole library": [
                 "Tota la biblioteca"
             ],
+            "YAML (for an AI or a library)": [
+                "YAML (per a una IA o una biblioteca)"
+            ],
             "YAML files (zip)": [
                 "Fitxers YAML (zip)"
+            ],
+            "yes": [
+                "sí"
             ]
         }
     }

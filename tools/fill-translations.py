@@ -273,6 +273,43 @@ CA = {
 ES2 = {"continuous": "continua", "integer": "entera", "nominal": "nominal", "ordinal": "ordinal"}
 CA2 = {"continuous": "contínua", "integer": "entera", "nominal": "nominal", "ordinal": "ordinal"}
 NEW = {
+"Estimates a library scenario from the open dataset: the marginal distribution of each variable, their latent correlations and the conditional effects on the outcome. Simulated studies from it resemble the data. The data cannot tell causes from correlates: the scenario has undirected correlations, to be turned into a causal structure before teaching (by you, or an AI with the exported file).": ("Estima un escenario de la biblioteca a partir de los datos abiertos: la distribución marginal de cada variable, sus correlaciones latentes y los efectos condicionales sobre la respuesta. Los estudios simulados desde él se parecen a los datos. Los datos no distinguen causas de correlaciones: el escenario tiene correlaciones sin dirección, que hay que convertir en una estructura causal antes de usarlo en docencia (usted, o una IA con el fichero exportado).", "Estima un escenari de la biblioteca a partir de les dades obertes: la distribució marginal de cada variable, les seves correlacions latents i els efectes condicionals sobre la resposta. Els estudis simulats des d'ell s'assemblen a les dades. Les dades no distingeixen causes de correlacions: l'escenari té correlacions sense direcció, que cal convertir en una estructura causal abans d'usar-lo en docència (vós, o una IA amb el fitxer exportat)."),
+"Derive scenario from data": ("Derivar escenario de los datos", "Derivar escenari de les dades"),
+"Derive scenario": ("Derivar escenario", "Derivar escenari"),
+"Estimate a scenario from the open dataset": ("Estimar un escenario a partir de los datos abiertos", "Estimar un escenari a partir de les dades obertes"),
+"Follow-up time (event outcomes)": ("Tiempo de seguimiento (eventos)", "Temps de seguiment (esdeveniments)"),
+"Outcome type": ("Tipo de respuesta", "Tipus de resposta"),
+"Detect": ("Detectar", "Detectar"),
+"Binary": ("Binaria", "Binària"),
+"Continuous": ("Continua", "Contínua"),
+"Count": ("Recuento", "Recompte"),
+"Event (with follow-up time)": ("Evento (con tiempo de seguimiento)", "Esdeveniment (amb temps de seguiment)"),
+"Continuous outcome on the log scale": ("Respuesta continua en escala logarítmica", "Resposta contínua en escala logarítmica"),
+"Scenario id": ("Identificador del escenario", "Identificador de l'escenari"),
+"Data source": ("Origen de los datos", "Origen de les dades"),
+"Check by simulating from the scenario": ("Comprobar simulando desde el escenario", "Comprovar simulant des de l'escenari"),
+"YAML (for an AI or a library)": ("YAML (para una IA o una biblioteca)", "YAML (per a una IA o una biblioteca)"),
+"Export scenario": ("Exportar escenario", "Exportar escenari"),
+"Id": ("Id", "Id"),
+"Column": ("Columna", "Columna"),
+"Conditional effects on the outcome": ("Efectos condicionales sobre la respuesta", "Efectes condicionals sobre la resposta"),
+"Lower": ("Inferior", "Inferior"),
+"Upper": ("Superior", "Superior"),
+"95% CI": ("IC 95%", "IC 95%"),
+"Re-estimated": ("Re-estimado", "Re-estimat"),
+"Latent correlations": ("Correlaciones latentes", "Correlacions latents"),
+"Observed r": ("r observada", "r observada"),
+"Latent": ("Latente", "Latent"),
+"In scenario": ("En el escenario", "A l'escenari"),
+"Scenario file (YAML)": ("Fichero del escenario (YAML)", "Fitxer de l'escenari (YAML)"),
+"yes": ("sí", "sí"),
+"no": ("no", "no"),
+"Choose the outcome and the variables of the scenario (and the follow-up time for an event outcome).": ("Elija la respuesta y las variables del escenario (y el tiempo de seguimiento si la respuesta es un evento).", "Trieu la resposta i les variables de l'escenari (i el temps de seguiment si la resposta és un esdeveniment)."),
+"Re-estimated: the same model fitted to one study of {n} rows simulated from the derived scenario; it should be close to the adjusted estimate.": ("Re-estimado: el mismo modelo ajustado a un estudio de {n} filas simulado desde el escenario derivado; debería parecerse a la estimación ajustada.", "Re-estimat: el mateix model ajustat a un estudi de {n} files simulat des de l'escenari derivat; s'hauria d'assemblar a l'estimació ajustada."),
+"Outcome {o} ({type}): {target}": ("Respuesta {o} ({type}): {target}", "Resposta {o} ({type}): {target}"),
+"{n} rows, {c} complete for the model": ("{n} filas, {c} completas para el modelo", "{n} files, {c} completes per al model"),
+"read as numbers although their type is nominal: {vars}": ("leídas como números aunque su tipo es nominal: {vars}", "llegides com a nombres tot i que el seu tipus és nominal: {vars}"),
+"The correlations are undirected: before teaching with this scenario, decide which variables cause which (structure), add rules for impossible combinations, labels and a teaching note. Export it and edit the file, or give it to an AI with the prompt in the module's documentation.": ("Las correlaciones no tienen dirección: antes de usar este escenario en docencia, decida qué variables causan cuáles (estructura), añada reglas para combinaciones imposibles, etiquetas y una nota docente. Expórtelo y edite el fichero, o déselo a una IA con el prompt de la documentación del módulo.", "Les correlacions no tenen direcció: abans d'usar aquest escenari en docència, decidiu quines variables causen quines (estructura), afegiu regles per a combinacions impossibles, etiquetes i una nota docent. Exporteu-lo i editeu el fitxer, o doneu-lo a una IA amb el prompt de la documentació del mòdul."),
 "Form": ("Forma", "Forma"),
 "Cut points": ("Cortes", "Talls"),
 "as is": ("tal cual", "tal qual"),
@@ -307,7 +344,7 @@ def fill(path, d):
             mid = "".join(re.findall(r'"(.*)"', m.group(1)))
             if mid and mid in d:
                 block = block[:m.start()] + 'msgid "%s"\nmsgstr "%s"' % (mid, d[mid]) + block[m.end():]
-            elif mid and mid != "breast_cancer_risk":
+            elif mid and mid not in ("breast_cancer_risk", "derived_scenario"):
                 missing.append(mid)
         out.append(block)
     open(path, "w", encoding="utf-8").write("\n\n".join(out))

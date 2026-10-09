@@ -34,6 +34,20 @@ analyses:
       library (YAML, Excel, JSON or a zip of them), checks it, shows its
       scenarios, and exports the library or one scenario as Excel, JSON or YAML,
       or an Excel template to start a new one.
+  - title: Derive scenario from data
+    name: simDerive
+    ns: studysim
+    category: analyses
+    menuGroup: Simulate
+    menuTitle: Derive scenario
+    menuSubtitle: Estimate a scenario from the open dataset
+    description: >
+      Estimates a library scenario from the open dataset: the marginal
+      distribution of each variable, their latent correlations and the
+      conditional effects on the outcome. Simulated studies from it resemble the
+      data. The data cannot tell causes from correlates: the scenario has
+      undirected correlations, to be turned into a causal structure before
+      teaching (by you, or an AI with the exported file).
 usesNative: false
 minApp: 28.4.0
 

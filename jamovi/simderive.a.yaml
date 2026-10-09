@@ -1,0 +1,103 @@
+---
+name: simDerive
+title: Derive scenario from data
+menuGroup: Simulate
+menuTitle: Derive scenario
+menuSubtitle: Estimate a scenario from the open dataset
+version: '0.1.0'
+jas: '1.2'
+
+description:
+    main: >
+        Estimates a library scenario from the open dataset: the marginal
+        distribution of each variable, their latent correlations and the
+        conditional effects on the outcome. Simulated studies from it resemble
+        the data. The data cannot tell causes from correlates: the scenario has
+        undirected correlations, to be turned into a causal structure before
+        teaching (by you, or an AI with the exported file).
+    R:
+        dontrun: true
+        usage: |
+            # studysim:::derive_scenario(df, "outcome", covs = c("x1", "x2"))
+
+options:
+    - name: data
+      type: Data
+
+    - name: outcome
+      title: Outcome
+      type: Variable
+      suggested: [continuous, nominal, ordinal]
+      permitted: [numeric, factor]
+
+    - name: time
+      title: Follow-up time (event outcomes)
+      type: Variable
+      default: null
+      suggested: [continuous]
+      permitted: [numeric]
+
+    - name: covs
+      title: Variables
+      type: Variables
+      suggested: [continuous, nominal, ordinal]
+      permitted: [numeric, factor]
+
+    - name: outcomeType
+      title: Outcome type
+      type: List
+      options:
+          - name: auto
+            title: Detect
+          - name: binary
+            title: Binary
+          - name: continuous
+            title: Continuous
+          - name: count
+            title: Count
+          - name: event
+            title: Event (with follow-up time)
+      default: auto
+
+    - name: logOutcome
+      title: Continuous outcome on the log scale
+      type: Bool
+      default: false
+
+    - name: scenarioId
+      title: Scenario id
+      type: String
+      default: "derived_scenario"
+
+    - name: scenarioLabel
+      title: Title
+      type: String
+      default: ""
+
+    - name: sourceName
+      title: Data source
+      type: String
+      default: ""
+
+    - name: validate
+      title: Check by simulating from the scenario
+      type: Bool
+      default: true
+
+    - name: exportFormat
+      title: Format
+      type: List
+      options:
+          - name: yaml
+            title: YAML (for an AI or a library)
+          - name: xlsx
+            title: Excel workbook
+          - name: json
+            title: JSON (for the Simulated study pickers)
+      default: yaml
+
+    - name: exportScenario
+      title: Export scenario
+      type: Action
+      action: openExternal
+...

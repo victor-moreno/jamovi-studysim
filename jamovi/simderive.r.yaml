@@ -1,0 +1,70 @@
+---
+name: simDerive
+title: Derive scenario from data
+jrs: '1.1'
+
+items:
+    - name: notice
+      title: ''
+      type: Html
+      visible: false
+      clearWith: &der [outcome, time, covs, outcomeType, logOutcome, scenarioId, scenarioLabel, sourceName]
+
+    - name: summary
+      title: Scenario
+      type: Html
+      clearWith: *der
+
+    - name: variables
+      title: Variables
+      type: Table
+      rows: 0
+      clearWith: *der
+      columns:
+          - {name: name, title: Id, type: text}
+          - {name: original, title: Column, type: text}
+          - {name: type, title: Type, type: text}
+          - {name: distribution, title: Distribution, type: text}
+          - {name: missing, title: Missing, type: number, format: pc}
+
+    - name: effects
+      title: Conditional effects on the outcome
+      type: Table
+      rows: 0
+      clearWith: *der
+      columns:
+          - {name: variable, title: Variable, type: text}
+          - {name: contrast, title: Contrast, type: text}
+          - {name: measure, title: Measure, type: text}
+          - {name: estimate, title: Adjusted, type: number}
+          - {name: lower, title: Lower, type: number, superTitle: 95% CI}
+          - {name: upper, title: Upper, type: number, superTitle: 95% CI}
+          - {name: crude, title: Crude, type: number}
+          - {name: simulated, title: Re-estimated, type: number, visible: (validate)}
+
+    - name: correlations
+      title: Latent correlations
+      type: Table
+      rows: 0
+      clearWith: *der
+      columns:
+          - {name: a, title: Variable, type: text}
+          - {name: b, title: Variable, type: text}
+          - {name: observed, title: Observed r, type: number}
+          - {name: latent, title: Latent, type: number}
+          - {name: kept, title: In scenario, type: text}
+
+    - name: yaml
+      title: Scenario file (YAML)
+      type: Preformatted
+      clearWith: *der
+
+    - name: exportState
+      title: ''
+      type: Table
+      visible: false
+      rows: 0
+      clearWith: [outcome, time, covs, outcomeType, logOutcome, scenarioId, scenarioLabel, sourceName, exportFormat]
+      columns:
+          - {name: fired, title: '', type: text}
+...

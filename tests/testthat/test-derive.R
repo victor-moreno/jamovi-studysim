@@ -1,0 +1,61 @@
+test_that("deriving from simulated data recovers the scenario (round trip)", {
+  lib <- builtin_library()
+  sc <- load_scenario(lib, "chd_incidence")
+  r <- simulate_study(sc, "chd", "cohort", n = 15000, seed = 9, factors = c("age", "sex", "smoking", "sbp", "hdl", "coffee"),
+                      options = list(loss = 0), key = FALSE)
+  d <- r$data
+  dv <- derive_scenario(d, "chd", "event", covs = c("age", "sex", "smoking", "sbp", "hdl", "coffee"), time = "time",
+                        id = "chd_copy", source = "a simulated cohort")
+  expect_identical(dv$type, "event")
+  v <- dv$scenario$variables
+  expect_identical(v$sex$type, "binary"); expect_identical(v$smoking$type, "nominal")
+  expect_identical(v$coffee$type, "count"); expect_match(v$hdl$dist, "^lognormal|^gamma")
+  e <- dv$estimates
+  hr <- setNames(e$estimate, paste(e$variable, e$contrast))
+  expect_equal(hr[["age per 1"]], 1.05, tolerance = 0.03)
+  expect_equal(hr[["sex male vs female"]], 1.6, tolerance = 0.25)
+  cr <- dv$correlations
+  expect_equal(cr$latent[cr$a == "smoking" & cr$b == "coffee"], 0.5, tolerance = 0.12)
+  sc2 <- normalize_scenario(dv$scenario)
+  expect_s3_class(sc2, "studysim_scenario")
+  ex <- derive_check(dv)
+  sim <- setNames(ex$adjusted, paste(ex$variable, ex$contrast))
+  expect_equal(unname(sim["age per 1"]), hr[["age per 1"]], tolerance = 0.03)
+  y <- yaml::as.yaml(dv$scenario)
+  back <- add_yaml_doc(empty_library(), yaml_read(y), "chd_copy.yaml")
+  expect_true("chd_copy" %in% names(back$scenarios))
+  expect_equal(nrow(check_library(back)[check_library(back)$level == "error", ]), 0)
+})
+
+test_that("binary and continuous outcomes derive too", {
+  set.seed(1)
+  n <- 3000
+  d <- data.frame(Age = round(runif(n, 30, 70)), Group = factor(sample(c("a", "b", "c"), n, TRUE)))
+  d$`Blood pressure` <- 100 + 0.5 * d$Age + c(0, 3, 6)[as.integer(d$Group)] + rnorm(n, 0, 8)
+  d$ill <- factor(ifelse(runif(n) < plogis(-5 + 0.06 * d$Age), "yes", "no"), levels = c("no", "yes"))
+  d$Age[1:30] <- NA
+  b <- derive_scenario(d, "ill", covs = c("Age", "Group"))
+  expect_identical(b$type, "binary")
+  expect_equal(b$estimates$estimate[1], exp(0.06), tolerance = 0.02)
+  expect_equal(b$scenario$derivation$complete_rows, n - 30)
+  cdv <- derive_scenario(d, "Blood pressure", covs = c("Age", "Group"))
+  expect_identical(cdv$type, "continuous"); expect_identical(cdv$outcome_id, "blood_pressure")
+  expect_equal(cdv$estimates$estimate[cdv$estimates$contrast == "c vs a"], 6, tolerance = 0.15)
+  expect_equal(cdv$scenario$outcomes$blood_pressure$sd, 8, tolerance = 0.05)
+  expect_s3_class(normalize_scenario(cdv$scenario), "studysim_scenario")
+})
+
+test_that("simDerive runs headlessly on a dataset", {
+  sc <- load_scenario(builtin_library(), "breast_cancer_risk")
+  r <- simulate_study(sc, "breast_cancer", "case_control", n = 1500, seed = 2,
+                      factors = c("age", "parity", "family_hist", "alcohol", "education"), key = FALSE)
+  a <- simDerive(data = r$data, outcome = "case", covs = c("age", "parity", "family_hist", "alcohol", "education"))
+  e <- a$effects$asDF
+  expect_true(all(c("Adjusted", "Re-estimated") %in% c("Adjusted", "Re-estimated")))
+  expect_equal(nrow(e), 6)
+  expect_true(all(!is.na(e$simulated)))
+  expect_equal(e$estimate[e$variable == "family_hist"], e$simulated[e$variable == "family_hist"], tolerance = 0.25)
+  expect_match(a$yaml$content, "derivation:")
+  expect_match(a$summary$content, "binary")
+  expect_identical(a$variables$asDF$type[a$variables$asDF$name == "education"], "ordinal")
+})

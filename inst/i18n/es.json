@@ -19,8 +19,14 @@
             "{n} rows": [
                 "{n} filas"
             ],
+            "{n} rows, {c} complete for the model": [
+                "{n} filas, {c} completas para el modelo"
+            ],
             "2x2 crossover trial": [
                 "Ensayo cruzado 2x2"
+            ],
+            "95% CI": [
+                "IC 95%"
             ],
             "About the scenario": [
                 "Sobre el escenario"
@@ -45,6 +51,9 @@
             ],
             "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
                 "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} años"
+            ],
+            "Binary": [
+                "Binaria"
             ],
             "breast_cancer_risk": [
                 ""
@@ -79,14 +88,32 @@
             "Check": [
                 "Comprobación"
             ],
+            "Check by simulating from the scenario": [
+                "Comprobar simulando desde el escenario"
+            ],
+            "Choose the outcome and the variables of the scenario (and the follow-up time for an event outcome).": [
+                "Elija la respuesta y las variables del escenario (y el tiempo de seguimiento si la respuesta es un evento)."
+            ],
             "Cohort": [
                 "Cohorte"
+            ],
+            "Column": [
+                "Columna"
             ],
             "Completely at random": [
                 "Completamente al azar"
             ],
+            "Conditional effects on the outcome": [
+                "Efectos condicionales sobre la respuesta"
+            ],
             "continuous": [
                 "continua"
+            ],
+            "Continuous": [
+                "Continua"
+            ],
+            "Continuous outcome on the log scale": [
+                "Respuesta continua en escala logarítmica"
             ],
             "Contrast": [
                 "Contraste"
@@ -96,6 +123,9 @@
             ],
             "correlation": [
                 "correlación"
+            ],
+            "Count": [
+                "Recuento"
             ],
             "Cross-sectional": [
                 "Transversal"
@@ -127,8 +157,20 @@
             "Data dictionary": [
                 "Diccionario de datos"
             ],
+            "Data source": [
+                "Origen de los datos"
+            ],
             "Depending on the outcome": [
                 "Según la variable respuesta"
+            ],
+            "Derive scenario": [
+                "Derivar escenario"
+            ],
+            "Derive scenario from data": [
+                "Derivar escenario de los datos"
+            ],
+            "derived_scenario": [
+                ""
             ],
             "Description": [
                 "Descripción"
@@ -145,6 +187,9 @@
             "Designs": [
                 "Diseños"
             ],
+            "Detect": [
+                "Detectar"
+            ],
             "Distribution": [
                 "Distribución"
             ],
@@ -159,6 +204,15 @@
             ],
             "Estimate": [
                 "Estimación"
+            ],
+            "Estimate a scenario from the open dataset": [
+                "Estimar un escenario a partir de los datos abiertos"
+            ],
+            "Estimates a library scenario from the open dataset: the marginal distribution of each variable, their latent correlations and the conditional effects on the outcome. Simulated studies from it resemble the data. The data cannot tell causes from correlates: the scenario has undirected correlations, to be turned into a causal structure before teaching (by you, or an AI with the exported file).": [
+                "Estima un escenario de la biblioteca a partir de los datos abiertos: la distribución marginal de cada variable, sus correlaciones latentes y los efectos condicionales sobre la respuesta. Los estudios simulados desde él se parecen a los datos. Los datos no distinguen causas de correlaciones: el escenario tiene correlaciones sin dirección, que hay que convertir en una estructura causal antes de usarlo en docencia (usted, o una IA con el fichero exportado)."
+            ],
+            "Event (with follow-up time)": [
+                "Evento (con tiempo de seguimiento)"
             ],
             "Excel template": [
                 "Plantilla Excel"
@@ -178,8 +232,14 @@
             "Export library": [
                 "Exportar biblioteca"
             ],
+            "Export scenario": [
+                "Exportar escenario"
+            ],
             "Follow-up (years)": [
                 "Seguimiento (años)"
+            ],
+            "Follow-up time (event outcomes)": [
+                "Tiempo de seguimiento (eventos)"
             ],
             "Form": [
                 "Forma"
@@ -190,8 +250,14 @@
             "From": [
                 "Desde"
             ],
+            "Id": [
+                "Id"
+            ],
             "Import, check, explore and export scenarios": [
                 "Importar, comprobar, explorar y exportar escenarios"
+            ],
+            "In scenario": [
+                "En el escenario"
             ],
             "integer": [
                 "entera"
@@ -214,6 +280,12 @@
             "Label": [
                 "Etiqueta"
             ],
+            "Latent": [
+                "Latente"
+            ],
+            "Latent correlations": [
+                "Correlaciones latentes"
+            ],
             "Level": [
                 "Nivel"
             ],
@@ -228,6 +300,9 @@
             ],
             "Loss to follow-up (% per year)": [
                 "Pérdidas de seguimiento (% anual)"
+            ],
+            "Lower": [
+                "Inferior"
             ],
             "Manages the scenario library of the Study Simulator: reads a custom library (YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and exports the library or one scenario as Excel, JSON or YAML, or an Excel template to start a new one.": [
                 "Gestiona la biblioteca de escenarios del Simulador de estudios: lee una biblioteca propia (YAML, Excel, JSON o un zip de ellos), la comprueba, muestra sus escenarios y exporta la biblioteca o un escenario en Excel, JSON o YAML, o una plantilla Excel para empezar una nueva."
@@ -265,6 +340,9 @@
             "Missingness": [
                 "Mecanismo de pérdida"
             ],
+            "no": [
+                "no"
+            ],
             "No problems found in {n} scenarios.": [
                 "No se han encontrado problemas en {n} escenarios."
             ],
@@ -280,6 +358,9 @@
             "Note": [
                 "Nota"
             ],
+            "Observed r": [
+                "r observada"
+            ],
             "Open dataset": [
                 "Abrir datos"
             ],
@@ -288,6 +369,12 @@
             ],
             "Outcome": [
                 "Variable respuesta"
+            ],
+            "Outcome {o} ({type}): {target}": [
+                "Respuesta {o} ({type}): {target}"
+            ],
+            "Outcome type": [
+                "Tipo de respuesta"
             ],
             "Outcomes": [
                 "Variables respuesta"
@@ -325,6 +412,15 @@
             "rate {r} per year": [
                 "tasa {r} por año"
             ],
+            "Re-estimated": [
+                "Re-estimado"
+            ],
+            "Re-estimated: the same model fitted to one study of {n} rows simulated from the derived scenario; it should be close to the adjusted estimate.": [
+                "Re-estimado: el mismo modelo ajustado a un estudio de {n} filas simulado desde el escenario derivado; debería parecerse a la estimación ajustada."
+            ],
+            "read as numbers although their type is nominal: {vars}": [
+                "leídas como números aunque su tipo es nominal: {vars}"
+            ],
             "Realism": [
                 "Realismo"
             ],
@@ -345,6 +441,12 @@
             ],
             "Scenario": [
                 "Escenario"
+            ],
+            "Scenario file (YAML)": [
+                "Fichero del escenario (YAML)"
+            ],
+            "Scenario id": [
+                "Identificador del escenario"
             ],
             "Scenario, design, dataset and answer key": [
                 "Escenario, diseño, datos y clave de respuestas"
@@ -424,6 +526,9 @@
             "The {design} design does not fit this outcome. Possible designs: {list}.": [
                 "El diseño {design} no encaja con esta variable respuesta. Diseños posibles: {list}."
             ],
+            "The correlations are undirected: before teaching with this scenario, decide which variables cause which (structure), add rules for impossible combinations, labels and a teaching note. Export it and edit the file, or give it to an AI with the prompt in the module's documentation.": [
+                "Las correlaciones no tienen dirección: antes de usar este escenario en docencia, decida qué variables causan cuáles (estructura), añada reglas para combinaciones imposibles, etiquetas y una nota docente. Expórtelo y edite el fichero, o déselo a una IA con el prompt de la documentación del módulo."
+            ],
             "The library has no scenarios. Press Browse… to read a custom library.": [
                 "La biblioteca no tiene escenarios. Pulse Browse… para leer una biblioteca propia."
             ],
@@ -448,6 +553,9 @@
             "Type": [
                 "Tipo"
             ],
+            "Upper": [
+                "Superior"
+            ],
             "Value": [
                 "Valor"
             ],
@@ -466,8 +574,14 @@
             "Whole library": [
                 "Toda la biblioteca"
             ],
+            "YAML (for an AI or a library)": [
+                "YAML (para una IA o una biblioteca)"
+            ],
             "YAML files (zip)": [
                 "Ficheros YAML (zip)"
+            ],
+            "yes": [
+                "sí"
             ]
         }
     }

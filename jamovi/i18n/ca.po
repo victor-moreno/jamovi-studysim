@@ -23,15 +23,24 @@ msgstr "{n} casos tenen menys controls dels demanats"
 msgid "{n} rows"
 msgstr "{n} files"
 
+#: R/simderive.b.R
+msgid "{n} rows, {c} complete for the model"
+msgstr "{n} files, {c} completes per al model"
+
 #: R/simstudy.b.R
 #: simStudy/options/design/crossover.title
 msgid "2x2 crossover trial"
 msgstr "Assaig creuat 2x2"
 
+#: simDerive/results/effects.columns.superTitle
+msgid "95% CI"
+msgstr "IC 95%"
+
 #: simLibrary/results/about.title
 msgid "About the scenario"
 msgstr "Sobre l'escenari"
 
+#: simDerive/results/effects.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "Adjusted"
 msgstr "Ajustat"
@@ -59,6 +68,10 @@ msgstr "tal qual"
 #: R/simstudy.b.R
 msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"
 msgstr "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
+
+#: simDerive/options/outcomeType/binary.title
+msgid "Binary"
+msgstr "Binària"
 
 #: simLibrary/options/scenario.default
 #: simStudy/options/scenario.default
@@ -107,19 +120,44 @@ msgstr "Diagrama causal (DAG)"
 msgid "Check"
 msgstr "Comprovació"
 
+#: simDerive/options/validate.title
+msgid "Check by simulating from the scenario"
+msgstr "Comprovar simulant des de l'escenari"
+
+#: R/simderive.b.R
+msgid "Choose the outcome and the variables of the scenario (and the follow-up time for an event outcome)."
+msgstr "Trieu la resposta i les variables de l'escenari (i el temps de seguiment si la resposta és un esdeveniment)."
+
 #: R/simstudy.b.R
 #: simStudy/options/design/cohort.title
 msgid "Cohort"
 msgstr "Cohort"
 
+#: simDerive/results/variables.columns.title
+msgid "Column"
+msgstr "Columna"
+
 #: simStudy/options/missingMech/mcar.title
 msgid "Completely at random"
 msgstr "Completament a l'atzar"
+
+#: simDerive/results/effects.title
+msgid "Conditional effects on the outcome"
+msgstr "Efectes condicionals sobre la resposta"
 
 #: R/simstudy.b.R
 msgid "continuous"
 msgstr "contínua"
 
+#: simDerive/options/outcomeType/continuous.title
+msgid "Continuous"
+msgstr "Contínua"
+
+#: simDerive/options/logOutcome.title
+msgid "Continuous outcome on the log scale"
+msgstr "Resposta contínua en escala logarítmica"
+
+#: simDerive/results/effects.columns.title
 #: simLibrary/results/effects.columns.title
 #: simStudy/results/keyEffects.columns.title
 #: simStudy/results/keyExpected.columns.title
@@ -134,11 +172,16 @@ msgstr "Controls per cas"
 msgid "correlation"
 msgstr "correlació"
 
+#: simDerive/options/outcomeType/count.title
+msgid "Count"
+msgstr "Recompte"
+
 #: R/simstudy.b.R
 #: simStudy/options/design/cross_sectional.title
 msgid "Cross-sectional"
 msgstr "Transversal"
 
+#: simDerive/results/effects.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "Crude"
 msgstr "Cru"
@@ -180,9 +223,29 @@ msgstr "Punts de tall de {var}: {msg}"
 msgid "Data dictionary"
 msgstr "Diccionari de dades"
 
+#: simDerive/options/sourceName.title
+msgid "Data source"
+msgstr "Origen de les dades"
+
 #: simStudy/options/missingMech/mar.title
 msgid "Depending on the outcome"
 msgstr "Segons la variable resposta"
+
+#: package/analyses/simDerive.menuTitle
+#: simDerive/options.menuTitle
+msgid "Derive scenario"
+msgstr "Derivar escenari"
+
+#: package/analyses/simDerive.title
+#: simDerive/options.title
+#: simDerive/ui.title
+#: simDerive/results.title
+msgid "Derive scenario from data"
+msgstr "Derivar escenari de les dades"
+
+#: simDerive/options/scenarioId.default
+msgid "derived_scenario"
+msgstr ""
 
 #: simStudy/results/dictionary.columns.title
 msgid "Description"
@@ -206,6 +269,11 @@ msgstr "Opcions del disseny"
 msgid "Designs"
 msgstr "Dissenys"
 
+#: simDerive/options/outcomeType/auto.title
+msgid "Detect"
+msgstr "Detectar"
+
+#: simDerive/results/variables.columns.title
 #: simLibrary/results/variables.columns.title
 msgid "Distribution"
 msgstr "Distribució"
@@ -226,10 +294,25 @@ msgstr "Efectes sobre les variables resposta"
 msgid "Estimate"
 msgstr "Estimació"
 
+#: package/analyses/simDerive.menuSubtitle
+#: simDerive/options.menuSubtitle
+msgid "Estimate a scenario from the open dataset"
+msgstr "Estimar un escenari a partir de les dades obertes"
+
+#: package/analyses/simDerive.description
+#: simDerive/options.description.main
+msgid "Estimates a library scenario from the open dataset: the marginal distribution of each variable, their latent correlations and the conditional effects on the outcome. Simulated studies from it resemble the data. The data cannot tell causes from correlates: the scenario has undirected correlations, to be turned into a causal structure before teaching (by you, or an AI with the exported file)."
+msgstr "Estima un escenari de la biblioteca a partir de les dades obertes: la distribució marginal de cada variable, les seves correlacions latents i els efectes condicionals sobre la resposta. Els estudis simulats des d'ell s'assemblen a les dades. Les dades no distingeixen causes de correlacions: l'escenari té correlacions sense direcció, que cal convertir en una estructura causal abans d'usar-lo en docència (vós, o una IA amb el fitxer exportat)."
+
+#: simDerive/options/outcomeType/event.title
+msgid "Event (with follow-up time)"
+msgstr "Esdeveniment (amb temps de seguiment)"
+
 #: simLibrary/options/exportTemplate.title
 msgid "Excel template"
 msgstr "Plantilla Excel"
 
+#: simDerive/options/exportFormat/xlsx.title
 #: simLibrary/options/exportFormat/xlsx.title
 msgid "Excel workbook"
 msgstr "Llibre d'Excel"
@@ -238,6 +321,7 @@ msgstr "Llibre d'Excel"
 msgid "Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."
 msgstr "Valors esperats: estimacions crues i ajustades d'un estudi simulat de {n} files amb aquest disseny; ajustat per {vars}."
 
+#: simDerive/ui[2].label
 #: simLibrary/options/exportScope.title
 #: simLibrary/ui[2].label
 msgid "Export"
@@ -251,14 +335,24 @@ msgstr "Exportar CSV"
 msgid "Export library"
 msgstr "Exportar biblioteca"
 
+#: simDerive/options/exportScenario.title
+msgid "Export scenario"
+msgstr "Exportar escenari"
+
 #: simStudy/options/followup.title
 msgid "Follow-up (years)"
 msgstr "Seguiment (anys)"
+
+#: simDerive/options/time.title
+#: simDerive/ui[0][1].label
+msgid "Follow-up time (event outcomes)"
+msgstr "Temps de seguiment (esdeveniments)"
 
 #: simStudy/ui/measured.columns.label
 msgid "Form"
 msgstr "Forma"
 
+#: simDerive/options/exportFormat.title
 #: simLibrary/options/exportFormat.title
 msgid "Format"
 msgstr "Format"
@@ -267,10 +361,18 @@ msgstr "Format"
 msgid "From"
 msgstr "Des de"
 
+#: simDerive/results/variables.columns.title
+msgid "Id"
+msgstr "Id"
+
 #: package/analyses/simLibrary.menuSubtitle
 #: simLibrary/options.menuSubtitle
 msgid "Import, check, explore and export scenarios"
 msgstr "Importar, comprovar, explorar i exportar escenaris"
+
+#: simDerive/results/correlations.columns.title
+msgid "In scenario"
+msgstr "A l'escenari"
 
 #: R/simstudy.b.R
 msgid "integer"
@@ -288,6 +390,7 @@ msgstr "la constant {a} dona una prevalença de {p}"
 msgid "intervention"
 msgstr "intervenció"
 
+#: simDerive/options/exportFormat/json.title
 #: simLibrary/options/exportFormat/json.title
 msgid "JSON (for the Simulated study pickers)"
 msgstr "JSON (per als selectors d'Estudi simulat)"
@@ -299,6 +402,14 @@ msgstr "Tipus"
 #: simLibrary/results/variables.columns.title
 msgid "Label"
 msgstr "Etiqueta"
+
+#: simDerive/results/correlations.columns.title
+msgid "Latent"
+msgstr "Latent"
+
+#: simDerive/results/correlations.title
+msgid "Latent correlations"
+msgstr "Correlacions latents"
 
 #: simLibrary/results/problems.columns.title
 #: simStudy/results/descriptives.columns.title
@@ -326,6 +437,10 @@ msgstr "constant logarítmica {a}"
 msgid "Loss to follow-up (% per year)"
 msgstr "Pèrdues de seguiment (% anual)"
 
+#: simDerive/results/effects.columns.title
+msgid "Lower"
+msgstr "Inferior"
+
 #: package/analyses/simLibrary.description
 #: simLibrary/options.description.main
 msgid "Manages the scenario library of the Study Simulator: reads a custom library (YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and exports the library or one scenario as Excel, JSON or YAML, or an Excel template to start a new one."
@@ -340,14 +455,17 @@ msgstr "Casos i controls aparellats"
 msgid "matched on {vars}"
 msgstr "aparellats per {vars}"
 
+#: R/simderive.b.R
 #: R/simlibrary.b.R
 msgid "mean {m}"
 msgstr "mitjana {m}"
 
+#: R/simderive.b.R
 #: R/simlibrary.b.R
 msgid "mean {m}, residual SD {s}"
 msgstr "mitjana {m}, DE residual {s}"
 
+#: simDerive/results/effects.columns.title
 #: simLibrary/results/effects.columns.title
 #: simStudy/results/keyEffects.columns.title
 msgid "Measure"
@@ -365,6 +483,7 @@ msgstr "mediana {m} anys"
 msgid "median split"
 msgstr "mediana"
 
+#: simDerive/results/variables.columns.title
 #: simStudy/results/dictionary.columns.title
 #: simStudy/results/descriptives.columns.title
 msgid "Missing"
@@ -377,6 +496,10 @@ msgstr "Valors perduts (%)"
 #: simStudy/options/missingMech.title
 msgid "Missingness"
 msgstr "Mecanisme de pèrdua"
+
+#: R/simderive.b.R
+msgid "no"
+msgstr "no"
 
 #: R/simlibrary.b.R
 msgid "No problems found in {n} scenarios."
@@ -400,6 +523,10 @@ msgstr "no mesurades (però actuen): {vars}"
 msgid "Note"
 msgstr "Nota"
 
+#: simDerive/results/correlations.columns.title
+msgid "Observed r"
+msgstr "r observada"
+
 #: simStudy/options/openData.title
 msgid "Open dataset"
 msgstr "Obrir dades"
@@ -409,10 +536,20 @@ msgid "ordinal"
 msgstr "ordinal"
 
 #: R/simstudy.b.R
+#: simDerive/options/outcome.title
+#: simDerive/ui[0][0].label
 #: simLibrary/results/effects.columns.title
 #: simStudy/options/outcome.title
 msgid "Outcome"
 msgstr "Variable resposta"
+
+#: R/simderive.b.R
+msgid "Outcome {o} ({type}): {target}"
+msgstr "Resposta {o} ({type}): {target}"
+
+#: simDerive/options/outcomeType.title
+msgid "Outcome type"
+msgstr "Tipus de resposta"
 
 #: simLibrary/results/scenarios.columns.title
 msgid "Outcomes"
@@ -434,6 +571,7 @@ msgstr "Efecte període"
 msgid "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them."
 msgstr "Premeu <b>Obrir dades</b> per obrir les dades en una finestra nova, o <b>Exportar CSV</b> per desar-les."
 
+#: R/simderive.b.R
 #: R/simlibrary.b.R
 msgid "prevalence {p}"
 msgstr "prevalença {p}"
@@ -464,6 +602,18 @@ msgstr "Assaig aleatoritzat"
 msgid "rate {r} per year"
 msgstr "taxa {r} per any"
 
+#: simDerive/results/effects.columns.title
+msgid "Re-estimated"
+msgstr "Re-estimat"
+
+#: R/simderive.b.R
+msgid "Re-estimated: the same model fitted to one study of {n} rows simulated from the derived scenario; it should be close to the adjusted estimate."
+msgstr "Re-estimat: el mateix model ajustat a un estudi de {n} files simulat des de l'escenari derivat; s'hauria d'assemblar a l'estimació ajustada."
+
+#: R/simderive.b.R
+msgid "read as numbers although their type is nominal: {vars}"
+msgstr "llegides com a nombres tot i que el seu tipus és nominal: {vars}"
+
 #: simStudy/ui[4].label
 msgid "Realism"
 msgstr "Realisme"
@@ -480,6 +630,7 @@ msgstr "Vermell: augmenta la resposta, blau: la redueix; * l'efecte depèn d'una
 msgid "References"
 msgstr "Referències"
 
+#: R/simderive.b.R
 #: R/simlibrary.b.R
 msgid "risk {r} at {t} years"
 msgstr "risc {r} a {t} anys"
@@ -489,12 +640,21 @@ msgid "Sample size"
 msgstr "Mida mostral"
 
 #: R/simstudy.b.R
+#: simDerive/results/summary.title
 #: simLibrary/options/scenario.title
 #: simLibrary/results/scenarios.columns.title
 #: simLibrary/results/problems.columns.title
 #: simStudy/options/scenario.title
 msgid "Scenario"
 msgstr "Escenari"
+
+#: simDerive/results/yaml.title
+msgid "Scenario file (YAML)"
+msgstr "Fitxer de l'escenari (YAML)"
+
+#: simDerive/options/scenarioId.title
+msgid "Scenario id"
+msgstr "Identificador de l'escenari"
 
 #: package/analyses/simStudy.menuSubtitle
 #: simStudy/options.menuSubtitle
@@ -533,6 +693,8 @@ msgstr "Mostrar"
 
 #: package/analyses/simStudy.menuGroup
 #: package/analyses/simLibrary.menuGroup
+#: package/analyses/simDerive.menuGroup
+#: simDerive/options.menuGroup
 #: simLibrary/options.menuGroup
 #: simStudy/options.menuGroup
 msgid "Simulate"
@@ -613,6 +775,10 @@ msgstr "terços"
 msgid "The {design} design does not fit this outcome. Possible designs: {list}."
 msgstr "El disseny {design} no encaixa amb aquesta variable resposta. Dissenys possibles: {list}."
 
+#: R/simderive.b.R
+msgid "The correlations are undirected: before teaching with this scenario, decide which variables cause which (structure), add rules for impossible combinations, labels and a teaching note. Export it and edit the file, or give it to an AI with the prompt in the module's documentation."
+msgstr "Les correlacions no tenen direcció: abans d'usar aquest escenari en docència, decidiu quines variables causen quines (estructura), afegiu regles per a combinacions impossibles, etiquetes i una nota docent. Exporteu-lo i editeu el fitxer, o doneu-lo a una IA amb el prompt de la documentació del mòdul."
+
 #: R/simlibrary.b.R
 msgid "The library has no scenarios. Press Browse… to read a custom library."
 msgstr "La biblioteca no té escenaris. Premeu Browse… per llegir una biblioteca pròpia."
@@ -621,6 +787,7 @@ msgstr "La biblioteca no té escenaris. Premeu Browse… per llegir una bibliote
 msgid "There is no scenario '{id}' in this library; choose one listed under Scenarios."
 msgstr "No hi ha cap escenari '{id}' en aquesta biblioteca; trieu-ne un dels llistats a Escenaris."
 
+#: simDerive/options/scenarioLabel.title
 #: simLibrary/results/scenarios.columns.title
 msgid "Title"
 msgstr "Títol"
@@ -641,10 +808,15 @@ msgstr "Valor veritable"
 msgid "True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."
 msgstr "Els valors veritables són {true}, la mesura amb què es van generar les dades (una cohort seguida en el temps); aquest disseny estima {est}, que s'hi acosten quan la resposta és rara."
 
+#: simDerive/results/variables.columns.title
 #: simLibrary/results/variables.columns.title
 #: simStudy/results/dictionary.columns.title
 msgid "Type"
 msgstr "Tipus"
+
+#: simDerive/results/effects.columns.title
+msgid "Upper"
+msgstr "Superior"
 
 #: simLibrary/results/effects.columns.title
 msgid "Value"
@@ -654,6 +826,8 @@ msgstr "Valor"
 msgid "Values"
 msgstr "Valors"
 
+#: simDerive/results/effects.columns.title
+#: simDerive/results/correlations.columns.title
 #: simLibrary/results/variables.columns.title
 #: simLibrary/results/effects.columns.title
 #: simStudy/ui/measured.columns.label
@@ -664,6 +838,9 @@ msgstr "Valors"
 msgid "Variable"
 msgstr "Variable"
 
+#: simDerive/options/covs.title
+#: simDerive/ui[0][2].label
+#: simDerive/results/variables.title
 #: simLibrary/results/scenarios.columns.title
 #: simLibrary/results/variables.title
 #: simStudy/options/measured.title
@@ -678,6 +855,14 @@ msgstr "On"
 msgid "Whole library"
 msgstr "Tota la biblioteca"
 
+#: simDerive/options/exportFormat/yaml.title
+msgid "YAML (for an AI or a library)"
+msgstr "YAML (per a una IA o una biblioteca)"
+
 #: simLibrary/options/exportFormat/yaml.title
 msgid "YAML files (zip)"
 msgstr "Fitxers YAML (zip)"
+
+#: R/simderive.b.R
+msgid "yes"
+msgstr "sí"

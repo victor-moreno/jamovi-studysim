@@ -1,0 +1,110 @@
+id: breast_cancer_risk
+label: {en: Breast cancer risk factors, es: Factores de riesgo de cáncer de mama, ca: Factors de risc de càncer de mama}
+domain: oncology
+population: {en: "Women aged 35-75 from the general population", es: "Mujeres de 35 a 75 años de la población general", ca: "Dones de 35 a 75 anys de la població general"}
+
+variables:
+  age: {from: dictionary, dist: "uniform(35, 75)"}
+  menarche:
+    type: continuous
+    dist: normal(12.6, 1.4)
+    range: [9, 17]
+    round: 0
+    units: {en: years, es: años, ca: anys}
+    label: {en: Age at menarche, es: Edad de la menarquia, ca: Edat de la menarquia}
+  parity:
+    type: count
+    dist: poisson(1.9)
+    range: [0, 8]
+    units: {en: births, es: partos, ca: parts}
+    label: {en: Number of births, es: Número de partos, ca: Nombre de parts}
+  menopause:
+    type: binary
+    levels: [pre, post]
+    p: plogis((age - 51) / 1.5)     # rule: post-menopausal almost surely after 56, rarely before 46
+    label: {en: Menopausal status, es: Estado menopáusico, ca: Estat menopàusic}
+  hrt:
+    type: binary
+    p: 0.25
+    levels: [never, ever]
+    only_if: menopause == "post"    # structural value: no HRT before menopause
+    otherwise: never
+    label: {en: Hormone replacement therapy, es: Terapia hormonal sustitutiva, ca: Teràpia hormonal substitutiva}
+  bmi: {from: dictionary, dist: "lognormal(26.5, 4.8)"}
+  alcohol: {from: dictionary, dist: "gamma(6, 8)"}
+  physical_activity: {from: dictionary}
+  family_hist: {from: dictionary, p: 0.08}
+  fgfr2:
+    type: genotype
+    maf: 0.38
+    alleles: [C, T]
+    label: {en: FGFR2 rs2981582 genotype, es: Genotipo FGFR2 rs2981582, ca: Genotip FGFR2 rs2981582}
+  education: {from: dictionary}
+  coffee: {from: dictionary}
+
+structure:                       # latent standardized paths among covariates
+  - [age, parity, 0.25]
+  - [education, parity, -0.20]
+  - [education, alcohol, 0.15]
+  - [education, physical_activity, 0.20]
+  - [age, bmi, 0.20]
+  - [menarche, bmi, -0.15]
+  - [physical_activity, bmi, -0.20]
+
+outcomes:
+  breast_cancer:
+    type: event
+    label: {en: Breast cancer, es: Cáncer de mama, ca: Càncer de mama}
+    rate: 2.5/1000               # per person-year, exponential
+    window: 10                   # years at risk behind a case-control status
+    followup: 10
+    designs: [case_control, matched_cc, cohort]
+    effects:
+      age: {HR: 1.04, per: 1}
+      menarche: {HR: 0.95, per: 1}
+      parity: {HR: 0.93, per: 1}
+      bmi: {HR: 1.12, per: 5, by: {menopause: {pre: 0.93, post: 1.12}}}
+      hrt: {HR: 1.5}
+      alcohol: {HR: 1.07, per: 10}
+      physical_activity: {HR: 0.97, per: 5}
+      family_hist: {HR: 1.8}
+      fgfr2: {HR: 1.26, model: additive}
+
+null_variables: [education, coffee]
+
+designs:
+  matched_cc: {match: [age], caliper: 2}
+
+references:
+  - "Collaborative Group on Hormonal Factors in Breast Cancer. Familial breast cancer. Lancet 2001;358:1389-99."
+  - "Collaborative Group on Hormonal Factors in Breast Cancer. Alcohol, tobacco and breast cancer. Br J Cancer 2002;87:1234-45."
+  - "Collaborative Group on Hormonal Factors in Breast Cancer. Breast cancer and breastfeeding. Lancet 2002;360:187-95."
+  - "Collaborative Group on Hormonal Factors in Breast Cancer. Menarche, menopause, and breast cancer risk. Lancet Oncol 2012;13:1141-51."
+  - "Million Women Study Collaborators. Breast cancer and hormone-replacement therapy. Lancet 2003;362:419-27."
+  - "Renehan AG et al. Body-mass index and incidence of cancer. Lancet 2008;371:569-78."
+  - "Easton DF et al. Genome-wide association study identifies novel breast cancer susceptibility loci. Nature 2007;447:1087-93."
+
+teaching:
+  en: >
+    Age causes both parity and menopause and raises risk, so it confounds them.
+    Education has no effect of its own: its crude association works through
+    parity, alcohol and activity and vanishes after adjustment. BMI protects
+    before menopause and harms after it (effect modification). The data are
+    generated with hazard ratios: a case-control odds ratio is close to them
+    only because the disease is rare. Coffee is a pure null variable.
+  es: >
+    La edad causa la paridad y la menopausia y aumenta el riesgo, por lo que las
+    confunde. El nivel de estudios no tiene efecto propio: su asociación cruda
+    pasa por la paridad, el alcohol y la actividad física y desaparece al
+    ajustar. El IMC protege antes de la menopausia y aumenta el riesgo después
+    (modificación del efecto). Los datos se generan con hazard ratios: la odds
+    ratio de un estudio de casos y controles se les parece solo porque la
+    enfermedad es rara. El café es una variable nula.
+  ca: >
+    L'edat causa la paritat i la menopausa i augmenta el risc, per tant les
+    confon. El nivell d'estudis no té efecte propi: la seva associació crua
+    passa per la paritat, l'alcohol i l'activitat física i desapareix en
+    ajustar. L'IMC protegeix abans de la menopausa i augmenta el risc després
+    (modificació de l'efecte). Les dades es generen amb hazard ratios: l'odds
+    ratio d'un estudi de casos i controls s'hi assembla només perquè la malaltia
+    és rara. El cafè és una variable nul·la.

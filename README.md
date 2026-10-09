@@ -50,6 +50,32 @@ It needs no packages beyond those bundled with jamovi: `survival`, `yaml`,
   library or one scenario as Excel, JSON or zipped YAML, or an Excel template with
   a worked example and the format reference.
 
+**Derive scenario**
+- From the open dataset: choose the outcome (binary, continuous, count, or an
+  event with its follow-up time) and the variables. It estimates each marginal
+  (normal, log-normal, gamma or uniform; Poisson or negative binomial; category
+  proportions), the latent correlations (by inverting the same Gaussian copula
+  the simulator uses, so they are reproduced) and the conditional effects
+  (logistic, linear, Poisson or Cox, with 95% CI and crude estimates), plus the
+  prevalence, mean, risk or Weibull shape for calibration.
+- *Check by simulating*: a large study simulated from the derived scenario is
+  analysed with the same model; the re-estimated effects should match the data.
+- *Export scenario* as YAML (with a `derivation:` block: source, original names,
+  missing data, estimates and correlations), Excel or JSON.
+- The data cannot tell causes from correlates, so the scenario has undirected
+  correlations only. Finish it by hand, or with an AI (next section).
+
+## From a derived scenario to a teaching scenario with an AI
+- `ai/prompt-derive-to-scenario.md`: a prompt for any AI assistant. Attach the
+  exported YAML and `inst/library/schema.md`; it returns the scenario with
+  names and translations, a causal structure, rules, rounded effects, teaching
+  note and references (marked to verify), plus a report of its decisions.
+- `ai/studysim-scenario/`: the same as a Claude skill
+  (`bash tools/build-ai-skill.sh` → `dist/studysim-scenario-skill.zip`), with
+  `scripts/check_scenario.R`, which validates the scenario, simulates a large
+  study and compares the re-estimated effects with the data's (following
+  renamed variables and changed reference categories).
+
 ## The library
 Six scenarios ship with v0.1: breast cancer risk factors, breast cancer prognosis,
 coronary heart disease incidence (Framingham-like), an antihypertensive drug vs
