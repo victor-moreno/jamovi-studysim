@@ -1,0 +1,10 @@
+.claude
+.cache
+.tmp
+.venv
+.envrc
+node_modules
+.env
+*.zip
+*.tar
+*.tar.gz
