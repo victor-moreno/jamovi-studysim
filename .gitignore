@@ -8,3 +8,6 @@ node_modules
 *.zip
 *.tar
 *.tar.gz
+build/
+dist/
+*.jmo

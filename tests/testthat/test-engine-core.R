@@ -1,0 +1,90 @@
+test_that("distribution shorthands parse and truncate", {
+  d <- parse_dist("normal(12.6, 1.4)")
+  expect_equal(d$args, c(12.6, 1.4))
+  expect_equal(num_expr("log(1.04)"), log(1.04))
+  expect_error(num_expr("system('ls')"))
+  expect_error(parse_dist("normal(1)"))
+  x <- qdist(seq(0.001, 0.999, length = 999), parse_dist("normal(0, 1)"), c(-1, 2))
+  expect_true(min(x) >= -1 && max(x) <= 2)
+  ln <- qdist(stats::runif(2e5), parse_dist("lognormal(26, 4)"))
+  expect_equal(mean(ln), 26, tolerance = 0.01)
+  expect_equal(sd(ln), 4, tolerance = 0.02)
+})
+
+test_that("scenario normalises and implied latent correlation matches the draws", {
+  sc <- toy()
+  expect_s3_class(sc, "studysim_scenario")
+  expect_equal(nrow(sc$problems[sc$problems$level == "error", ]), 0)
+  Z <- with_seed(1, latent_draw(sc, 2e5))
+  expect_equal(unname(cor(Z)["age", "bmi"]), 0.3, tolerance = 0.02)
+  expect_equal(unname(cor(Z)["smoke", "coffee"]), 0.3, tolerance = 0.02)
+  expect_equal(unname(apply(Z, 2, sd)), rep(1, ncol(Z)), tolerance = 0.01)
+  expect_equal(cor(Z), sc$R, tolerance = 0.01, ignore_attr = TRUE)
+})
+
+test_that("marginals are respected", {
+  sc <- toy()
+  cov <- with_seed(2, gen_covariates(sc, 1e5))
+  expect_equal(mean(cov$sex), 0.5, tolerance = 0.02)
+  expect_equal(as.numeric(prop.table(table(cov$smoke))), c(0.5, 0.3, 0.2), tolerance = 0.02)
+  expect_equal(as.numeric(prop.table(table(cov$snp))), c(0.49, 0.42, 0.09), tolerance = 0.02)
+  expect_true(all(cov$bmi >= 16 & cov$bmi <= 50))
+  expect_true(all(cov$kids %in% 0:8))
+})
+
+test_that("problems are collected in plain language", {
+  r <- toy_raw()
+  r$variables$bmi$dist <- "normal(25)"
+  r$outcomes$dis$effects$nope <- list(OR = 2)
+  sc <- normalize_scenario(r, strict = FALSE)
+  msg <- paste(sc$problems$message, collapse = " | ")
+  expect_match(msg, "takes 2 values")
+  expect_match(msg, "'nope' is not a variable or intervention")
+  expect_false(grepl("'bmi' is not", msg))
+  expect_error(normalize_scenario(r), "has problems")
+  r2 <- toy_raw()
+  r2$structure <- c(r2$structure, list(c("bmi", "age", 0.2)))
+  expect_match(paste(normalize_scenario(r2, strict = FALSE)$problems$message, collapse = " "), "cycle")
+  r3 <- toy_raw()
+  r3$structure <- list(c("age", "bmi", 0.8), c("diet", "bmi", 0.8))
+  expect_match(paste(normalize_scenario(r3, strict = FALSE)$problems$message, collapse = " "), "explain")
+})
+
+test_that("calibration hits the targets and conditional effects are recovered", {
+  sc <- toy()
+  oc <- sc$outcomes$dis
+  cal <- calibrate(sc, oc)
+  expect_equal(cal$achieved, 0.2, tolerance = 1e-6)
+  pop <- population(sc, "dis", 7, 60000)
+  y <- draw_outcome(oc, cal, linear_predictor(oc, pop$cov), pop$noise)
+  expect_equal(mean(y), 0.2, tolerance = 0.03)
+  d <- pop$cov; d$y <- y; d$smoke <- factor(d$smoke); d$snpg <- d$snp - 1
+  f <- glm(y ~ age + bmi + smoke + sex + snpg + diet + kids + coffee, binomial, d)
+  expect_equal(unname(exp(coef(f)[c("age", "bmi", "sex", "snpg")])), c(1.05, 1.08, 1.5, 1.3), tolerance = 0.04)
+  expect_equal(unname(exp(coef(f)[c("smoke2", "smoke3")])), c(1.3, 2), tolerance = 0.08)
+  expect_equal(unname(coef(f)["coffee"]), 0, tolerance = 0.06)
+})
+
+test_that("event times follow the PH model and the rate target", {
+  sc <- toy()
+  oc <- sc$outcomes$ev
+  cal <- calibrate(sc, oc)
+  pop <- population(sc, "ev", 3, 60000)
+  t <- draw_outcome(oc, cal, linear_predictor(oc, pop$cov), pop$noise)
+  expect_equal(cal$achieved$rate, 0.005, tolerance = 1e-8)
+  ev <- as.integer(t <= 10); tt <- pmin(t, 10)
+  d <- pop$cov; d$smoke <- factor(d$smoke)
+  f <- survival::coxph(survival::Surv(tt, ev) ~ age + smoke + bmi, data = d)
+  expect_equal(unname(exp(coef(f))[1:3]), c(1.06, 1.4, 2.5), tolerance = 0.08)
+})
+
+test_that("seeds: reproducible, person k independent of n and outcome", {
+  sc <- toy()
+  a <- population(sc, "dis", 11, 7000); b <- population(sc, "dis", 11, 12000)
+  expect_identical(a$cov, b$cov[1:7000, ])
+  c2 <- population(sc, "sbp", 11, 7000)
+  expect_identical(a$cov, c2$cov)
+  expect_false(identical(a$noise, c2$noise))
+  set.seed(99); r1 <- runif(1); set.seed(99); invisible(population(sc, "dis", 1, 10)); r2 <- runif(1)
+  expect_identical(r1, r2)
+})
