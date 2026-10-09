@@ -1,0 +1,78 @@
+id: chd_incidence
+label: {en: Coronary heart disease incidence, es: Incidencia de cardiopatía isquémica, ca: Incidència de cardiopatia isquèmica}
+domain: cardiovascular
+population: {en: "Adults aged 40-74 free of cardiovascular disease (Framingham-like)", es: "Adultos de 40 a 74 años sin enfermedad cardiovascular (tipo Framingham)", ca: "Adults de 40 a 74 anys sense malaltia cardiovascular (tipus Framingham)"}
+
+variables:
+  age: {from: dictionary, dist: "uniform(40, 74)"}
+  sex: {from: dictionary, p: 0.48}
+  education: {from: dictionary}
+  physical_activity: {from: dictionary}
+  bmi: {from: dictionary}
+  smoking: {from: dictionary}
+  sbp: {from: dictionary}
+  total_chol: {from: dictionary}
+  hdl: {from: dictionary}
+  diabetes: {from: dictionary}
+  coffee: {from: dictionary}
+
+structure:
+  - [physical_activity, bmi, -0.20]
+  - [age, bmi, 0.10]
+  - [education, smoking, -0.20]
+  - [education, physical_activity, 0.20]
+  - [age, sbp, 0.35]
+  - [bmi, sbp, 0.25]
+  - [age, total_chol, 0.15]
+  - [sex, hdl, -0.40]
+  - [bmi, hdl, -0.25]
+  - [bmi, diabetes, 0.40]
+  - [age, diabetes, 0.25]
+  - [smoking, coffee, 0.50]
+
+outcomes:
+  chd:
+    type: event
+    label: {en: Coronary heart disease event, es: Evento coronario, ca: Esdeveniment coronari}
+    risk: {value: 0.08, at: 10}
+    followup: 10
+    designs: [cohort, case_control, matched_cc]
+    effects:
+      age: {HR: 1.05, per: 1}
+      sex: {HR: 1.6}
+      sbp: {HR: 1.18, per: 10}
+      total_chol: {HR: 1.20, per: 1}
+      hdl: {HR: 0.60, per: 1}
+      smoking: {HR: [1, 1.2, 1.9]}
+      diabetes: {HR: 1.8}
+      bmi: {HR: 1.02, per: 1}
+
+null_variables: [coffee, education, physical_activity]
+
+designs:
+  matched_cc: {match: [age, sex], caliper: 2}
+
+references:
+  - "D'Agostino RB Sr et al. General cardiovascular risk profile for use in primary care: the Framingham Heart Study. Circulation 2008;117:743-53."
+  - "Prospective Studies Collaboration. Age-specific relevance of usual blood pressure to vascular mortality. Lancet 2002;360:1903-13."
+  - "Emerging Risk Factors Collaboration. Major lipids, apolipoproteins, and risk of vascular disease. JAMA 2009;302:1993-2000."
+
+teaching:
+  en: >
+    Coffee has no effect, but coffee drinkers smoke more: its crude hazard ratio
+    is above 1 and disappears once smoking is in the model (confounding).
+    Physical activity and education act only through BMI, blood pressure,
+    diabetes and smoking (mediators): adjusting for those removes their
+    association, which is not the same as saying they do not matter.
+  es: >
+    El café no tiene efecto, pero quienes beben café fuman más: su hazard ratio
+    crudo es mayor que 1 y desaparece al incluir el tabaco en el modelo
+    (confusión). La actividad física y los estudios actúan solo a través del
+    IMC, la presión arterial, la diabetes y el tabaco (mediadores): ajustar por
+    ellos elimina su asociación, lo cual no significa que no importen.
+  ca: >
+    El cafè no té efecte, però els qui beuen cafè fumen més: el seu hazard ratio
+    cru és més gran que 1 i desapareix en incloure el tabac al model (confusió).
+    L'activitat física i els estudis actuen només a través de l'IMC, la pressió
+    arterial, la diabetis i el tabac (mediadors): ajustar-hi elimina la seva
+    associació, cosa que no vol dir que no importin.

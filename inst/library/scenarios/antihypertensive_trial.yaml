@@ -1,0 +1,80 @@
+id: antihypertensive_trial
+label: {en: Antihypertensive drug vs placebo, es: Antihipertensivo frente a placebo, ca: Antihipertensiu enfront de placebo}
+domain: cardiovascular
+population: {en: "Adults aged 40-80 with stage 1-2 hypertension, untreated", es: "Adultos de 40 a 80 años con hipertensión de grado 1-2 sin tratar", ca: "Adults de 40 a 80 anys amb hipertensió de grau 1-2 no tractada"}
+
+variables:
+  age: {from: dictionary, dist: "uniform(40, 80)"}
+  sex: {from: dictionary}
+  bmi: {from: dictionary, dist: "lognormal(29, 5)"}
+  salt:
+    type: continuous
+    dist: normal(9, 3)
+    range: [2, 25]
+    round: 1
+    units: {en: g/day, es: g/día, ca: g/dia}
+    label: {en: Salt intake, es: Consumo de sal, ca: Consum de sal}
+  diabetes: {from: dictionary, p: 0.15}
+  sbp0:
+    type: continuous
+    dist: normal(152, 12)
+    range: [135, 200]
+    round: 0
+    units: mmHg
+    label: {en: Baseline systolic blood pressure, es: Presión sistólica basal, ca: Pressió sistòlica basal}
+
+structure:
+  - [age, sbp0, 0.20]
+  - [bmi, sbp0, 0.20]
+  - [salt, sbp0, 0.15]
+  - [bmi, diabetes, 0.30]
+
+interventions:
+  drug:
+    levels: [placebo, amlodipine]
+    label: {en: Treatment arm, es: Grupo de tratamiento, ca: Grup de tractament}
+
+outcomes:
+  sbp:
+    type: continuous
+    label: {en: Systolic blood pressure at 8 weeks, es: Presión sistólica a las 8 semanas, ca: Pressió sistòlica a les 8 setmanes}
+    units: mmHg
+    mean: 148
+    sd: 10
+    round: 0
+    within_cor: 0.6
+    designs: [rct, crossover]
+    effects:
+      sbp0: {beta: 0.6, per: 1}
+      age: {beta: 0.15, per: 1}
+      bmi: {beta: 0.3, per: 1}
+      salt: {beta: 0.6, per: 1}
+      drug: {beta: [0, -9]}
+
+designs:
+  crossover: {period: -1.5, carryover: 0}
+
+references:
+  - "Law MR, Morris JK, Wald NJ. Use of blood pressure lowering drugs in the prevention of cardiovascular disease. BMJ 2009;338:b1665."
+  - "He FJ, Li J, MacGregor GA. Effect of longer term modest salt reduction on blood pressure. BMJ 2013;346:f1325."
+  - "Senn S. Cross-over Trials in Clinical Research. 2nd ed. Wiley; 2002."
+
+teaching:
+  en: >
+    Randomisation balances baseline pressure between arms, so the unadjusted
+    difference is unbiased; adjusting for baseline SBP (ANCOVA) gives the same
+    effect with a narrower interval. In the crossover each patient is their own
+    control: a paired analysis needs far fewer patients, and the period effect
+    must be in the model.
+  es: >
+    La aleatorización equilibra la presión basal entre grupos, por lo que la
+    diferencia sin ajustar no está sesgada; ajustar por la PAS basal (ANCOVA) da
+    el mismo efecto con un intervalo más estrecho. En el diseño cruzado cada
+    paciente es su propio control: el análisis apareado necesita muchos menos
+    pacientes y el efecto periodo debe estar en el modelo.
+  ca: >
+    L'aleatorització equilibra la pressió basal entre grups, per això la
+    diferència sense ajustar no està esbiaixada; ajustar per la PAS basal
+    (ANCOVA) dona el mateix efecte amb un interval més estret. En el disseny
+    creuat cada pacient és el seu propi control: l'anàlisi aparellada necessita
+    molts menys pacients i l'efecte període ha de ser al model.

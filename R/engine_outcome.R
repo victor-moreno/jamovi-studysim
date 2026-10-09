@@ -22,7 +22,11 @@ effect_contrib <- function(eff, cov, trt = NULL) {
             g <- x - 1L
             switch(eff$model, additive = g, dominant = as.numeric(g >= 1), recessive = as.numeric(g == 2))
         })
-    coef <- if (is.null(eff$by)) eff$coef else eff$by$coef[cov[[eff$by$var]]]
+    coef <- if (is.null(eff$by)) eff$coef else {
+        m <- cov[[eff$by$var]]
+        # binary codes are 0/1, categorical ones 1..K
+        eff$by$coef[if (eff$by$binary) m + 1L else m]
+    }
     coef * base
 }
 
@@ -47,7 +51,7 @@ calibrate <- function(sc, oc) {
             a <- stats::uniroot(function(a) mean(stats::plogis(a + lp)) - oc$prevalence, c(-40, 40), tol = 1e-10)$root
             list(a = a, achieved = mean(stats::plogis(a + lp)))
         },
-        continuous = list(a = oc$mean - mean(lp), achieved = oc$mean),
+        continuous = list(a = (if (isTRUE(oc$log)) log(oc$mean) else oc$mean) - mean(lp), achieved = oc$mean),
         count = list(a = log(oc$mean) - log(mean(exp(lp))), achieved = oc$mean),
         event = {
             g <- oc$shape; elp <- exp(lp); t <- oc$target
@@ -75,6 +79,7 @@ draw_outcome <- function(oc, cal, lp, noise) {
         binary = as.integer(noise$u < stats::plogis(cal$a + lp)),
         continuous = {
             y <- cal$a + lp + oc$sd * noise$z
+            if (isTRUE(oc$log)) y <- exp(y)
             if (!is.null(oc$range)) y <- pmin(pmax(y, oc$range[1]), oc$range[2])
             if (!is.null(oc$round)) y <- round(y, oc$round)
             y

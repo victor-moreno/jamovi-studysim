@@ -1,0 +1,113 @@
+# Shared dictionary of reusable variables. A scenario uses one with
+# `name: {from: dictionary}` and may override any field (e.g. the age range of
+# its population). Values are teaching-grade plausible for adult populations in
+# high-income countries, not meta-analytic estimates.
+# Schema: inst/library/schema.md
+
+age:
+  type: continuous
+  dist: uniform(40, 75)
+  round: 0
+  units: {en: years, es: años, ca: anys}
+  label: {en: Age, es: Edad, ca: Edat}
+
+sex:
+  type: binary
+  p: 0.5
+  levels: [female, male]
+  label: {en: Sex, es: Sexo, ca: Sexe}
+
+bmi:
+  type: continuous
+  dist: lognormal(27, 4.5)
+  range: [16, 55]
+  round: 1
+  units: kg/m2
+  label: {en: Body mass index, es: Índice de masa corporal, ca: Índex de massa corporal}
+
+smoking:
+  type: nominal
+  levels: [never, former, current]
+  probs: [0.45, 0.30, 0.25]
+  label: {en: Smoking status, es: Tabaquismo, ca: Tabaquisme}
+
+alcohol:
+  type: continuous
+  dist: gamma(8, 10)
+  range: [0, 100]
+  round: 0
+  units: {en: g/day, es: g/día, ca: g/dia}
+  label: {en: Alcohol intake, es: Consumo de alcohol, ca: Consum d'alcohol}
+
+physical_activity:
+  type: continuous
+  dist: gamma(15, 10)
+  range: [0, 80]
+  round: 0
+  units: {en: MET-h/week, es: MET-h/semana, ca: MET-h/setmana}
+  label: {en: Leisure-time physical activity, es: Actividad física en el tiempo libre, ca: Activitat física en el temps lliure}
+
+education:
+  type: ordinal
+  levels: [primary, secondary, university]
+  probs: [0.30, 0.45, 0.25]
+  label: {en: Education, es: Nivel de estudios, ca: Nivell d'estudis}
+
+diabetes:
+  type: binary
+  p: 0.09
+  levels: [no, yes]
+  label: {en: Diabetes, es: Diabetes, ca: Diabetis}
+
+sbp:
+  type: continuous
+  dist: normal(132, 18)
+  range: [90, 220]
+  round: 0
+  units: mmHg
+  label: {en: Systolic blood pressure, es: Presión arterial sistólica, ca: Pressió arterial sistòlica}
+
+total_chol:
+  type: continuous
+  dist: normal(5.4, 1.0)
+  range: [2.5, 10]
+  round: 1
+  units: mmol/L
+  label: {en: Total cholesterol, es: Colesterol total, ca: Colesterol total}
+
+hdl:
+  type: continuous
+  dist: lognormal(1.35, 0.4)
+  range: [0.5, 3]
+  round: 2
+  units: mmol/L
+  label: {en: HDL cholesterol, es: Colesterol HDL, ca: Colesterol HDL}
+
+coffee:
+  type: count
+  dist: poisson(2)
+  range: [0, 10]
+  units: {en: cups/day, es: tazas/día, ca: tasses/dia}
+  label: {en: Coffee, es: Café, ca: Cafè}
+
+weight:
+  type: continuous
+  dist: normal(72, 11)
+  range: [45, 130]
+  round: 1
+  units: kg
+  label: {en: Body weight, es: Peso, ca: Pes}
+
+egfr:
+  type: continuous
+  dist: normal(85, 15)
+  range: [30, 130]
+  round: 0
+  units: mL/min/1.73m2
+  label: {en: Estimated glomerular filtration rate, es: Filtrado glomerular estimado, ca: Filtrat glomerular estimat}
+
+family_hist:
+  type: binary
+  p: 0.10
+  levels: [no, yes]
+  label: {en: Family history (first-degree relative), es: Antecedentes familiares (primer grado), ca: Antecedents familiars (primer grau)}

@@ -1,0 +1,75 @@
+id: bioequivalence
+label: {en: Bioequivalence of two formulations, es: Bioequivalencia de dos formulaciones, ca: Bioequivalència de dues formulacions}
+domain: pharmacology
+population: {en: "Healthy volunteers aged 18-55", es: "Voluntarios sanos de 18 a 55 años", ca: "Voluntaris sans de 18 a 55 anys"}
+
+variables:
+  age: {from: dictionary, dist: "uniform(18, 55)"}
+  sex: {from: dictionary}
+  weight: {from: dictionary}
+
+structure:
+  - [sex, weight, 0.55]
+
+interventions:
+  formulation:
+    levels: [reference, test]
+    label: {en: Formulation, es: Formulación, ca: Formulació}
+
+outcomes:
+  auc:
+    type: continuous
+    scale: log
+    label: {en: Area under the concentration curve (AUC0-t), es: Área bajo la curva de concentración (AUC0-t), ca: Àrea sota la corba de concentració (AUC0-t)}
+    units: ng·h/mL
+    mean: 850
+    sd: 0.39
+    within_cor: 0.80
+    round: 1
+    designs: [crossover, rct]
+    effects:
+      weight: {ratio: 0.90, per: 10}
+      formulation: {ratio: [1, 0.96]}
+  cmax:
+    type: continuous
+    scale: log
+    label: {en: Peak concentration (Cmax), es: Concentración máxima (Cmax), ca: Concentració màxima (Cmax)}
+    units: ng/mL
+    mean: 120
+    sd: 0.42
+    within_cor: 0.70
+    round: 1
+    designs: [crossover, rct]
+    effects:
+      weight: {ratio: 0.88, per: 10}
+      formulation: {ratio: [1, 1.03]}
+
+designs:
+  crossover: {period: 0, carryover: 0}
+
+references:
+  - "European Medicines Agency. Guideline on the investigation of bioequivalence. CPMP/EWP/QWP/1401/98 Rev.1; 2010."
+  - "Schuirmann DJ. A comparison of the two one-sided tests procedure and the power approach for assessing the equivalence of average bioavailability. J Pharmacokinet Biopharm 1987;15:657-80."
+
+teaching:
+  en: >
+    AUC and Cmax are log-normal: analyse log values and back-transform the
+    difference to a geometric mean ratio. The test formulation is bioequivalent
+    if the 90% CI of the ratio lies within 0.80-1.25 (two one-sided tests). The
+    crossover removes between-subject variability (within-subject correlation
+    0.8 for AUC), so 24 volunteers suffice where a parallel trial would need
+    several hundred.
+  es: >
+    El AUC y la Cmax son log-normales: se analizan los logaritmos y la diferencia
+    se retransforma a un cociente de medias geométricas. La formulación test es
+    bioequivalente si el IC del 90% del cociente cae dentro de 0,80-1,25 (dos
+    pruebas unilaterales). El diseño cruzado elimina la variabilidad entre
+    sujetos (correlación intrasujeto 0,8 para el AUC), por lo que bastan 24
+    voluntarios donde un ensayo paralelo necesitaría varios cientos.
+  ca: >
+    L'AUC i la Cmax són log-normals: s'analitzen els logaritmes i la diferència
+    es retransforma a un quocient de mitjanes geomètriques. La formulació test és
+    bioequivalent si l'IC del 90% del quocient cau dins de 0,80-1,25 (dues proves
+    unilaterals). El disseny creuat elimina la variabilitat entre subjectes
+    (correlació intrasubjecte 0,8 per a l'AUC), per això n'hi ha prou amb 24
+    voluntaris on un assaig paral·lel en necessitaria diversos centenars.

@@ -1,0 +1,72 @@
+id: metformin_hba1c
+label: {en: Metformin vs placebo on HbA1c, es: Metformina frente a placebo sobre la HbA1c, ca: Metformina enfront de placebo sobre l'HbA1c}
+domain: metabolic
+population: {en: "Adults with newly diagnosed type 2 diabetes", es: "Adultos con diabetes tipo 2 de diagnóstico reciente", ca: "Adults amb diabetis tipus 2 de diagnòstic recent"}
+
+variables:
+  age: {from: dictionary, dist: "normal(58, 10)", range: [30, 80]}
+  sex: {from: dictionary}
+  bmi: {from: dictionary, dist: "lognormal(31, 5)", range: [20, 55]}
+  egfr: {from: dictionary}
+  hba1c0:
+    type: continuous
+    dist: normal(8.2, 0.9)
+    range: [6.5, 12]
+    round: 1
+    units: "%"
+    label: {en: Baseline HbA1c, es: HbA1c basal, ca: HbA1c basal}
+
+structure:
+  - [bmi, hba1c0, 0.15]
+  - [age, egfr, -0.40]
+
+interventions:
+  treatment:
+    levels: [placebo, metformin]
+    label: {en: Treatment arm, es: Grupo de tratamiento, ca: Grup de tractament}
+
+outcomes:
+  hba1c:
+    type: continuous
+    label: {en: HbA1c at 6 months, es: HbA1c a los 6 meses, ca: HbA1c als 6 mesos}
+    units: "%"
+    mean: 8.0
+    sd: 0.8
+    round: 1
+    designs: [rct]
+    effects:
+      hba1c0: {beta: 0.6, per: 1}
+      bmi: {beta: 0.01, per: 1}
+      age: {beta: -0.005, per: 1}
+      treatment: {beta: [0, -1.0]}
+  controlled:
+    type: binary
+    label: {en: HbA1c below 7% at 6 months, es: HbA1c inferior al 7% a los 6 meses, ca: HbA1c inferior al 7% als 6 mesos}
+    levels: [no, yes]
+    prevalence: 0.30
+    designs: [rct]
+    effects:
+      hba1c0: {OR: 0.45, per: 1}
+      bmi: {OR: 0.97, per: 1}
+      treatment: {OR: [1, 2.5]}
+
+references:
+  - "Hirst JA et al. Quantifying the effect of metformin treatment and dose on glycemic control. Diabetes Care 2012;35:446-54."
+  - "UK Prospective Diabetes Study (UKPDS) Group. Effect of intensive blood-glucose control with metformin. Lancet 1998;352:854-65."
+
+teaching:
+  en: >
+    The treatment effect on HbA1c is a difference in means (-1.0 points). The
+    same trial analysed as "controlled below 7%" gives an odds ratio whose size
+    depends on how far patients start from the threshold: dichotomising loses
+    information and changes the question.
+  es: >
+    El efecto del tratamiento sobre la HbA1c es una diferencia de medias (-1,0
+    puntos). El mismo ensayo analizado como "controlado por debajo del 7%" da una
+    odds ratio cuyo tamaño depende de lo lejos del umbral que empiezan los
+    pacientes: dicotomizar pierde información y cambia la pregunta.
+  ca: >
+    L'efecte del tractament sobre l'HbA1c és una diferència de mitjanes (-1,0
+    punts). El mateix assaig analitzat com a "controlat per sota del 7%" dona una
+    odds ratio la mida de la qual depèn de com de lluny del llindar comencen els
+    pacients: dicotomitzar perd informació i canvia la pregunta.

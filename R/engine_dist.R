@@ -27,13 +27,15 @@ DIST_ARGS <- c(normal = 2, lognormal = 2, gamma = 2, beta = 2, uniform = 2,
 parse_dist <- function(x) {
     if (is.list(x) && !is.null(x$family)) return(x)
     m <- regmatches(x, regexec("^\\s*([a-z_]+)\\s*\\((.*)\\)\\s*$", x))[[1]]
+    if (length(m) == 0 && grepl("^\\s*[a-z_]+\\s*\\([^)]*$", x))
+        stop(sprintf("cannot read the distribution '%s': inside {...} the comma splits the line; quote it, e.g. dist: \"normal(25, 4)\"", x), call. = FALSE)
     if (length(m) == 0)
         stop(sprintf("cannot read the distribution '%s' (expected e.g. normal(12.6, 1.4))", x), call. = FALSE)
     fam <- m[2]
     if (!fam %in% names(DIST_ARGS))
         stop(sprintf("unknown distribution '%s' (known: %s)", fam,
                      paste(names(DIST_ARGS), collapse = ", ")), call. = FALSE)
-    args <- trimws(strsplit(m[3], ",")[[1]])
+    args <- trimws(strsplit(m[3], "[,;]")[[1]])
     if (length(args) != DIST_ARGS[[fam]])
         stop(sprintf("%s() takes %d values, got %d", fam, DIST_ARGS[[fam]], length(args)), call. = FALSE)
     vals <- vapply(args, num_expr, numeric(1), USE.NAMES = FALSE)

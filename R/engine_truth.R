@@ -73,16 +73,19 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
         # lm(y ~ trt + period + factor(id)), without a column per subject
         X <- stats::model.matrix(stats::as.formula(paste("~", rhs, "+ factor(period)")), fd)[, -1, drop = FALSE]
         y <- fd[[oc$id]]
+        if (isTRUE(oc$log)) y <- log(y)
         w <- function(x) x - stats::ave(x, fd$id)
         b <- qr.coef(qr(apply(X, 2, w)), w(y))
-        return(list(coef = b, measure = "beta", log = FALSE))
+        return(list(coef = b, measure = if (isTRUE(oc$log)) "ratio" else "beta", log = isTRUE(oc$log)))
     }
     f <- switch(model,
         logistic = stats::glm(stats::as.formula(paste(".s ~", rhs)), stats::binomial(), fd),
         clogit = survival::clogit(stats::as.formula(paste(".s ~", rhs, "+ strata(set)")), data = fd),
         cox = survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, ") ~", rhs)), data = fd),
         poisson = stats::glm(stats::as.formula(paste(oc$id, "~", rhs)), stats::poisson(), fd),
-        linear = stats::lm(stats::as.formula(paste(oc$id, "~", rhs)), fd))
+        linear = stats::lm(stats::as.formula(paste(if (isTRUE(oc$log)) sprintf("log(%s)", oc$id) else oc$id, "~", rhs)), fd))
+    if (model == "linear" && isTRUE(oc$log))
+        return(list(coef = stats::coef(f), measure = "ratio", log = TRUE))
     list(coef = stats::coef(f), measure = c(logistic = "OR", clogit = "OR", cox = "HR", poisson = "RR", linear = "beta")[[model]],
          log = model != "linear")
 }
@@ -107,11 +110,19 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en") {
             if (fit$log) exp(b) else b
         }
         eff <- oc$effects[[v]]
+        tv <- vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0)
+        note <- ""
+        if (!is.null(eff$by)) {
+            # a modified effect has no single true value: give it per level
+            back <- function(b) if (eff$log) exp(b) else b
+            note <- paste(sprintf("%s=%s: %.3g", eff$by$var, sc$variables[[eff$by$var]]$levels, back(eff$by$coef)), collapse = "; ")
+            tv[] <- NA_real_
+        }
         data.frame(variable = v, contrast = cr$contrast,
-                   true = vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0),
+                   true = tv,
                    true_measure = if (is.null(eff)) "none" else eff$measure,
                    crude = unname(get(crude)), adjusted = unname(get(adj)), measure = adj$measure,
-                   stringsAsFactors = FALSE)
+                   note = note, stringsAsFactors = FALSE)
     })
     out <- do.call(rbind, rows)
     out$true[out$true_measure == "none"] <- if (adj$log) 1 else 0

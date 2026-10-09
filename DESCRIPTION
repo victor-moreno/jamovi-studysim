@@ -10,5 +10,5 @@ Description: Simulates plausible medical study datasets for teaching: a clinical
     realism (missing data), with a hidden answer key holding the true parameters.
 License: GPL (>= 2)
 Encoding: UTF-8
-Imports: jmvcore (>= 0.8.5), R6, stats, utils, survival, yaml, jsonlite, digest, openxlsx
+Imports: jmvcore (>= 0.8.5), R6, stats, utils, survival, yaml, jsonlite, digest, openxlsx, zip, tools
 Suggests: testthat

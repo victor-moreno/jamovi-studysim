@@ -182,6 +182,7 @@ sim_crossover <- function(sc, oc, cal, seed, n, opt) {
         lp <- linear_predictor(oc, pop$cov, stats::setNames(list(t), iv$id))
         y <- cal$a + lp + oc$sd * (sqrt(rho) * pop$noise$z + sqrt(1 - rho) * zp[, p]) +
             (p == 2) * opt$period + (p == 2 & sq == 2) * opt$carryover
+        if (isTRUE(oc$log)) y <- exp(y)
         if (!is.null(oc$range)) y <- pmin(pmax(y, oc$range[1]), oc$range[2])
         if (!is.null(oc$round)) y <- round(y, oc$round)
         d <- pop$cov

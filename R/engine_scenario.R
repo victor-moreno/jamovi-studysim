@@ -8,7 +8,7 @@
 
 VAR_TYPES <- c("continuous", "count", "binary", "nominal", "ordinal", "genotype")
 OUTCOME_TYPES <- c("binary", "event", "continuous", "count")
-MEASURES <- c(OR = "log", HR = "log", RR = "log", beta = "identity")
+MEASURES <- c(OR = "log", HR = "log", RR = "log", ratio = "log", beta = "identity")
 
 # pick a label in `lang` from a string or a list(en =, es =, ...)
 tr_text <- function(x, lang = "en") {
@@ -21,6 +21,24 @@ tr_text <- function(x, lang = "en") {
 }
 
 `%||%` <- function(a, b) if (is.null(a)) b else a
+
+# override whole fields (a range replaces a range), unlike modifyList, which
+# would merge two unnamed lists element by element
+shallow_merge <- function(a, b) { a[names(b)] <- b; a }
+
+# design options from the library: numbers, except the matching variables
+normalize_design_defaults <- function(x, pr) {
+    out <- list()
+    for (d in names(x)) {
+        if (!d %in% DESIGNS) { add_problem(pr, "designs", sprintf("unknown design '%s' (known: %s)", d, paste(DESIGNS, collapse = ", "))); next }
+        out[[d]] <- list()
+        for (k in names(x[[d]])) {
+            v <- unlist(x[[d]][[k]])
+            out[[d]][[k]] <- if (k == "match") as.character(v) else try_at(pr, sprintf("designs: %s %s", d, k), num_expr(v[1]))
+        }
+    }
+    out
+}
 
 new_problems <- function() {
     e <- new.env()
@@ -44,7 +62,7 @@ num_vec <- function(x) vapply(as.list(unlist(x)), num_expr, numeric(1))
 normalize_variable <- function(id, v, dict, pr) {
     where <- sprintf("variable '%s'", id)
     if (!is.null(dict[[id]]) && (isTRUE(v$from == "dictionary") || is.null(v$type)))
-        v <- utils::modifyList(dict[[id]], v[setdiff(names(v), "from")])
+        v <- shallow_merge(dict[[id]], v[setdiff(names(v), "from")])
     v$from <- NULL
     if (is.null(v$type) && !is.null(v$dist)) v$type <- "continuous"
     if (is.null(v$type) || !v$type %in% VAR_TYPES) {
@@ -149,7 +167,7 @@ normalize_effect <- function(oc_id, var_id, e, vars, interventions, pr) {
     where <- sprintf("outcome '%s', effect of '%s'", oc_id, var_id)
     meas <- intersect(names(e), names(MEASURES))
     if (length(meas) != 1) {
-        add_problem(pr, where, "give exactly one of OR, HR, RR or beta"); return(NULL) }
+        add_problem(pr, where, "give exactly one of OR, HR, RR, ratio or beta"); return(NULL) }
     v <- vars[[var_id]]
     iv <- interventions[[var_id]]
     if (is.null(v) && is.null(iv)) {
@@ -197,7 +215,7 @@ normalize_effect <- function(oc_id, var_id, e, vars, interventions, pr) {
                 x <- num_expr(bv[[lv]])
                 co[lv] <- tf(x)
             }
-            out$by <- list(var = mod, coef = unname(co))
+            out$by <- list(var = mod, coef = unname(co), binary = mv$type == "binary")
         }
     }
     out
@@ -232,12 +250,26 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
         if (is.null(out$sd) || out$sd <= 0) add_problem(pr, where, "a continuous outcome needs mean and sd (residual sd > 0)")
         if (!is.null(o$range)) out$range <- try_at(pr, where, num_vec(o$range))
         out$within_cor <- g(o$within_cor %||% 0.6)
+        # scale: log -> generated on the log scale: mean is the geometric mean,
+        # sd the sd of log(y), effects are ratios (e.g. bioequivalence)
+        out$log <- identical(o$scale, "log")
+        if (out$log && !is.null(out$mean) && !is.na(out$mean) && out$mean <= 0)
+            add_problem(pr, where, "a log-scale outcome needs a positive (geometric) mean")
     } else if (o$type == "count") {
         out$mean <- g(o$mean %||% NA)
         out$size <- if (is.null(o$size)) NULL else g(o$size)
         if (is.null(out$mean) || out$mean <= 0) add_problem(pr, where, "a count outcome needs mean > 0")
     }
     eff <- o$effects %||% list()
+    want <- switch(o$type, binary = "OR", event = c("HR", "OR", "RR"), count = "RR",
+                   continuous = if (isTRUE(out$log)) "ratio" else "beta")
+    for (v in names(eff)) {
+        m <- intersect(names(eff[[v]]), names(MEASURES))
+        if (length(m) == 1 && !m %in% want)
+            add_problem(pr, sprintf("outcome '%s', effect of '%s'", id, v), sprintf(
+                "%s is unusual for a %s outcome (expected %s); it is used as given", m,
+                if (isTRUE(out$log)) "log-scale" else o$type, paste(want, collapse = "/")), "warning")
+    }
     out$effects <- Filter(Negate(is.null), lapply(names(eff), function(v)
         normalize_effect(id, v, eff[[v]], vars, interventions, pr)))
     names(out$effects) <- vapply(out$effects, `[[`, "", "var")
@@ -254,7 +286,7 @@ compatible_designs <- function(sc, outcome) {
     has_iv <- length(sc$interventions) > 0 && any(names(oc$effects) %in% names(sc$interventions))
     d <- switch(oc$type,
         binary = c("cross_sectional", "cohort", "case_control", "matched_cc"),
-        event = c("cohort", "case_control", "matched_cc", "cross_sectional", "prognosis"),
+        event = c("cohort", "case_control", "matched_cc"),
         continuous = c("cross_sectional", "cohort"),
         count = c("cross_sectional", "cohort"))
     if (has_iv) {
@@ -334,7 +366,7 @@ normalize_scenario <- function(raw, dictionary = list(), strict = TRUE) {
                variables = vars, order = ord, edges = lat$edges, R_exo = R_exo, exogenous = exo,
                R = lat$R, resid = lat$resid, outcomes = outcomes, interventions = ivs,
                null_variables = unlist(raw$null_variables), references = unlist(raw$references),
-               teaching = raw$teaching, design_defaults = raw$designs %||% list(),
+               teaching = raw$teaching, design_defaults = normalize_design_defaults(raw$designs, pr),
                problems = pr$items)
     class(sc) <- "studysim_scenario"
     errs <- pr$items[pr$items$level == "error", ]

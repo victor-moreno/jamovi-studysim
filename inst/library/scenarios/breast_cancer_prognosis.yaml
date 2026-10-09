@@ -1,0 +1,101 @@
+id: breast_cancer_prognosis
+label: {en: Breast cancer prognosis, es: Pronóstico del cáncer de mama, ca: Pronòstic del càncer de mama}
+domain: oncology
+population: {en: "Women with operable invasive breast cancer", es: "Mujeres con cáncer de mama invasivo operable", ca: "Dones amb càncer de mama invasiu operable"}
+
+variables:
+  age: {from: dictionary, dist: "normal(60, 12)", range: [25, 90]}
+  tumour_size:
+    type: continuous
+    dist: lognormal(22, 12)
+    range: [2, 100]
+    round: 0
+    units: mm
+    label: {en: Tumour size, es: Tamaño tumoral, ca: Mida tumoral}
+  nodes:
+    type: count
+    dist: negbin(1.5, 0.6)
+    range: [0, 30]
+    label: {en: Positive lymph nodes, es: Ganglios linfáticos positivos, ca: Ganglis limfàtics positius}
+  grade:
+    type: ordinal
+    levels: [G1, G2, G3]
+    probs: [0.20, 0.45, 0.35]
+    label: {en: Histological grade, es: Grado histológico, ca: Grau histològic}
+  er:
+    type: binary
+    p: 0.78
+    levels: [negative, positive]
+    label: {en: Oestrogen receptor, es: Receptor de estrógenos, ca: Receptor d'estrògens}
+  her2:
+    type: binary
+    p: 0.15
+    levels: [negative, positive]
+    label: {en: HER2 status, es: Estado HER2, ca: Estat HER2}
+  ki67:
+    type: continuous
+    dist: lognormal(20, 15)
+    range: [1, 95]
+    round: 0
+    units: "%"
+    label: {en: Ki-67 index, es: Índice Ki-67, ca: Índex Ki-67}
+  chemo:
+    type: binary
+    p: 0.45
+    levels: [no, yes]
+    label: {en: Adjuvant chemotherapy, es: Quimioterapia adyuvante, ca: Quimioteràpia adjuvant}
+
+structure:
+  - [tumour_size, nodes, 0.40]
+  - [grade, ki67, 0.50]
+  - [grade, er, -0.35]
+  - [er, her2, -0.20]
+  - [age, chemo, -0.25]
+  - [nodes, chemo, 0.60]
+  - [grade, chemo, 0.40]
+  - [tumour_size, chemo, 0.20]
+
+outcomes:
+  death:
+    type: event
+    label: {en: Death from any cause, es: Muerte por cualquier causa, ca: Mort per qualsevol causa}
+    risk: {value: 0.20, at: 10}
+    shape: 1.1
+    followup: 10
+    designs: [prognosis, cohort]
+    effects:
+      age: {HR: 1.03, per: 1}
+      tumour_size: {HR: 1.15, per: 10}
+      nodes: {HR: 1.08, per: 1}
+      grade: {HR: [1, 1.5, 2.2]}
+      er: {HR: 0.70}
+      her2: {HR: 1.30}
+      ki67: {HR: 1.10, per: 10}
+      chemo: {HR: 0.75}
+
+designs:
+  prognosis: {accrual: 4, followup: 8, loss: 0.02}
+
+references:
+  - "Galea MH et al. The Nottingham Prognostic Index in primary breast cancer. Breast Cancer Res Treat 1992;22:207-19."
+  - "Wishart GC et al. PREDICT: a new UK prognostic model that predicts survival following surgery for invasive breast cancer. Breast Cancer Res 2010;12:R1."
+  - "Early Breast Cancer Trialists' Collaborative Group. Comparisons between different polychemotherapy regimens for early breast cancer. Lancet 2012;379:432-44."
+
+teaching:
+  en: >
+    Chemotherapy truly lowers the hazard (HR 0.75), but it is given to younger
+    women with more nodes and higher grade (confounding by indication): its
+    crude hazard ratio points the wrong way. Grade acts partly through Ki-67 and
+    ER status. Censoring comes from staggered entry and loss to follow-up.
+  es: >
+    La quimioterapia reduce de verdad el riesgo (HR 0,75), pero se da a mujeres
+    más jóvenes, con más ganglios y mayor grado (confusión por indicación): su
+    hazard ratio crudo apunta en la dirección equivocada. El grado actúa en parte
+    a través del Ki-67 y de los receptores de estrógenos. La censura procede de
+    la entrada escalonada y de las pérdidas de seguimiento.
+  ca: >
+    La quimioteràpia redueix de veritat el risc (HR 0,75), però es dona a dones
+    més joves, amb més ganglis i més grau (confusió per indicació): el seu hazard
+    ratio cru apunta en la direcció equivocada. El grau actua en part a través
+    del Ki-67 i dels receptors d'estrògens. La censura ve de l'entrada esglaonada
+    i de les pèrdues de seguiment.
