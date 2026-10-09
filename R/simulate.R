@@ -2,7 +2,8 @@
 # -> a dataset, its dictionary, the design facts and the answer key.
 
 simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, student_key = "",
-                           options = list(), missing = 0, missing_mech = "mcar", lang = "en", key = TRUE) {
+                           options = list(), missing = 0, missing_mech = "mcar", lang = "en", key = TRUE,
+                           categorize = list()) {
     use_i18n(sc)   # column names and levels in the scenario's translations
     oc <- sc$outcomes[[outcome]]
     if (is.null(oc)) stop(sprintf("scenario '%s' has no outcome '%s'", sc$id, outcome), call. = FALSE)
@@ -17,6 +18,7 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     cal <- calibrate(sc, oc)
     res <- run_design(design, sc, oc, cal, seed_eff, n, opt)
     df <- format_study(sc, oc, design, res, factors, lang)
+    df <- categorize_study(df, sc, categorize, lang)
     driver <- if (design %in% c("case_control", "matched_cc")) "case" else oc$id
     df <- apply_missing(df, factors, missing, missing_mech, derive_seed(seed_eff, "missing"), driver, df$id)
     ids <- names(df)
@@ -24,6 +26,6 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     df <- localise_data(df, lang)
     out <- list(data = df, data_raw = raw, dictionary = data_dictionary(sc, df, factors, ids), facts = res$facts,
                 design = design, outcome = outcome, options = opt, seed = seed_eff, calibration = cal)
-    if (key) out$key <- answer_key(sc, oc, design, opt, factors, lang)
+    if (key) out$key <- answer_key(sc, oc, design, opt, factors, lang, categorize)
     out
 }

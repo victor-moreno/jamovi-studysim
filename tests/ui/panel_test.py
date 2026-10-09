@@ -42,7 +42,10 @@ with sync_playwright() as p:
     vis = design.evaluate("s => Array.from(s.options).filter(o => !o.hidden).map(o => o.text)")
     check(vis == ["Case-control", "Matched case-control", "Cohort"], "breast cancer designs: %s" % vis)
     page.screenshot(path=os.path.join(OUT, "01-default.png"))
-    txt = results_text(page)
+    for i in range(20):   # the first run after a restart loads R and calibrates
+        txt = results_text(page)
+        if "cases and" in txt: break
+        page.wait_for_timeout(1000)
     check("cases and" in txt, "summary shows cases and controls")
 
     sels.nth(0).select_option("chd_incidence")
@@ -62,13 +65,38 @@ with sync_playwright() as p:
         page.wait_for_timeout(700)
     boxes.nth(ids.index("coffee")).uncheck(force=True)
     page.wait_for_timeout(1500)
+    forms = fr.locator(".list-item-cell select")
+    cuts = fr.locator(".list-item-cell input[type=text]")
+    check(forms.count() == len(ids) and cuts.count() == len(ids), "form and cut-point columns (%d, %d)" % (forms.count(), cuts.count()))
+    for v in ["sbp", "bmi"]:
+        boxes.nth(ids.index(v)).check(force=True); page.wait_for_timeout(600)
+    forms.nth(ids.index("sbp")).select_option(label="quartiles"); page.wait_for_timeout(800)
+    cuts.nth(ids.index("bmi")).fill("25, 30"); cuts.nth(ids.index("bmi")).press("Enter"); page.wait_for_timeout(600)
+    forms.nth(ids.index("bmi")).select_option(label="cut points"); page.wait_for_timeout(6000)
+    t = results_text(page)
+    check("Q4: >" in t and "G3: >30.0" in t, "categorised variables in the descriptives")
+    page.screenshot(path=os.path.join(OUT, "09-categorised.png"))
     jc.expand_section(fr, "Output")
-    jc.check_option(fr, "Answer key")
     jc.check_option(fr, "Causal diagram (DAG)")
     page.wait_for_timeout(8000)
+    def dag_url():
+        for f in page.frames:
+            if jc.HOST_C in f.url:
+                for e in f.locator(".jmv-results-image-image").all():
+                    return e.evaluate("e => e.style.backgroundImage")
+        return None
+    def summary_text():
+        return results_text(page).split("Data dictionary")[0]
+    u0, s0 = dag_url(), summary_text()
+    jc.check_option(fr, "Answer key")
+    page.wait_for_timeout(8000)
+    check(dag_url() == u0 and "url(" in (u0 or ""), "answer key does not redraw the DAG")
+    check(summary_text() == s0, "answer key does not regenerate the study")
     txt = results_text(page)
     check("what this design should estimate" in txt, "answer key shown")
-    check("NaN" not in txt and "none" not in txt, "null variables have a measure and a value")
+    import re
+    bad = [txt[max(0, m.start() - 120):m.end() + 20] for m in re.finditer(r"NaN|\bnone\b", txt)]
+    check(not bad, "null variables have a measure and a value " + json.dumps(bad[:2]))
     check("Descriptives" in txt and "mean (SD)" in txt, "descriptives table")
     imgs = [f.locator(".jmv-results-image-image") for f in page.frames if jc.HOST_C in f.url]
     imgs = [l.nth(i) for l in imgs for i in range(l.count())]
@@ -102,7 +130,7 @@ with sync_playwright() as p:
     path = os.path.join(OUT, "export.csv")
     dl.value.save_as(path)
     head = open(path, encoding="utf-8").readline().strip()
-    check(head == '"id","time","chd","age","sex","smoking"', "CSV header: " + head[:60])
+    check(head == '"id","time","chd","age","sex","smoking","bmi","sbp"', "CSV header: " + head[:60])
 
     with page.expect_file_chooser(timeout=10000) as fc:
         fr.locator("button.studysim-browse").click()

@@ -37,10 +37,23 @@ children:
           type: Label
       - name: include
         label: Measured
-        maxWidth: 90
+        maxWidth: 70
         selectable: false
         template:
           type: CheckBox
+      - name: form
+        label: Form
+        maxWidth: 120
+        selectable: false
+        template:
+          type: ComboBox
+      - name: cuts
+        label: Cut points
+        maxWidth: 110
+        selectable: false
+        template:
+          type: TextBox
+          format: string
   - type: LayoutBox
     margin: large
     children:
@@ -117,5 +130,9 @@ children:
             name: showDescriptives
           - type: CheckBox
             name: showDag
+            children:
+              - type: CheckBox
+                name: dagValues
+                enable: (showDag)
           - type: CheckBox
             name: showKey

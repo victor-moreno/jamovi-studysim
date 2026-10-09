@@ -96,12 +96,13 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
          log = model != "linear")
 }
 
-expected_estimates <- function(sc, oc, design, opt, factors, lang = "en") {
+expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", categorize = list()) {
     cal <- calibrate(sc, oc)
     n_big <- switch(design, case_control = 3000 * (1 + opt$ratio), matched_cc = 1500 * (1 + opt$ratio),
                     crossover = 4000, 20000)
     big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), n_big, opt)
     fd <- format_study(sc, oc, design, big, sc$order, "en")
+    fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
     iv <- intersect(names(sc$interventions), names(fd))
     main <- if (length(iv)) iv else factors
     if (length(main) == 0) return(NULL)
@@ -110,6 +111,15 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en") {
     adj <- fit_design_model(design, sc, oc, fd, adj_terms)
     rows <- lapply(main, function(v) {
         cr <- contrast_rows(sc, oc, v, lang)
+        catd <- is.ordered(fd[[v]]) && !is.null(categorize[[v]]) && categorize[[v]]$form != "continuous"
+        if (catd) {
+            # categorised: groups against the first, named by position (the big
+            # study's cut points differ slightly from the student's)
+            cr0 <- cat_rows(v, categorize[[v]], lang)
+            cr0 <- cr0[cr0$idx <= nlevels(fd[[v]]), ]
+            cr <- data.frame(variable = v, contrast = cr0$contrast, coefname = paste0(v, levels(fd[[v]])[cr0$idx]),
+                             per = 1, level = NA_integer_, stringsAsFactors = FALSE)
+        }
         crude <- fit_design_model(design, sc, oc, fd, v, full = FALSE)
         get <- function(fit) {
             b <- fit$coef[cr$coefname] * cr$per
@@ -118,6 +128,7 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en") {
         eff <- oc$effects[[v]]
         tv <- vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0)
         note <- ""
+        if (catd) { tv[] <- NA_real_; note <- gtext("categorised", lang) }
         if (!is.null(eff$by)) {
             # a modified effect has no single true value: give it per level
             back <- function(b) if (eff$log) exp(b) else b
@@ -134,16 +145,17 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en") {
     # variables without an effect: the null value on the estimate's own scale
     nul <- !out$variable %in% names(oc$effects)
     out$true[nul] <- if (adj$log) 1 else 0
+    out$note[nul] <- ""
     attr(out, "n") <- nrow(fd)
     attr(out, "adjusted_for") <- adj_terms
     out
 }
 
-answer_key <- function(sc, oc, design, opt, factors, lang = "en") {
+answer_key <- function(sc, oc, design, opt, factors, lang = "en", categorize = list()) {
     cal <- calibrate(sc, oc)
     unmeasured <- setdiff(names(oc$effects), c(factors, names(sc$interventions)))
     list(effects = true_effects(sc, oc, lang),
-         expected = expected_estimates(sc, oc, design, opt, factors, lang),
+         expected = expected_estimates(sc, oc, design, opt, factors, lang, categorize),
          calibration = cal,
          structure = sc$edges,
          unmeasured = unmeasured,

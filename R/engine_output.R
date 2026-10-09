@@ -15,6 +15,14 @@ GENERIC <- list(
     id = list(en = "Participant identifier", es = "Identificador del participante", ca = "Identificador del participant"),
     per = list(en = "per", es = "por", ca = "per"),
     meansd = list(en = "mean (SD)", es = "media (DE)", ca = "mitjana (DE)"),
+    cat_median = list(en = "split at the median", es = "dividida por la mediana", ca = "dividida per la mediana"),
+    cat_tertiles = list(en = "tertiles", es = "terciles", ca = "terços"),
+    cat_quartiles = list(en = "quartiles", es = "cuartiles", ca = "quartils"),
+    cat_quintiles = list(en = "quintiles", es = "quintiles", ca = "quintils"),
+    cat_cuts = list(en = "grouped by cut points", es = "agrupada por puntos de corte", ca = "agrupada per punts de tall"),
+    categorised = list(en = "categorised; the true effect is per unit (see true model)",
+                       es = "categorizada; el efecto verdadero es por unidad (ver modelo verdadero)",
+                       ca = "categoritzada; l'efecte veritable és per unitat (vegeu model veritable)"),
     mediqr = list(en = "median [IQR]", es = "mediana [RIC]", ca = "mediana [RIQ]"),
     vs = list(en = "vs", es = "frente a", ca = "enfront de"))
 
@@ -139,7 +147,7 @@ planned_columns <- function(sc, oc, design, factors) {
 # What the descriptives table shows for each column, known before the data
 # exist (rows are built in .init()): "cont", or the factor levels. id and set
 # are identifiers and are skipped.
-planned_kinds <- function(sc, oc, design, factors, lang = "en") {
+planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = list()) {
     cols <- planned_columns(sc, oc, design, factors)
     out <- list()
     for (nm in setdiff(cols, c("id", "set"))) {
@@ -154,7 +162,10 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en") {
             if ("time" %in% cols) c("0", "1") else if (oc$type %in% c("binary", "event")) oc$levels else "cont"
         } else {
             v <- sc$variables[[nm]]
-            if (v$type %in% c("continuous", "count")) "cont" else v$levels
+            spec <- categorize[[nm]]
+            if (!is.null(spec) && spec$form != "continuous" && v$type %in% c("continuous", "count"))
+                structure(paste0(cat_prefix(spec), seq_len(cat_groups(spec))), dynamic = TRUE)
+            else if (v$type %in% c("continuous", "count")) "cont" else v$levels
         }
     }
     out
@@ -178,7 +189,8 @@ describe_data <- function(df, kinds, lang = "en") {
             rows[[length(rows) + 1]] <- list(key = paste0(nm, "|2"), variable = nm, level = gtext("mediqr", lang),
                                              stat = sprintf("%s [%s, %s]", f(q[2]), f(q[1]), f(q[3])), missing = NA)
         } else {
-            lv <- kinds[[nm]]
+            # categorised variables: the group labels hold the sample's cut points
+            lv <- if (isTRUE(attr(kinds[[nm]], "dynamic"))) levels(x) else kinds[[nm]]
             tab <- table(factor(as.character(x), levels = lv))
             n <- sum(tab)
             for (i in seq_along(lv))
@@ -268,4 +280,71 @@ describe_plan <- function(kinds, lang = "en") {
         for (i in seq_along(lv)) rows[[length(rows) + 1]] <- list(key = paste0(nm, "|", i), variable = dname(nm, lang), level = lv[i])
     }
     rows
+}
+
+# ---- categorising continuous variables -----------------------------------------
+
+CAT_FORMS <- c("continuous", "median", "tertiles", "quartiles", "quintiles", "cuts")
+
+# "18.5, 25, 30" -> values; "10%, 90%" -> percentiles; with a decimal comma,
+# separate by ";" ("18,5; 25")
+parse_cuts <- function(txt) {
+    s <- trimws(as.character(txt %||% ""))
+    if (!nzchar(s)) stop("cut points are empty: write e.g. 18.5, 25, 30 or 10%, 90%", call. = FALSE)
+    parts <- if (grepl(";", s)) gsub(",", ".", strsplit(s, ";")[[1]]) else strsplit(s, "[,[:space:]]+")[[1]]
+    parts <- trimws(parts[nzchar(trimws(parts))])
+    pct <- grepl("%$", parts)
+    if (any(pct) && !all(pct)) stop(sprintf("'%s': use either values or percentiles, not both", s), call. = FALSE)
+    x <- suppressWarnings(as.numeric(sub("%$", "", parts)))
+    if (anyNA(x)) stop(sprintf("'%s' is not a list of numbers", s), call. = FALSE)
+    if (all(pct) && any(x <= 0 | x >= 100)) stop(sprintf("'%s': percentiles must be between 0 and 100", s), call. = FALSE)
+    list(type = if (all(pct)) "pct" else "value", x = sort(unique(x)))
+}
+
+# number of groups a categorisation spec gives (known before the data exist)
+cat_groups <- function(spec) switch(spec$form, median = 2L, tertiles = 3L, quartiles = 4L, quintiles = 5L,
+                                    cuts = length(parse_cuts(spec$cuts)$x) + 1L, 1L)
+
+cat_prefix <- function(spec) if (spec$form == "cuts" && parse_cuts(spec$cuts)$type == "value") "G" else "Q"
+
+# x -> ordered factor "Q1: <=24.0", "Q2: 24.0-27.3", "Q3: >27.3" (cut points
+# from the sample for quantiles and percentiles, as a study would compute them)
+categorize_column <- function(x, spec, digits = NULL) {
+    b <- switch(spec$form,
+        median = stats::quantile(x, 0.5, na.rm = TRUE, names = FALSE),
+        tertiles = stats::quantile(x, 1:2 / 3, na.rm = TRUE, names = FALSE),
+        quartiles = stats::quantile(x, 1:3 / 4, na.rm = TRUE, names = FALSE),
+        quintiles = stats::quantile(x, 1:4 / 5, na.rm = TRUE, names = FALSE),
+        cuts = { cu <- parse_cuts(spec$cuts)
+                 if (cu$type == "pct") stats::quantile(x, cu$x / 100, na.rm = TRUE, names = FALSE) else cu$x })
+    b <- sort(unique(b))
+    d <- if (!is.null(digits)) digits else max(0, 2 - floor(log10(max(abs(b), 1e-9))))
+    f <- function(v) formatC(round(v, d), format = "f", digits = d)
+    p <- cat_prefix(spec)
+    k <- length(b) + 1L
+    lab <- vapply(seq_len(k), function(i)
+        if (i == 1) sprintf("%s1: ≤%s", p, f(b[1]))
+        else if (i == k) sprintf("%s%d: >%s", p, i, f(b[k - 1]))
+        else sprintf("%s%d: %s–%s", p, i, f(b[i - 1]), f(b[i])), "")
+    g <- findInterval(x, b, left.open = TRUE) + 1L
+    factor(lab[g], levels = lab, ordered = TRUE)
+}
+
+# apply a list(id = list(form, cuts)) to a formatted study (engine names)
+categorize_study <- function(df, sc, categorize, lang = "en") {
+    for (v in intersect(names(categorize), names(df))) {
+        spec <- categorize[[v]]
+        if (spec$form == "continuous" || !sc$variables[[v]]$type %in% c("continuous", "count")) next
+        desc <- attr(df[[v]], "jmv-desc")
+        df[[v]] <- categorize_column(df[[v]], spec, sc$variables[[v]]$round)
+        attr(df[[v]], "jmv-desc") <- sprintf("%s, %s", desc, gtext(paste0("cat_", spec$form), lang))
+    }
+    df
+}
+
+# answer-key rows of a categorised variable: each group against the first
+cat_rows <- function(v, spec, lang = "en") {
+    k <- cat_groups(spec); p <- cat_prefix(spec)
+    data.frame(variable = v, contrast = sprintf("%s%d %s %s1", p, 2:k, gtext("vs", lang), p), idx = 2:k,
+               stringsAsFactors = FALSE)
 }

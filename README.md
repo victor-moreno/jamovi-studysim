@@ -19,7 +19,11 @@ It needs no packages beyond those bundled with jamovi: `survival`, `yaml`,
   trial, 2×2 crossover, prognosis).
 - *Variables* checklist: tick the scenario's variables to include in the data
   (none at start); the others stay unmeasured but still act (residual confounding
-  exercises).
+  exercises). *Form* groups a continuous variable: median split, tertiles,
+  quartiles, quintiles (cut points from the sample, labels such as `Q2: 24.0–27.3`)
+  or *cut points* typed as values (`18.5, 25, 30`, or `18,5; 25` with a decimal
+  comma) or percentiles (`10%, 90%`); the answer key then gives the expected
+  group contrasts.
 - Design options: controls per case, follow-up, loss to follow-up, recruitment
   period, period and carryover effects. Realism: missing values completely at random
   or depending on the outcome.
@@ -28,14 +32,15 @@ It needs no packages beyond those bundled with jamovi: `survival`, `yaml`,
 - Results: study summary (cases and controls, events and person-years, arms…),
   data dictionary, univariate descriptives (mean (SD), median [IQR], n (%)), the
   causal diagram (DAG: measured variables in solid boxes, unmeasured ones dashed,
-  effect sizes on the arrows when the answer key is shown), and the answer key: the true model, the expected crude and
+  effect sizes on the arrows as an option), and the answer key: the true model, the expected crude and
   adjusted estimates under this design (from one large simulated study), the
   calibration, the latent structure, the teaching note and the sources.
 - *Seed* and *Student key*: the same seed always gives the same study; a student key
   (e.g. a student ID) gives each student a different dataset from the same
   assignment, which the teacher can regenerate.
 - The superpopulation depends only on the scenario and the seed, so the same seed
-  under another design samples the same people.
+  under another design samples the same people. Showing the key, the DAG or a
+  table does not draw the study again; only options that change the data do.
 
 **Library**
 - Lists the scenarios, checks them (plain-language problems located by scenario

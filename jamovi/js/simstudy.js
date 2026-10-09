@@ -60,14 +60,17 @@ module.exports = {
         var vars = variablesOf(sc, l, lib);
         var ids = Object.keys(sc.variables || {});
         var cur = S.getOpt(ui, 'measured') || [];
-        var ticked = {};
+        var prev = {};
         cur.forEach(function(m) {
-            if (!m || !m.include) return;
+            if (!m) return;
             ids.forEach(function(id) {
-                if (m['var'] === id || ['en', 'es', 'ca'].some(function(x) { return S.dname(id, x, lib, sc) === m['var']; })) ticked[id] = true;
+                if (m['var'] === id || ['en', 'es', 'ca'].some(function(x) { return S.dname(id, x, lib, sc) === m['var']; })) prev[id] = m;
             });
         });
-        var rows = ids.map(function(id, i) { return { 'var': vars[i], include: !reset && !!ticked[id] }; });
+        var rows = ids.map(function(id, i) {
+            var m = (!reset && prev[id]) || {};
+            return { 'var': vars[i], include: !!m.include, form: m.form || 'continuous', cuts: m.cuts || '' };
+        });
         S.setOpt(ui, 'measured', rows);
         S.browseButton(ui, function() { self.refresh(ui, false); });
     },

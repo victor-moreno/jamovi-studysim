@@ -40,6 +40,9 @@
             "Answer key: what this design should estimate": [
                 "Clave de respuestas: qué debería estimar este diseño"
             ],
+            "as is": [
+                "tal cual"
+            ],
             "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
                 "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} años"
             ],
@@ -112,6 +115,15 @@
             "Custom only": [
                 "Solo la propia"
             ],
+            "cut points": [
+                "puntos de corte"
+            ],
+            "Cut points": [
+                "Cortes"
+            ],
+            "Cut points of {var}: {msg}": [
+                "Puntos de corte de {var}: {msg}"
+            ],
             "Data dictionary": [
                 "Diccionario de datos"
             ],
@@ -135,6 +147,9 @@
             ],
             "Distribution": [
                 "Distribución"
+            ],
+            "Effect sizes on the diagram": [
+                "Tamaños del efecto en el diagrama"
             ],
             "Effects are teaching-grade plausible values informed by the literature, not meta-analytic estimates.": [
                 "Los efectos son valores plausibles para la docencia, basados en la literatura, no estimaciones metaanalíticas."
@@ -165,6 +180,9 @@
             ],
             "Follow-up (years)": [
                 "Seguimiento (años)"
+            ],
+            "Form": [
+                "Forma"
             ],
             "Format": [
                 "Formato"
@@ -235,6 +253,9 @@
             "median {m} years": [
                 "mediana {m} años"
             ],
+            "median split": [
+                "mediana"
+            ],
             "Missing": [
                 "Perdidos"
             ],
@@ -291,6 +312,12 @@
             ],
             "Prognosis (patient cohort)": [
                 "Pronóstico (cohorte de pacientes)"
+            ],
+            "quartiles": [
+                "cuartiles"
+            ],
+            "quintiles": [
+                "quintiles"
             ],
             "Randomised trial": [
                 "Ensayo aleatorizado"
@@ -391,6 +418,9 @@
             "Teaching note": [
                 "Nota docente"
             ],
+            "tertiles": [
+                "terciles"
+            ],
             "The {design} design does not fit this outcome. Possible designs: {list}.": [
                 "El diseño {design} no encaja con esta variable respuesta. Diseños posibles: {list}."
             ],
@@ -411,6 +441,9 @@
             ],
             "True value": [
                 "Valor verdadero"
+            ],
+            "True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare.": [
+                "Los valores verdaderos son {true}, la medida con que se generaron los datos (una cohorte seguida en el tiempo); este diseño estima {est}, que se le acercan cuando la respuesta es rara."
             ],
             "Type": [
                 "Tipo"

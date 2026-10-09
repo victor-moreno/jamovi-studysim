@@ -26,6 +26,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             showDictionary = TRUE,
             showDescriptives = TRUE,
             showDag = FALSE,
+            dagValues = FALSE,
             showKey = FALSE,
             openData = FALSE,
             exportCsv = FALSE, ...) {
@@ -79,7 +80,22 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         jmvcore::OptionBool$new(
                             "include",
                             NULL,
-                            default=FALSE))))
+                            default=FALSE),
+                        jmvcore::OptionList$new(
+                            "form",
+                            NULL,
+                            options=list(
+                                "continuous",
+                                "median",
+                                "tertiles",
+                                "quartiles",
+                                "quintiles",
+                                "cuts"),
+                            default="continuous"),
+                        jmvcore::OptionString$new(
+                            "cuts",
+                            NULL,
+                            default=""))))
             private$..n <- jmvcore::OptionInteger$new(
                 "n",
                 n,
@@ -153,6 +169,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "showDag",
                 showDag,
                 default=FALSE)
+            private$..dagValues <- jmvcore::OptionBool$new(
+                "dagValues",
+                dagValues,
+                default=FALSE)
             private$..showKey <- jmvcore::OptionBool$new(
                 "showKey",
                 showKey,
@@ -186,6 +206,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..showDictionary)
             self$.addOption(private$..showDescriptives)
             self$.addOption(private$..showDag)
+            self$.addOption(private$..dagValues)
             self$.addOption(private$..showKey)
             self$.addOption(private$..openData)
             self$.addOption(private$..exportCsv)
@@ -211,6 +232,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         showDictionary = function() private$..showDictionary$value,
         showDescriptives = function() private$..showDescriptives$value,
         showDag = function() private$..showDag$value,
+        dagValues = function() private$..dagValues$value,
         showKey = function() private$..showKey$value,
         openData = function() private$..openData$value,
         exportCsv = function() private$..exportCsv$value),
@@ -235,6 +257,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..showDictionary = NA,
         ..showDescriptives = NA,
         ..showDag = NA,
+        ..dagValues = NA,
         ..showKey = NA,
         ..openData = NA,
         ..exportCsv = NA)
@@ -403,7 +426,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "outcome",
                     "design",
                     "measured",
-                    "showKey")))
+                    "dagValues")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="keyEffects",
@@ -605,8 +628,11 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param outcome outcome id; empty means the scenario's first outcome
 #' @param design study design; must fit the outcome
 #' @param measured one entry per scenario variable, list(var = name, include =
-#'   TRUE/FALSE); included variables are in the dataset, the others are
-#'   unmeasured (they still act)
+#'   TRUE/FALSE, form =
+#'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts", cuts =
+#'   "18.5, 25, 30" or "10\%, 90\%"); included variables are in the dataset, the
+#'   others are unmeasured (they still act); form groups a continuous variable
+#'   (quantiles from the sample)
 #' @param n number of participants (cases plus controls in case-control
 #'   designs)
 #' @param ccRatio .
@@ -623,6 +649,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param showDictionary .
 #' @param showDescriptives .
 #' @param showDag .
+#' @param dagValues .
 #' @param showKey .
 #' @param openData .
 #' @param exportCsv .
@@ -669,6 +696,7 @@ simStudy <- function(
     showDictionary = TRUE,
     showDescriptives = TRUE,
     showDag = FALSE,
+    dagValues = FALSE,
     showKey = FALSE,
     openData = FALSE,
     exportCsv = FALSE) {
@@ -702,6 +730,7 @@ simStudy <- function(
         showDictionary = showDictionary,
         showDescriptives = showDescriptives,
         showDag = showDag,
+        dagValues = dagValues,
         showKey = showKey,
         openData = openData,
         exportCsv = exportCsv)

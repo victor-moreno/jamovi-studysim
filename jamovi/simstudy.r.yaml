@@ -58,7 +58,7 @@ items:
       width: 600
       height: 420
       renderFun: .plotDag
-      clearWith: [libContent, scenario, outcome, design, measured, showKey]
+      clearWith: [libContent, scenario, outcome, design, measured, dagValues]
 
     - name: keyEffects
       title: 'Answer key: true model'

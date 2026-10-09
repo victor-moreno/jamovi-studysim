@@ -273,6 +273,17 @@ CA = {
 ES2 = {"continuous": "continua", "integer": "entera", "nominal": "nominal", "ordinal": "ordinal"}
 CA2 = {"continuous": "contínua", "integer": "entera", "nominal": "nominal", "ordinal": "ordinal"}
 NEW = {
+"Form": ("Forma", "Forma"),
+"Cut points": ("Cortes", "Talls"),
+"as is": ("tal cual", "tal qual"),
+"median split": ("mediana", "mediana"),
+"tertiles": ("terciles", "terços"),
+"quartiles": ("cuartiles", "quartils"),
+"quintiles": ("quintiles", "quintils"),
+"cut points": ("puntos de corte", "punts de tall"),
+"Effect sizes on the diagram": ("Tamaños del efecto en el diagrama", "Mides de l'efecte al diagrama"),
+"Cut points of {var}: {msg}": ("Puntos de corte de {var}: {msg}", "Punts de tall de {var}: {msg}"),
+"True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare.": ("Los valores verdaderos son {true}, la medida con que se generaron los datos (una cohorte seguida en el tiempo); este diseño estima {est}, que se le acercan cuando la respuesta es rara.", "Els valors veritables són {true}, la mesura amb què es van generar les dades (una cohort seguida en el temps); aquest disseny estima {est}, que s'hi acosten quan la resposta és rara."),
 "Measured": ("Medida", "Mesurada"),
 "No variables measured yet: tick them under Measured.": ("Aún no hay variables medidas: márquelas en la columna Medida.", "Encara no hi ha variables mesurades: marqueu-les a la columna Mesurada."),
 "Causal diagram": ("Diagrama causal", "Diagrama causal"),

@@ -37,8 +37,19 @@ simStudyClass <- R6::R6Class(
                 # the panel lists the variables by their shown names (any language)
                 inc <- Filter(function(m) isTRUE(m$include), o$measured)
                 fac <- ids_from_names(vapply(inc, function(m) as.character(m$var), ""), sc$order)
+                # grouping of measured continuous variables (form != as is)
+                cats <- list()
+                for (m in inc) {
+                    id <- ids_from_names(m$var, sc$order)
+                    if (length(id) == 0 || is.null(m$form) || m$form == "continuous") next
+                    if (!sc$variables[[id]]$type %in% c("continuous", "count")) next
+                    spec <- list(form = m$form, cuts = m$cuts %||% "")
+                    tryCatch(cat_groups(spec), error = function(e)
+                        stop(jmvcore::format(.("Cut points of {var}: {msg}"), var = m$var, msg = conditionMessage(e)), call. = FALSE))
+                    cats[[id]] <- spec
+                }
                 list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
-                     factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok)
+                     factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats)
             }, error = function(e) list(error = conditionMessage(e)))
             private$.ctx <- ctx
             ctx
@@ -81,7 +92,7 @@ simStudyClass <- R6::R6Class(
             for (nm in planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors))
                 dic$addRow(rowKey = nm, values = list(name = dname(nm, ctx$lang)))
             if (self$options$showDescriptives) {
-                for (r in describe_plan(planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang), ctx$lang))
+                for (r in describe_plan(planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats), ctx$lang))
                     self$results$descriptives$addRow(rowKey = r$key, values = list(variable = r$variable, level = r$level))
             }
             if (self$options$showDag) private$.initDag(ctx)
@@ -99,7 +110,7 @@ simStudyClass <- R6::R6Class(
             main <- if (length(iv)) iv else ctx$factors
             rows <- list()
             for (v in main) {
-                cr <- contrast_rows(ctx$sc, ctx$oc, v, ctx$lang)
+                cr <- if (!is.null(ctx$cats[[v]])) cat_rows(v, ctx$cats[[v]], ctx$lang) else contrast_rows(ctx$sc, ctx$oc, v, ctx$lang)
                 for (i in seq_len(nrow(cr)))
                     rows[[length(rows) + 1]] <- list(key = paste(v, cr$contrast[i]), variable = v, contrast = cr$contrast[i])
             }
@@ -110,26 +121,53 @@ simStudyClass <- R6::R6Class(
             ctx <- private$.context()
             if (!is.null(ctx$error)) return()
             o <- self$options
-            opt <- private$.designOptions(ctx)
-            res <- tryCatch(simulate_study(ctx$sc, ctx$oc$id, ctx$design, o$n, ctx$factors, seed = o$seed,
-                                           student_key = o$studentKey, options = opt, missing = o$missing / 100,
-                                           missing_mech = o$missingMech, lang = ctx$lang, key = FALSE),
-                            error = function(e) e)
-            if (inherits(res, "error")) {
-                private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(conditionMessage(res))))
-                return()
+            opt <- utils::modifyList(design_defaults(ctx$design, ctx$oc, ctx$sc), private$.designOptions(ctx))
+            # The study is drawn again only when something built from the data
+            # was cleared (an option it depends on changed) or a button asks
+            # for the data; showing the key, the DAG or a table that is already
+            # filled reuses what is on screen.
+            filled <- function(tbl, col) tbl$rowCount == 0 || tbl$isFilled(col = col)
+            needData <- self$results$summary$isNotFilled() ||
+                (o$showDictionary && !filled(self$results$dictionary, "type")) ||
+                (o$showDescriptives && !filled(self$results$descriptives, "stat")) ||
+                private$.wants("openState", "openData") || private$.wants("csvState", "exportCsv")
+            if (needData) {
+                res <- tryCatch(simulate_study(ctx$sc, ctx$oc$id, ctx$design, o$n, ctx$factors, seed = o$seed,
+                                               student_key = o$studentKey, options = private$.designOptions(ctx),
+                                               missing = o$missing / 100, missing_mech = o$missingMech, lang = ctx$lang,
+                                               key = FALSE, categorize = ctx$cats),
+                                error = function(e) e)
+                if (inherits(res, "error")) {
+                    private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(conditionMessage(res))))
+                    return()
+                }
+                opt <- res$options
+                private$.fillSummary(ctx, res)
+                private$.fillDictionary(res)
+                if (o$showDescriptives) {
+                    tbl <- self$results$descriptives
+                    for (r in describe_data(res$data_raw, planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats), ctx$lang))
+                        if (r$key %in% tbl$rowKeys)
+                            tbl$setRow(rowKey = r$key, values = list(level = dlevel(r$level, ctx$lang), stat = r$stat, missing = r$missing))
+                }
+                private$.actions(ctx, res)
+            } else {
+                # buttons not pressed: keep their guards in step
+                private$.wants("openState", "openData"); private$.wants("csvState", "exportCsv")
             }
-            private$.fillSummary(ctx, res)
-            private$.fillDictionary(res)
             if (o$showDag) private$.fillDag(ctx)
-            if (o$showDescriptives) {
-                tbl <- self$results$descriptives
-                for (r in describe_data(res$data_raw, planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang), ctx$lang))
-                    if (r$key %in% tbl$rowKeys)
-                        tbl$setRow(rowKey = r$key, values = list(stat = r$stat, missing = r$missing))
+            if (o$showKey) private$.fillKey(ctx, calibrate(ctx$sc, ctx$oc), opt)
+        },
+
+        # TRUE when a button was pressed and has not been served yet; resets
+        # the guard when the button is off
+        .wants = function(stateName, optName) {
+            st <- self$results[[stateName]]
+            if (!isTRUE(self$options[[optName]])) {
+                st$setRow(rowNo = 1, values = list(fired = ""))
+                return(FALSE)
             }
-            if (o$showKey) private$.fillKey(ctx, res)
-            private$.actions(ctx, res)
+            !isTRUE(st$getCell(rowNo = 1, col = "fired")$value == "yes")
         },
 
         .fillSummary = function(ctx, res) {
@@ -172,27 +210,33 @@ simStudyClass <- R6::R6Class(
             }
         },
 
-        .fillKey = function(ctx, res) {
+        .fillKey = function(ctx, cal, opt) {
             te <- true_effects(ctx$sc, ctx$oc, ctx$lang)
             for (i in seq_len(nrow(te))) self$results$keyEffects$setRow(rowKey = i, values = list(
                 measure = te$measure[i], value = te$value[i], note = te$note[i]))
             tbl <- self$results$keyExpected
             ex <- tbl$state
             if (is.null(ex)) {
-                ex <- expected_estimates(ctx$sc, ctx$oc, ctx$design, res$options, ctx$factors, ctx$lang)
+                ex <- expected_estimates(ctx$sc, ctx$oc, ctx$design, opt, ctx$factors, ctx$lang, ctx$cats)
                 tbl$setState(ex)
             }
             if (!is.null(ex)) {
                 for (i in seq_len(nrow(ex))) {
                     k <- paste(ex$variable[i], ex$contrast[i])
                     if (!k %in% tbl$rowKeys) next
-                    tbl$setRow(rowKey = k, values = list(truth = ex$true[i], crude = ex$crude[i], adjusted = ex$adjusted[i],
+                    # no single true value (categorised or modified effect), or a
+                    # coefficient the model dropped: an empty cell, not NaN
+                    blank <- function(x) if (is.na(x)) "" else x
+                    tbl$setRow(rowKey = k, values = list(truth = blank(ex$true[i]), crude = blank(ex$crude[i]), adjusted = blank(ex$adjusted[i]),
                                                          measure = ex$measure[i], note = ex$note[i]))
                 }
                 tbl$setNote("n", jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
+                mm <- unique(ex$true_measure[ex$true_measure != ex$measure & ex$true_measure %in% c("HR", "OR", "RR")])
+                if (length(mm))
+                    tbl$setNote("measure", jmvcore::format(.("True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."),
+                                                          true = paste(mm, collapse = "/"), est = ex$measure[1]))
             }
-            cal <- res$calibration
             l <- ctx$lang
             calib <- switch(ctx$oc$type,
                 binary = jmvcore::format(.("intercept {a} gives a prevalence of {p}"), a = round(cal$a, 4), p = round(cal$achieved, 4)),
@@ -231,7 +275,7 @@ simStudyClass <- R6::R6Class(
             if (is.null(img$state)) {
                 g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
                 w <- img$width; h <- img$height
-                key <- isTRUE(self$options$showKey)
+                key <- isTRUE(self$options$dagValues)
                 cap <- .("Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.")
                 if (key) cap <- paste(cap, .("Red: raises the outcome, blue: lowers it; * the effect depends on another variable."))
                 img$setState(list(g = g, w = w, h = h, key = key, caption = cap))

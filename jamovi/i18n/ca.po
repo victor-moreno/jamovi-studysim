@@ -52,6 +52,10 @@ msgstr "Clau de respostes: model veritable"
 msgid "Answer key: what this design should estimate"
 msgstr "Clau de respostes: què hauria d'estimar aquest disseny"
 
+#: simStudy/options/measured.template/form/continuous.title
+msgid "as is"
+msgstr "tal qual"
+
 #: R/simstudy.b.R
 msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"
 msgstr "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
@@ -159,6 +163,18 @@ msgstr "Contingut de la biblioteca pròpia"
 msgid "Custom only"
 msgstr "Només la pròpia"
 
+#: simStudy/options/measured.template/form/cuts.title
+msgid "cut points"
+msgstr "punts de tall"
+
+#: simStudy/ui/measured.columns.label
+msgid "Cut points"
+msgstr "Talls"
+
+#: R/simstudy.b.R
+msgid "Cut points of {var}: {msg}"
+msgstr "Punts de tall de {var}: {msg}"
+
 #: simStudy/options/showDictionary.title
 #: simStudy/results/dictionary.title
 msgid "Data dictionary"
@@ -193,6 +209,10 @@ msgstr "Dissenys"
 #: simLibrary/results/variables.columns.title
 msgid "Distribution"
 msgstr "Distribució"
+
+#: simStudy/options/dagValues.title
+msgid "Effect sizes on the diagram"
+msgstr "Mides de l'efecte al diagrama"
 
 #: R/simstudy.b.R
 msgid "Effects are teaching-grade plausible values informed by the literature, not meta-analytic estimates."
@@ -234,6 +254,10 @@ msgstr "Exportar biblioteca"
 #: simStudy/options/followup.title
 msgid "Follow-up (years)"
 msgstr "Seguiment (anys)"
+
+#: simStudy/ui/measured.columns.label
+msgid "Form"
+msgstr "Forma"
 
 #: simLibrary/options/exportFormat.title
 msgid "Format"
@@ -337,6 +361,10 @@ msgstr "Mesurada"
 msgid "median {m} years"
 msgstr "mediana {m} anys"
 
+#: simStudy/options/measured.template/form/median.title
+msgid "median split"
+msgstr "mediana"
+
 #: simStudy/results/dictionary.columns.title
 #: simStudy/results/descriptives.columns.title
 msgid "Missing"
@@ -418,6 +446,14 @@ msgstr "Problema"
 #: simStudy/options/design/prognosis.title
 msgid "Prognosis (patient cohort)"
 msgstr "Pronòstic (cohort de pacients)"
+
+#: simStudy/options/measured.template/form/quartiles.title
+msgid "quartiles"
+msgstr "quartils"
+
+#: simStudy/options/measured.template/form/quintiles.title
+msgid "quintiles"
+msgstr "quintils"
 
 #: R/simstudy.b.R
 #: simStudy/options/design/rct.title
@@ -569,6 +605,10 @@ msgstr "Resum"
 msgid "Teaching note"
 msgstr "Nota docent"
 
+#: simStudy/options/measured.template/form/tertiles.title
+msgid "tertiles"
+msgstr "terços"
+
 #: R/simstudy.b.R
 msgid "The {design} design does not fit this outcome. Possible designs: {list}."
 msgstr "El disseny {design} no encaixa amb aquesta variable resposta. Dissenys possibles: {list}."
@@ -596,6 +636,10 @@ msgstr "Veritable"
 #: simStudy/results/keyEffects.columns.title
 msgid "True value"
 msgstr "Valor veritable"
+
+#: R/simstudy.b.R
+msgid "True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."
+msgstr "Els valors veritables són {true}, la mesura amb què es van generar les dades (una cohort seguida en el temps); aquest disseny estima {est}, que s'hi acosten quan la resposta és rara."
 
 #: simLibrary/results/variables.columns.title
 #: simStudy/results/dictionary.columns.title

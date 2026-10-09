@@ -40,6 +40,9 @@
             "Answer key: what this design should estimate": [
                 "Clau de respostes: què hauria d'estimar aquest disseny"
             ],
+            "as is": [
+                "tal qual"
+            ],
             "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
                 "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
             ],
@@ -112,6 +115,15 @@
             "Custom only": [
                 "Només la pròpia"
             ],
+            "cut points": [
+                "punts de tall"
+            ],
+            "Cut points": [
+                "Talls"
+            ],
+            "Cut points of {var}: {msg}": [
+                "Punts de tall de {var}: {msg}"
+            ],
             "Data dictionary": [
                 "Diccionari de dades"
             ],
@@ -135,6 +147,9 @@
             ],
             "Distribution": [
                 "Distribució"
+            ],
+            "Effect sizes on the diagram": [
+                "Mides de l'efecte al diagrama"
             ],
             "Effects are teaching-grade plausible values informed by the literature, not meta-analytic estimates.": [
                 "Els efectes són valors plausibles per a la docència, basats en la literatura, no estimacions metaanalítiques."
@@ -165,6 +180,9 @@
             ],
             "Follow-up (years)": [
                 "Seguiment (anys)"
+            ],
+            "Form": [
+                "Forma"
             ],
             "Format": [
                 "Format"
@@ -235,6 +253,9 @@
             "median {m} years": [
                 "mediana {m} anys"
             ],
+            "median split": [
+                "mediana"
+            ],
             "Missing": [
                 "Perduts"
             ],
@@ -291,6 +312,12 @@
             ],
             "Prognosis (patient cohort)": [
                 "Pronòstic (cohort de pacients)"
+            ],
+            "quartiles": [
+                "quartils"
+            ],
+            "quintiles": [
+                "quintils"
             ],
             "Randomised trial": [
                 "Assaig aleatoritzat"
@@ -391,6 +418,9 @@
             "Teaching note": [
                 "Nota docent"
             ],
+            "tertiles": [
+                "terços"
+            ],
             "The {design} design does not fit this outcome. Possible designs: {list}.": [
                 "El disseny {design} no encaixa amb aquesta variable resposta. Dissenys possibles: {list}."
             ],
@@ -411,6 +441,9 @@
             ],
             "True value": [
                 "Valor veritable"
+            ],
+            "True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare.": [
+                "Els valors veritables són {true}, la mesura amb què es van generar les dades (una cohort seguida en el temps); aquest disseny estima {est}, que s'hi acosten quan la resposta és rara."
             ],
             "Type": [
                 "Tipus"

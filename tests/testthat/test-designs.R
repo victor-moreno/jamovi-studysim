@@ -103,3 +103,31 @@ test_that("planned descriptives match the data, and the DAG layout is complete",
   expect_true(all(g$edges$x[g$edges$type == "path"] < g$edges$xend[g$edges$type == "path"]))
   expect_equal(sum(g$edges$type == "effect"), 3)
 })
+
+test_that("continuous variables can be categorised by quantiles or cut points", {
+  sc <- toy()
+  expect_equal(parse_cuts("18,5; 25; 30")$x, c(18.5, 25, 30))
+  expect_equal(parse_cuts("10%, 90%")$type, "pct")
+  expect_error(parse_cuts("10%, 25"), "not both")
+  expect_error(parse_cuts("a, b"), "not a list of numbers")
+  cats <- list(bmi = list(form = "tertiles"), age = list(form = "cuts", cuts = "50, 60"),
+               kids = list(form = "median"), smoke = list(form = "quartiles"))
+  r <- simulate_study(sc, "dis", "cross_sectional", n = 3000, factors = c("bmi", "age", "kids", "smoke"),
+                      categorize = cats)
+  d <- r$data
+  expect_true(is.ordered(d$bmi) && nlevels(d$bmi) == 3)
+  expect_equal(as.numeric(prop.table(table(d$bmi))), rep(1 / 3, 3), tolerance = 0.02)
+  expect_identical(levels(d$age), c("G1: ≤50", "G2: 50–60", "G3: >60"))
+  expect_true(all(d$age[r$data_raw$age == r$data_raw$age][1:10] %in% levels(d$age)))
+  expect_false(is.ordered(d$smoke))
+  expect_match(attr(d$bmi, "jmv-desc"), "tertiles")
+  k <- planned_kinds(sc, sc$outcomes$dis, "cross_sectional", c("bmi", "age"), categorize = cats)
+  rows <- describe_data(r$data_raw, k)
+  expect_true(any(grepl("^Q2: ", vapply(rows, `[[`, "", "level"))))
+  e <- r$key$expected
+  b <- e[e$variable == "bmi", ]
+  expect_identical(b$contrast, c("Q2 vs Q1", "Q3 vs Q1"))
+  expect_true(all(b$adjusted > 1.2) && all(is.na(b$true)))
+  expect_true(b$adjusted[2] > b$adjusted[1])
+  expect_identical(e$contrast[e$variable == "age"], c("G2 vs G1", "G3 vs G1"))
+})

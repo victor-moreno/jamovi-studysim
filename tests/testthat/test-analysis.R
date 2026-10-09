@@ -75,3 +75,20 @@ test_that("measured variables may come by their Spanish or Catalan names", {
   r0 <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100)
   expect_match(r0$summary$content, "No variables measured yet")
 })
+
+test_that("the panel's form and cut points reach the data, descriptives and key", {
+  r <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 600, showKey = TRUE,
+                measured = list(list(var = "sbp", include = TRUE, form = "quartiles", cuts = ""),
+                                list(var = "bmi", include = TRUE, form = "cuts", cuts = "25, 30"),
+                                list(var = "age", include = TRUE, form = "continuous", cuts = ""),
+                                list(var = "sex", include = TRUE, form = "tertiles", cuts = "")))
+  d <- r$descriptives$asDF
+  expect_true(any(grepl("^Q4: >", d$level)))
+  expect_true(any(d$level == "G3: >30.0"))
+  k <- r$keyExpected$asDF
+  expect_identical(k$contrast[k$variable == "sbp"], c("Q2 vs Q1", "Q3 vs Q1", "Q4 vs Q1"))
+  expect_true(all(!is.na(k$adjusted)))
+  bad <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100,
+                  measured = list(list(var = "bmi", include = TRUE, form = "cuts", cuts = "25, x")))
+  expect_match(bad$notice$content, "Cut points of bmi")
+})
