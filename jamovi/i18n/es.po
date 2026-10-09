@@ -203,17 +203,17 @@ msgstr "Contenido de la biblioteca propia"
 msgid "Custom only"
 msgstr "Solo la propia"
 
-#: simStudy/options/measured.template/form/cuts.title
-msgid "cut points"
-msgstr "puntos de corte"
-
-#: simStudy/ui/measured.columns.label
-msgid "Cut points"
-msgstr "Cortes"
-
 #: R/simstudy.b.R
 msgid "Cut points of {var}: {msg}"
 msgstr "Puntos de corte de {var}: {msg}"
+
+#: simStudy/options/measured.template/form/cuts.title
+msgid "cuts"
+msgstr "cortes"
+
+#: simStudy/ui/measured.columns.label
+msgid "Cuts"
+msgstr "Cortes"
 
 #: simStudy/options/showDictionary.title
 #: simStudy/results/dictionary.title

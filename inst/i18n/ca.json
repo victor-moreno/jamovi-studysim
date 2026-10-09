@@ -142,14 +142,14 @@
             "Custom only": [
                 "Només la pròpia"
             ],
-            "cut points": [
-                "punts de tall"
-            ],
-            "Cut points": [
-                "Talls"
-            ],
             "Cut points of {var}: {msg}": [
                 "Punts de tall de {var}: {msg}"
+            ],
+            "cuts": [
+                "talls"
+            ],
+            "Cuts": [
+                "Talls"
             ],
             "Data dictionary": [
                 "Diccionari de dades"

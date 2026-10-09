@@ -273,6 +273,8 @@ CA = {
 ES2 = {"continuous": "continua", "integer": "entera", "nominal": "nominal", "ordinal": "ordinal"}
 CA2 = {"continuous": "contínua", "integer": "entera", "nominal": "nominal", "ordinal": "ordinal"}
 NEW = {
+"cuts": ("cortes", "talls"),
+"Cuts": ("Cortes", "Talls"),
 "Units or categories": ("Unidades o categorías", "Unitats o categories"),
 "Estimates a library scenario from the open dataset: the marginal distribution of each variable, their latent correlations and the conditional effects on the outcome. Simulated studies from it resemble the data. The data cannot tell causes from correlates: the scenario has undirected correlations, to be turned into a causal structure before teaching (by you, or an AI with the exported file).": ("Estima un escenario de la biblioteca a partir de los datos abiertos: la distribución marginal de cada variable, sus correlaciones latentes y los efectos condicionales sobre la respuesta. Los estudios simulados desde él se parecen a los datos. Los datos no distinguen causas de correlaciones: el escenario tiene correlaciones sin dirección, que hay que convertir en una estructura causal antes de usarlo en docencia (usted, o una IA con el fichero exportado).", "Estima un escenari de la biblioteca a partir de les dades obertes: la distribució marginal de cada variable, les seves correlacions latents i els efectes condicionals sobre la resposta. Els estudis simulats des d'ell s'assemblen a les dades. Les dades no distingeixen causes de correlacions: l'escenari té correlacions sense direcció, que cal convertir en una estructura causal abans d'usar-lo en docència (vós, o una IA amb el fitxer exportat)."),
 "Derive scenario from data": ("Derivar escenario de los datos", "Derivar escenari de les dades"),

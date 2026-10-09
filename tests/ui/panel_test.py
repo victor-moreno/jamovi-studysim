@@ -67,6 +67,7 @@ with sync_playwright() as p:
     page.wait_for_timeout(1500)
     labels = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()]
     check("years" in labels and "female/male" in labels and "never/former/current" in labels, "units/categories column")
+    check(all(len(x) <= 26 for x in labels), "units/categories at most ~25 characters: %s" % max(labels, key=len))
     sel0 = fr.locator(".list-item-cell select")
     check(sel0.nth(ids.index("sex")).is_disabled() and not sel0.nth(ids.index("age")).is_disabled()
           and not sel0.nth(ids.index("coffee")).is_disabled(), "form only for numeric variables")
@@ -79,8 +80,8 @@ with sync_playwright() as p:
     cuts.nth(ids.index("bmi")).fill("25, 30")
     boxes.nth(ids.index("coffee")).check(force=True); page.wait_for_timeout(600)
     cuts.nth(ids.index("coffee")).fill("0"); cuts.nth(ids.index("coffee")).press("Enter"); page.wait_for_timeout(600)
-    forms.nth(ids.index("coffee")).select_option(label="cut points"); page.wait_for_timeout(800); cuts.nth(ids.index("bmi")).press("Enter"); page.wait_for_timeout(600)
-    forms.nth(ids.index("bmi")).select_option(label="cut points"); page.wait_for_timeout(6000)
+    forms.nth(ids.index("coffee")).select_option(label="cuts"); page.wait_for_timeout(800); cuts.nth(ids.index("bmi")).press("Enter"); page.wait_for_timeout(600)
+    forms.nth(ids.index("bmi")).select_option(label="cuts"); page.wait_for_timeout(6000)
     t = results_text(page)
     check("Q4: >" in t and "G3: >30" in t and "G1: ≤0" in t and "0.000" not in t, "categorised variables in the descriptives, cut points as typed")
     boxes.nth(ids.index("coffee")).uncheck(force=True); page.wait_for_timeout(1500)

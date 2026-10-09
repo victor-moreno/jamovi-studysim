@@ -1,4 +1,4 @@
-# studysim: simulated medical studies for jamovi
+# studysim: generate simulated medical studies for jamovi
 
 A jamovi module for teaching epidemiology and clinical research. The student picks a
 **clinical scenario** from a library, one of its **outcomes**, a **study design**
@@ -21,7 +21,7 @@ It needs no packages beyond those bundled with jamovi: `survival`, `yaml`,
   scenario's variables to include in the data (none at start); the others stay unmeasured but still act (residual confounding
   exercises). *Form* (numeric variables only) groups a continuous variable: median split, tertiles,
   quartiles, quintiles (cut points from the sample, labels such as `Q2: 24.0–27.3`)
-  or *cut points* typed as values (`18.5, 25, 30`, or `18,5; 25` with a decimal
+  or *cuts* typed as values (`18.5, 25, 30`, or `18,5; 25` with a decimal
   comma; labels keep the typed decimals) or percentiles (`10%, 90%`); the answer key then gives the expected
   group contrasts.
 - Design options: controls per case, follow-up, loss to follow-up, recruitment

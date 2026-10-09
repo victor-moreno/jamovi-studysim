@@ -37,7 +37,7 @@ children:
           type: Label
       - name: units
         label: Units or categories
-        maxWidth: 130
+        maxWidth: 150
         selectable: false
         template:
           type: Label
@@ -49,13 +49,13 @@ children:
           type: CheckBox
       - name: form
         label: Form
-        maxWidth: 110
+        maxWidth: 95
         selectable: false
         template:
           type: ComboBox
       - name: cuts
-        label: Cut points
-        maxWidth: 90
+        label: Cuts
+        maxWidth: 110
         selectable: false
         template:
           type: TextBox

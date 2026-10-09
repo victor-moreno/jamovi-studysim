@@ -104,7 +104,7 @@ options:
                     - name: quintiles
                       title: quintiles
                     - name: cuts
-                      title: cut points
+                      title: cuts
                 default: continuous
               - name: cuts
                 type: String

@@ -85,7 +85,13 @@ function unitsText(def, l, lib, sc) {
         lv = [a[0] + a[0], a[0] + a[1], a[1] + a[1]];
     }
     if (!lv && def.type === 'binary') lv = ['no', 'yes'];
-    return (lv || []).map(function(x) { return dlevel(String(x), l, lib, sc); }).join('/');
+    lv = (lv || []).map(function(x) { return dlevel(String(x), l, lib, sc); });
+    // keep the column narrow: over ~25 characters, each category is cut to
+    // an equal share of them (at least 2 characters), marked with a dot
+    var text = lv.join('/');
+    if (text.length <= 25 || lv.length === 0) return text;
+    var k = Math.max(2, Math.floor((25 - (lv.length - 1)) / lv.length) - 1);
+    return lv.map(function(x) { return x.length > k + 1 ? x.substring(0, k) + '.' : x; }).join('/');
 }
 
 function b64ToText(b64) {

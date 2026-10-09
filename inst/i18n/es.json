@@ -142,14 +142,14 @@
             "Custom only": [
                 "Solo la propia"
             ],
-            "cut points": [
-                "puntos de corte"
-            ],
-            "Cut points": [
-                "Cortes"
-            ],
             "Cut points of {var}: {msg}": [
                 "Puntos de corte de {var}: {msg}"
+            ],
+            "cuts": [
+                "cortes"
+            ],
+            "Cuts": [
+                "Cortes"
             ],
             "Data dictionary": [
                 "Diccionario de datos"
