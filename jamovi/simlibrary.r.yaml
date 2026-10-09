@@ -1,0 +1,99 @@
+---
+name: simLibrary
+title: Library
+jrs: '1.1'
+
+items:
+    - name: notice
+      title: ''
+      type: Html
+      visible: false
+      clearWith: [libContent, source, scenario]
+
+    - name: scenarios
+      title: Scenarios
+      type: Table
+      visible: (showScenarios)
+      rows: 0
+      clearWith: [libContent, source]
+      columns:
+          - {name: id, title: Scenario, type: text}
+          - {name: label, title: Title, type: text}
+          - {name: outcomes, title: Outcomes, type: text}
+          - {name: designs, title: Designs, type: text}
+          - {name: nvars, title: Variables, type: integer}
+          - {name: origin, title: Source, type: text}
+
+    - name: problems
+      title: Check
+      type: Table
+      visible: (showProblems)
+      rows: 0
+      clearWith: [libContent, source]
+      columns:
+          - {name: scenario, title: Scenario, type: text}
+          - {name: where, title: Where, type: text}
+          - {name: level, title: Level, type: text}
+          - {name: message, title: Problem, type: text}
+
+    - name: variables
+      title: Variables
+      type: Table
+      visible: (showDetails)
+      rows: 0
+      clearWith: [libContent, source, scenario]
+      columns:
+          - {name: name, title: Variable, type: text}
+          - {name: label, title: Label, type: text}
+          - {name: type, title: Type, type: text}
+          - {name: distribution, title: Distribution, type: text}
+
+    - name: effects
+      title: Effects on the outcomes
+      type: Table
+      visible: (showDetails)
+      rows: 0
+      clearWith: [libContent, source, scenario]
+      columns:
+          - {name: outcome, title: Outcome, type: text}
+          - {name: variable, title: Variable, type: text}
+          - {name: contrast, title: Contrast, type: text}
+          - {name: measure, title: Measure, type: text}
+          - {name: value, title: Value, type: number}
+          - {name: note, title: Note, type: text}
+
+    - name: structure
+      title: Structure among variables
+      type: Table
+      visible: (showDetails)
+      rows: 0
+      clearWith: [libContent, source, scenario]
+      columns:
+          - {name: from, title: From, type: text}
+          - {name: to, title: To, type: text}
+          - {name: strength, title: Strength, type: number}
+          - {name: kind, title: Kind, type: text}
+
+    - name: about
+      title: About the scenario
+      type: Html
+      visible: (showDetails)
+      clearWith: [libContent, source, scenario]
+
+    - name: exportState
+      title: ''
+      type: Table
+      visible: false
+      rows: 0
+      clearWith: [libContent, source, scenario, exportFormat, exportScope]
+      columns:
+          - {name: fired, title: '', type: text}
+
+    - name: templateState
+      title: ''
+      type: Table
+      visible: false
+      rows: 0
+      columns:
+          - {name: fired, title: '', type: text}
+...

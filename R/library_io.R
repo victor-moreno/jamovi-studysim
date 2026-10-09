@@ -230,9 +230,14 @@ tables_to_library <- function(t) {
 
 # ---- files in and out ----------------------------------------------------------
 
-write_library_xlsx <- function(lib, path) {
+write_library_xlsx <- function(lib, path, help = NULL) {
     t <- library_to_tables(lib)
     wb <- openxlsx::createWorkbook()
+    if (!is.null(help)) {
+        openxlsx::addWorksheet(wb, "help")
+        openxlsx::writeData(wb, "help", data.frame(help = help), colNames = FALSE)
+        openxlsx::setColWidths(wb, "help", 1, 140)
+    }
     for (nm in names(t)) {
         openxlsx::addWorksheet(wb, nm)
         openxlsx::writeData(wb, nm, t[[nm]], headerStyle = openxlsx::createStyle(textDecoration = "bold"))
@@ -243,7 +248,7 @@ write_library_xlsx <- function(lib, path) {
 }
 
 read_library_xlsx <- function(path) {
-    sheets <- openxlsx::getSheetNames(path)
+    sheets <- setdiff(openxlsx::getSheetNames(path), "help")
     t <- lapply(stats::setNames(sheets, sheets), function(s) {
         d <- openxlsx::read.xlsx(path, sheet = s, colNames = TRUE, skipEmptyRows = TRUE)
         d[] <- lapply(d, as.character)
@@ -334,4 +339,21 @@ get_library <- function(payload = "", name = "") {
     if (is.null(.libcache[[key]]))
         .libcache[[key]] <- merge_libraries(builtin_library(), read_library_payload(payload, name))
     .libcache[[key]]
+}
+
+# one scenario with the dictionary entries it draws on
+library_subset <- function(lib, ids) {
+    sc <- lib$scenarios[ids]
+    used <- unique(unlist(lapply(sc, function(s) names(Filter(function(v) is.null(v$type) || identical(v$from, "dictionary"), s$variables)))))
+    list(dictionary = lib$dictionary[intersect(names(lib$dictionary), used)], scenarios = sc)
+}
+
+# a readable one-line description of a variable's marginal distribution
+describe_variable <- function(v) {
+    switch(v$type,
+        continuous = , count = paste0(v$dist$family, "(", paste(signif(v$dist$args, 4), collapse = ", "), ")",
+                                      if (!is.null(v$range)) sprintf(" in [%s, %s]", v$range[1], v$range[2]) else ""),
+        binary = sprintf("%s %.3g", v$levels[2], v$p),
+        genotype = sprintf("MAF %.3g (%s)", v$maf, paste(v$levels, collapse = "/")),
+        paste(sprintf("%s %.3g", v$levels, v$probs), collapse = ", "))
 }

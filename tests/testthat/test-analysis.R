@@ -40,3 +40,28 @@ test_that("the analysis serialises as jamovi does", {
   pb <- RProtoBuf::serialize(a$asProtoBuf(final = FALSE, includeState = TRUE), NULL)
   expect_gt(length(pb), 1000)
 })
+
+test_that("simLibrary lists, checks and details the built-in library", {
+  r <- simLibrary(data = data.frame(), source = "builtin", scenario = "chd_incidence")
+  s <- r$scenarios$asDF
+  expect_gte(nrow(s), 6)
+  expect_true(all(s$origin == "built-in"))
+  expect_equal(nrow(r$problems$asDF), 0)
+  expect_true("coffee" %in% r$variables$asDF$name)
+  expect_true(any(r$structure$asDF$from == "smoking" & r$structure$asDF$to == "coffee"))
+  expect_match(r$about$content, "Coronary")
+})
+
+test_that("simLibrary reads a custom Excel library and reports its problems", {
+  lib <- library_subset(builtin_library(), "antihypertensive_trial")
+  lib$scenarios$antihypertensive_trial$id <- "bad_trial"
+  names(lib$scenarios) <- "bad_trial"
+  lib$scenarios$bad_trial$outcomes$sbp$effects$salt <- list(beta = 0.6, per = 1)
+  lib$scenarios$bad_trial$variables$salt$dist <- "normal(9)"
+  f <- tempfile(fileext = ".xlsx"); write_library_xlsx(lib, f)
+  b64 <- jsonlite::base64_enc(readBin(f, "raw", file.size(f)))
+  r <- simLibrary(data = data.frame(), libContent = b64, libName = "mine.xlsx", source = "custom", scenario = "bad_trial")
+  expect_identical(r$scenarios$asDF$origin, "custom")
+  p <- r$problems$asDF
+  expect_true(any(grepl("takes 2 values", p$message)))
+})

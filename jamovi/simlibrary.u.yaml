@@ -1,0 +1,40 @@
+title: Library
+name: simLibrary
+jus: '3.0'
+stage: 0
+compilerMode: tame
+children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: libName
+        label: Custom library
+        format: string
+        width: large
+      - type: ComboBox
+        name: source
+      - type: TextBox
+        name: scenario
+        format: string
+        width: large
+  - type: Label
+    label: Show
+    children:
+      - type: CheckBox
+        name: showScenarios
+      - type: CheckBox
+        name: showProblems
+      - type: CheckBox
+        name: showDetails
+  - type: Label
+    label: Export
+    children:
+      - type: ComboBox
+        name: exportFormat
+      - type: ComboBox
+        name: exportScope
+      - type: ActionButton
+        name: exportLib
+      - type: ActionButton
+        name: exportTemplate

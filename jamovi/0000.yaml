@@ -22,6 +22,18 @@ analyses:
       the library, a study design compatible with its outcome, a sample size and
       some realism. The dataset opens in a new window; the answer key holds the
       true parameters and what the design is expected to estimate.
+  - title: Library
+    name: simLibrary
+    ns: studysim
+    category: analyses
+    menuGroup: Simulate
+    menuTitle: Library
+    menuSubtitle: Import, check, explore and export scenarios
+    description: >
+      Manages the scenario library of the Study Simulator: reads a custom
+      library (YAML, Excel, JSON or a zip of them), checks it, shows its
+      scenarios, and exports the library or one scenario as Excel, JSON or YAML,
+      or an Excel template to start a new one.
 usesNative: false
 minApp: 28.4.0
 

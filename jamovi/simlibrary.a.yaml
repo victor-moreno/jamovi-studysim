@@ -1,0 +1,99 @@
+---
+name: simLibrary
+title: Library
+menuGroup: Simulate
+menuTitle: Library
+menuSubtitle: Import, check, explore and export scenarios
+version: '0.1.0'
+jas: '1.2'
+
+description:
+    main: >
+        Manages the scenario library of the Study Simulator: reads a custom
+        library (YAML, Excel, JSON or a zip of them), checks it, shows its
+        scenarios, and exports the library or one scenario as Excel, JSON or
+        YAML, or an Excel template to start a new one.
+    R:
+        dontrun: true
+        usage: |
+            # studysim:::check_library(studysim:::builtin_library())
+
+options:
+    - name: data
+      type: Data
+
+    - name: libName
+      title: Custom library
+      type: String
+      default: ""
+
+    - name: libContent
+      title: Custom library payload
+      type: String
+      default: ""
+      hidden: true
+
+    - name: source
+      title: Library shown
+      type: List
+      options:
+          - name: merged
+            title: Built-in and custom
+          - name: builtin
+            title: Built-in only
+          - name: custom
+            title: Custom only
+      default: merged
+
+    - name: scenario
+      title: Scenario
+      type: String
+      default: "breast_cancer_risk"
+
+    - name: showScenarios
+      title: Scenarios
+      type: Bool
+      default: true
+
+    - name: showProblems
+      title: Check
+      type: Bool
+      default: true
+
+    - name: showDetails
+      title: Selected scenario
+      type: Bool
+      default: true
+
+    - name: exportFormat
+      title: Format
+      type: List
+      options:
+          - name: xlsx
+            title: Excel workbook
+          - name: json
+            title: JSON (for the Simulated study pickers)
+          - name: yaml
+            title: YAML files (zip)
+      default: xlsx
+
+    - name: exportScope
+      title: Export
+      type: List
+      options:
+          - name: all
+            title: Whole library
+          - name: scenario
+            title: Selected scenario
+      default: all
+
+    - name: exportLib
+      title: Export library
+      type: Action
+      action: openExternal
+
+    - name: exportTemplate
+      title: Excel template
+      type: Action
+      action: openExternal
+...

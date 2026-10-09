@@ -17,6 +17,16 @@ module.exports = {
     refresh: function(ui, reset) {
         var self = this;
         var l = S.lang();
+        if (S.customLibrary(ui).error === 'notjson') {
+            // only JSON can be read here: ids are typed, the measured variables default to all
+            ['scenario', 'outcome'].forEach(function(nm) {
+                var $i = ui[nm] && ui[nm].$input;
+                if ($i) { $i.prev('select.studysim-pick').remove(); $i.css('display', ''); }
+            });
+            ui.factorSupplier.setValue([]);
+            S.browseButton(ui, function() { self.refresh(ui, true); });
+            return;
+        }
         var lib = S.library(ui);
         var ids = Object.keys(lib.scenarios);
         var scId = S.getOpt(ui, 'scenario');
