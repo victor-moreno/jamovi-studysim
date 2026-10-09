@@ -4,7 +4,8 @@ Use this prompt with any AI assistant. Attach (or paste) two files:
 
 1. the YAML exported by **Simulate ▸ Derive scenario** in jamovi (it has a
    `derivation:` block with the estimates and their context);
-2. `schema.md`, the library format (in the module: `inst/library/schema.md`).
+2. `schema.md`, the library format (`ai/schema.md`, next to this prompt; a copy
+   of `inst/library/schema.md` refreshed by `tools/build-ai-skill.sh`).
    Do not skip it: without it the assistant guesses the format (e.g. the
    `i18n:` layout) and the library check rejects or silently ignores parts.
 
