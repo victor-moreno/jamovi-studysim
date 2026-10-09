@@ -167,10 +167,6 @@ simLibraryResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="Title", 
                         `type`="text"),
                     list(
-                        `name`="domain", 
-                        `title`="Domain", 
-                        `type`="text"),
-                    list(
                         `name`="outcomes", 
                         `title`="Outcomes", 
                         `type`="text"),

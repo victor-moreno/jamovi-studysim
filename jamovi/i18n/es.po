@@ -1,0 +1,651 @@
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2021-07-26 12:08:06+01000\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Language: es\n"
+
+#: R/simstudy.b.R
+msgid "{cases} cases and {controls} controls"
+msgstr "{cases} casos y {controls} controles"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-years"
+msgstr "{events} eventos en {pt} personas-año"
+
+#: R/simstudy.b.R
+msgid "{n} cases have fewer controls than asked"
+msgstr "{n} casos tienen menos controles de los pedidos"
+
+#: R/simstudy.b.R
+msgid "{n} rows"
+msgstr "{n} filas"
+
+#: R/simstudy.b.R
+#: simStudy/options/design/crossover.title
+msgid "2x2 crossover trial"
+msgstr "Ensayo cruzado 2x2"
+
+#: simLibrary/results/about.title
+msgid "About the scenario"
+msgstr "Sobre el escenario"
+
+#: simStudy/results/keyExpected.columns.title
+msgid "Adjusted"
+msgstr "Ajustado"
+
+#: simStudy/options/showKey.title
+msgid "Answer key"
+msgstr "Clave de respuestas"
+
+#: simStudy/results/keyNotes.title
+msgid "Answer key: notes"
+msgstr "Clave de respuestas: notas"
+
+#: simStudy/results/keyEffects.title
+msgid "Answer key: true model"
+msgstr "Clave de respuestas: modelo verdadero"
+
+#: simStudy/results/keyExpected.title
+msgid "Answer key: what this design should estimate"
+msgstr "Clave de respuestas: qué debería estimar este diseño"
+
+#: R/simstudy.b.R
+msgid ""
+"baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} "
+"years"
+msgstr ""
+"escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo "
+"{q} en {t} años"
+
+#: simLibrary/options/scenario.default
+#: simStudy/options/scenario.default
+msgid "breast_cancer_risk"
+msgstr ""
+
+#: R/simlibrary.b.R
+msgid "built-in"
+msgstr "incluido"
+
+#: simLibrary/options/source/merged.title
+msgid "Built-in and custom"
+msgstr "Incluida y propia"
+
+#: simLibrary/options/source/builtin.title
+msgid "Built-in only"
+msgstr "Solo la incluida"
+
+#: R/simstudy.b.R
+msgid "Calibration"
+msgstr "Calibración"
+
+#: simStudy/ui/factorSupplier.label
+msgid "Candidate variables"
+msgstr "Variables candidatas"
+
+#: simStudy/options/carryover.title
+msgid "Carryover effect"
+msgstr "Efecto residual (carryover)"
+
+#: R/simstudy.b.R
+#: simStudy/options/design/case_control.title
+msgid "Case-control"
+msgstr "Casos y controles"
+
+#: R/simstudy.b.R
+msgid "cases found among {n} people of the source population (risk {risk}%)"
+msgstr "casos hallados entre {n} personas de la población de origen (riesgo {risk}%)"
+
+#: simLibrary/options/showProblems.title
+#: simLibrary/results/problems.title
+msgid "Check"
+msgstr "Comprobación"
+
+#: R/simstudy.b.R
+#: simStudy/options/design/cohort.title
+msgid "Cohort"
+msgstr "Cohorte"
+
+#: simStudy/options/missingMech/mcar.title
+msgid "Completely at random"
+msgstr "Completamente al azar"
+
+#: R/simstudy.b.R
+msgid "continuous"
+msgstr "continua"
+
+#: simLibrary/results/effects.columns.title
+#: simStudy/results/keyEffects.columns.title
+#: simStudy/results/keyExpected.columns.title
+msgid "Contrast"
+msgstr "Contraste"
+
+#: simStudy/options/ccRatio.title
+msgid "Controls per case"
+msgstr "Controles por caso"
+
+#: R/simlibrary.b.R
+msgid "correlation"
+msgstr "correlación"
+
+#: R/simstudy.b.R
+#: simStudy/options/design/cross_sectional.title
+msgid "Cross-sectional"
+msgstr "Transversal"
+
+#: simStudy/results/keyExpected.columns.title
+msgid "Crude"
+msgstr "Crudo"
+
+#: R/simlibrary.b.R
+msgid "custom"
+msgstr "propio"
+
+#: simLibrary/options/libName.title
+#: simLibrary/ui[0]/libName.label
+#: simStudy/options/libName.title
+#: simStudy/ui[0]/libName.label
+msgid "Custom library"
+msgstr "Biblioteca propia"
+
+#: simLibrary/options/libContent.title
+#: simStudy/options/libContent.title
+msgid "Custom library payload"
+msgstr "Contenido de la biblioteca propia"
+
+#: simLibrary/options/source/custom.title
+msgid "Custom only"
+msgstr "Solo la propia"
+
+#: simStudy/options/showDictionary.title
+#: simStudy/results/dictionary.title
+msgid "Data dictionary"
+msgstr "Diccionario de datos"
+
+#: simStudy/options/missingMech/mar.title
+msgid "Depending on the outcome"
+msgstr "Según la variable respuesta"
+
+#: simStudy/results/dictionary.columns.title
+msgid "Description"
+msgstr "Descripción"
+
+#: R/simstudy.b.R
+#: simStudy/options/design.title
+msgid "Design"
+msgstr "Diseño"
+
+#: simStudy/ui[3].label
+msgid "Design options"
+msgstr "Opciones del diseño"
+
+#: simLibrary/results/scenarios.columns.title
+msgid "Designs"
+msgstr "Diseños"
+
+#: simLibrary/results/variables.columns.title
+msgid "Distribution"
+msgstr "Distribución"
+
+#: R/simstudy.b.R
+msgid ""
+"Effects are teaching-grade plausible values informed by the literature, not "
+"meta-analytic estimates."
+msgstr ""
+"Los efectos son valores plausibles para la docencia, basados en la "
+"literatura, no estimaciones metaanalíticas."
+
+#: simLibrary/results/effects.title
+msgid "Effects on the outcomes"
+msgstr "Efectos sobre las variables respuesta"
+
+#: simStudy/results/keyExpected.columns.title
+msgid "Estimate"
+msgstr "Estimación"
+
+#: simLibrary/options/exportTemplate.title
+msgid "Excel template"
+msgstr "Plantilla Excel"
+
+#: simLibrary/options/exportFormat/xlsx.title
+msgid "Excel workbook"
+msgstr "Libro de Excel"
+
+#: R/simstudy.b.R
+msgid ""
+"Expected values: crude and adjusted estimates from one simulated study of "
+"{n} rows with this design; adjusted for {vars}."
+msgstr ""
+"Valores esperados: estimaciones crudas y ajustadas de un estudio simulado de "
+"{n} filas con este diseño; ajustado por {vars}."
+
+#: simLibrary/options/exportScope.title
+#: simLibrary/ui[2].label
+msgid "Export"
+msgstr "Exportar"
+
+#: simStudy/options/exportCsv.title
+msgid "Export CSV"
+msgstr "Exportar CSV"
+
+#: simLibrary/options/exportLib.title
+msgid "Export library"
+msgstr "Exportar biblioteca"
+
+#: simStudy/options/followup.title
+msgid "Follow-up (years)"
+msgstr "Seguimiento (años)"
+
+#: simLibrary/options/exportFormat.title
+msgid "Format"
+msgstr "Formato"
+
+#: simLibrary/results/structure.columns.title
+msgid "From"
+msgstr "Desde"
+
+#: package/analyses/simLibrary.menuSubtitle
+#: simLibrary/options.menuSubtitle
+msgid "Import, check, explore and export scenarios"
+msgstr "Importar, comprobar, explorar y exportar escenarios"
+
+#: R/simstudy.b.R
+msgid "integer"
+msgstr "entera"
+
+#: R/simstudy.b.R
+msgid "intercept {a}"
+msgstr "constante {a}"
+
+#: R/simstudy.b.R
+msgid "intercept {a} gives a prevalence of {p}"
+msgstr "la constante {a} da una prevalencia de {p}"
+
+#: R/simlibrary.b.R
+msgid "intervention"
+msgstr "intervención"
+
+#: simLibrary/options/exportFormat/json.title
+msgid "JSON (for the Simulated study pickers)"
+msgstr "JSON (para los selectores de Estudio simulado)"
+
+#: simLibrary/results/structure.columns.title
+msgid "Kind"
+msgstr "Tipo"
+
+#: simLibrary/results/variables.columns.title
+msgid "Label"
+msgstr "Etiqueta"
+
+#: simLibrary/results/problems.columns.title
+msgid "Level"
+msgstr "Nivel"
+
+#: package/analyses/simLibrary.title
+#: package/analyses/simLibrary.menuTitle
+#: simLibrary/options.title
+#: simLibrary/options.menuTitle
+#: simLibrary/ui.title
+#: simLibrary/results.title
+msgid "Library"
+msgstr "Biblioteca"
+
+#: simLibrary/options/source.title
+msgid "Library shown"
+msgstr "Biblioteca mostrada"
+
+#: R/simstudy.b.R
+msgid "log intercept {a}"
+msgstr "constante logarítmica {a}"
+
+#: simStudy/options/loss.title
+msgid "Loss to follow-up (% per year)"
+msgstr "Pérdidas de seguimiento (% anual)"
+
+#: package/analyses/simLibrary.description
+#: simLibrary/options.description.main
+msgid ""
+"Manages the scenario library of the Study Simulator: reads a custom library "
+"(YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and "
+"exports the library or one scenario as Excel, JSON or YAML, or an Excel "
+"template to start a new one."
+msgstr ""
+"Gestiona la biblioteca de escenarios del Simulador de estudios: lee una "
+"biblioteca propia (YAML, Excel, JSON o un zip de ellos), la comprueba, "
+"muestra sus escenarios y exporta la biblioteca o un escenario en Excel, JSON "
+"o YAML, o una plantilla Excel para empezar una nueva."
+
+#: R/simstudy.b.R
+#: simStudy/options/design/matched_cc.title
+msgid "Matched case-control"
+msgstr "Casos y controles emparejados"
+
+#: R/simstudy.b.R
+msgid "matched on {vars}"
+msgstr "emparejados por {vars}"
+
+#: R/simlibrary.b.R
+msgid "mean {m}"
+msgstr "media {m}"
+
+#: R/simlibrary.b.R
+msgid "mean {m}, residual SD {s}"
+msgstr "media {m}, DE residual {s}"
+
+#: simLibrary/results/effects.columns.title
+#: simStudy/results/keyEffects.columns.title
+msgid "Measure"
+msgstr "Medida"
+
+#: R/simlibrary.b.R
+msgid "median {m} years"
+msgstr "mediana {m} años"
+
+#: simStudy/results/dictionary.columns.title
+msgid "Missing"
+msgstr "Perdidos"
+
+#: simStudy/options/missing.title
+msgid "Missing values (%)"
+msgstr "Valores perdidos (%)"
+
+#: simStudy/options/missingMech.title
+msgid "Missingness"
+msgstr "Mecanismo de pérdida"
+
+#: R/simlibrary.b.R
+msgid "No problems found in {n} scenarios."
+msgstr "No se han encontrado problemas en {n} escenarios."
+
+#: R/simstudy.b.R
+msgid "nominal"
+msgstr "nominal"
+
+#: R/simstudy.b.R
+msgid "not measured (they still act): {vars}"
+msgstr "no medidas (pero actúan): {vars}"
+
+#: simLibrary/results/effects.columns.title
+#: simStudy/results/keyEffects.columns.title
+#: simStudy/results/keyExpected.columns.title
+msgid "Note"
+msgstr "Nota"
+
+#: simStudy/options/openData.title
+msgid "Open dataset"
+msgstr "Abrir datos"
+
+#: R/simstudy.b.R
+msgid "ordinal"
+msgstr "ordinal"
+
+#: R/simstudy.b.R
+#: simLibrary/results/effects.columns.title
+#: simStudy/options/outcome.title
+msgid "Outcome"
+msgstr "Variable respuesta"
+
+#: simLibrary/results/scenarios.columns.title
+msgid "Outcomes"
+msgstr "Variables respuesta"
+
+#: simStudy/ui[5].label
+msgid "Output"
+msgstr "Salida"
+
+#: R/simlibrary.b.R
+msgid "path"
+msgstr "camino"
+
+#: simStudy/options/period.title
+msgid "Period effect"
+msgstr "Efecto periodo"
+
+#: R/simstudy.b.R
+msgid ""
+"Press <b>Open dataset</b> to open the data in a new window, or <b>Export "
+"CSV</b> to save them."
+msgstr ""
+"Pulse <b>Abrir datos</b> para abrir los datos en una ventana nueva, o "
+"<b>Exportar CSV</b> para guardarlos."
+
+#: R/simlibrary.b.R
+msgid "prevalence {p}"
+msgstr "prevalencia {p}"
+
+#: simLibrary/results/problems.columns.title
+msgid "Problem"
+msgstr "Problema"
+
+#: R/simstudy.b.R
+#: simStudy/options/design/prognosis.title
+msgid "Prognosis (patient cohort)"
+msgstr "Pronóstico (cohorte de pacientes)"
+
+#: R/simstudy.b.R
+#: simStudy/options/design/rct.title
+msgid "Randomised trial"
+msgstr "Ensayo aleatorizado"
+
+#: R/simlibrary.b.R
+msgid "rate {r} per year"
+msgstr "tasa {r} por año"
+
+#: simStudy/ui[4].label
+msgid "Realism"
+msgstr "Realismo"
+
+#: simStudy/options/accrual.title
+msgid "Recruitment period (years)"
+msgstr "Periodo de reclutamiento (años)"
+
+#: R/simlibrary.b.R
+msgid "References"
+msgstr "Referencias"
+
+#: R/simlibrary.b.R
+msgid "risk {r} at {t} years"
+msgstr "riesgo {r} a {t} años"
+
+#: simStudy/options/n.title
+msgid "Sample size"
+msgstr "Tamaño muestral"
+
+#: R/simstudy.b.R
+#: simLibrary/options/scenario.title
+#: simLibrary/results/scenarios.columns.title
+#: simLibrary/results/problems.columns.title
+#: simStudy/options/scenario.title
+msgid "Scenario"
+msgstr "Escenario"
+
+#: package/analyses/simStudy.menuSubtitle
+#: simStudy/options.menuSubtitle
+msgid "Scenario, design, dataset and answer key"
+msgstr "Escenario, diseño, datos y clave de respuestas"
+
+#: simLibrary/options/showScenarios.title
+#: simLibrary/results/scenarios.title
+msgid "Scenarios"
+msgstr "Escenarios"
+
+#: simStudy/options/seed.title
+msgid "Seed"
+msgstr "Semilla"
+
+#: R/simstudy.b.R
+msgid "seed {seed}"
+msgstr "semilla {seed}"
+
+#: R/simstudy.b.R
+msgid "seed {seed} with student key \"{key}\""
+msgstr "semilla {seed} con clave de estudiante \"{key}\""
+
+#: simLibrary/options/showDetails.title
+#: simLibrary/options/exportScope/scenario.title
+msgid "Selected scenario"
+msgstr "Escenario seleccionado"
+
+#: R/simstudy.b.R
+msgid "sequences: {a} and {b} participants"
+msgstr "secuencias: {a} y {b} participantes"
+
+#: simLibrary/ui[1].label
+msgid "Show"
+msgstr "Mostrar"
+
+#: package/analyses/simStudy.menuGroup
+#: package/analyses/simLibrary.menuGroup
+#: simLibrary/options.menuGroup
+#: simStudy/options.menuGroup
+msgid "Simulate"
+msgstr "Simular"
+
+#: package/analyses/simStudy.title
+#: package/analyses/simStudy.menuTitle
+#: simStudy/options.title
+#: simStudy/options.menuTitle
+#: simStudy/ui.title
+#: simStudy/results.title
+msgid "Simulated study"
+msgstr "Estudio simulado"
+
+#: package/analyses/simStudy.description
+#: simStudy/options.description.main
+msgid ""
+"Simulates a plausible medical study for teaching: a clinical scenario from "
+"the library, a study design compatible with its outcome, a sample size and "
+"some realism. The dataset opens in a new window; the answer key holds the "
+"true parameters and what the design is expected to estimate."
+msgstr ""
+"Simula un estudio médico plausible para la docencia: un escenario clínico de "
+"la biblioteca, un diseño compatible con su variable respuesta, un tamaño "
+"muestral y algo de realismo. Los datos se abren en una ventana nueva; la "
+"clave de respuestas contiene los parámetros verdaderos y lo que el diseño "
+"debería estimar."
+
+#: package.description
+msgid "Simulates plausible medical study datasets for teaching"
+msgstr "Simula datos plausibles de estudios médicos para la docencia"
+
+#: simLibrary/results/scenarios.columns.title
+msgid "Source"
+msgstr "Origen"
+
+#: R/simstudy.b.R
+msgid "Sources of the parameters"
+msgstr "Fuentes de los parámetros"
+
+#: simLibrary/results/structure.columns.title
+msgid "Strength"
+msgstr "Fuerza"
+
+#: simLibrary/results/structure.title
+msgid "Structure among variables"
+msgstr "Estructura entre variables"
+
+#: R/simstudy.b.R
+msgid "Structure among variables (latent paths)"
+msgstr "Estructura entre variables (caminos latentes)"
+
+#: simStudy/options/studentKey.title
+msgid "Student key"
+msgstr "Clave de estudiante"
+
+#: simStudy/results/summary.title
+msgid "Study"
+msgstr "Estudio"
+
+#: package.title
+msgid "Study Simulator"
+msgstr "Simulador de estudios"
+
+#: jamovi/js/shared.js:33
+msgid "studysim-language-code"
+msgstr "es"
+
+#: R/simlibrary.b.R
+#: R/simstudy.b.R
+msgid "Teaching note"
+msgstr "Nota docente"
+
+#: R/simstudy.b.R
+msgid "The {design} design does not fit this outcome. Possible designs: {list}."
+msgstr ""
+"El diseño {design} no encaja con esta variable respuesta. Diseños posibles: "
+"{list}."
+
+#: R/simlibrary.b.R
+msgid "The library has no scenarios. Press Browse… to read a custom library."
+msgstr ""
+"La biblioteca no tiene escenarios. Pulse Browse… para leer una biblioteca "
+"propia."
+
+#: R/simlibrary.b.R
+msgid ""
+"There is no scenario '{id}' in this library; choose one listed under "
+"Scenarios."
+msgstr ""
+"No hay ningún escenario '{id}' en esta biblioteca; elija uno de los listados "
+"en Escenarios."
+
+#: simLibrary/results/scenarios.columns.title
+msgid "Title"
+msgstr "Título"
+
+#: simLibrary/results/structure.columns.title
+msgid "To"
+msgstr "Hacia"
+
+#: simStudy/results/keyExpected.columns.title
+msgid "True"
+msgstr "Verdadero"
+
+#: simStudy/results/keyEffects.columns.title
+msgid "True value"
+msgstr "Valor verdadero"
+
+#: simLibrary/results/variables.columns.title
+#: simStudy/results/dictionary.columns.title
+msgid "Type"
+msgstr "Tipo"
+
+#: simLibrary/results/effects.columns.title
+msgid "Value"
+msgstr "Valor"
+
+#: simStudy/results/dictionary.columns.title
+msgid "Values"
+msgstr "Valores"
+
+#: simLibrary/results/variables.columns.title
+#: simLibrary/results/effects.columns.title
+#: simStudy/results/dictionary.columns.title
+#: simStudy/results/keyEffects.columns.title
+#: simStudy/results/keyExpected.columns.title
+msgid "Variable"
+msgstr "Variable"
+
+#: simLibrary/results/scenarios.columns.title
+#: simLibrary/results/variables.title
+msgid "Variables"
+msgstr "Variables"
+
+#: simStudy/options/factors.title
+#: simStudy/ui/factorSupplier[0].label
+msgid "Variables measured"
+msgstr "Variables medidas"
+
+#: simLibrary/results/problems.columns.title
+msgid "Where"
+msgstr "Dónde"
+
+#: simLibrary/options/exportScope/all.title
+msgid "Whole library"
+msgstr "Toda la biblioteca"
+
+#: simLibrary/options/exportFormat/yaml.title
+msgid "YAML files (zip)"
+msgstr "Ficheros YAML (zip)"

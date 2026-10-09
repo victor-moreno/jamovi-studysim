@@ -12,7 +12,9 @@ GENERIC <- list(
     set = list(en = "Matched set", es = "Grupo emparejado", ca = "Grup aparellat"),
     sequence = list(en = "Treatment sequence", es = "Secuencia de tratamiento", ca = "Seqüència de tractament"),
     period = list(en = "Period", es = "Periodo", ca = "Període"),
-    id = list(en = "Participant identifier", es = "Identificador del participante", ca = "Identificador del participant"))
+    id = list(en = "Participant identifier", es = "Identificador del participante", ca = "Identificador del participant"),
+    per = list(en = "per", es = "por", ca = "per"),
+    vs = list(en = "vs", es = "frente a", ca = "enfront de"))
 
 gtext <- function(key, lang) tr_text(GENERIC[[key]], lang)
 
@@ -85,7 +87,7 @@ data_dictionary <- function(sc, df, factors) {
                 else if (nm %in% names(sc$interventions)) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
         values <- if (is.factor(x)) paste(levels(x), collapse = ", ")
-                  else sprintf("%s to %s", base::format(min(x, na.rm = TRUE)), base::format(max(x, na.rm = TRUE)))
+                  else sprintf("%s \u2013 %s", base::format(min(x, na.rm = TRUE)), base::format(max(x, na.rm = TRUE)))
         data.frame(name = nm, description = attr(x, "jmv-desc") %||% "", role = role, type = type,
                    values = values, missing = sum(is.na(x)), stringsAsFactors = FALSE)
     })

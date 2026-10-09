@@ -1,0 +1,411 @@
+{
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "domain": "messages",
+                "lang": "ca",
+                "plural_forms": "nplurals=2; plural=(n!=1);"
+            },
+            "{cases} cases and {controls} controls": [
+                "{cases} casos i {controls} controls"
+            ],
+            "{events} events in {pt} person-years": [
+                "{events} esdeveniments en {pt} persones-any"
+            ],
+            "{n} cases have fewer controls than asked": [
+                "{n} casos tenen menys controls dels demanats"
+            ],
+            "{n} rows": [
+                "{n} files"
+            ],
+            "2x2 crossover trial": [
+                "Assaig creuat 2x2"
+            ],
+            "About the scenario": [
+                "Sobre l'escenari"
+            ],
+            "Adjusted": [
+                "Ajustat"
+            ],
+            "Answer key": [
+                "Clau de respostes"
+            ],
+            "Answer key: notes": [
+                "Clau de respostes: notes"
+            ],
+            "Answer key: true model": [
+                "Clau de respostes: model veritable"
+            ],
+            "Answer key: what this design should estimate": [
+                "Clau de respostes: què hauria d'estimar aquest disseny"
+            ],
+            "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
+                "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
+            ],
+            "breast_cancer_risk": [
+                ""
+            ],
+            "built-in": [
+                "inclòs"
+            ],
+            "Built-in and custom": [
+                "Inclosa i pròpia"
+            ],
+            "Built-in only": [
+                "Només la inclosa"
+            ],
+            "Calibration": [
+                "Calibratge"
+            ],
+            "Candidate variables": [
+                "Variables candidates"
+            ],
+            "Carryover effect": [
+                "Efecte residual (carryover)"
+            ],
+            "Case-control": [
+                "Casos i controls"
+            ],
+            "cases found among {n} people of the source population (risk {risk}%)": [
+                "casos trobats entre {n} persones de la població d'origen (risc {risk}%)"
+            ],
+            "Check": [
+                "Comprovació"
+            ],
+            "Cohort": [
+                "Cohort"
+            ],
+            "Completely at random": [
+                "Completament a l'atzar"
+            ],
+            "Contrast": [
+                "Contrast"
+            ],
+            "Controls per case": [
+                "Controls per cas"
+            ],
+            "correlation": [
+                "correlació"
+            ],
+            "Cross-sectional": [
+                "Transversal"
+            ],
+            "Crude": [
+                "Cru"
+            ],
+            "custom": [
+                "propi"
+            ],
+            "Custom library": [
+                "Biblioteca pròpia"
+            ],
+            "Custom library payload": [
+                "Contingut de la biblioteca pròpia"
+            ],
+            "Custom only": [
+                "Només la pròpia"
+            ],
+            "Data dictionary": [
+                "Diccionari de dades"
+            ],
+            "Depending on the outcome": [
+                "Segons la variable resposta"
+            ],
+            "Description": [
+                "Descripció"
+            ],
+            "Design": [
+                "Disseny"
+            ],
+            "Design options": [
+                "Opcions del disseny"
+            ],
+            "Designs": [
+                "Dissenys"
+            ],
+            "Distribution": [
+                "Distribució"
+            ],
+            "Effects are teaching-grade plausible values informed by the literature, not meta-analytic estimates.": [
+                "Els efectes són valors plausibles per a la docència, basats en la literatura, no estimacions metaanalítiques."
+            ],
+            "Effects on the outcomes": [
+                "Efectes sobre les variables resposta"
+            ],
+            "Estimate": [
+                "Estimació"
+            ],
+            "Excel template": [
+                "Plantilla Excel"
+            ],
+            "Excel workbook": [
+                "Llibre d'Excel"
+            ],
+            "Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}.": [
+                "Valors esperats: estimacions crues i ajustades d'un estudi simulat de {n} files amb aquest disseny; ajustat per {vars}."
+            ],
+            "Export": [
+                "Exportar"
+            ],
+            "Export CSV": [
+                "Exportar CSV"
+            ],
+            "Export library": [
+                "Exportar biblioteca"
+            ],
+            "Follow-up (years)": [
+                "Seguiment (anys)"
+            ],
+            "Format": [
+                "Format"
+            ],
+            "From": [
+                "Des de"
+            ],
+            "Import, check, explore and export scenarios": [
+                "Importar, comprovar, explorar i exportar escenaris"
+            ],
+            "intercept {a}": [
+                "constant {a}"
+            ],
+            "intercept {a} gives a prevalence of {p}": [
+                "la constant {a} dona una prevalença de {p}"
+            ],
+            "intervention": [
+                "intervenció"
+            ],
+            "JSON (for the Simulated study pickers)": [
+                "JSON (per als selectors d'Estudi simulat)"
+            ],
+            "Kind": [
+                "Tipus"
+            ],
+            "Label": [
+                "Etiqueta"
+            ],
+            "Level": [
+                "Nivell"
+            ],
+            "Library": [
+                "Biblioteca"
+            ],
+            "Library shown": [
+                "Biblioteca mostrada"
+            ],
+            "log intercept {a}": [
+                "constant logarítmica {a}"
+            ],
+            "Loss to follow-up (% per year)": [
+                "Pèrdues de seguiment (% anual)"
+            ],
+            "Manages the scenario library of the Study Simulator: reads a custom library (YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and exports the library or one scenario as Excel, JSON or YAML, or an Excel template to start a new one.": [
+                "Gestiona la biblioteca d'escenaris del Simulador d'estudis: llegeix una biblioteca pròpia (YAML, Excel, JSON o un zip d'aquests), la comprova, mostra els seus escenaris i exporta la biblioteca o un escenari en Excel, JSON o YAML, o una plantilla Excel per començar-ne una de nova."
+            ],
+            "Matched case-control": [
+                "Casos i controls aparellats"
+            ],
+            "matched on {vars}": [
+                "aparellats per {vars}"
+            ],
+            "mean {m}": [
+                "mitjana {m}"
+            ],
+            "mean {m}, residual SD {s}": [
+                "mitjana {m}, DE residual {s}"
+            ],
+            "Measure": [
+                "Mesura"
+            ],
+            "median {m} years": [
+                "mediana {m} anys"
+            ],
+            "Missing": [
+                "Perduts"
+            ],
+            "Missing values (%)": [
+                "Valors perduts (%)"
+            ],
+            "Missingness": [
+                "Mecanisme de pèrdua"
+            ],
+            "No problems found in {n} scenarios.": [
+                "No s'han trobat problemes en {n} escenaris."
+            ],
+            "not measured (they still act): {vars}": [
+                "no mesurades (però actuen): {vars}"
+            ],
+            "Note": [
+                "Nota"
+            ],
+            "Open dataset": [
+                "Obrir dades"
+            ],
+            "Outcome": [
+                "Variable resposta"
+            ],
+            "Outcomes": [
+                "Variables resposta"
+            ],
+            "Output": [
+                "Sortida"
+            ],
+            "path": [
+                "camí"
+            ],
+            "Period effect": [
+                "Efecte període"
+            ],
+            "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them.": [
+                "Premeu <b>Obrir dades</b> per obrir les dades en una finestra nova, o <b>Exportar CSV</b> per desar-les."
+            ],
+            "prevalence {p}": [
+                "prevalença {p}"
+            ],
+            "Problem": [
+                "Problema"
+            ],
+            "Prognosis (patient cohort)": [
+                "Pronòstic (cohort de pacients)"
+            ],
+            "Randomised trial": [
+                "Assaig aleatoritzat"
+            ],
+            "rate {r} per year": [
+                "taxa {r} per any"
+            ],
+            "Realism": [
+                "Realisme"
+            ],
+            "Recruitment period (years)": [
+                "Període de reclutament (anys)"
+            ],
+            "References": [
+                "Referències"
+            ],
+            "risk {r} at {t} years": [
+                "risc {r} a {t} anys"
+            ],
+            "Sample size": [
+                "Mida mostral"
+            ],
+            "Scenario": [
+                "Escenari"
+            ],
+            "Scenario, design, dataset and answer key": [
+                "Escenari, disseny, dades i clau de respostes"
+            ],
+            "Scenarios": [
+                "Escenaris"
+            ],
+            "Seed": [
+                "Llavor"
+            ],
+            "seed {seed}": [
+                "llavor {seed}"
+            ],
+            "seed {seed} with student key \"{key}\"": [
+                "llavor {seed} amb clau d'estudiant \"{key}\""
+            ],
+            "Selected scenario": [
+                "Escenari seleccionat"
+            ],
+            "sequences: {a} and {b} participants": [
+                "seqüències: {a} i {b} participants"
+            ],
+            "Show": [
+                "Mostrar"
+            ],
+            "Simulate": [
+                "Simular"
+            ],
+            "Simulated study": [
+                "Estudi simulat"
+            ],
+            "Simulates a plausible medical study for teaching: a clinical scenario from the library, a study design compatible with its outcome, a sample size and some realism. The dataset opens in a new window; the answer key holds the true parameters and what the design is expected to estimate.": [
+                "Simula un estudi mèdic plausible per a la docència: un escenari clínic de la biblioteca, un disseny compatible amb la seva variable resposta, una mida mostral i una mica de realisme. Les dades s'obren en una finestra nova; la clau de respostes conté els paràmetres veritables i el que el disseny hauria d'estimar."
+            ],
+            "Simulates plausible medical study datasets for teaching": [
+                "Simula dades plausibles d'estudis mèdics per a la docència"
+            ],
+            "Source": [
+                "Origen"
+            ],
+            "Sources of the parameters": [
+                "Fonts dels paràmetres"
+            ],
+            "Strength": [
+                "Força"
+            ],
+            "Structure among variables": [
+                "Estructura entre variables"
+            ],
+            "Structure among variables (latent paths)": [
+                "Estructura entre variables (camins latents)"
+            ],
+            "Student key": [
+                "Clau d'estudiant"
+            ],
+            "Study": [
+                "Estudi"
+            ],
+            "Study Simulator": [
+                "Simulador d'estudis"
+            ],
+            "studysim-language-code": [
+                "ca"
+            ],
+            "Teaching note": [
+                "Nota docent"
+            ],
+            "The {design} design does not fit this outcome. Possible designs: {list}.": [
+                "El disseny {design} no encaixa amb aquesta variable resposta. Dissenys possibles: {list}."
+            ],
+            "The library has no scenarios. Press Browse… to read a custom library.": [
+                "La biblioteca no té escenaris. Premeu Browse… per llegir una biblioteca pròpia."
+            ],
+            "There is no scenario '{id}' in this library; choose one listed under Scenarios.": [
+                "No hi ha cap escenari '{id}' en aquesta biblioteca; trieu-ne un dels llistats a Escenaris."
+            ],
+            "Title": [
+                "Títol"
+            ],
+            "To": [
+                "Cap a"
+            ],
+            "True": [
+                "Veritable"
+            ],
+            "True value": [
+                "Valor veritable"
+            ],
+            "Type": [
+                "Tipus"
+            ],
+            "Value": [
+                "Valor"
+            ],
+            "Values": [
+                "Valors"
+            ],
+            "Variable": [
+                "Variable"
+            ],
+            "Variables": [
+                "Variables"
+            ],
+            "Variables measured": [
+                "Variables mesurades"
+            ],
+            "Where": [
+                "On"
+            ],
+            "Whole library": [
+                "Tota la biblioteca"
+            ],
+            "YAML files (zip)": [
+                "Fitxers YAML (zip)"
+            ]
+        }
+    }
+}

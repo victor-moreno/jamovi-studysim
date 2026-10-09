@@ -10,18 +10,18 @@ contrast_rows <- function(sc, oc, v, lang = "en") {
     eff <- oc$effects[[v]]
     if (v %in% names(sc$interventions)) {
         lv <- sc$interventions[[v]]$levels
-        return(data.frame(variable = v, contrast = sprintf("%s vs %s", lv[-1], lv[1]),
+        return(data.frame(variable = v, contrast = sprintf("%s %s %s", lv[-1], gtext("vs", lang), lv[1]),
                           coefname = paste0(v, lv[-1]), per = 1, level = seq_along(lv)[-1], stringsAsFactors = FALSE))
     }
     x <- sc$variables[[v]]
     if (x$type %in% c("continuous", "count")) {
         per <- eff$per %||% 1
         u <- if (is.null(x$units)) "" else paste0(" ", tr_text(x$units, lang))
-        return(data.frame(variable = v, contrast = sprintf("per %s%s", base::format(per), u), coefname = v,
+        return(data.frame(variable = v, contrast = sprintf("%s %s%s", gtext("per", lang), base::format(per), u), coefname = v,
                           per = per, level = NA_integer_, stringsAsFactors = FALSE))
     }
     lv <- x$levels
-    data.frame(variable = v, contrast = sprintf("%s vs %s", lv[-1], lv[1]), coefname = paste0(v, lv[-1]),
+    data.frame(variable = v, contrast = sprintf("%s %s %s", lv[-1], gtext("vs", lang), lv[1]), coefname = paste0(v, lv[-1]),
                per = 1, level = seq_along(lv)[-1], stringsAsFactors = FALSE)
 }
 

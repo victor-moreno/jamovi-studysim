@@ -150,7 +150,9 @@ simStudyClass <- R6::R6Class(
             d <- res$dictionary
             for (i in seq_len(nrow(d))) {
                 if (!d$name[i] %in% dic$rowKeys) next
-                dic$setRow(rowKey = d$name[i], values = list(description = d$description[i], type = d$type[i],
+                type <- switch(d$type[i], integer = .("integer"), continuous = .("continuous"),
+                               nominal = .("nominal"), ordinal = .("ordinal"), d$type[i])
+                dic$setRow(rowKey = d$name[i], values = list(description = d$description[i], type = type,
                                                               values = d$values[i], missing = d$missing[i]))
             }
         },
