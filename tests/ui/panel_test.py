@@ -1,6 +1,6 @@
 """Drive the Simulated study panel in a jamovi container (jamovi-automation).
 
-    JAMOVI_PORT=41737 JAMOVI_CONTAINER=jamovi-studysim \
+    JAMOVI_CONTAINER=jamovi-studysim \
         sh ../jamovi-automation/run.sh tests/ui/panel_test.py <outdir>
 
 Fails (exit 1) on a page error or a broken expectation; writes screenshots.

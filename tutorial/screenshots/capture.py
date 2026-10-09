@@ -1,6 +1,6 @@
 """Screenshots for the tutorial, from jamovi in Docker (jamovi-automation).
 
-    JAMOVI_PORT=41737 JAMOVI_CONTAINER=jamovi-studysim \
+    JAMOVI_CONTAINER=jamovi-studysim \
         sh ../jamovi-automation/run.sh tutorial/screenshots/capture.py
 
 Needs the module installed in the container and tutorial/screenshots/chd_sim.csv
