@@ -16,3 +16,6 @@ tutorial/_freeze/
 tutorial/.quarto/
 tutorial/*_files/
 documents/
+
+# patient-level data used to derive scenarios: never commit
+scenarios/**/*.csv
