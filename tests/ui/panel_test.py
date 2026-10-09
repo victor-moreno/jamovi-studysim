@@ -51,16 +51,41 @@ with sync_playwright() as p:
     check(oc == ["Coronary heart disease event"], "chd outcome: %s" % oc)
     design.select_option(label="Cohort")
     page.wait_for_timeout(3000)
-    target = fr.locator(".silky-list-item")
-    print("list items:", target.all_inner_texts())
+    names = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()]
+    check("coffee" in names and "age" in names, "checklist lists the variables: %s" % names[:6])
+    boxes = fr.locator(".list-item-cell input[type=checkbox]")
+    check(boxes.count() >= 11, "one checkbox per variable (%d)" % boxes.count())
+    check(all(not boxes.nth(i).is_checked() for i in range(boxes.count())), "none measured at start")
+    ids = ["age", "sex", "education", "physical_activity", "bmi", "smoking", "sbp", "total_chol", "hdl", "diabetes", "coffee"]
+    for v in ["age", "sex", "smoking", "coffee"]:
+        boxes.nth(ids.index(v)).check(force=True)
+        page.wait_for_timeout(700)
+    boxes.nth(ids.index("coffee")).uncheck(force=True)
+    page.wait_for_timeout(1500)
     jc.expand_section(fr, "Output")
     jc.check_option(fr, "Answer key")
-    page.wait_for_timeout(6000)
+    jc.check_option(fr, "Causal diagram (DAG)")
+    page.wait_for_timeout(8000)
     txt = results_text(page)
     check("what this design should estimate" in txt, "answer key shown")
-    check("coffee" in txt, "coffee in the key")
-    page.screenshot(path=os.path.join(OUT, "02-chd-cohort-key.png"))
-
+    check("NaN" not in txt and "none" not in txt, "null variables have a measure and a value")
+    check("Descriptives" in txt and "mean (SD)" in txt, "descriptives table")
+    imgs = [f.locator(".jmv-results-image-image") for f in page.frames if jc.HOST_C in f.url]
+    imgs = [l.nth(i) for l in imgs for i in range(l.count())]
+    drawn = [i for i in imgs if "url(" in (i.evaluate("e => e.style.backgroundImage") or "")]
+    check(len(drawn) >= 1, "DAG image rendered")
+    if drawn:
+        drawn[0].scroll_into_view_if_needed(); page.wait_for_timeout(1500)
+        drawn[0].screenshot(path=os.path.join(OUT, "05-dag.png"))
+    est_cohort = "HR" in txt
+    page.screenshot(path=os.path.join(OUT, "02-chd-cohort-key.png"), full_page=True)
+    design.select_option(label="Case-control")
+    page.wait_for_timeout(8000)
+    txt2 = results_text(page)
+    k = txt2[txt2.find("what this design should estimate"):]
+    check(est_cohort and "OR" in k[:600] and "\tHR" not in k[:600], "answer key follows the design (HR -> OR)")
+    design.select_option(label="Cohort")
+    page.wait_for_timeout(6000)
     n_pages = len(ctx.pages)
     fr.get_by_text("Open dataset", exact=True).click()
     for i in range(60):
@@ -77,7 +102,7 @@ with sync_playwright() as p:
     path = os.path.join(OUT, "export.csv")
     dl.value.save_as(path)
     head = open(path, encoding="utf-8").readline().strip()
-    check(head.startswith('"id","time","chd"'), "CSV header: " + head[:60])
+    check(head == '"id","time","chd","age","sex","smoking"', "CSV header: " + head[:60])
 
     with page.expect_file_chooser(timeout=10000) as fc:
         fr.locator("button.studysim-browse").click()

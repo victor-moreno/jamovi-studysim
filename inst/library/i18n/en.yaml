@@ -1,0 +1,78 @@
+# English names of the dataset columns and labels of the categories.
+# The engine works with the ids on the left; this file only renames what the
+# student sees (column names, levels, tables, diagram). Edit freely; names must
+# start with a letter and use letters, digits and _ only. A missing entry keeps
+# the id or the level as written in the library.
+names:
+  id: id
+  set: set
+  case: case
+  time: time
+  sequence: sequence
+  period: period
+  age: age
+  alcohol: alcohol
+  auc: auc
+  bmi: bmi
+  breast_cancer: breast_cancer
+  chd: chd
+  chemo: chemo
+  cmax: cmax
+  coffee: coffee
+  controlled: controlled
+  death: death
+  diabetes: diabetes
+  drug: drug
+  education: education
+  egfr: egfr
+  er: er
+  family_hist: family_hist
+  fgfr2: fgfr2
+  formulation: formulation
+  grade: grade
+  hba1c: hba1c
+  hba1c0: hba1c0
+  hdl: hdl
+  her2: her2
+  hrt: hrt
+  ki67: ki67
+  menarche: menarche
+  menopause: menopause
+  nodes: nodes
+  parity: parity
+  physical_activity: physical_activity
+  salt: salt
+  sbp: sbp
+  sbp0: sbp0
+  sex: sex
+  smoking: smoking
+  total_chol: total_chol
+  treatment: treatment
+  tumour_size: tumour_size
+  weight: weight
+levels:
+  "control": control
+  "case": case
+  "no": "no"
+  "yes": "yes"
+  female: female
+  male: male
+  never: never
+  former: former
+  current: current
+  ever: ever
+  pre: pre
+  post: post
+  primary: primary
+  secondary: secondary
+  university: university
+  negative: negative
+  positive: positive
+  placebo: placebo
+  amlodipine: amlodipine
+  metformin: metformin
+  reference: reference
+  test: test
+  G1: G1
+  G2: G2
+  G3: G3

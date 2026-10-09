@@ -22,21 +22,25 @@ children:
         width: large
       - type: ComboBox
         name: design
-  - type: Supplier
-    name: factorSupplier
-    label: Candidate variables
-    persistentItems: false
+  - type: ListBox
+    name: measured
+    showColumnHeaders: true
+    fullRowSelect: true
     stretchFactor: 1
-    format: variable
-    children:
-      - type: TargetLayoutBox
-        label: Variables measured
-        children:
-          - type: ListBox
-            name: factors
-            isTarget: true
-            template:
-              type: VariableLabel
+    height: large
+    columns:
+      - name: var
+        label: Variable
+        stretchFactor: 1
+        selectable: false
+        template:
+          type: Label
+      - name: include
+        label: Measured
+        maxWidth: 90
+        selectable: false
+        template:
+          type: CheckBox
   - type: LayoutBox
     margin: large
     children:
@@ -109,5 +113,9 @@ children:
             width: large
           - type: CheckBox
             name: showDictionary
+          - type: CheckBox
+            name: showDescriptives
+          - type: CheckBox
+            name: showDag
           - type: CheckBox
             name: showKey

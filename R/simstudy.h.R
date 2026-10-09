@@ -11,7 +11,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             scenario = "breast_cancer_risk",
             outcome = "",
             design = "case_control",
-            factors = list(),
+            measured = list(),
             n = 500,
             ccRatio = 1,
             followup = 0,
@@ -24,6 +24,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             seed = 1,
             studentKey = "",
             showDictionary = TRUE,
+            showDescriptives = TRUE,
+            showDag = FALSE,
             showKey = FALSE,
             openData = FALSE,
             exportCsv = FALSE, ...) {
@@ -63,13 +65,21 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "crossover",
                     "prognosis"),
                 default="case_control")
-            private$..factors <- jmvcore::OptionArray$new(
-                "factors",
-                factors,
+            private$..measured <- jmvcore::OptionArray$new(
+                "measured",
+                measured,
                 default=list(),
-                template=jmvcore::OptionString$new(
-                    "factors",
-                    NULL))
+                template=jmvcore::OptionGroup$new(
+                    "measured",
+                    NULL,
+                    elements=list(
+                        jmvcore::OptionString$new(
+                            "var",
+                            NULL),
+                        jmvcore::OptionBool$new(
+                            "include",
+                            NULL,
+                            default=FALSE))))
             private$..n <- jmvcore::OptionInteger$new(
                 "n",
                 n,
@@ -135,6 +145,14 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "showDictionary",
                 showDictionary,
                 default=TRUE)
+            private$..showDescriptives <- jmvcore::OptionBool$new(
+                "showDescriptives",
+                showDescriptives,
+                default=TRUE)
+            private$..showDag <- jmvcore::OptionBool$new(
+                "showDag",
+                showDag,
+                default=FALSE)
             private$..showKey <- jmvcore::OptionBool$new(
                 "showKey",
                 showKey,
@@ -153,7 +171,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..scenario)
             self$.addOption(private$..outcome)
             self$.addOption(private$..design)
-            self$.addOption(private$..factors)
+            self$.addOption(private$..measured)
             self$.addOption(private$..n)
             self$.addOption(private$..ccRatio)
             self$.addOption(private$..followup)
@@ -166,6 +184,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..seed)
             self$.addOption(private$..studentKey)
             self$.addOption(private$..showDictionary)
+            self$.addOption(private$..showDescriptives)
+            self$.addOption(private$..showDag)
             self$.addOption(private$..showKey)
             self$.addOption(private$..openData)
             self$.addOption(private$..exportCsv)
@@ -176,7 +196,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         scenario = function() private$..scenario$value,
         outcome = function() private$..outcome$value,
         design = function() private$..design$value,
-        factors = function() private$..factors$value,
+        measured = function() private$..measured$value,
         n = function() private$..n$value,
         ccRatio = function() private$..ccRatio$value,
         followup = function() private$..followup$value,
@@ -189,6 +209,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         seed = function() private$..seed$value,
         studentKey = function() private$..studentKey$value,
         showDictionary = function() private$..showDictionary$value,
+        showDescriptives = function() private$..showDescriptives$value,
+        showDag = function() private$..showDag$value,
         showKey = function() private$..showKey$value,
         openData = function() private$..openData$value,
         exportCsv = function() private$..exportCsv$value),
@@ -198,7 +220,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..scenario = NA,
         ..outcome = NA,
         ..design = NA,
-        ..factors = NA,
+        ..measured = NA,
         ..n = NA,
         ..ccRatio = NA,
         ..followup = NA,
@@ -211,6 +233,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..seed = NA,
         ..studentKey = NA,
         ..showDictionary = NA,
+        ..showDescriptives = NA,
+        ..showDag = NA,
         ..showKey = NA,
         ..openData = NA,
         ..exportCsv = NA)
@@ -223,6 +247,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         notice = function() private$.items[["notice"]],
         summary = function() private$.items[["summary"]],
         dictionary = function() private$.items[["dictionary"]],
+        descriptives = function() private$.items[["descriptives"]],
+        dag = function() private$.items[["dag"]],
         keyEffects = function() private$.items[["keyEffects"]],
         keyExpected = function() private$.items[["keyExpected"]],
         keyNotes = function() private$.items[["keyNotes"]],
@@ -245,7 +271,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
-                    "factors",
+                    "measured",
                     "n",
                     "ccRatio",
                     "followup",
@@ -266,7 +292,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
-                    "factors",
+                    "measured",
                     "n",
                     "ccRatio",
                     "followup",
@@ -289,7 +315,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
-                    "factors",
+                    "measured",
                     "n",
                     "ccRatio",
                     "followup",
@@ -322,6 +348,62 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="missing", 
                         `title`="Missing", 
                         `type`="integer"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="descriptives",
+                title="Descriptives",
+                visible="(showDescriptives)",
+                rows=0,
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "design",
+                    "measured",
+                    "n",
+                    "ccRatio",
+                    "followup",
+                    "loss",
+                    "accrual",
+                    "period",
+                    "carryover",
+                    "missing",
+                    "missingMech",
+                    "seed",
+                    "studentKey"),
+                columns=list(
+                    list(
+                        `name`="variable", 
+                        `title`="Variable", 
+                        `type`="text", 
+                        `combineBelow`=TRUE),
+                    list(
+                        `name`="level", 
+                        `title`="Level", 
+                        `type`="text"),
+                    list(
+                        `name`="stat", 
+                        `title`="Summary", 
+                        `type`="text"),
+                    list(
+                        `name`="missing", 
+                        `title`="Missing", 
+                        `type`="integer"))))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="dag",
+                title="Causal diagram",
+                visible="(showDag)",
+                width=600,
+                height=420,
+                renderFun=".plotDag",
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "design",
+                    "measured",
+                    "showKey")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="keyEffects",
@@ -364,7 +446,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
-                    "factors",
+                    "measured",
                     "ccRatio",
                     "followup",
                     "loss",
@@ -410,7 +492,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
-                    "factors",
+                    "measured",
                     "n",
                     "ccRatio",
                     "followup",
@@ -433,7 +515,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
-                    "factors",
+                    "measured",
                     "n",
                     "ccRatio",
                     "followup",
@@ -461,7 +543,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
-                    "factors",
+                    "measured",
                     "n",
                     "ccRatio",
                     "followup",
@@ -522,8 +604,9 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param scenario scenario id
 #' @param outcome outcome id; empty means the scenario's first outcome
 #' @param design study design; must fit the outcome
-#' @param factors scenario variables included in the dataset; the others are
-#'   unmeasured (they still act). Empty means all.
+#' @param measured one entry per scenario variable, list(var = name, include =
+#'   TRUE/FALSE); included variables are in the dataset, the others are
+#'   unmeasured (they still act)
 #' @param n number of participants (cases plus controls in case-control
 #'   designs)
 #' @param ccRatio .
@@ -538,6 +621,8 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param studentKey any text (e.g. a student ID); each key gives a different
 #'   dataset
 #' @param showDictionary .
+#' @param showDescriptives .
+#' @param showDag .
 #' @param showKey .
 #' @param openData .
 #' @param exportCsv .
@@ -546,6 +631,8 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$notice} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$summary} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$dictionary} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$descriptives} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$dag} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$keyEffects} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyExpected} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyNotes} \tab \tab \tab \tab \tab a html \cr
@@ -567,7 +654,7 @@ simStudy <- function(
     scenario = "breast_cancer_risk",
     outcome = "",
     design = "case_control",
-    factors = list(),
+    measured = list(),
     n = 500,
     ccRatio = 1,
     followup = 0,
@@ -580,6 +667,8 @@ simStudy <- function(
     seed = 1,
     studentKey = "",
     showDictionary = TRUE,
+    showDescriptives = TRUE,
+    showDag = FALSE,
     showKey = FALSE,
     openData = FALSE,
     exportCsv = FALSE) {
@@ -598,7 +687,7 @@ simStudy <- function(
         scenario = scenario,
         outcome = outcome,
         design = design,
-        factors = factors,
+        measured = measured,
         n = n,
         ccRatio = ccRatio,
         followup = followup,
@@ -611,6 +700,8 @@ simStudy <- function(
         seed = seed,
         studentKey = studentKey,
         showDictionary = showDictionary,
+        showDescriptives = showDescriptives,
+        showDag = showDag,
         showKey = showKey,
         openData = openData,
         exportCsv = exportCsv)

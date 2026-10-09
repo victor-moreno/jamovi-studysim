@@ -58,9 +58,6 @@
             "Calibration": [
                 "Calibratge"
             ],
-            "Candidate variables": [
-                "Variables candidates"
-            ],
             "Carryover effect": [
                 "Efecte residual (carryover)"
             ],
@@ -69,6 +66,12 @@
             ],
             "cases found among {n} people of the source population (risk {risk}%)": [
                 "casos trobats entre {n} persones de la població d'origen (risc {risk}%)"
+            ],
+            "Causal diagram": [
+                "Diagrama causal"
+            ],
+            "Causal diagram (DAG)": [
+                "Diagrama causal (DAG)"
             ],
             "Check": [
                 "Comprovació"
@@ -117,6 +120,9 @@
             ],
             "Description": [
                 "Descripció"
+            ],
+            "Descriptives": [
+                "Descriptius"
             ],
             "Design": [
                 "Disseny"
@@ -223,6 +229,9 @@
             "Measure": [
                 "Mesura"
             ],
+            "Measured": [
+                "Mesurada"
+            ],
             "median {m} years": [
                 "mediana {m} anys"
             ],
@@ -237,6 +246,9 @@
             ],
             "No problems found in {n} scenarios.": [
                 "No s'han trobat problemes en {n} escenaris."
+            ],
+            "No variables measured yet: tick them under Measured.": [
+                "Encara no hi ha variables mesurades: marqueu-les a la columna Mesurada."
             ],
             "nominal": [
                 "nominal"
@@ -292,6 +304,9 @@
             "Recruitment period (years)": [
                 "Període de reclutament (anys)"
             ],
+            "Red: raises the outcome, blue: lowers it; * the effect depends on another variable.": [
+                "Vermell: augmenta la resposta, blau: la redueix; * l'efecte depèn d'una altra variable."
+            ],
             "References": [
                 "Referències"
             ],
@@ -340,6 +355,9 @@
             "Simulates plausible medical study datasets for teaching": [
                 "Simula dades plausibles d'estudis mèdics per a la docència"
             ],
+            "Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.": [
+                "Requadre continu: mesurada; discontinu: no mesurada; fletxes grises: camins entre variables; puntejat: correlacions; fletxes fosques: efectes sobre la resposta."
+            ],
             "Source": [
                 "Origen"
             ],
@@ -366,6 +384,9 @@
             ],
             "studysim-language-code": [
                 "ca"
+            ],
+            "Summary": [
+                "Resum"
             ],
             "Teaching note": [
                 "Nota docent"
@@ -405,9 +426,6 @@
             ],
             "Variables": [
                 "Variables"
-            ],
-            "Variables measured": [
-                "Variables mesurades"
             ],
             "Where": [
                 "On"

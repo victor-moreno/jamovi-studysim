@@ -1,0 +1,77 @@
+# Nombres en castellano de las columnas del dataset y etiquetas de las
+# categorías. El motor usa los identificadores de la izquierda; este fichero
+# solo cambia lo que ve el estudiante (columnas, categorías, tablas, diagrama).
+# Los nombres empiezan por una letra y usan solo letras, cifras y _.
+names:
+  id: id
+  set: grupo
+  case: caso
+  time: tiempo
+  sequence: secuencia
+  period: periodo
+  age: edad
+  alcohol: alcohol
+  auc: auc
+  bmi: imc
+  breast_cancer: cancer_mama
+  chd: cardiopatia
+  chemo: quimio
+  cmax: cmax
+  coffee: cafe
+  controlled: controlado
+  death: muerte
+  diabetes: diabetes
+  drug: farmaco
+  education: estudios
+  egfr: fge
+  er: re
+  family_hist: antec_familiares
+  fgfr2: fgfr2
+  formulation: formulacion
+  grade: grado
+  hba1c: hba1c
+  hba1c0: hba1c_basal
+  hdl: hdl
+  her2: her2
+  hrt: ths
+  ki67: ki67
+  menarche: menarquia
+  menopause: menopausia
+  nodes: ganglios
+  parity: paridad
+  physical_activity: actividad_fisica
+  salt: sal
+  sbp: pas
+  sbp0: pas_basal
+  sex: sexo
+  smoking: tabaco
+  total_chol: colesterol
+  treatment: tratamiento
+  tumour_size: tamano_tumor
+  weight: peso
+levels:
+  "control": control
+  "case": caso
+  "no": "no"
+  "yes": sí
+  female: mujer
+  male: hombre
+  never: nunca
+  former: exfumador
+  current: fumador
+  ever: alguna vez
+  pre: pre
+  post: post
+  primary: primarios
+  secondary: secundarios
+  university: universitarios
+  negative: negativo
+  positive: positivo
+  placebo: placebo
+  amlodipine: amlodipino
+  metformin: metformina
+  reference: referencia
+  test: test
+  G1: G1
+  G2: G2
+  G3: G3

@@ -73,3 +73,29 @@ test_that("effect modification by a binary variable is generated as specified", 
   expect_equal(unname(exp(b["I(bmi/5)"])), 0.93, tolerance = 0.06)
   expect_equal(unname(exp(b["I(bmi/5)"] + b["I(bmi/5):menopause"])), 1.12, tolerance = 0.06)
 })
+
+test_that("the three language dictionaries name every column uniquely and validly", {
+  lib <- read_library_dir(lib_dir())
+  for (l in c("en", "es", "ca")) {
+    d <- lang_dict(l)
+    for (id in names(lib$scenarios)) {
+      sc <- load_scenario(lib, id)
+      for (o in names(sc$outcomes)) for (des in compatible_designs(sc, o)) {
+        cols <- planned_columns(sc, sc$outcomes[[o]], des, sc$order)
+        nm <- dname(cols, l)
+        expect_true(all(cols %in% names(d$names)), info = paste(l, id, setdiff(cols, names(d$names))))
+        expect_false(anyDuplicated(nm) > 0, info = paste(l, id, o, des))
+        expect_true(all(grepl("^[A-Za-z][A-Za-z0-9_]*$", nm)), info = paste(l, id))
+      }
+      for (v in sc$variables) if (!is.null(v$levels) && v$type != "genotype")
+        expect_true(all(v$levels %in% names(d$levels)), info = paste(l, id, v$id))
+    }
+  }
+  sc <- load_scenario(lib, "chd_incidence")
+  r <- simulate_study(sc, "chd", "case_control", n = 100, factors = c("sex", "smoking"), lang = "es", key = FALSE)
+  expect_identical(names(r$data), c("id", "caso", "sexo", "tabaco"))
+  expect_identical(levels(r$data$tabaco), c("nunca", "exfumador", "fumador"))
+  expect_identical(levels(r$data$caso), c("control", "caso"))
+  expect_false(is.null(attr(r$data$tabaco, "jmv-desc")))
+  expect_identical(ids_from_names(list("tabac", "sexo", "age"), sc$order), c("smoking", "sex", "age"))
+})

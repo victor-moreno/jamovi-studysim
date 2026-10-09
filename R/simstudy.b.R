@@ -34,8 +34,9 @@ simStudyClass <- R6::R6Class(
                     stop(jmvcore::format(.("The {design} design does not fit this outcome. Possible designs: {list}."),
                                  design = private$.designTitle(o$design),
                                  list = paste(vapply(ok, private$.designTitle, ""), collapse = ", ")), call. = FALSE)
-                fac <- unlist(o$factors)
-                if (length(fac) == 0) fac <- sc$order
+                # the panel lists the variables by their shown names (any language)
+                inc <- Filter(function(m) isTRUE(m$include), o$measured)
+                fac <- ids_from_names(vapply(inc, function(m) as.character(m$var), ""), sc$order)
                 list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
                      factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok)
             }, error = function(e) list(error = conditionMessage(e)))
@@ -78,13 +79,18 @@ simStudyClass <- R6::R6Class(
             }
             dic <- self$results$dictionary
             for (nm in planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors))
-                dic$addRow(rowKey = nm, values = list(name = nm))
+                dic$addRow(rowKey = nm, values = list(name = dname(nm, ctx$lang)))
+            if (self$options$showDescriptives) {
+                for (r in describe_plan(planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang), ctx$lang))
+                    self$results$descriptives$addRow(rowKey = r$key, values = list(variable = r$variable, level = r$level))
+            }
+            if (self$options$showDag) private$.initDag(ctx)
             if (self$options$showKey) {
                 te <- true_effects(ctx$sc, ctx$oc, ctx$lang)
                 for (i in seq_len(nrow(te))) self$results$keyEffects$addRow(rowKey = i, values = list(
-                    variable = te$variable[i], contrast = te$contrast[i]))
+                    variable = dname(te$variable[i], ctx$lang), contrast = te$contrast[i]))
                 for (r in private$.expectedRows(ctx))
-                    self$results$keyExpected$addRow(rowKey = r$key, values = list(variable = r$variable, contrast = r$contrast))
+                    self$results$keyExpected$addRow(rowKey = r$key, values = list(variable = dname(r$variable, ctx$lang), contrast = r$contrast))
             }
         },
 
@@ -115,6 +121,13 @@ simStudyClass <- R6::R6Class(
             }
             private$.fillSummary(ctx, res)
             private$.fillDictionary(res)
+            if (o$showDag) private$.fillDag(ctx)
+            if (o$showDescriptives) {
+                tbl <- self$results$descriptives
+                for (r in describe_data(res$data_raw, planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang), ctx$lang))
+                    if (r$key %in% tbl$rowKeys)
+                        tbl$setRow(rowKey = r$key, values = list(stat = r$stat, missing = r$missing))
+            }
             if (o$showKey) private$.fillKey(ctx, res)
             private$.actions(ctx, res)
         },
@@ -130,16 +143,18 @@ simStudyClass <- R6::R6Class(
             if (!is.null(f$cases)) li <- c(li, jmvcore::format(.("{cases} cases and {controls} controls"), cases = num(f$cases), controls = num(f$controls)))
             if (!is.null(f$source_population)) li <- c(li, jmvcore::format(.("cases found among {n} people of the source population (risk {risk}%)"),
                                                                   n = num(f$source_population), risk = num(100 * f$risk_in_source, 2)))
-            if (!is.null(f$matched_on)) li <- c(li, jmvcore::format(.("matched on {vars}"), vars = paste(f$matched_on, collapse = ", ")))
+            if (!is.null(f$matched_on)) li <- c(li, jmvcore::format(.("matched on {vars}"), vars = paste(dname(f$matched_on, l), collapse = ", ")))
             if (isTRUE(f$incomplete_sets > 0)) li <- c(li, jmvcore::format(.("{n} cases have fewer controls than asked"), n = f$incomplete_sets))
             if (!is.null(f$events)) li <- c(li, jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)))
-            if (!is.null(f$arms)) li <- c(li, paste(sprintf("%s: %s", names(f$arms), unlist(f$arms)), collapse = ", "))
+            if (!is.null(f$arms)) li <- c(li, paste(sprintf("%s: %s", dlevel(names(f$arms), l), unlist(f$arms)), collapse = ", "))
             if (!is.null(f$sequences)) li <- c(li, jmvcore::format(.("sequences: {a} and {b} participants"), a = f$sequences[1], b = f$sequences[2]))
             um <- setdiff(names(ctx$oc$effects), c(ctx$factors, names(sc$interventions)))
-            if (length(um)) li <- c(li, jmvcore::format(.("not measured (they still act): {vars}"), vars = paste(um, collapse = ", ")))
+            if (length(um)) li <- c(li, jmvcore::format(.("not measured (they still act): {vars}"), vars = paste(dname(um, l), collapse = ", ")))
             seedtxt <- if (nzchar(trimws(self$options$studentKey))) jmvcore::format(.("seed {seed} with student key \"{key}\""),
                          seed = self$options$seed, key = htmlEscape(trimws(self$options$studentKey))) else jmvcore::format(.("seed {seed}"), seed = self$options$seed)
             li <- c(li, seedtxt)
+            if (length(ctx$factors) == 0)
+                li <- c(li, paste0("<b>", .("No variables measured yet: tick them under Measured."), "</b>"))
             self$results$summary$setContent(paste0(
                 "<ul>", paste0("<li>", li, "</li>", collapse = ""), "</ul>",
                 "<p>", .("Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them."), "</p>"))
@@ -149,11 +164,11 @@ simStudyClass <- R6::R6Class(
             dic <- self$results$dictionary
             d <- res$dictionary
             for (i in seq_len(nrow(d))) {
-                if (!d$name[i] %in% dic$rowKeys) next
+                if (!d$id[i] %in% dic$rowKeys) next
                 type <- switch(d$type[i], integer = .("integer"), continuous = .("continuous"),
                                nominal = .("nominal"), ordinal = .("ordinal"), d$type[i])
-                dic$setRow(rowKey = d$name[i], values = list(description = d$description[i], type = type,
-                                                              values = d$values[i], missing = d$missing[i]))
+                dic$setRow(rowKey = d$id[i], values = list(name = d$name[i], description = d$description[i], type = type,
+                                                            values = d$values[i], missing = d$missing[i]))
             }
         },
 
@@ -175,7 +190,7 @@ simStudyClass <- R6::R6Class(
                                                          measure = ex$measure[i], note = ex$note[i]))
                 }
                 tbl$setNote("n", jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
-                                         n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(attr(ex, "adjusted_for"), collapse = ", ")))
+                                         n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
             }
             cal <- res$calibration
             l <- ctx$lang
@@ -196,6 +211,38 @@ simStudyClass <- R6::R6Class(
                     paste0("<li>", htmlEscape(ctx$sc$references), "</li>", collapse = ""), "</ul>") else "",
                 "<p>", .("Effects are teaching-grade plausible values informed by the literature, not meta-analytic estimates."), "</p>")
             self$results$keyNotes$setContent(html)
+        },
+
+        # image sized to the number of layers and the most crowded one
+        .initDag = function(ctx) {
+            img <- self$results$dag
+            g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
+            nl <- max(g$nodes$layer) + 1
+            nk <- max(table(g$nodes$layer))
+            w <- min(1200, max(600, 210 * nl))
+            h <- min(1000, max(380, 58 * nk + 110))
+            img$setSize(w, h)
+        },
+
+        # the state is set in .run(): jamovi restores the previous (empty)
+        # state after .init(), which would wipe one set there
+        .fillDag = function(ctx) {
+            img <- self$results$dag
+            if (is.null(img$state)) {
+                g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
+                w <- img$width; h <- img$height
+                key <- isTRUE(self$options$showKey)
+                cap <- .("Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.")
+                if (key) cap <- paste(cap, .("Red: raises the outcome, blue: lowers it; * the effect depends on another variable."))
+                img$setState(list(g = g, w = w, h = h, key = key, caption = cap))
+            }
+        },
+
+        .plotDag = function(image, ggtheme, theme, ...) {
+            st <- image$state
+            if (is.null(st)) return(FALSE)
+            print(dag_plot(st$g, st$w, st$h, st$key, st$caption))
+            TRUE
         },
 
         # Action buttons: each fires once per click (hidden-cell guard)

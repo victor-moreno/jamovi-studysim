@@ -53,12 +53,8 @@ msgid "Answer key: what this design should estimate"
 msgstr "Clau de respostes: què hauria d'estimar aquest disseny"
 
 #: R/simstudy.b.R
-msgid ""
-"baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} "
-"years"
-msgstr ""
-"escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en "
-"{t} anys"
+msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"
+msgstr "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
 
 #: simLibrary/options/scenario.default
 #: simStudy/options/scenario.default
@@ -81,10 +77,6 @@ msgstr "Només la inclosa"
 msgid "Calibration"
 msgstr "Calibratge"
 
-#: simStudy/ui/factorSupplier.label
-msgid "Candidate variables"
-msgstr "Variables candidates"
-
 #: simStudy/options/carryover.title
 msgid "Carryover effect"
 msgstr "Efecte residual (carryover)"
@@ -97,6 +89,14 @@ msgstr "Casos i controls"
 #: R/simstudy.b.R
 msgid "cases found among {n} people of the source population (risk {risk}%)"
 msgstr "casos trobats entre {n} persones de la població d'origen (risc {risk}%)"
+
+#: simStudy/results/dag.title
+msgid "Causal diagram"
+msgstr "Diagrama causal"
+
+#: simStudy/options/showDag.title
+msgid "Causal diagram (DAG)"
+msgstr "Diagrama causal (DAG)"
 
 #: simLibrary/options/showProblems.title
 #: simLibrary/results/problems.title
@@ -172,6 +172,11 @@ msgstr "Segons la variable resposta"
 msgid "Description"
 msgstr "Descripció"
 
+#: simStudy/options/showDescriptives.title
+#: simStudy/results/descriptives.title
+msgid "Descriptives"
+msgstr "Descriptius"
+
 #: R/simstudy.b.R
 #: simStudy/options/design.title
 msgid "Design"
@@ -190,12 +195,8 @@ msgid "Distribution"
 msgstr "Distribució"
 
 #: R/simstudy.b.R
-msgid ""
-"Effects are teaching-grade plausible values informed by the literature, not "
-"meta-analytic estimates."
-msgstr ""
-"Els efectes són valors plausibles per a la docència, basats en la "
-"literatura, no estimacions metaanalítiques."
+msgid "Effects are teaching-grade plausible values informed by the literature, not meta-analytic estimates."
+msgstr "Els efectes són valors plausibles per a la docència, basats en la literatura, no estimacions metaanalítiques."
 
 #: simLibrary/results/effects.title
 msgid "Effects on the outcomes"
@@ -214,12 +215,8 @@ msgid "Excel workbook"
 msgstr "Llibre d'Excel"
 
 #: R/simstudy.b.R
-msgid ""
-"Expected values: crude and adjusted estimates from one simulated study of "
-"{n} rows with this design; adjusted for {vars}."
-msgstr ""
-"Valors esperats: estimacions crues i ajustades d'un estudi simulat de {n} "
-"files amb aquest disseny; ajustat per {vars}."
+msgid "Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."
+msgstr "Valors esperats: estimacions crues i ajustades d'un estudi simulat de {n} files amb aquest disseny; ajustat per {vars}."
 
 #: simLibrary/options/exportScope.title
 #: simLibrary/ui[2].label
@@ -280,6 +277,7 @@ msgid "Label"
 msgstr "Etiqueta"
 
 #: simLibrary/results/problems.columns.title
+#: simStudy/results/descriptives.columns.title
 msgid "Level"
 msgstr "Nivell"
 
@@ -306,16 +304,8 @@ msgstr "Pèrdues de seguiment (% anual)"
 
 #: package/analyses/simLibrary.description
 #: simLibrary/options.description.main
-msgid ""
-"Manages the scenario library of the Study Simulator: reads a custom library "
-"(YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and "
-"exports the library or one scenario as Excel, JSON or YAML, or an Excel "
-"template to start a new one."
-msgstr ""
-"Gestiona la biblioteca d'escenaris del Simulador d'estudis: llegeix una "
-"biblioteca pròpia (YAML, Excel, JSON o un zip d'aquests), la comprova, "
-"mostra els seus escenaris i exporta la biblioteca o un escenari en Excel, "
-"JSON o YAML, o una plantilla Excel per començar-ne una de nova."
+msgid "Manages the scenario library of the Study Simulator: reads a custom library (YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and exports the library or one scenario as Excel, JSON or YAML, or an Excel template to start a new one."
+msgstr "Gestiona la biblioteca d'escenaris del Simulador d'estudis: llegeix una biblioteca pròpia (YAML, Excel, JSON o un zip d'aquests), la comprova, mostra els seus escenaris i exporta la biblioteca o un escenari en Excel, JSON o YAML, o una plantilla Excel per començar-ne una de nova."
 
 #: R/simstudy.b.R
 #: simStudy/options/design/matched_cc.title
@@ -339,11 +329,16 @@ msgstr "mitjana {m}, DE residual {s}"
 msgid "Measure"
 msgstr "Mesura"
 
+#: simStudy/ui/measured.columns.label
+msgid "Measured"
+msgstr "Mesurada"
+
 #: R/simlibrary.b.R
 msgid "median {m} years"
 msgstr "mediana {m} anys"
 
 #: simStudy/results/dictionary.columns.title
+#: simStudy/results/descriptives.columns.title
 msgid "Missing"
 msgstr "Perduts"
 
@@ -358,6 +353,10 @@ msgstr "Mecanisme de pèrdua"
 #: R/simlibrary.b.R
 msgid "No problems found in {n} scenarios."
 msgstr "No s'han trobat problemes en {n} escenaris."
+
+#: R/simstudy.b.R
+msgid "No variables measured yet: tick them under Measured."
+msgstr "Encara no hi ha variables mesurades: marqueu-les a la columna Mesurada."
 
 #: R/simstudy.b.R
 msgid "nominal"
@@ -404,12 +403,8 @@ msgid "Period effect"
 msgstr "Efecte període"
 
 #: R/simstudy.b.R
-msgid ""
-"Press <b>Open dataset</b> to open the data in a new window, or <b>Export "
-"CSV</b> to save them."
-msgstr ""
-"Premeu <b>Obrir dades</b> per obrir les dades en una finestra nova, o "
-"<b>Exportar CSV</b> per desar-les."
+msgid "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them."
+msgstr "Premeu <b>Obrir dades</b> per obrir les dades en una finestra nova, o <b>Exportar CSV</b> per desar-les."
 
 #: R/simlibrary.b.R
 msgid "prevalence {p}"
@@ -440,6 +435,10 @@ msgstr "Realisme"
 #: simStudy/options/accrual.title
 msgid "Recruitment period (years)"
 msgstr "Període de reclutament (anys)"
+
+#: R/simstudy.b.R
+msgid "Red: raises the outcome, blue: lowers it; * the effect depends on another variable."
+msgstr "Vermell: augmenta la resposta, blau: la redueix; * l'efecte depèn d'una altra variable."
 
 #: R/simlibrary.b.R
 msgid "References"
@@ -514,21 +513,16 @@ msgstr "Estudi simulat"
 
 #: package/analyses/simStudy.description
 #: simStudy/options.description.main
-msgid ""
-"Simulates a plausible medical study for teaching: a clinical scenario from "
-"the library, a study design compatible with its outcome, a sample size and "
-"some realism. The dataset opens in a new window; the answer key holds the "
-"true parameters and what the design is expected to estimate."
-msgstr ""
-"Simula un estudi mèdic plausible per a la docència: un escenari clínic de la "
-"biblioteca, un disseny compatible amb la seva variable resposta, una mida "
-"mostral i una mica de realisme. Les dades s'obren en una finestra nova; la "
-"clau de respostes conté els paràmetres veritables i el que el disseny hauria "
-"d'estimar."
+msgid "Simulates a plausible medical study for teaching: a clinical scenario from the library, a study design compatible with its outcome, a sample size and some realism. The dataset opens in a new window; the answer key holds the true parameters and what the design is expected to estimate."
+msgstr "Simula un estudi mèdic plausible per a la docència: un escenari clínic de la biblioteca, un disseny compatible amb la seva variable resposta, una mida mostral i una mica de realisme. Les dades s'obren en una finestra nova; la clau de respostes conté els paràmetres veritables i el que el disseny hauria d'estimar."
 
 #: package.description
 msgid "Simulates plausible medical study datasets for teaching"
 msgstr "Simula dades plausibles d'estudis mèdics per a la docència"
+
+#: R/simstudy.b.R
+msgid "Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome."
+msgstr "Requadre continu: mesurada; discontinu: no mesurada; fletxes grises: camins entre variables; puntejat: correlacions; fletxes fosques: efectes sobre la resposta."
 
 #: simLibrary/results/scenarios.columns.title
 msgid "Source"
@@ -566,6 +560,10 @@ msgstr "Simulador d'estudis"
 msgid "studysim-language-code"
 msgstr "ca"
 
+#: simStudy/results/descriptives.columns.title
+msgid "Summary"
+msgstr "Resum"
+
 #: R/simlibrary.b.R
 #: R/simstudy.b.R
 msgid "Teaching note"
@@ -573,23 +571,15 @@ msgstr "Nota docent"
 
 #: R/simstudy.b.R
 msgid "The {design} design does not fit this outcome. Possible designs: {list}."
-msgstr ""
-"El disseny {design} no encaixa amb aquesta variable resposta. Dissenys "
-"possibles: {list}."
+msgstr "El disseny {design} no encaixa amb aquesta variable resposta. Dissenys possibles: {list}."
 
 #: R/simlibrary.b.R
 msgid "The library has no scenarios. Press Browse… to read a custom library."
-msgstr ""
-"La biblioteca no té escenaris. Premeu Browse… per llegir una biblioteca "
-"pròpia."
+msgstr "La biblioteca no té escenaris. Premeu Browse… per llegir una biblioteca pròpia."
 
 #: R/simlibrary.b.R
-msgid ""
-"There is no scenario '{id}' in this library; choose one listed under "
-"Scenarios."
-msgstr ""
-"No hi ha cap escenari '{id}' en aquesta biblioteca; trieu-ne un dels "
-"llistats a Escenaris."
+msgid "There is no scenario '{id}' in this library; choose one listed under Scenarios."
+msgstr "No hi ha cap escenari '{id}' en aquesta biblioteca; trieu-ne un dels llistats a Escenaris."
 
 #: simLibrary/results/scenarios.columns.title
 msgid "Title"
@@ -622,7 +612,9 @@ msgstr "Valors"
 
 #: simLibrary/results/variables.columns.title
 #: simLibrary/results/effects.columns.title
+#: simStudy/ui/measured.columns.label
 #: simStudy/results/dictionary.columns.title
+#: simStudy/results/descriptives.columns.title
 #: simStudy/results/keyEffects.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "Variable"
@@ -630,13 +622,9 @@ msgstr "Variable"
 
 #: simLibrary/results/scenarios.columns.title
 #: simLibrary/results/variables.title
+#: simStudy/options/measured.title
 msgid "Variables"
 msgstr "Variables"
-
-#: simStudy/options/factors.title
-#: simStudy/ui/factorSupplier[0].label
-msgid "Variables measured"
-msgstr "Variables mesurades"
 
 #: simLibrary/results/problems.columns.title
 msgid "Where"

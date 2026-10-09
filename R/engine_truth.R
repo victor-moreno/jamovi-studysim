@@ -10,7 +10,8 @@ contrast_rows <- function(sc, oc, v, lang = "en") {
     eff <- oc$effects[[v]]
     if (v %in% names(sc$interventions)) {
         lv <- sc$interventions[[v]]$levels
-        return(data.frame(variable = v, contrast = sprintf("%s %s %s", lv[-1], gtext("vs", lang), lv[1]),
+        tl <- dlevel(lv, lang)   # shown; the coefficient names keep the library's levels
+        return(data.frame(variable = v, contrast = sprintf("%s %s %s", tl[-1], gtext("vs", lang), tl[1]),
                           coefname = paste0(v, lv[-1]), per = 1, level = seq_along(lv)[-1], stringsAsFactors = FALSE))
     }
     x <- sc$variables[[v]]
@@ -20,8 +21,8 @@ contrast_rows <- function(sc, oc, v, lang = "en") {
         return(data.frame(variable = v, contrast = sprintf("%s %s%s", gtext("per", lang), base::format(per), u), coefname = v,
                           per = per, level = NA_integer_, stringsAsFactors = FALSE))
     }
-    lv <- x$levels
-    data.frame(variable = v, contrast = sprintf("%s %s %s", lv[-1], gtext("vs", lang), lv[1]), coefname = paste0(v, lv[-1]),
+    lv <- x$levels; tl <- dlevel(lv, lang)
+    data.frame(variable = v, contrast = sprintf("%s %s %s", tl[-1], gtext("vs", lang), tl[1]), coefname = paste0(v, lv[-1]),
                per = 1, level = seq_along(lv)[-1], stringsAsFactors = FALSE)
 }
 
@@ -38,6 +39,11 @@ true_value <- function(eff, row) {
     back(eff$coef)
 }
 
+# the measure a null variable is reported on: the outcome's natural one
+null_measure <- function(oc) switch(oc$type, binary = "OR", event = "HR", count = "RR",
+                                    continuous = if (isTRUE(oc$log)) "ratio" else "beta")
+null_value <- function(oc) if (null_measure(oc) == "beta") 0 else 1
+
 true_effects <- function(sc, oc, lang = "en") {
     vars <- unique(c(names(oc$effects), intersect(sc$null_variables, names(sc$variables))))
     rows <- lapply(vars, function(v) {
@@ -47,11 +53,11 @@ true_effects <- function(sc, oc, lang = "en") {
         if (!is.null(eff$by)) {
             mv <- sc$variables[[eff$by$var]]
             back <- function(b) if (eff$log) exp(b) else b
-            note <- paste(sprintf("%s=%s: %.3g", eff$by$var, mv$levels, back(eff$by$coef)), collapse = "; ")
+            note <- paste(sprintf("%s=%s: %.3g", dname(eff$by$var, lang), dlevel(mv$levels, lang), back(eff$by$coef)), collapse = "; ")
         }
         data.frame(variable = v, contrast = cr$contrast,
-                   measure = if (is.null(eff)) "none" else eff$measure,
-                   value = vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0),
+                   measure = if (is.null(eff)) null_measure(oc) else eff$measure,
+                   value = if (is.null(eff)) null_value(oc) else vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0),
                    note = if (is.null(eff)) "no effect (null variable)" else note, stringsAsFactors = FALSE)
     })
     do.call(rbind, rows)
@@ -95,7 +101,7 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en") {
     n_big <- switch(design, case_control = 3000 * (1 + opt$ratio), matched_cc = 1500 * (1 + opt$ratio),
                     crossover = 4000, 20000)
     big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), n_big, opt)
-    fd <- format_study(sc, oc, design, big, sc$order, lang)
+    fd <- format_study(sc, oc, design, big, sc$order, "en")
     iv <- intersect(names(sc$interventions), names(fd))
     main <- if (length(iv)) iv else factors
     if (length(main) == 0) return(NULL)
@@ -115,17 +121,19 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en") {
         if (!is.null(eff$by)) {
             # a modified effect has no single true value: give it per level
             back <- function(b) if (eff$log) exp(b) else b
-            note <- paste(sprintf("%s=%s: %.3g", eff$by$var, sc$variables[[eff$by$var]]$levels, back(eff$by$coef)), collapse = "; ")
+            note <- paste(sprintf("%s=%s: %.3g", dname(eff$by$var, lang), dlevel(sc$variables[[eff$by$var]]$levels, lang), back(eff$by$coef)), collapse = "; ")
             tv[] <- NA_real_
         }
         data.frame(variable = v, contrast = cr$contrast,
                    true = tv,
-                   true_measure = if (is.null(eff)) "none" else eff$measure,
+                   true_measure = if (is.null(eff)) null_measure(oc) else eff$measure,
                    crude = unname(get(crude)), adjusted = unname(get(adj)), measure = adj$measure,
                    note = note, stringsAsFactors = FALSE)
     })
     out <- do.call(rbind, rows)
-    out$true[out$true_measure == "none"] <- if (adj$log) 1 else 0
+    # variables without an effect: the null value on the estimate's own scale
+    nul <- !out$variable %in% names(oc$effects)
+    out$true[nul] <- if (adj$log) 1 else 0
     attr(out, "n") <- nrow(fd)
     attr(out, "adjusted_for") <- adj_terms
     out

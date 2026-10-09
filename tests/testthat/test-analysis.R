@@ -1,6 +1,7 @@
 test_that("simStudy runs headlessly and fills its tables", {
   r <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "matched_cc",
-                n = 300, ccRatio = 2, factors = list("age", "sex", "sbp", "smoking"), showKey = TRUE)
+                n = 300, ccRatio = 2, measured = lapply(c("age", "sex", "sbp", "smoking", "coffee"),
+                function(v) list(var = v, include = v != "coffee")), showKey = TRUE)
   d <- r$dictionary$asDF
   expect_identical(d$name, c("id", "set", "case", "age", "sex", "smoking", "sbp"))
   expect_true(all(!is.na(d$missing)))
@@ -64,4 +65,13 @@ test_that("simLibrary reads a custom Excel library and reports its problems", {
   expect_identical(r$scenarios$asDF$origin, "custom")
   p <- r$problems$asDF
   expect_true(any(grepl("takes 2 values", p$message)))
+})
+
+test_that("measured variables may come by their Spanish or Catalan names", {
+  r <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100,
+                measured = list(list(var = "edad", include = TRUE), list(var = "tabac", include = TRUE),
+                                list(var = "sexo", include = FALSE)))
+  expect_identical(r$dictionary$asDF$name, c("id", "time", "chd", "age", "smoking"))
+  r0 <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100)
+  expect_match(r0$summary$content, "No variables measured yet")
 })

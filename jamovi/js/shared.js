@@ -42,6 +42,12 @@ function tr(x, l) {
     return String(x);
 }
 
+// column name shown for an id (inst/library/i18n/<lang>.yaml)
+function dname(id, l) {
+    var d = BUILTIN.i18n && BUILTIN.i18n[l] && BUILTIN.i18n[l].names;
+    return (d && d[id]) || id;
+}
+
 function b64ToText(b64) {
     var bin = atob(b64);
     var bytes = new Uint8Array(bin.length);
@@ -176,7 +182,7 @@ function browseButton(ui, onLoaded) {
 }
 
 module.exports = {
-    BUILTIN: BUILTIN, DESIGNS: DESIGNS, getOpt: getOpt, setOpt: setOpt, lang: lang, tr: tr,
+    BUILTIN: BUILTIN, DESIGNS: DESIGNS, getOpt: getOpt, setOpt: setOpt, lang: lang, tr: tr, dname: dname,
     library: library, customLibrary: customLibrary, designsFor: designsFor,
     syncSelect: syncSelect, browseButton: browseButton
 };

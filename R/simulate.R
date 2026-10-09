@@ -18,7 +18,10 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     df <- format_study(sc, oc, design, res, factors, lang)
     driver <- if (design %in% c("case_control", "matched_cc")) "case" else oc$id
     df <- apply_missing(df, factors, missing, missing_mech, derive_seed(seed_eff, "missing"), driver, df$id)
-    out <- list(data = df, dictionary = data_dictionary(sc, df, factors), facts = res$facts,
+    ids <- names(df)
+    raw <- df   # engine names and the library's levels, for the tables keyed by them
+    df <- localise_data(df, lang)
+    out <- list(data = df, data_raw = raw, dictionary = data_dictionary(sc, df, factors, ids), facts = res$facts,
                 design = design, outcome = outcome, options = opt, seed = seed_eff, calibration = cal)
     if (key) out$key <- answer_key(sc, oc, design, opt, factors, lang)
     out

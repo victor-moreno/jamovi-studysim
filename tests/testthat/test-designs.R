@@ -84,3 +84,22 @@ test_that("planned columns match the formatted data", {
     expect_identical(planned_columns(sc, sc$outcomes[[o]], d, f), names(r$data), info = paste(o, d))
   }
 })
+
+test_that("planned descriptives match the data, and the DAG layout is complete", {
+  sc <- toy()
+  for (o in names(sc$outcomes)) for (d in compatible_designs(sc, o)) {
+    f <- c("age", "smoke", "snp", "kids")
+    r <- simulate_study(sc, o, d, n = 120, factors = f, missing = 0.1, key = FALSE)
+    k <- planned_kinds(sc, sc$outcomes[[o]], d, f)
+    rows <- describe_data(r$data, k)
+    expect_true(all(names(k) %in% names(r$data)), info = paste(o, d))
+    for (nm in names(k)) if (!identical(k[[nm]], "cont"))
+      expect_true(all(stats::na.omit(as.character(r$data[[nm]])) %in% k[[nm]]), info = paste(o, d, nm))
+    expect_false(any(grepl("NA", vapply(rows, `[[`, "", "stat"))), info = paste(o, d))
+  }
+  g <- dag_layout(sc, sc$outcomes$ev, c("age", "smoke"))
+  expect_setequal(g$nodes$id, c("drug", sc$order, "ev"))
+  expect_equal(g$nodes$kind[g$nodes$id == "bmi"], "unmeasured")
+  expect_true(all(g$edges$x[g$edges$type == "path"] < g$edges$xend[g$edges$type == "path"]))
+  expect_equal(sum(g$edges$type == "effect"), 3)
+})

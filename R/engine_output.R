@@ -14,6 +14,8 @@ GENERIC <- list(
     period = list(en = "Period", es = "Periodo", ca = "Període"),
     id = list(en = "Participant identifier", es = "Identificador del participante", ca = "Identificador del participant"),
     per = list(en = "per", es = "por", ca = "per"),
+    meansd = list(en = "mean (SD)", es = "media (DE)", ca = "mitjana (DE)"),
+    mediqr = list(en = "median [IQR]", es = "mediana [RIC]", ca = "mediana [RIQ]"),
     vs = list(en = "vs", es = "frente a", ca = "enfront de"))
 
 gtext <- function(key, lang) tr_text(GENERIC[[key]], lang)
@@ -59,7 +61,7 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
     }
     olab <- var_desc(oc, lang)
     if (design %in% c("case_control", "matched_cc")) {
-        lv <- c(gtext("control", lang), gtext("caselevel", lang))
+        lv <- c("control", "case")   # shown in the student's language by localise_data()
         out$case <- with_desc(factor(lv[d$.y + 1L], levels = lv), sprintf("%s: %s", gtext("case", lang), tr_text(oc$label, lang)))
     } else if (!is.null(d$.time)) {
         out$time <- with_desc(round(d$.time, 3), sprintf("%s (%s)", gtext("time", lang), oc$time_units))
@@ -80,15 +82,16 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
     df
 }
 
-data_dictionary <- function(sc, df, factors) {
-    rows <- lapply(names(df), function(nm) {
-        x <- df[[nm]]
-        role <- if (nm %in% factors) "factor" else if (nm %in% c("id", "set", "sequence", "period")) "design"
-                else if (nm %in% names(sc$interventions)) "intervention" else "outcome"
+# df is the localised dataset, ids the engine's names of its columns (same order)
+data_dictionary <- function(sc, df, factors, ids = names(df)) {
+    rows <- lapply(seq_along(df), function(j) {
+        x <- df[[j]]; id <- ids[j]
+        role <- if (id %in% factors) "factor" else if (id %in% c("id", "set", "sequence", "period")) "design"
+                else if (id %in% names(sc$interventions)) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
         values <- if (is.factor(x)) paste(levels(x), collapse = ", ")
                   else sprintf("%s \u2013 %s", base::format(min(x, na.rm = TRUE)), base::format(max(x, na.rm = TRUE)))
-        data.frame(name = nm, description = attr(x, "jmv-desc") %||% "", role = role, type = type,
+        data.frame(id = id, name = names(df)[j], description = attr(x, "jmv-desc") %||% "", role = role, type = type,
                    values = values, missing = sum(is.na(x)), stringsAsFactors = FALSE)
     })
     do.call(rbind, rows)
@@ -131,4 +134,138 @@ planned_columns <- function(sc, oc, design, factors) {
                   else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct")) c("time", oc$id)
                   else oc$id)
     c(out, intersect(sc$order, factors))
+}
+
+# What the descriptives table shows for each column, known before the data
+# exist (rows are built in .init()): "cont", or the factor levels. id and set
+# are identifiers and are skipped.
+planned_kinds <- function(sc, oc, design, factors, lang = "en") {
+    cols <- planned_columns(sc, oc, design, factors)
+    out <- list()
+    for (nm in setdiff(cols, c("id", "set"))) {
+        out[[nm]] <- if (nm == "sequence") {
+            lv <- trial_iv(sc, oc)$levels
+            c(paste(lv, collapse = "-"), paste(rev(lv), collapse = "-"))
+        } else if (nm == "period") c("1", "2")
+        else if (nm %in% names(sc$interventions)) sc$interventions[[nm]]$levels
+        else if (nm == "case") c("control", "case")
+        else if (nm == "time") "cont"
+        else if (nm == oc$id) {
+            if ("time" %in% cols) c("0", "1") else if (oc$type %in% c("binary", "event")) oc$levels else "cont"
+        } else {
+            v <- sc$variables[[nm]]
+            if (v$type %in% c("continuous", "count")) "cont" else v$levels
+        }
+    }
+    out
+}
+
+# Univariate descriptives: mean (SD) and median [IQR] for numbers, n (%) per level.
+# Rows keyed "<column>|<i>", as planned by planned_kinds().
+describe_data <- function(df, kinds, lang = "en") {
+    rows <- list()
+    dec <- function(s) if (!is.finite(s) || s >= 10) 1 else if (s >= 1) 2 else 3
+    for (nm in names(kinds)) {
+        x <- df[[nm]]
+        miss <- sum(is.na(x))
+        if (identical(kinds[[nm]], "cont")) {
+            x <- as.numeric(x[!is.na(x)])
+            d <- dec(stats::sd(x))
+            q <- stats::quantile(x, c(0.25, 0.5, 0.75), names = FALSE)
+            f <- function(v) formatC(v, format = "f", digits = d)
+            rows[[length(rows) + 1]] <- list(key = paste0(nm, "|1"), variable = nm, level = gtext("meansd", lang),
+                                             stat = sprintf("%s (%s)", f(mean(x)), f(stats::sd(x))), missing = miss)
+            rows[[length(rows) + 1]] <- list(key = paste0(nm, "|2"), variable = nm, level = gtext("mediqr", lang),
+                                             stat = sprintf("%s [%s, %s]", f(q[2]), f(q[1]), f(q[3])), missing = NA)
+        } else {
+            lv <- kinds[[nm]]
+            tab <- table(factor(as.character(x), levels = lv))
+            n <- sum(tab)
+            for (i in seq_along(lv))
+                rows[[length(rows) + 1]] <- list(key = paste0(nm, "|", i), variable = nm, level = lv[i],
+                                                 stat = sprintf("%d (%.1f%%)", tab[[i]], if (n) 100 * tab[[i]] / n else 0),
+                                                 missing = if (i == 1) miss else NA)
+        }
+    }
+    rows
+}
+
+# Node and edge coordinates of the scenario's causal diagram: layers by longest
+# path along the structure edges, the outcome in the last layer, nodes ordered
+# within a layer by the mean position of their parents (fewer crossings).
+dag_layout <- function(sc, oc, factors, lang = "en") {
+    vars <- sc$order
+    ivs <- intersect(names(oc$effects), names(sc$interventions))
+    depth <- stats::setNames(integer(length(vars)), vars)
+    for (v in vars) {
+        pa <- sc$edges$from[sc$edges$to == v]
+        if (length(pa)) depth[v] <- max(depth[pa]) + 1L
+    }
+    nodes <- data.frame(id = c(ivs, vars, oc$id), layer = c(rep(0L, length(ivs)), depth, max(depth) + 1L),
+                        stringsAsFactors = FALSE)
+    nodes$kind <- ifelse(nodes$id == oc$id, "outcome", ifelse(nodes$id %in% ivs, "intervention",
+                  ifelse(nodes$id %in% factors, "measured", "unmeasured")))
+    nodes$null <- !nodes$id %in% c(names(oc$effects), oc$id)
+    # initial order: null variables last; then barycentre sweeps (down by
+    # parents, up by children other than the outcome) to reduce crossings
+    parents <- function(v) if (v == oc$id) names(oc$effects) else sc$edges$from[sc$edges$to == v]
+    children <- function(v) sc$edges$to[sc$edges$from == v]
+    nodes$y <- 0
+    place <- function(i) { k <- length(i); nodes$y[i] <<- if (k == 1) 0 else seq(1, -1, length.out = k) * (k - 1) / 2 }
+    layers <- sort(unique(nodes$layer))
+    for (L in layers) { i <- which(nodes$layer == L); place(i[order(nodes$null[i])]) }
+    bary <- function(ids, nb) vapply(ids, function(v) {
+        py <- nodes$y[nodes$id %in% nb(v)]
+        if (length(py)) mean(py) else nodes$y[nodes$id == v] }, 0)
+    for (sweep in 1:4) {
+        for (L in layers[-1]) { i <- which(nodes$layer == L); place(i[order(-bary(nodes$id[i], parents))]) }
+        for (L in rev(layers[-length(layers)])) {
+            i <- which(nodes$layer == L)
+            b <- bary(nodes$id[i], children)
+            place(i[order(nodes$null[i], -b)])
+        }
+    }
+    nodes$x <- nodes$layer
+    nodes$label <- dname(nodes$id, lang)
+    pos <- function(id) nodes[match(id, nodes$id), c("x", "y")]
+    edges <- list()
+    if (nrow(sc$edges)) {
+        a <- pos(sc$edges$from); b <- pos(sc$edges$to)
+        edges[[1]] <- data.frame(from = sc$edges$from, to = sc$edges$to, x = a$x, y = a$y, xend = b$x, yend = b$y,
+                                 type = "path", label = sprintf("%.2f", sc$edges$b), dir = sign(sc$edges$b),
+                                 stringsAsFactors = FALSE)
+    }
+    R <- sc$R_exo
+    if (length(R) > 1) for (i in seq_len(nrow(R) - 1)) for (j in (i + 1):nrow(R)) if (R[i, j] != 0) {
+        a <- pos(rownames(R)[i]); b <- pos(rownames(R)[j])
+        edges[[length(edges) + 1]] <- data.frame(from = rownames(R)[i], to = rownames(R)[j], x = a$x, y = a$y,
+                                                 xend = b$x, yend = b$y, type = "correlation",
+                                                 label = sprintf("%.2f", R[i, j]), dir = sign(R[i, j]),
+                                                 stringsAsFactors = FALSE)
+    }
+    eff <- names(oc$effects)
+    if (length(eff)) {
+        a <- pos(eff); b <- pos(oc$id)
+        lab <- vapply(oc$effects, function(e) {
+            v <- if (length(e$value) > 1) paste(signif(e$value[-1], 3), collapse = "/") else signif(e$value, 3)
+            paste0(e$measure, " ", v, if (!is.null(e$by)) "*" else "")
+        }, "")
+        edges[[length(edges) + 1]] <- data.frame(from = eff, to = oc$id, x = a$x, y = a$y, xend = b$x, yend = b$y,
+                                                 type = "effect", label = lab,
+                                                 dir = vapply(oc$effects, function(e) sign(sum(e$coef)), 0),
+                                                 stringsAsFactors = FALSE)
+    }
+    list(nodes = nodes, edges = if (length(edges)) do.call(rbind, edges) else NULL)
+}
+
+# planned rows of the descriptives table (two per number, one per level),
+# with the variable and level as the student sees them
+describe_plan <- function(kinds, lang = "en") {
+    rows <- list()
+    for (nm in names(kinds)) {
+        cont <- identical(kinds[[nm]], "cont")
+        lv <- if (cont) c(gtext("meansd", lang), gtext("mediqr", lang)) else dlevel(kinds[[nm]], lang)
+        for (i in seq_along(lv)) rows[[length(rows) + 1]] <- list(key = paste0(nm, "|", i), variable = dname(nm, lang), level = lv[i])
+    }
+    rows
 }

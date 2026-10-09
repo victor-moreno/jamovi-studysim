@@ -120,3 +120,19 @@ followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`),
 | `references` | reference | scenario, reference |
 
 Lists inside a cell are comma-separated (`never, former, current`).
+
+## Names and categories in each language
+
+`inst/library/i18n/en.yaml`, `es.yaml` and `ca.yaml` rename what students see:
+
+```yaml
+names:            # column names (letters, digits and _)
+  age: edad
+  smoking: tabaco
+levels:           # category labels, by the library's level
+  current: fumador
+  "yes": sí       # quote yes/no keys
+```
+
+The library keeps its own ids and levels; a missing entry is shown as written in
+the library. Names must stay unique within a dataset.

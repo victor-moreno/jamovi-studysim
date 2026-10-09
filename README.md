@@ -17,15 +17,18 @@ It needs no packages beyond those bundled with jamovi: `survival`, `yaml`,
 - Scenario → outcome → design pickers; only the designs that fit the outcome are
   offered (case-control, matched case-control, cohort, cross-sectional, randomised
   trial, 2×2 crossover, prognosis).
-- *Variables measured*: the scenario's variables to include; the others stay
-  unmeasured but still act (residual confounding exercises).
+- *Variables* checklist: tick the scenario's variables to include in the data
+  (none at start); the others stay unmeasured but still act (residual confounding
+  exercises).
 - Design options: controls per case, follow-up, loss to follow-up, recruitment
   period, period and carryover effects. Realism: missing values completely at random
   or depending on the outcome.
 - *Open dataset* opens the data in a new window (proper nominal/ordinal/ID types and
   variable descriptions); *Export CSV* saves them.
 - Results: study summary (cases and controls, events and person-years, arms…),
-  data dictionary, and the answer key: the true model, the expected crude and
+  data dictionary, univariate descriptives (mean (SD), median [IQR], n (%)), the
+  causal diagram (DAG: measured variables in solid boxes, unmeasured ones dashed,
+  effect sizes on the arrows when the answer key is shown), and the answer key: the true model, the expected crude and
   adjusted estimates under this design (from one large simulated study), the
   calibration, the latent structure, the teaching note and the sources.
 - *Seed* and *Student key*: the same seed always gives the same study; a student key
@@ -68,9 +71,14 @@ randomisation, staggered entry and loss to follow-up. The engine (`R/engine_*.R`
 does not depend on jamovi.
 
 ## Languages
-The options, tables, notes and the built-in scenarios (titles, labels, teaching notes; not the level labels in the data) are available in English,
+The options, tables, notes and the built-in scenarios are available in English,
 Spanish and Catalan; jamovi uses the language chosen in its settings. The
-translations are in `jamovi/i18n/*.po` and in the scenario files.
+dataset follows the language too: column names and category labels come from
+three editable dictionaries, `inst/library/i18n/{en,es,ca}.yaml` (e.g. `age` →
+`edad` / `edat`, `current` → `fumador`). The engine keeps working with the
+library's ids, so a saved analysis reopens in any language. The interface
+translations are in `jamovi/i18n/*.po` (`python3 tools/fill-translations.py`
+after `jmc --i18n . --update`).
 
 ## Build and install (developers)
 ```sh

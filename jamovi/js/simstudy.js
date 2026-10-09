@@ -5,14 +5,15 @@
 
 var S = require('./shared');
 
-function variablesOf(sc) {
-    return Object.keys(sc.variables || {});
+// the scenario's variables by the names the student will see in the data
+function variablesOf(sc, l) {
+    return Object.keys(sc.variables || {}).map(function(v) { return S.dname(v, l); });
 }
 
 module.exports = {
 
     // keep the pickers and the supplier in step with the options; `reset`
-    // refills the measured variables (after the user changes the scenario
+    // empties the measured variables (after the user changes the scenario
     // or the outcome, never on a restore)
     refresh: function(ui, reset) {
         var self = this;
@@ -23,7 +24,6 @@ module.exports = {
                 var $i = ui[nm] && ui[nm].$input;
                 if ($i) { $i.prev('select.studysim-pick').remove(); $i.css('display', ''); }
             });
-            ui.factorSupplier.setValue([]);
             S.browseButton(ui, function() { self.refresh(ui, true); });
             return;
         }
@@ -54,18 +54,24 @@ module.exports = {
             }
         }
 
-        var vars = variablesOf(sc);
-        if (reset) S.setOpt(ui, 'factors', vars);
-        ui.factorSupplier.setValue(utils.valuesToItems(vars, FormatDef.variable));
+        // one row per scenario variable, by the name the student will see;
+        // a new scenario or outcome starts with none measured, a restore keeps
+        // the ticks (even if the names were saved in another language)
+        var vars = variablesOf(sc, l);
+        var ids = Object.keys(sc.variables || {});
+        var cur = S.getOpt(ui, 'measured') || [];
+        var ticked = {};
+        cur.forEach(function(m) {
+            if (!m || !m.include) return;
+            ids.forEach(function(id) {
+                if (m['var'] === id || ['en', 'es', 'ca'].some(function(x) { return S.dname(id, x) === m['var']; })) ticked[id] = true;
+            });
+        });
+        var rows = ids.map(function(id, i) { return { 'var': vars[i], include: !reset && !!ticked[id] }; });
+        S.setOpt(ui, 'measured', rows);
         S.browseButton(ui, function() { self.refresh(ui, false); });
     },
 
     view_loaded: function(ui) { this.refresh(ui, false); },
-    view_updated: function(ui) { this.refresh(ui, false); },
-
-    factorSupplier_updated: function(ui) {
-        var lib = S.library(ui);
-        var sc = lib.scenarios[S.getOpt(ui, 'scenario')];
-        ui.factorSupplier.setValue(utils.valuesToItems(sc ? variablesOf(sc) : [], FormatDef.variable));
-    }
+    view_updated: function(ui) { this.refresh(ui, false); }
 };

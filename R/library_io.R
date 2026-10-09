@@ -357,3 +357,58 @@ describe_variable <- function(v) {
         genotype = sprintf("MAF %.3g (%s)", v$maf, paste(v$levels, collapse = "/")),
         paste(sprintf("%s %.3g", v$levels, v$probs), collapse = ", "))
 }
+
+# ---- names and levels shown to students (inst/library/i18n/<lang>.yaml) -------
+
+.langdict <- new.env()
+
+lang_dict <- function(lang = "en") {
+    if (is.null(.langdict[[lang]])) {
+        f <- system.file("library", "i18n", paste0(lang, ".yaml"), package = "studysim")
+        if (!nzchar(f)) f <- file.path("inst", "library", "i18n", paste0(lang, ".yaml"))
+        .langdict[[lang]] <- if (file.exists(f)) read_yaml_file(f) else list(names = list(), levels = list())
+    }
+    .langdict[[lang]]
+}
+
+# column name of an id, and label of a level, in `lang` (unchanged when absent)
+dname <- function(id, lang = "en") {
+    n <- lang_dict(lang)$names
+    vapply(as.character(id), function(x) as.character(n[[x]] %||% x), "", USE.NAMES = FALSE)
+}
+
+dlevel <- function(x, lang = "en") {
+    l <- lang_dict(lang)$levels
+    one <- function(s) {
+        if (!is.null(l[[s]])) return(as.character(l[[s]]))
+        # a crossover sequence "placebo-drug" is translated part by part
+        if (grepl("-", s, fixed = TRUE)) return(paste(vapply(strsplit(s, "-", fixed = TRUE)[[1]], one, ""), collapse = "-"))
+        s
+    }
+    vapply(as.character(x), one, "", USE.NAMES = FALSE)
+}
+
+# the panel sends the measured variables by their shown names (any language)
+ids_from_names <- function(x, ids) {
+    x <- as.character(unlist(x))
+    out <- character()
+    for (s in x) {
+        if (s %in% ids) { out <- c(out, s); next }
+        for (l in LANGS) {
+            m <- ids[dname(ids, l) == s]
+            if (length(m)) { out <- c(out, m[1]); break }
+        }
+    }
+    unique(out)
+}
+
+# rename the columns and relabel the factor levels of a formatted study
+localise_data <- function(df, lang = "en") {
+    for (nm in names(df)) if (is.factor(df[[nm]])) {
+        d <- attr(df[[nm]], "jmv-desc")
+        levels(df[[nm]]) <- dlevel(levels(df[[nm]]), lang)
+        attr(df[[nm]], "jmv-desc") <- d
+    }
+    names(df) <- dname(names(df), lang)
+    df
+}

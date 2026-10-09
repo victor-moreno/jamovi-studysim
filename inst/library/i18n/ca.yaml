@@ -1,0 +1,77 @@
+# Noms en català de les columnes del dataset i etiquetes de les categories.
+# El motor fa servir els identificadors de l'esquerra; aquest fitxer només
+# canvia el que veu l'estudiant (columnes, categories, taules, diagrama).
+# Els noms comencen per una lletra i només fan servir lletres, xifres i _.
+names:
+  id: id
+  set: grup
+  case: cas
+  time: temps
+  sequence: sequencia
+  period: periode
+  age: edat
+  alcohol: alcohol
+  auc: auc
+  bmi: imc
+  breast_cancer: cancer_mama
+  chd: cardiopatia
+  chemo: quimio
+  cmax: cmax
+  coffee: cafe
+  controlled: controlat
+  death: mort
+  diabetes: diabetis
+  drug: farmac
+  education: estudis
+  egfr: fge
+  er: re
+  family_hist: antec_familiars
+  fgfr2: fgfr2
+  formulation: formulacio
+  grade: grau
+  hba1c: hba1c
+  hba1c0: hba1c_basal
+  hdl: hdl
+  her2: her2
+  hrt: ths
+  ki67: ki67
+  menarche: menarquia
+  menopause: menopausa
+  nodes: ganglis
+  parity: paritat
+  physical_activity: activitat_fisica
+  salt: sal
+  sbp: pas
+  sbp0: pas_basal
+  sex: sexe
+  smoking: tabac
+  total_chol: colesterol
+  treatment: tractament
+  tumour_size: mida_tumor
+  weight: pes
+levels:
+  "control": control
+  "case": cas
+  "no": "no"
+  "yes": sí
+  female: dona
+  male: home
+  never: mai
+  former: exfumador
+  current: fumador
+  ever: alguna vegada
+  pre: pre
+  post: post
+  primary: primaris
+  secondary: secundaris
+  university: universitaris
+  negative: negatiu
+  positive: positiu
+  placebo: placebo
+  amlodipine: amlodipina
+  metformin: metformina
+  reference: referència
+  test: test
+  G1: G1
+  G2: G2
+  G3: G3

@@ -75,16 +75,23 @@ options:
       description:
           R: study design; must fit the outcome
 
-    - name: factors
-      title: Variables measured
+    - name: measured
+      title: Variables
       type: Array
       default: []
       template:
-          type: String
+          type: Group
+          elements:
+              - name: var
+                type: String
+              - name: include
+                type: Bool
+                default: false
       description:
           R: >
-              scenario variables included in the dataset; the others are
-              unmeasured (they still act). Empty means all.
+              one entry per scenario variable, list(var = name, include = TRUE/FALSE);
+              included variables are in the dataset, the others are unmeasured
+              (they still act)
 
     - name: n
       title: Sample size
@@ -172,6 +179,16 @@ options:
       title: Data dictionary
       type: Bool
       default: true
+
+    - name: showDescriptives
+      title: Descriptives
+      type: Bool
+      default: true
+
+    - name: showDag
+      title: Causal diagram (DAG)
+      type: Bool
+      default: false
 
     - name: showKey
       title: Answer key
