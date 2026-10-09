@@ -306,7 +306,9 @@ parse_cuts <- function(txt) {
     x <- suppressWarnings(as.numeric(sub("%$", "", parts)))
     if (anyNA(x)) stop(sprintf("'%s' is not a list of numbers", s), call. = FALSE)
     if (all(pct) && any(x <= 0 | x >= 100)) stop(sprintf("'%s': percentiles must be between 0 and 100", s), call. = FALSE)
-    list(type = if (all(pct)) "pct" else "value", x = sort(unique(x)))
+    # labels keep the decimals the user typed (25 -> "25", 18.5 -> "18.5")
+    dec <- max(0, nchar(sub("^[^.]*\\.?", "", sub("%$", "", parts))))
+    list(type = if (all(pct)) "pct" else "value", x = sort(unique(x)), decimals = dec)
 }
 
 # number of groups a categorisation spec gives (known before the data exist)
@@ -317,7 +319,7 @@ cat_prefix <- function(spec) if (spec$form == "cuts" && parse_cuts(spec$cuts)$ty
 
 # x -> ordered factor "Q1: <=24.0", "Q2: 24.0-27.3", "Q3: >27.3" (cut points
 # from the sample for quantiles and percentiles, as a study would compute them)
-categorize_column <- function(x, spec, digits = NULL) {
+categorize_column <- function(x, spec, digits = NULL, integer = FALSE) {
     b <- switch(spec$form,
         median = stats::quantile(x, 0.5, na.rm = TRUE, names = FALSE),
         tertiles = stats::quantile(x, 1:2 / 3, na.rm = TRUE, names = FALSE),
@@ -326,7 +328,11 @@ categorize_column <- function(x, spec, digits = NULL) {
         cuts = { cu <- parse_cuts(spec$cuts)
                  if (cu$type == "pct") stats::quantile(x, cu$x / 100, na.rm = TRUE, names = FALSE) else cu$x })
     b <- sort(unique(b))
-    d <- if (!is.null(digits)) digits else max(0, 2 - floor(log10(max(abs(b), 1e-9))))
+    # decimals of the labels: as typed for value cut points, otherwise the
+    # variable's own (none for counts and whole numbers)
+    d <- if (spec$form == "cuts" && parse_cuts(spec$cuts)$type == "value") parse_cuts(spec$cuts)$decimals
+         else if (integer || all(abs(x[is.finite(x)] - round(x[is.finite(x)])) < 1e-8)) 0
+         else if (!is.null(digits)) digits else 2
     f <- function(v) formatC(round(v, d), format = "f", digits = d)
     p <- cat_prefix(spec)
     k <- length(b) + 1L
@@ -344,7 +350,7 @@ categorize_study <- function(df, sc, categorize, lang = "en") {
         spec <- categorize[[v]]
         if (spec$form == "continuous" || !sc$variables[[v]]$type %in% c("continuous", "count")) next
         desc <- attr(df[[v]], "jmv-desc")
-        df[[v]] <- categorize_column(df[[v]], spec, sc$variables[[v]]$round)
+        df[[v]] <- categorize_column(df[[v]], spec, sc$variables[[v]]$round, sc$variables[[v]]$type == "count")
         attr(df[[v]], "jmv-desc") <- sprintf("%s, %s", desc, gtext(paste0("cat_", spec$form), lang))
     }
     df

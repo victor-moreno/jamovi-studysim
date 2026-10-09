@@ -84,7 +84,7 @@ test_that("the panel's form and cut points reach the data, descriptives and key"
                                 list(var = "sex", include = TRUE, form = "tertiles", cuts = "")))
   d <- r$descriptives$asDF
   expect_true(any(grepl("^Q4: >", d$level)))
-  expect_true(any(d$level == "G3: >30.0"))
+  expect_true(any(d$level == "G3: >30"))
   k <- r$keyExpected$asDF
   expect_identical(k$contrast[k$variable == "sbp"], c("Q2 vs Q1", "Q3 vs Q1", "Q4 vs Q1"))
   expect_true(all(!is.na(k$adjusted)))

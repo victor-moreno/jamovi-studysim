@@ -46,9 +46,6 @@
             "Answer key: what this design should estimate": [
                 "Clave de respuestas: qué debería estimar este diseño"
             ],
-            "as is": [
-                "tal cual"
-            ],
             "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
                 "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} años"
             ],
@@ -552,6 +549,9 @@
             ],
             "Type": [
                 "Tipo"
+            ],
+            "Units or categories": [
+                "Unidades o categorías"
             ],
             "Upper": [
                 "Superior"

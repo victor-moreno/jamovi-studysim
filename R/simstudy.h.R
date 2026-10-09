@@ -77,6 +77,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         jmvcore::OptionString$new(
                             "var",
                             NULL),
+                        jmvcore::OptionString$new(
+                            "units",
+                            NULL,
+                            default=""),
                         jmvcore::OptionBool$new(
                             "include",
                             NULL,

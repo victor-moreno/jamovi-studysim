@@ -61,10 +61,6 @@ msgstr "Clau de respostes: model veritable"
 msgid "Answer key: what this design should estimate"
 msgstr "Clau de respostes: què hauria d'estimar aquest disseny"
 
-#: simStudy/options/measured.template/form/continuous.title
-msgid "as is"
-msgstr "tal qual"
-
 #: R/simstudy.b.R
 msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"
 msgstr "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
@@ -146,6 +142,7 @@ msgid "Conditional effects on the outcome"
 msgstr "Efectes condicionals sobre la resposta"
 
 #: R/simstudy.b.R
+#: simStudy/options/measured.template/form/continuous.title
 msgid "continuous"
 msgstr "contínua"
 
@@ -813,6 +810,10 @@ msgstr "Els valors veritables són {true}, la mesura amb què es van generar les
 #: simStudy/results/dictionary.columns.title
 msgid "Type"
 msgstr "Tipus"
+
+#: simStudy/ui/measured.columns.label
+msgid "Units or categories"
+msgstr "Unitats o categories"
 
 #: simDerive/results/effects.columns.title
 msgid "Upper"

@@ -67,13 +67,40 @@ module.exports = {
                 if (m['var'] === id || ['en', 'es', 'ca'].some(function(x) { return S.dname(id, x, lib, sc) === m['var']; })) prev[id] = m;
             });
         });
+        var defs = ids.map(function(id) { return S.varDef(lib, sc, id); });
         var rows = ids.map(function(id, i) {
             var m = (!reset && prev[id]) || {};
-            return { 'var': vars[i], include: !!m.include, form: m.form || 'continuous', cuts: m.cuts || '' };
+            return { 'var': vars[i], units: S.unitsText(defs[i], l, lib, sc), include: !!m.include,
+                     form: S.isNumeric(defs[i]) ? (m.form || 'continuous') : 'continuous', cuts: S.isNumeric(defs[i]) ? (m.cuts || '') : '' };
         });
         S.setOpt(ui, 'measured', rows);
+        this._numeric = defs.map(S.isNumeric);
+        this.lockForms();
         S.browseButton(ui, function() { self.refresh(ui, false); });
     },
+
+    // Form and Cut points only apply to numbers: hide them on categorical rows.
+    // The list re-renders its rows on its own schedule, so this runs again
+    // shortly after every change.
+    lockForms: function() {
+        var flags = this._numeric || [];
+        var apply = function() {
+            var sel = document.querySelectorAll('.list-item-cell select');
+            var txt = document.querySelectorAll('.list-item-cell input[type=text]');
+            for (var i = 0; i < flags.length; i++) {
+                [sel[i], txt[i]].forEach(function(el) {
+                    if (!el) return;
+                    el.disabled = !flags[i];
+                    el.style.visibility = flags[i] ? '' : 'hidden';
+                });
+            }
+        };
+        apply();
+        setTimeout(apply, 50);
+        setTimeout(apply, 400);
+    },
+
+    measured_changed: function(ui) { this.lockForms(); },
 
     view_loaded: function(ui) { this.refresh(ui, false); },
     view_updated: function(ui) { this.refresh(ui, false); }

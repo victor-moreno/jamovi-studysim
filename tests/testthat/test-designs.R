@@ -108,6 +108,10 @@ test_that("continuous variables can be categorised by quantiles or cut points", 
   sc <- toy()
   expect_equal(parse_cuts("18,5; 25; 30")$x, c(18.5, 25, 30))
   expect_equal(parse_cuts("10%, 90%")$type, "pct")
+  expect_equal(parse_cuts("18.5, 25")$decimals, 1)
+  expect_identical(levels(categorize_column(c(0, 0, 1, 3, 5), list(form = "cuts", cuts = "0"), NULL, TRUE)), c("G1: ≤0", "G2: >0"))
+  expect_identical(levels(categorize_column(c(20.1, 26.3, 31.2), list(form = "cuts", cuts = "25, 30"), 1)), c("G1: ≤25", "G2: 25–30", "G3: >30"))
+  expect_identical(levels(categorize_column(c(0, 1, 2, 2, 3, 4, 6), list(form = "median"), NULL, TRUE)), c("Q1: ≤2", "Q2: >2"))
   expect_error(parse_cuts("10%, 25"), "not both")
   expect_error(parse_cuts("a, b"), "not a list of numbers")
   cats <- list(bmi = list(form = "tertiles"), age = list(form = "cuts", cuts = "50, 60"),

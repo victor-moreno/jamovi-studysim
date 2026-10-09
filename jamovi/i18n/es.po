@@ -61,10 +61,6 @@ msgstr "Clave de respuestas: modelo verdadero"
 msgid "Answer key: what this design should estimate"
 msgstr "Clave de respuestas: qué debería estimar este diseño"
 
-#: simStudy/options/measured.template/form/continuous.title
-msgid "as is"
-msgstr "tal cual"
-
 #: R/simstudy.b.R
 msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"
 msgstr "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} años"
@@ -146,6 +142,7 @@ msgid "Conditional effects on the outcome"
 msgstr "Efectos condicionales sobre la respuesta"
 
 #: R/simstudy.b.R
+#: simStudy/options/measured.template/form/continuous.title
 msgid "continuous"
 msgstr "continua"
 
@@ -813,6 +810,10 @@ msgstr "Los valores verdaderos son {true}, la medida con que se generaron los da
 #: simStudy/results/dictionary.columns.title
 msgid "Type"
 msgstr "Tipo"
+
+#: simStudy/ui/measured.columns.label
+msgid "Units or categories"
+msgstr "Unidades o categorías"
 
 #: simDerive/results/effects.columns.title
 msgid "Upper"

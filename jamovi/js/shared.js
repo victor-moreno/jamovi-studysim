@@ -53,6 +53,41 @@ function dname(id, l, lib, sc) {
     return id;
 }
 
+// category label shown for a level (same sources as dname)
+function dlevel(x, l, lib, sc) {
+    var srcs = [sc && sc.i18n, lib && lib.i18n, BUILTIN.i18n];
+    for (var i = 0; i < srcs.length; i++) {
+        var d = srcs[i] && srcs[i][l] && srcs[i][l].levels;
+        if (d && d[x] !== undefined) return d[x];
+    }
+    return x;
+}
+
+// a scenario variable with its dictionary entry merged in, and its type
+function varDef(lib, sc, id) {
+    var v = (sc.variables || {})[id] || {};
+    var d = (lib.variables || {})[id];
+    var out = {}, k;
+    if (d && (v.from === 'dictionary' || !v.type)) for (k in d) out[k] = d[k];
+    for (k in v) if (k !== 'from') out[k] = v[k];
+    if (!out.type && out.dist) out.type = 'continuous';
+    return out;
+}
+
+function isNumeric(def) { return def.type === 'continuous' || def.type === 'count'; }
+
+// "g/day" for numbers, "no/yes" for categories, as the student will see them
+function unitsText(def, l, lib, sc) {
+    if (isNumeric(def)) return tr(def.units, l);
+    var lv = def.levels;
+    if (def.type === 'genotype') {
+        var a = def.alleles || ['A', 'B'];
+        lv = [a[0] + a[0], a[0] + a[1], a[1] + a[1]];
+    }
+    if (!lv && def.type === 'binary') lv = ['no', 'yes'];
+    return (lv || []).map(function(x) { return dlevel(String(x), l, lib, sc); }).join('/');
+}
+
 function b64ToText(b64) {
     var bin = atob(b64);
     var bytes = new Uint8Array(bin.length);
@@ -199,7 +234,8 @@ function browseButton(ui, onLoaded) {
 }
 
 module.exports = {
-    BUILTIN: BUILTIN, DESIGNS: DESIGNS, getOpt: getOpt, setOpt: setOpt, lang: lang, tr: tr, dname: dname,
+    BUILTIN: BUILTIN, DESIGNS: DESIGNS, getOpt: getOpt, setOpt: setOpt, lang: lang, tr: tr, dname: dname, dlevel: dlevel,
+    varDef: varDef, isNumeric: isNumeric, unitsText: unitsText,
     library: library, customLibrary: customLibrary, designsFor: designsFor,
     syncSelect: syncSelect, browseButton: browseButton
 };
