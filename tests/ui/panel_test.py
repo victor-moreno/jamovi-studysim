@@ -57,9 +57,9 @@ with sync_playwright() as p:
     names = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()]
     check("coffee" in names and "age" in names, "checklist lists the variables: %s" % names[:6])
     boxes = fr.locator(".list-item-cell input[type=checkbox]")
-    check(boxes.count() >= 11, "one checkbox per variable (%d)" % boxes.count())
+    check(boxes.count() >= 12, "one checkbox per variable (%d)" % boxes.count())
     check(all(not boxes.nth(i).is_checked() for i in range(boxes.count())), "none measured at start")
-    ids = ["age", "sex", "education", "physical_activity", "bmi", "smoking", "sbp", "total_chol", "hdl", "diabetes", "coffee"]
+    ids = ["age", "sex", "education", "physical_activity", "bmi", "smoking", "cigarettes", "sbp", "total_chol", "hdl", "diabetes", "coffee"]
     for v in ["age", "sex", "smoking", "coffee"]:
         boxes.nth(ids.index(v)).check(force=True)
         page.wait_for_timeout(700)

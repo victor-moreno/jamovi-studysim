@@ -73,8 +73,17 @@ normalize_variable <- function(id, v, dict, pr) {
     out <- list(id = id, type = v$type, label = v$label %||% id, description = v$description,
                 units = v$units, round = v$round)
     if (!is.null(v$range)) out$range <- try_at(pr, where, num_vec(v$range))
+    # rules (engine_rules.R), parsed once all the variables are known
+    out$rules_raw <- list(formula = v$formula, only_if = v$only_if, p = v$p)
+    if (!is.null(v$only_if))
+        out$otherwise <- if (v$type %in% c("continuous", "count")) try_at(pr, where, num_expr(v$otherwise %||% 0))
+                         else if (!is.null(v$otherwise)) as.character(unlist(v$otherwise))
+    if (!is.null(v$formula) && v$type %in% c("continuous", "count", "binary")) {
+        if (v$type == "binary") out$levels <- as.character(unlist(v$levels %||% c("no", "yes")))
+        return(out)
+    }
     if (v$type %in% c("continuous", "count")) {
-        if (is.null(v$dist)) { add_problem(pr, where, "needs a dist, e.g. normal(25, 4)"); return(NULL) }
+        if (is.null(v$dist)) { add_problem(pr, where, "needs a dist, e.g. normal(25, 4), or a formula"); return(NULL) }
         out$dist <- try_at(pr, where, parse_dist(v$dist))
         if (is.null(out$dist)) return(NULL)
         if (v$type == "count" && !out$dist$family %in% c("poisson", "negbin"))
@@ -82,9 +91,11 @@ normalize_variable <- function(id, v, dict, pr) {
         if (!is.null(out$range) && !is.null(out$dist))
             try_at(pr, where, qdist(0.5, out$dist, out$range))
     } else if (v$type == "binary") {
-        out$p <- try_at(pr, where, num_expr(v$p %||% NA))
-        if (is.null(out$p) || out$p <= 0 || out$p >= 1) {
-            add_problem(pr, where, "needs p, a proportion between 0 and 1"); return(NULL) }
+        # p is a number, or an expression of other variables (a rule)
+        out$p <- tryCatch(num_expr(v$p %||% NA), error = function(e) NULL)
+        if (is.null(out$p) && is.character(v$p)) out$p <- 0.5
+        else if (is.null(out$p) || out$p <= 0 || out$p >= 1) {
+            add_problem(pr, where, "needs p, a proportion between 0 and 1, or an expression such as plogis((age - 51) / 1.5)"); return(NULL) }
         out$levels <- as.character(unlist(v$levels %||% c("no", "yes")))
         if (length(out$levels) != 2) add_problem(pr, where, "a binary variable has exactly 2 levels")
     } else if (v$type %in% c("nominal", "ordinal")) {
@@ -313,6 +324,32 @@ normalize_scenario <- function(raw, dictionary = list(), strict = TRUE) {
         if (!is.null(nv)) vars[[v]] <- nv
     }
     ids <- names(vars)
+    for (v in ids) {
+        rr <- vars[[v]]$rules_raw
+        vars[[v]]$rules_raw <- NULL
+        where <- sprintf("variable '%s'", v)
+        if (!is.null(rr$formula)) vars[[v]]$formula <- try_at(pr, where, parse_rule(rr$formula, setdiff(ids, v)))
+        if (!is.null(rr$only_if)) {
+            vars[[v]]$only_if <- try_at(pr, where, parse_rule(rr$only_if, setdiff(ids, v)))
+            if (is.null(vars[[v]]$otherwise) && !vars[[v]]$type %in% c("continuous", "count"))
+                add_problem(pr, where, "only_if needs otherwise: the level to use when the condition is false")
+            else if (!is.null(vars[[v]]$levels) && !as.character(vars[[v]]$otherwise) %in% vars[[v]]$levels)
+                add_problem(pr, where, sprintf("otherwise: '%s' is not one of its levels (%s)", vars[[v]]$otherwise,
+                                               paste(vars[[v]]$levels, collapse = ", ")))
+        }
+        if (vars[[v]]$type == "binary" && is.character(rr$p) && is.null(tryCatch(num_expr(rr$p), error = function(e) NULL)))
+            vars[[v]]$p_rule <- try_at(pr, where, parse_rule(rr$p, setdiff(ids, v)))
+    }
+    rule_vars <- ids[vapply(vars, has_rules, TRUE)]
+    rule_edges <- do.call(rbind, c(list(data.frame(from = character(), to = character(), stringsAsFactors = FALSE)),
+        lapply(rule_vars, function(v) { d <- rule_deps(vars[[v]])
+            if (length(d)) data.frame(from = d, to = v, stringsAsFactors = FALSE) else NULL })))
+    rule_order <- character()
+    if (length(rule_vars)) {
+        ro <- topo_order(ids, rule_edges)
+        if (is.null(ro)) add_problem(pr, "rules", "the rules (p, formula, only_if) refer to each other in a circle")
+        else rule_order <- intersect(ro, rule_vars)
+    }
     as_edges <- function(x, what) {
         if (length(x) == 0) return(data.frame(from = character(), to = character(), b = numeric()))
         rows <- lapply(x, function(e) {
@@ -365,6 +402,7 @@ normalize_scenario <- function(raw, dictionary = list(), strict = TRUE) {
     sc <- list(id = id, label = raw$label %||% id, domain = raw$domain %||% "", population = raw$population,
                variables = vars, order = ord, edges = lat$edges, R_exo = R_exo, exogenous = exo,
                R = lat$R, resid = lat$resid, outcomes = outcomes, interventions = ivs,
+               rule_order = rule_order, rule_edges = rule_edges,
                null_variables = unlist(raw$null_variables), references = unlist(raw$references),
                teaching = raw$teaching, design_defaults = normalize_design_defaults(raw$designs, pr),
                problems = pr$items)

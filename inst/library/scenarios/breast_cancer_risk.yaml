@@ -20,13 +20,15 @@ variables:
     label: {en: Number of births, es: Número de partos, ca: Nombre de parts}
   menopause:
     type: binary
-    p: 0.55
     levels: [pre, post]
+    p: plogis((age - 51) / 1.5)     # rule: post-menopausal almost surely after 56, rarely before 46
     label: {en: Menopausal status, es: Estado menopáusico, ca: Estat menopàusic}
   hrt:
     type: binary
-    p: 0.15
+    p: 0.25
     levels: [never, ever]
+    only_if: menopause == "post"    # structural value: no HRT before menopause
+    otherwise: never
     label: {en: Hormone replacement therapy, es: Terapia hormonal sustitutiva, ca: Teràpia hormonal substitutiva}
   bmi: {from: dictionary, dist: "lognormal(26.5, 4.8)"}
   alcohol: {from: dictionary, dist: "gamma(6, 8)"}
@@ -41,8 +43,6 @@ variables:
   coffee: {from: dictionary}
 
 structure:                       # latent standardized paths among covariates
-  - [age, menopause, 0.85]
-  - [menopause, hrt, 0.40]
   - [age, parity, 0.25]
   - [education, parity, -0.20]
   - [education, alcohol, 0.15]

@@ -209,8 +209,10 @@ dag_layout <- function(sc, oc, factors, lang = "en") {
     vars <- sc$order
     ivs <- intersect(names(oc$effects), names(sc$interventions))
     depth <- stats::setNames(integer(length(vars)), vars)
+    # latent paths and rule dependencies both place a variable after its parents
+    links <- rbind(sc$edges[, c("from", "to")], sc$rule_edges %||% data.frame(from = character(), to = character()))
     for (v in vars) {
-        pa <- sc$edges$from[sc$edges$to == v]
+        pa <- links$from[links$to == v]
         if (length(pa)) depth[v] <- max(depth[pa]) + 1L
     }
     nodes <- data.frame(id = c(ivs, vars, oc$id), layer = c(rep(0L, length(ivs)), depth, max(depth) + 1L),
@@ -220,8 +222,8 @@ dag_layout <- function(sc, oc, factors, lang = "en") {
     nodes$null <- !nodes$id %in% c(names(oc$effects), oc$id)
     # initial order: null variables last; then barycentre sweeps (down by
     # parents, up by children other than the outcome) to reduce crossings
-    parents <- function(v) if (v == oc$id) names(oc$effects) else sc$edges$from[sc$edges$to == v]
-    children <- function(v) sc$edges$to[sc$edges$from == v]
+    parents <- function(v) if (v == oc$id) names(oc$effects) else links$from[links$to == v]
+    children <- function(v) links$to[links$from == v]
     nodes$y <- 0
     place <- function(i) { k <- length(i); nodes$y[i] <<- if (k == 1) 0 else seq(1, -1, length.out = k) * (k - 1) / 2 }
     layers <- sort(unique(nodes$layer))
@@ -246,6 +248,12 @@ dag_layout <- function(sc, oc, factors, lang = "en") {
         edges[[1]] <- data.frame(from = sc$edges$from, to = sc$edges$to, x = a$x, y = a$y, xend = b$x, yend = b$y,
                                  type = "path", label = sprintf("%.2f", sc$edges$b), dir = sign(sc$edges$b),
                                  stringsAsFactors = FALSE)
+    }
+    re <- sc$rule_edges
+    if (!is.null(re) && nrow(re)) {
+        a <- pos(re$from); b <- pos(re$to)
+        edges[[length(edges) + 1]] <- data.frame(from = re$from, to = re$to, x = a$x, y = a$y, xend = b$x, yend = b$y,
+                                                 type = "path", label = "rule", dir = 0, stringsAsFactors = FALSE)
     }
     R <- sc$R_exo
     if (length(R) > 1) for (i in seq_len(nrow(R) - 1)) for (j in (i + 1):nrow(R)) if (R[i, j] != 0) {

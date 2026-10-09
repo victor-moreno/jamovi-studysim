@@ -111,7 +111,7 @@ rbind_rows <- function(rows) {
     }))
 }
 
-VAR_FIELDS <- c("from", "type", "dist", "p", "maf", "round")
+VAR_FIELDS <- c("from", "type", "dist", "p", "maf", "round", "formula", "only_if", "otherwise")
 
 var_row <- function(scenario, id, v) {
     r <- list(scenario = scenario, variable = id)
@@ -374,6 +374,11 @@ check_library <- function(lib) {
         bad <- names(lib$scenarios[[id]]$variables)[!grepl("^[A-Za-z][A-Za-z0-9_]*$", names(lib$scenarios[[id]]$variables))]
         for (b in bad) p[nrow(p) + 1, ] <- list(sprintf("variable '%s'", b), "error",
                                                  "names must start with a letter and use only letters, digits and _")
+        if (!is.null(sc$order) && length(sc$rule_order) && !any(p$level == "error")) {
+            # rules are only fully checked by running them
+            err <- tryCatch({ with_seed(1, gen_covariates(sc, 200)); NULL }, error = function(e) conditionMessage(e))
+            if (!is.null(err)) p[nrow(p) + 1, ] <- list("rules", "error", err)
+        }
         if (!is.null(sc$order)) {
             # translated names become column names: valid and unique per language
             use_i18n(sc)
@@ -416,6 +421,16 @@ library_subset <- function(lib, ids) {
 
 # a readable one-line description of a variable's marginal distribution
 describe_variable <- function(v) {
+    rule <- paste(c(if (!is.null(v$formula)) paste("=", v$formula$text),
+                    if (!is.null(v$p_rule)) paste0("p = ", v$p_rule$text),
+                    if (!is.null(v$only_if)) sprintf("only if %s, else %s", v$only_if$text, v$otherwise)), collapse = "; ")
+    if (!is.null(v$formula)) return(rule)
+    if (!is.null(v$p_rule)) return(paste0(v$levels[2], ": ", rule))
+    base <- describe_marginal(v)
+    if (nzchar(rule)) paste0(base, "; ", rule) else base
+}
+
+describe_marginal <- function(v) {
     switch(v$type,
         continuous = , count = paste0(v$dist$family, "(", paste(signif(v$dist$args, 4), collapse = ", "), ")",
                                       if (!is.null(v$range)) sprintf(" in [%s, %s]", v$range[1], v$range[2]) else ""),

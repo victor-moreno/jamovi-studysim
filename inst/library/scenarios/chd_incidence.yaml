@@ -10,6 +10,14 @@ variables:
   physical_activity: {from: dictionary}
   bmi: {from: dictionary}
   smoking: {from: dictionary}
+  cigarettes:
+    type: count
+    dist: negbin(15, 4)
+    range: [1, 60]
+    only_if: smoking == "current"   # structural zero for never and former smokers
+    otherwise: 0
+    units: {en: cigarettes/day, es: cigarrillos/día, ca: cigarrets/dia}
+    label: {en: Cigarettes per day, es: Cigarrillos al día, ca: Cigarrets al dia}
   sbp: {from: dictionary}
   total_chol: {from: dictionary}
   hdl: {from: dictionary}
@@ -29,6 +37,7 @@ structure:
   - [bmi, diabetes, 0.40]
   - [age, diabetes, 0.25]
   - [smoking, coffee, 0.50]
+  - [education, cigarettes, -0.15]
 
 outcomes:
   chd:
@@ -43,7 +52,8 @@ outcomes:
       sbp: {HR: 1.18, per: 10}
       total_chol: {HR: 1.20, per: 1}
       hdl: {HR: 0.60, per: 1}
-      smoking: {HR: [1, 1.2, 1.9]}
+      smoking: {HR: [1, 1.2, 1.6]}
+      cigarettes: {HR: 1.01, per: 1}
       diabetes: {HR: 1.8}
       bmi: {HR: 1.02, per: 1}
 

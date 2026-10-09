@@ -56,7 +56,10 @@ coronary heart disease incidence (Framingham-like), an antihypertensive drug vs
 placebo trial, metformin vs placebo on HbA1c, and bioequivalence of two
 formulations. Each is a YAML file in `inst/library/scenarios/` built on a shared
 dictionary (`inst/library/variables.yaml`); the format is described in
-`inst/library/schema.md`. Effect sizes are teaching-grade plausible values informed
+`inst/library/schema.md`. Besides correlations, variables can be tied by rules:
+a probability that depends on other variables (menopause from age), structural
+values (no cigarettes for non-smokers, no HRT before menopause) and formulas
+(derived variables). Effect sizes are teaching-grade plausible values informed
 by the cited literature, not meta-analytic estimates.
 
 Teachers can write their own scenarios in YAML or Excel. The *Simulated study* panel

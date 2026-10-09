@@ -60,9 +60,13 @@ latent_to_code <- function(z, v) {
 
 gen_covariates <- function(sc, n) {
     Z <- latent_draw(sc, n)
-    as.data.frame(lapply(stats::setNames(sc$order, sc$order),
-                         function(v) latent_to_code(Z[, v], sc$variables[[v]])),
-                  stringsAsFactors = FALSE)
+    cov <- as.data.frame(lapply(stats::setNames(sc$order, sc$order), function(v) {
+        x <- sc$variables[[v]]
+        if (!is.null(x$formula)) return(rep(NA_real_, n))   # filled by its rule
+        latent_to_code(Z[, v], x)
+    }), stringsAsFactors = FALSE)
+    if (length(sc$rule_order)) cov <- apply_rules(cov, Z, sc)
+    cov
 }
 
 # Chunk k of the superpopulation for one outcome: covariates (seeded by the

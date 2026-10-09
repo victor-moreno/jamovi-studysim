@@ -34,6 +34,38 @@ letters, digits and `_` (they become column names).
 | `maf`, `alleles` | genotype | minor allele frequency (Hardy-Weinberg); alleles default `[A, B]` → levels AA, AB, BB |
 | `units`, `label`, `description` | any | shown in the data and the dictionary |
 
+## Rules: variables tied to others
+
+Beyond the latent correlations, a variable can be tied to others by a rule:
+
+```yaml
+menopause:
+  type: binary
+  levels: [pre, post]
+  p: plogis((age - 51) / 1.5)      # probability from other variables
+hrt:
+  type: binary
+  p: 0.25                          # among those allowed by only_if
+  levels: [never, ever]
+  only_if: menopause == "post"     # structural value otherwise
+  otherwise: never
+cigarettes:
+  type: count
+  dist: negbin(15, 4)
+  only_if: smoking == "current"    # structural zero
+  otherwise: 0
+bmi:
+  type: continuous
+  formula: weight / (height / 100)^2   # derived, no dist needed
+```
+
+Rules see numbers for continuous and count variables and the library's level
+labels (in quotes) for the others. Allowed: arithmetic, comparisons, `&`, `|`,
+`!`, `%in%`, `c()`, `log`, `exp`, `sqrt`, `abs`, `round`, `pmin`, `pmax`, `ifelse`,
+`plogis`, `qlogis`. Rules may refer to each other but not in a circle; the check
+runs them on a small sample. In Excel they are the `p`, `formula`, `only_if` and
+`otherwise` columns of the `variables` sheet.
+
 ## Structure among variables
 
 ```yaml
