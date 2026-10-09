@@ -1,0 +1,113 @@
+title: Simulated study
+name: simStudy
+jus: '3.0'
+stage: 0
+compilerMode: tame
+children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: libName
+        label: Custom library
+        format: string
+        width: large
+      - type: TextBox
+        name: scenario
+        format: string
+        width: large
+      - type: TextBox
+        name: outcome
+        format: string
+        width: large
+      - type: ComboBox
+        name: design
+  - type: Supplier
+    name: factorSupplier
+    label: Candidate variables
+    persistentItems: false
+    stretchFactor: 1
+    format: variable
+    children:
+      - type: TargetLayoutBox
+        label: Variables measured
+        children:
+          - type: ListBox
+            name: factors
+            isTarget: true
+            template:
+              type: VariableLabel
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: n
+        format: number
+      - type: ActionButton
+        name: openData
+      - type: ActionButton
+        name: exportCsv
+  - type: CollapseBox
+    label: Design options
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: TextBox
+            name: ccRatio
+            format: number
+            enable: (design:case_control || design:matched_cc)
+          - type: TextBox
+            name: followup
+            format: number
+            enable: (design:cohort || design:prognosis || design:rct)
+          - type: TextBox
+            name: loss
+            format: number
+            enable: (design:cohort || design:prognosis || design:rct)
+          - type: TextBox
+            name: accrual
+            format: number
+            enable: (design:cohort || design:prognosis)
+          - type: TextBox
+            name: period
+            format: number
+            enable: (design:crossover)
+          - type: TextBox
+            name: carryover
+            format: number
+            enable: (design:crossover)
+  - type: CollapseBox
+    label: Realism
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: TextBox
+            name: missing
+            format: number
+          - type: ComboBox
+            name: missingMech
+  - type: CollapseBox
+    label: Output
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: TextBox
+            name: seed
+            format: number
+          - type: TextBox
+            name: studentKey
+            format: string
+            width: large
+          - type: CheckBox
+            name: showDictionary
+          - type: CheckBox
+            name: showKey

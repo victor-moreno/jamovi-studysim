@@ -75,3 +75,12 @@ test_that("answer key recovers the truth and shows confounding", {
   r4 <- simulate_study(sc, "ev", "matched_cc", n = 300, factors = c("age", "smoke"))
   expect_equal(r4$key$expected$measure[1], "OR")
 })
+
+test_that("planned columns match the formatted data", {
+  sc <- toy()
+  for (o in names(sc$outcomes)) for (d in compatible_designs(sc, o)) {
+    f <- c("age", "smoke", "snp")
+    r <- simulate_study(sc, o, d, n = 100, factors = f, key = FALSE)
+    expect_identical(planned_columns(sc, sc$outcomes[[o]], d, f), names(r$data), info = paste(o, d))
+  }
+})

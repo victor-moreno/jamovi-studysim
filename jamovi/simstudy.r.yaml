@@ -1,0 +1,120 @@
+---
+name: simStudy
+title: Simulated study
+jrs: '1.1'
+
+items:
+    - name: notice
+      title: ''
+      type: Html
+      visible: false
+      clearWith: &gen [libContent, scenario, outcome, design, factors, n, ccRatio, followup, loss,
+                       accrual, period, carryover, missing, missingMech, seed, studentKey]
+
+    - name: summary
+      title: Study
+      type: Html
+      clearWith: *gen
+
+    - name: dictionary
+      title: Data dictionary
+      type: Table
+      visible: (showDictionary)
+      rows: 0
+      clearWith: *gen
+      columns:
+          - name: name
+            title: Variable
+            type: text
+          - name: description
+            title: Description
+            type: text
+          - name: type
+            title: Type
+            type: text
+          - name: values
+            title: Values
+            type: text
+          - name: missing
+            title: Missing
+            type: integer
+
+    - name: keyEffects
+      title: 'Answer key: true model'
+      type: Table
+      visible: (showKey)
+      rows: 0
+      clearWith: [libContent, scenario, outcome]
+      columns:
+          - name: variable
+            title: Variable
+            type: text
+          - name: contrast
+            title: Contrast
+            type: text
+          - name: measure
+            title: Measure
+            type: text
+          - name: value
+            title: True value
+            type: number
+          - name: note
+            title: Note
+            type: text
+
+    - name: keyExpected
+      title: 'Answer key: what this design should estimate'
+      type: Table
+      visible: (showKey)
+      rows: 0
+      clearWith: [libContent, scenario, outcome, design, factors, ccRatio, followup, loss, accrual,
+                  period, carryover]
+      columns:
+          - name: variable
+            title: Variable
+            type: text
+          - name: contrast
+            title: Contrast
+            type: text
+          - name: truth
+            title: 'True'
+            type: number
+          - name: crude
+            title: Crude
+            type: number
+          - name: adjusted
+            title: Adjusted
+            type: number
+          - name: measure
+            title: Estimate
+            type: text
+          - name: note
+            title: Note
+            type: text
+
+    - name: keyNotes
+      title: 'Answer key: notes'
+      type: Html
+      visible: (showKey)
+      clearWith: *gen
+
+    # once-only guards for the two buttons: a hidden cell that survives re-runs
+    # (Action options can stay TRUE across runs; see the jamovi skill).
+    - name: openState
+      title: ''
+      type: Table
+      visible: false
+      rows: 0
+      clearWith: *gen
+      columns:
+          - {name: fired, title: '', type: text}
+
+    - name: csvState
+      title: ''
+      type: Table
+      visible: false
+      rows: 0
+      clearWith: *gen
+      columns:
+          - {name: fired, title: '', type: text}
+...

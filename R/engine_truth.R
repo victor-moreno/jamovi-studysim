@@ -17,7 +17,7 @@ contrast_rows <- function(sc, oc, v, lang = "en") {
     if (x$type %in% c("continuous", "count")) {
         per <- eff$per %||% 1
         u <- if (is.null(x$units)) "" else paste0(" ", tr_text(x$units, lang))
-        return(data.frame(variable = v, contrast = sprintf("per %s%s", format(per), u), coefname = v,
+        return(data.frame(variable = v, contrast = sprintf("per %s%s", base::format(per), u), coefname = v,
                           per = per, level = NA_integer_, stringsAsFactors = FALSE))
     }
     lv <- x$levels

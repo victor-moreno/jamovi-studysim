@@ -85,7 +85,7 @@ data_dictionary <- function(sc, df, factors) {
                 else if (nm %in% names(sc$interventions)) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
         values <- if (is.factor(x)) paste(levels(x), collapse = ", ")
-                  else sprintf("%s to %s", format(min(x, na.rm = TRUE)), format(max(x, na.rm = TRUE)))
+                  else sprintf("%s to %s", base::format(min(x, na.rm = TRUE)), base::format(max(x, na.rm = TRUE)))
         data.frame(name = nm, description = attr(x, "jmv-desc") %||% "", role = role, type = type,
                    values = values, missing = sum(is.na(x)), stringsAsFactors = FALSE)
     })
@@ -118,4 +118,15 @@ apply_missing <- function(df, cols, pct, mech, seed, driver = NULL, unit = df$id
         }
     })
     df
+}
+
+# The dataset's column names, known before any data are drawn (the results
+# tables need their rows in .init()); mirrors format_study().
+planned_columns <- function(sc, oc, design, factors) {
+    iv <- if (design %in% c("rct", "crossover")) trial_iv(sc, oc)$id else character()
+    out <- c("id", if (design == "matched_cc") "set", if (design == "crossover") c("sequence", "period"), iv)
+    out <- c(out, if (design %in% c("case_control", "matched_cc")) "case"
+                  else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct")) c("time", oc$id)
+                  else oc$id)
+    c(out, intersect(sc$order, factors))
 }

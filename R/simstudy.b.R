@@ -1,0 +1,229 @@
+# Simulated study: orchestration only. The engine (engine_*.R) knows nothing
+# about jamovi; this class resolves the library and options, builds the result
+# tables' rows in .init() (so they restore across clicks), fills them in .run(),
+# and hands the dataset to jamovi through the two Action buttons.
+
+simStudyClass <- R6::R6Class(
+    "simStudyClass",
+    inherit = simStudyBase,
+    private = list(
+        .ctx = NULL,
+
+        # jamovi's language, from a marker the module catalogs translate
+        .lang = function() {
+            l <- tryCatch(self$options$translate("studysim-language-code"), error = function(e) "")
+            if (is.character(l) && length(l) == 1 && grepl("^[a-z]{2}$", l)) l else "en"
+        },
+
+        .designTitle = function(d) {
+            switch(d, case_control = .("Case-control"), matched_cc = .("Matched case-control"),
+                   cohort = .("Cohort"), cross_sectional = .("Cross-sectional"), rct = .("Randomised trial"),
+                   crossover = .("2x2 crossover trial"), prognosis = .("Prognosis (patient cohort)"), d)
+        },
+
+        # library, scenario, outcome, design and measured variables, or an error
+        .context = function() {
+            if (!is.null(private$.ctx)) return(private$.ctx)
+            o <- self$options
+            ctx <- tryCatch({
+                lib <- get_library(o$libContent, o$libName)
+                sc <- load_scenario(lib, o$scenario)
+                oid <- if (nzchar(o$outcome) && o$outcome %in% names(sc$outcomes)) o$outcome else names(sc$outcomes)[1]
+                ok <- compatible_designs(sc, oid)
+                if (!o$design %in% ok)
+                    stop(jmvcore::format(.("The {design} design does not fit this outcome. Possible designs: {list}."),
+                                 design = private$.designTitle(o$design),
+                                 list = paste(vapply(ok, private$.designTitle, ""), collapse = ", ")), call. = FALSE)
+                fac <- unlist(o$factors)
+                if (length(fac) == 0) fac <- sc$order
+                list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
+                     factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok)
+            }, error = function(e) list(error = conditionMessage(e)))
+            private$.ctx <- ctx
+            ctx
+        },
+
+        .designOptions = function(ctx) {
+            o <- self$options
+            d <- ctx$design
+            opt <- list()
+            if (d %in% c("case_control", "matched_cc")) opt$ratio <- o$ccRatio
+            if (d %in% c("cohort", "prognosis", "rct")) {
+                if (o$followup > 0) opt$followup <- o$followup
+                opt$loss <- o$loss / 100
+            }
+            if (d %in% c("cohort", "prognosis") && o$accrual > 0) opt$accrual <- o$accrual
+            if (d == "crossover") {
+                if (o$period != 0) opt$period <- o$period
+                if (o$carryover != 0) opt$carryover <- o$carryover
+            }
+            opt
+        },
+
+        .notice = function(html) {
+            self$results$notice$setContent(html)
+            self$results$notice$setVisible(TRUE)
+        },
+
+        .init = function() {
+            for (nm in c("openState", "csvState"))
+                if (self$results[[nm]]$rowCount == 0)
+                    self$results[[nm]]$addRow(rowKey = 1, values = list(fired = ""))
+            ctx <- private$.context()
+            if (!is.null(ctx$error)) {
+                private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(ctx$error)))
+                for (nm in c("summary", "dictionary", "keyEffects", "keyExpected", "keyNotes"))
+                    self$results[[nm]]$setVisible(FALSE)
+                return()
+            }
+            dic <- self$results$dictionary
+            for (nm in planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors))
+                dic$addRow(rowKey = nm, values = list(name = nm))
+            if (self$options$showKey) {
+                te <- true_effects(ctx$sc, ctx$oc, ctx$lang)
+                for (i in seq_len(nrow(te))) self$results$keyEffects$addRow(rowKey = i, values = list(
+                    variable = te$variable[i], contrast = te$contrast[i]))
+                for (r in private$.expectedRows(ctx))
+                    self$results$keyExpected$addRow(rowKey = r$key, values = list(variable = r$variable, contrast = r$contrast))
+            }
+        },
+
+        .expectedRows = function(ctx) {
+            iv <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors))
+            main <- if (length(iv)) iv else ctx$factors
+            rows <- list()
+            for (v in main) {
+                cr <- contrast_rows(ctx$sc, ctx$oc, v, ctx$lang)
+                for (i in seq_len(nrow(cr)))
+                    rows[[length(rows) + 1]] <- list(key = paste(v, cr$contrast[i]), variable = v, contrast = cr$contrast[i])
+            }
+            rows
+        },
+
+        .run = function() {
+            ctx <- private$.context()
+            if (!is.null(ctx$error)) return()
+            o <- self$options
+            opt <- private$.designOptions(ctx)
+            res <- tryCatch(simulate_study(ctx$sc, ctx$oc$id, ctx$design, o$n, ctx$factors, seed = o$seed,
+                                           student_key = o$studentKey, options = opt, missing = o$missing / 100,
+                                           missing_mech = o$missingMech, lang = ctx$lang, key = FALSE),
+                            error = function(e) e)
+            if (inherits(res, "error")) {
+                private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(conditionMessage(res))))
+                return()
+            }
+            private$.fillSummary(ctx, res)
+            private$.fillDictionary(res)
+            if (o$showKey) private$.fillKey(ctx, res)
+            private$.actions(ctx, res)
+        },
+
+        .fillSummary = function(ctx, res) {
+            sc <- ctx$sc; l <- ctx$lang; f <- res$facts
+            num <- function(x, d = 0) base::format(round(x, d), big.mark = ",", nsmall = 0, scientific = FALSE)
+            li <- c(
+                sprintf("<b>%s</b>: %s. %s", .("Scenario"), htmlEscape(tr_text(sc$label, l)), htmlEscape(tr_text(sc$population, l))),
+                sprintf("<b>%s</b>: %s", .("Outcome"), htmlEscape(tr_text(ctx$oc$label, l))),
+                sprintf("<b>%s</b>: %s, %s", .("Design"), private$.designTitle(ctx$design),
+                        jmvcore::format(.("{n} rows"), n = num(nrow(res$data)))))
+            if (!is.null(f$cases)) li <- c(li, jmvcore::format(.("{cases} cases and {controls} controls"), cases = num(f$cases), controls = num(f$controls)))
+            if (!is.null(f$source_population)) li <- c(li, jmvcore::format(.("cases found among {n} people of the source population (risk {risk}%)"),
+                                                                  n = num(f$source_population), risk = num(100 * f$risk_in_source, 2)))
+            if (!is.null(f$matched_on)) li <- c(li, jmvcore::format(.("matched on {vars}"), vars = paste(f$matched_on, collapse = ", ")))
+            if (isTRUE(f$incomplete_sets > 0)) li <- c(li, jmvcore::format(.("{n} cases have fewer controls than asked"), n = f$incomplete_sets))
+            if (!is.null(f$events)) li <- c(li, jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)))
+            if (!is.null(f$arms)) li <- c(li, paste(sprintf("%s: %s", names(f$arms), unlist(f$arms)), collapse = ", "))
+            if (!is.null(f$sequences)) li <- c(li, jmvcore::format(.("sequences: {a} and {b} participants"), a = f$sequences[1], b = f$sequences[2]))
+            um <- setdiff(names(ctx$oc$effects), c(ctx$factors, names(sc$interventions)))
+            if (length(um)) li <- c(li, jmvcore::format(.("not measured (they still act): {vars}"), vars = paste(um, collapse = ", ")))
+            seedtxt <- if (nzchar(trimws(self$options$studentKey))) jmvcore::format(.("seed {seed} with student key \"{key}\""),
+                         seed = self$options$seed, key = htmlEscape(trimws(self$options$studentKey))) else jmvcore::format(.("seed {seed}"), seed = self$options$seed)
+            li <- c(li, seedtxt)
+            self$results$summary$setContent(paste0(
+                "<ul>", paste0("<li>", li, "</li>", collapse = ""), "</ul>",
+                "<p>", .("Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them."), "</p>"))
+        },
+
+        .fillDictionary = function(res) {
+            dic <- self$results$dictionary
+            d <- res$dictionary
+            for (i in seq_len(nrow(d))) {
+                if (!d$name[i] %in% dic$rowKeys) next
+                dic$setRow(rowKey = d$name[i], values = list(description = d$description[i], type = d$type[i],
+                                                              values = d$values[i], missing = d$missing[i]))
+            }
+        },
+
+        .fillKey = function(ctx, res) {
+            te <- true_effects(ctx$sc, ctx$oc, ctx$lang)
+            for (i in seq_len(nrow(te))) self$results$keyEffects$setRow(rowKey = i, values = list(
+                measure = te$measure[i], value = te$value[i], note = te$note[i]))
+            tbl <- self$results$keyExpected
+            ex <- tbl$state
+            if (is.null(ex)) {
+                ex <- expected_estimates(ctx$sc, ctx$oc, ctx$design, res$options, ctx$factors, ctx$lang)
+                tbl$setState(ex)
+            }
+            if (!is.null(ex)) {
+                for (i in seq_len(nrow(ex))) {
+                    k <- paste(ex$variable[i], ex$contrast[i])
+                    if (!k %in% tbl$rowKeys) next
+                    tbl$setRow(rowKey = k, values = list(truth = ex$true[i], crude = ex$crude[i], adjusted = ex$adjusted[i],
+                                                         measure = ex$measure[i], note = ex$note[i]))
+                }
+                tbl$setNote("n", jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
+                                         n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(attr(ex, "adjusted_for"), collapse = ", ")))
+            }
+            cal <- res$calibration
+            l <- ctx$lang
+            calib <- switch(ctx$oc$type,
+                binary = jmvcore::format(.("intercept {a} gives a prevalence of {p}"), a = round(cal$a, 4), p = round(cal$achieved, 4)),
+                continuous = jmvcore::format(.("intercept {a}"), a = round(cal$a, 4)),
+                count = jmvcore::format(.("log intercept {a}"), a = round(cal$a, 4)),
+                event = jmvcore::format(.("baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"),
+                                l = signif(cal$lambda, 4), s = cal$shape, r = signif(cal$achieved$rate, 3),
+                                q = round(cal$achieved$risk_followup, 4), t = ctx$oc$followup))
+            ed <- ctx$sc$edges
+            st <- if (nrow(ed)) paste(sprintf("%s → %s (%s)", ed$from, ed$to, ed$b), collapse = "; ") else "-"
+            html <- paste0(
+                "<p><b>", .("Teaching note"), "</b>: ", htmlEscape(tr_text(ctx$sc$teaching, l)), "</p>",
+                "<p><b>", .("Calibration"), "</b>: ", calib, "</p>",
+                "<p><b>", .("Structure among variables (latent paths)"), "</b>: ", htmlEscape(st), "</p>",
+                if (length(ctx$sc$references)) paste0("<p><b>", .("Sources of the parameters"), "</b></p><ul>",
+                    paste0("<li>", htmlEscape(ctx$sc$references), "</li>", collapse = ""), "</ul>") else "",
+                "<p>", .("Effects are teaching-grade plausible values informed by the literature, not meta-analytic estimates."), "</p>")
+            self$results$keyNotes$setContent(html)
+        },
+
+        # Action buttons: each fires once per click (hidden-cell guard)
+        .once = function(stateName, optName, fun) {
+            st <- self$results[[stateName]]
+            if (!isTRUE(self$options[[optName]])) {
+                st$setRow(rowNo = 1, values = list(fired = ""))
+                return(invisible(FALSE))
+            }
+            if (isTRUE(st$getCell(rowNo = 1, col = "fired")$value == "yes")) return(invisible(FALSE))
+            self$options$option(optName)$perform(fun)
+            st$setRow(rowNo = 1, values = list(fired = "yes"))
+            invisible(TRUE)
+        },
+
+        .actions = function(ctx, res) {
+            name <- sprintf("%s_%s", ctx$sc$id, ctx$design)
+            private$.once("openState", "openData", function(action) {
+                list(data = res$data, title = sprintf("%s - %s", tr_text(ctx$sc$label, ctx$lang), private$.designTitle(ctx$design)))
+            })
+            private$.once("csvState", "exportCsv", function(action) {
+                utils::write.csv(res$data, action$params$fullPath, row.names = FALSE, na = "", fileEncoding = "UTF-8")
+                list(filename = paste0(name, ".csv"))
+            })
+        }
+    )
+)
+
+htmlEscape <- function(x) {
+    x <- gsub("&", "&amp;", x, fixed = TRUE)
+    x <- gsub("<", "&lt;", x, fixed = TRUE)
+    gsub(">", "&gt;", x, fixed = TRUE)
+}

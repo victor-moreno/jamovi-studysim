@@ -68,7 +68,7 @@ scan_cases <- function(sc, oc, cal, seed, n_cases) {
         k <- k + 1L
         if (k > MAX_SCAN)
             stop(sprintf("the outcome is too rare: %d cases in %s people. Ask for fewer cases, or raise its frequency.",
-                         have, format(MAX_SCAN * CHUNK, big.mark = ",")), call. = FALSE)
+                         have, base::format(MAX_SCAN * CHUNK, big.mark = ",")), call. = FALSE)
         ch <- pop_chunk(sc, oc$id, seed, k)
         s <- status_of(oc, cal, linear_predictor(oc, ch$cov), ch$noise)
         cov[[k]] <- ch$cov; st[[k]] <- s; have <- have + sum(s)

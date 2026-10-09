@@ -1,0 +1,190 @@
+---
+name: simStudy
+title: Simulated study
+menuGroup: Simulate
+menuTitle: Simulated study
+menuSubtitle: Scenario, design, dataset and answer key
+version: '0.1.0'
+jas: '1.2'
+
+description:
+    main: >
+        Simulates a plausible medical study for teaching: a clinical scenario from
+        the library, a study design compatible with its outcome, a sample size and
+        some realism. The dataset opens in a new window; the answer key holds the
+        true parameters and what the design is expected to estimate.
+    R:
+        dontrun: true
+        usage: |
+            # in R, use the engine directly:
+            # sc <- studysim:::load_scenario(studysim:::builtin_library(), "chd_incidence")
+            # studysim:::simulate_study(sc, "chd", "cohort", n = 1000)
+
+options:
+    - name: data
+      type: Data
+
+    - name: libName
+      title: Custom library
+      type: String
+      default: ""
+      description:
+          R: name of the custom library file read by the Browse button (display only)
+
+    - name: libContent
+      title: Custom library payload
+      type: String
+      default: ""
+      hidden: true
+      description:
+          R: base64 of the custom library file (JSON, YAML, Excel or zip)
+
+    - name: scenario
+      title: Scenario
+      type: String
+      default: "breast_cancer_risk"
+      description:
+          R: scenario id
+
+    - name: outcome
+      title: Outcome
+      type: String
+      default: ""
+      description:
+          R: outcome id; empty means the scenario's first outcome
+
+    - name: design
+      title: Design
+      type: List
+      options:
+          - name: case_control
+            title: Case-control
+          - name: matched_cc
+            title: Matched case-control
+          - name: cohort
+            title: Cohort
+          - name: cross_sectional
+            title: Cross-sectional
+          - name: rct
+            title: Randomised trial
+          - name: crossover
+            title: 2x2 crossover trial
+          - name: prognosis
+            title: Prognosis (patient cohort)
+      default: case_control
+      description:
+          R: study design; must fit the outcome
+
+    - name: factors
+      title: Variables measured
+      type: Array
+      default: []
+      template:
+          type: String
+      description:
+          R: >
+              scenario variables included in the dataset; the others are
+              unmeasured (they still act). Empty means all.
+
+    - name: n
+      title: Sample size
+      type: Integer
+      default: 500
+      min: 10
+      max: 200000
+      description:
+          R: number of participants (cases plus controls in case-control designs)
+
+    - name: ccRatio
+      title: Controls per case
+      type: Integer
+      default: 1
+      min: 1
+      max: 5
+
+    - name: followup
+      title: Follow-up (years)
+      type: Number
+      default: 0
+      min: 0
+      max: 50
+      description:
+          R: 0 uses the scenario's default
+
+    - name: loss
+      title: Loss to follow-up (% per year)
+      type: Number
+      default: 2
+      min: 0
+      max: 50
+
+    - name: accrual
+      title: Recruitment period (years)
+      type: Number
+      default: 0
+      min: 0
+      max: 20
+      description:
+          R: 0 uses the design's default (staggered entry for prognosis)
+
+    - name: period
+      title: Period effect
+      type: Number
+      default: 0
+
+    - name: carryover
+      title: Carryover effect
+      type: Number
+      default: 0
+
+    - name: missing
+      title: Missing values (%)
+      type: Number
+      default: 0
+      min: 0
+      max: 60
+
+    - name: missingMech
+      title: Missingness
+      type: List
+      options:
+          - name: mcar
+            title: Completely at random
+          - name: mar
+            title: Depending on the outcome
+      default: mcar
+
+    - name: seed
+      title: Seed
+      type: Integer
+      default: 1
+      min: 1
+      max: 99999999
+
+    - name: studentKey
+      title: Student key
+      type: String
+      default: ""
+      description:
+          R: any text (e.g. a student ID); each key gives a different dataset
+
+    - name: showDictionary
+      title: Data dictionary
+      type: Bool
+      default: true
+
+    - name: showKey
+      title: Answer key
+      type: Bool
+      default: false
+
+    - name: openData
+      title: Open dataset
+      type: Action
+      action: open
+
+    - name: exportCsv
+      title: Export CSV
+      type: Action
+      action: openExternal
+...

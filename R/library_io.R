@@ -324,3 +324,14 @@ check_library <- function(lib) {
     res <- do.call(rbind, out); rownames(res) <- NULL
     res[, c("scenario", "where", "level", "message")]
 }
+
+.libcache <- new.env()
+
+# built-in library, merged with a custom one sent by the panel (cached by content)
+get_library <- function(payload = "", name = "") {
+    if (!nzchar(payload)) return(builtin_library())
+    key <- digest::digest(list(payload, name))
+    if (is.null(.libcache[[key]]))
+        .libcache[[key]] <- merge_libraries(builtin_library(), read_library_payload(payload, name))
+    .libcache[[key]]
+}
