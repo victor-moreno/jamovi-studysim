@@ -79,6 +79,9 @@
             "Completely at random": [
                 "Completament a l'atzar"
             ],
+            "continuous": [
+                "contínua"
+            ],
             "Contrast": [
                 "Contrast"
             ],
@@ -166,6 +169,9 @@
             "Import, check, explore and export scenarios": [
                 "Importar, comprovar, explorar i exportar escenaris"
             ],
+            "integer": [
+                "entera"
+            ],
             "intercept {a}": [
                 "constant {a}"
             ],
@@ -232,6 +238,9 @@
             "No problems found in {n} scenarios.": [
                 "No s'han trobat problemes en {n} escenaris."
             ],
+            "nominal": [
+                "nominal"
+            ],
             "not measured (they still act): {vars}": [
                 "no mesurades (però actuen): {vars}"
             ],
@@ -240,6 +249,9 @@
             ],
             "Open dataset": [
                 "Obrir dades"
+            ],
+            "ordinal": [
+                "ordinal"
             ],
             "Outcome": [
                 "Variable resposta"

@@ -1,3 +1,6 @@
+# hand-maintained (no roxygen)
 import(jmvcore)
 importFrom(R6, R6Class)
 importFrom(survival, Surv, strata, coxph)
+export(simStudy)
+export(simLibrary)

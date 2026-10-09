@@ -79,6 +79,9 @@
             "Completely at random": [
                 "Completamente al azar"
             ],
+            "continuous": [
+                "continua"
+            ],
             "Contrast": [
                 "Contraste"
             ],
@@ -166,6 +169,9 @@
             "Import, check, explore and export scenarios": [
                 "Importar, comprobar, explorar y exportar escenarios"
             ],
+            "integer": [
+                "entera"
+            ],
             "intercept {a}": [
                 "constante {a}"
             ],
@@ -232,6 +238,9 @@
             "No problems found in {n} scenarios.": [
                 "No se han encontrado problemas en {n} escenarios."
             ],
+            "nominal": [
+                "nominal"
+            ],
             "not measured (they still act): {vars}": [
                 "no medidas (pero actúan): {vars}"
             ],
@@ -240,6 +249,9 @@
             ],
             "Open dataset": [
                 "Abrir datos"
+            ],
+            "ordinal": [
+                "ordinal"
             ],
             "Outcome": [
                 "Variable respuesta"
