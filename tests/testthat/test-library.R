@@ -99,3 +99,38 @@ test_that("the three language dictionaries name every column uniquely and validl
   expect_false(is.null(attr(r$data$tabaco, "jmv-desc")))
   expect_identical(ids_from_names(list("tabac", "sexo", "age"), sc$order), c("smoking", "sex", "age"))
 })
+
+test_that("a custom library carries its own translations, in every format", {
+  lib <- library_subset(builtin_library(), "antihypertensive_trial")
+  s <- lib$scenarios$antihypertensive_trial
+  s$id <- "salt_trial"; s$variables$potassium <- list(type = "binary", p = 0.3, levels = c("low", "high"))
+  s$i18n <- list(es = list(names = list(potassium = "potasio", salt = "sal_diaria"), levels = list(low = "bajo", high = "alto")),
+                 ca = list(names = list(potassium = "potassi"), levels = list(low = "baix", high = "alt")))
+  custom <- list(dictionary = lib$dictionary, scenarios = list(salt_trial = s),
+                 i18n = list(es = list(names = list(drug = "brazo"))))
+  m <- merge_libraries(builtin_library(), custom)
+  sc <- load_scenario(m, "salt_trial")
+  r <- simulate_study(sc, "sbp", "rct", n = 40, factors = c("potassium", "salt", "age"), lang = "es", key = FALSE)
+  expect_identical(names(r$data), c("id", "brazo", "pas", "edad", "sal_diaria", "potasio"))
+  expect_identical(levels(r$data$potasio), c("bajo", "alto"))
+  expect_identical(levels(r$data$brazo), c("placebo", "amlodipino"))
+  rc <- simulate_study(sc, "sbp", "rct", n = 40, factors = "potassium", lang = "ca", key = FALSE)
+  expect_identical(names(rc$data)[4], "potassi")
+  expect_identical(ids_from_names(list("potasio", "potassi", "sal_diaria"), sc$order), c("potassium", "salt"))
+  for (f in c("xlsx", "json", "zip")) {
+    tmp <- tempfile(fileext = paste0(".", f))
+    switch(f, xlsx = write_library_xlsx(custom, tmp), json = writeLines(library_to_json(custom), tmp),
+           zip = write_library_yaml_zip(custom, tmp))
+    back <- read_library_file(tmp)
+    expect_equal(back$scenarios$salt_trial$i18n$es$names$potassium, "potasio", info = f)
+    expect_equal(back$i18n$es$names$drug, "brazo", info = f)
+  }
+  bad <- custom
+  bad$scenarios$salt_trial$i18n$es$names$salt <- "pas"
+  bad$scenarios$salt_trial$i18n$ca$names$age <- "edat actual"
+  p <- check_library(merge_libraries(builtin_library(), bad))
+  expect_true(any(grepl("'pas' names two columns", p$message)))
+  expect_true(any(grepl("edat actual", p$message)))
+  use_i18n(NULL)
+  expect_equal(dname("age", "es"), "edad")
+})

@@ -83,6 +83,7 @@ simLibraryClass <- R6::R6Class(
             }
             sc <- tryCatch(load_scenario(lib, id, strict = FALSE), error = function(e) NULL)
             if (is.null(sc)) return()
+            use_i18n(sc)
             vt <- self$results$variables
             for (v in sc$order) {
                 x <- sc$variables[[v]]

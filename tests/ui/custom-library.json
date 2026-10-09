@@ -3,7 +3,8 @@
     "bioeq_custom": {
       "id": "bioeq_custom",
       "label": {
-        "en": "Bioequivalence (custom copy)"
+        "en": "Bioequivalence (custom copy)",
+        "es": "Bioequivalencia (copia propia)"
       },
       "domain": "pharmacology",
       "population": {
@@ -107,6 +108,25 @@
         "en": "AUC and Cmax are log-normal: analyse log values and back-transform the difference to a geometric mean ratio. The test formulation is bioequivalent if the 90% CI of the ratio lies within 0.80-1.25 (two one-sided tests). The crossover removes between-subject variability (within-subject correlation 0.8 for AUC), so 24 volunteers suffice where a parallel trial would need several hundred.\n",
         "es": "El AUC y la Cmax son log-normales: se analizan los logaritmos y la diferencia se retransforma a un cociente de medias geométricas. La formulación test es bioequivalente si el IC del 90% del cociente cae dentro de 0,80-1,25 (dos pruebas unilaterales). El diseño cruzado elimina la variabilidad entre sujetos (correlación intrasujeto 0,8 para el AUC), por lo que bastan 24 voluntarios donde un ensayo paralelo necesitaría varios cientos.\n",
         "ca": "L'AUC i la Cmax són log-normals: s'analitzen els logaritmes i la diferència es retransforma a un quocient de mitjanes geomètriques. La formulació test és bioequivalent si l'IC del 90% del quocient cau dins de 0,80-1,25 (dues proves unilaterals). El disseny creuat elimina la variabilitat entre subjectes (correlació intrasubjecte 0,8 per a l'AUC), per això n'hi ha prou amb 24 voluntaris on un assaig paral·lel en necessitaria diversos centenars."
+      },
+      "i18n": {
+        "es": {
+          "names": {
+            "weight": "peso_kg"
+          }
+        },
+        "ca": {
+          "names": {
+            "weight": "pes_kg"
+          }
+        }
+      }
+    }
+  },
+  "i18n": {
+    "es": {
+      "levels": {
+        "test": "prueba"
       }
     }
   }

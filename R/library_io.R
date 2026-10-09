@@ -15,29 +15,46 @@ yaml_read <- function(text) {
 read_yaml_file <- function(path) yaml_read(paste(readLines(path, warn = FALSE, encoding = "UTF-8"), collapse = "\n"))
 
 # A YAML document may be a dictionary (variables.yaml), one scenario (has
-# `id` and `outcomes`) or a whole library (`variables:` + `scenarios:`).
+# `id` and `outcomes`), a whole library (`variables:` + `scenarios:`, maybe
+# `i18n:`) or a language dictionary (`names:`/`levels:`, file named <lang>.yaml).
 add_yaml_doc <- function(lib, doc, name = "") {
-    if (!is.null(doc$scenarios) || (!is.null(doc$variables) && is.null(doc$outcomes) && is.null(doc$id))) {
+    base <- sub("\\.(ya?ml|json)$", "", basename(name), ignore.case = TRUE)
+    if (is.null(doc$outcomes) && (!is.null(doc$scenarios) || !is.null(doc$i18n) ||
+        (!is.null(doc$variables) && is.null(doc$id)))) {
         lib$dictionary <- shallow_merge(lib$dictionary, doc$variables %||% list())
         for (s in doc$scenarios %||% list()) lib$scenarios[[s$id]] <- s
         if (!is.null(doc$scenarios) && !is.null(names(doc$scenarios)))
             for (k in names(doc$scenarios)) { s <- doc$scenarios[[k]]; s$id <- s$id %||% k; lib$scenarios[[s$id]] <- s }
+        lib$i18n <- merge_i18n(lib$i18n, doc$i18n)
     } else if (!is.null(doc$outcomes)) {
-        doc$id <- doc$id %||% sub("\\.ya?ml$", "", basename(name))
+        doc$id <- doc$id %||% base
         lib$scenarios[[doc$id]] <- doc
+    } else if ((!is.null(doc$names) || !is.null(doc$levels)) && grepl("^[a-z]{2}$", base)) {
+        lib$i18n <- merge_i18n(lib$i18n, stats::setNames(list(doc[c("names", "levels")]), base))
     } else {
         lib$dictionary <- shallow_merge(lib$dictionary, doc)
     }
     lib
 }
 
-empty_library <- function() list(dictionary = list(), scenarios = list())
+empty_library <- function() list(dictionary = list(), scenarios = list(), i18n = list())
+
+# translations: list(<lang> = list(names = list(id = name), levels = list(level = label)));
+# entries of `b` win, language by language and section by section
+merge_i18n <- function(a, b) {
+    out <- a %||% list()
+    for (l in names(b)) for (k in c("names", "levels"))
+        if (length(b[[l]][[k]])) out[[l]][[k]] <- shallow_merge(out[[l]][[k]] %||% list(), b[[l]][[k]])
+    out
+}
 
 read_library_dir <- function(dir) {
     lib <- empty_library()
     f <- file.path(dir, "variables.yaml")
     if (file.exists(f)) lib$dictionary <- read_yaml_file(f)
     for (p in sort(list.files(file.path(dir, "scenarios"), "\\.ya?ml$", full.names = TRUE)))
+        lib <- add_yaml_doc(lib, read_yaml_file(p), p)
+    for (p in sort(list.files(file.path(dir, "i18n"), "^[a-z]{2}\\.ya?ml$", full.names = TRUE)))
         lib <- add_yaml_doc(lib, read_yaml_file(p), p)
     lib
 }
@@ -53,10 +70,11 @@ builtin_library <- function() {
     .builtin$lib
 }
 
-# custom ids win over built-in ones; dictionaries are merged the same way
+# custom ids win over built-in ones; dictionaries and translations likewise
 merge_libraries <- function(base, custom) {
     list(dictionary = shallow_merge(base$dictionary, custom$dictionary),
-         scenarios = shallow_merge(base$scenarios, custom$scenarios))
+         scenarios = shallow_merge(base$scenarios, custom$scenarios),
+         i18n = merge_i18n(base$i18n, custom$i18n))
 }
 
 # ---- tabular model (the Excel sheets) ---------------------------------------
@@ -149,7 +167,31 @@ library_to_tables <- function(lib) {
         recursive = FALSE)), recursive = FALSE))
     t$references <- rbind_rows(unlist(lapply(sc, function(s) lapply(unlist(s$references), function(r)
         list(scenario = s$id, reference = r))), recursive = FALSE))
+    tr_rows <- function(scen, i18n) {
+        keys <- list()
+        for (l in names(i18n)) for (k in c("names", "levels")) for (x in names(i18n[[l]][[k]]))
+            keys[[paste(k, x, sep = "\r")]] <- c(kind = sub("s$", "", k), key = x)
+        lapply(keys, function(kk) {
+            k <- paste0(kk[["kind"]], "s")
+            r <- list(scenario = scen, kind = kk[["kind"]], key = kk[["key"]])
+            for (l in LANGS) r[[l]] <- as.character(i18n[[l]][[k]][[kk[["key"]]]] %||% NA)
+            r
+        })
+    }
+    t$translations <- rbind_rows(c(tr_rows("*", lib$i18n),
+                                   unlist(lapply(sc, function(s) tr_rows(s$id, s$i18n)), recursive = FALSE)))
     Filter(Negate(is.null), t)
+}
+
+# translations sheet -> i18n lists (scenario "*" = the whole library)
+tables_to_i18n <- function(df, scenario) {
+    out <- list()
+    for (r in rows_of(df, scenario)) {
+        k <- paste0(cell(r, "kind") %||% "name", "s")
+        if (!k %in% c("names", "levels")) next
+        for (l in LANGS) if (!is.null(cell(r, l))) out[[l]][[k]][[cell(r, "key")]] <- cell(r, l)
+    }
+    out
 }
 
 # numbers stay as text in the tables, so "2.5/1000" and "log(1.04)" survive
@@ -173,6 +215,7 @@ table_var <- function(r) {
 tables_to_library <- function(t) {
     lib <- empty_library()
     for (r in rows_of(t$variables, "*")) lib$dictionary[[r$variable]] <- table_var(r)
+    lib$i18n <- tables_to_i18n(t$translations, "*")
     ids <- unique(as.character(t$scenarios$scenario))
     for (id in ids) {
         r0 <- rows_of(t$scenarios, id)[[1]]
@@ -223,6 +266,8 @@ tables_to_library <- function(t) {
         refs <- vapply(rows_of(t$references, id), function(r) as.character(r$reference), "")
         if (length(refs)) s$references <- refs
         if (!is.null(ml_from(r0, "teaching"))) s$teaching <- ml_from(r0, "teaching")
+        tr <- tables_to_i18n(t$translations, id)
+        if (length(tr)) s$i18n <- tr
         lib$scenarios[[id]] <- s
     }
     lib
@@ -258,7 +303,7 @@ read_library_xlsx <- function(path) {
 }
 
 library_to_json <- function(lib, pretty = FALSE)
-    jsonlite::toJSON(list(variables = lib$dictionary, scenarios = lib$scenarios), auto_unbox = TRUE,
+    jsonlite::toJSON(list(variables = lib$dictionary, scenarios = lib$scenarios, i18n = lib$i18n %||% list()), auto_unbox = TRUE,
                      pretty = pretty, null = "null", digits = NA)
 
 library_from_json <- function(text) {
@@ -272,6 +317,8 @@ write_library_yaml_zip <- function(lib, path) {
     on.exit(unlink(tmp, recursive = TRUE))
     if (length(lib$dictionary)) yaml::write_yaml(lib$dictionary, file.path(tmp, "variables.yaml"))
     for (s in lib$scenarios) yaml::write_yaml(s, file.path(tmp, "scenarios", paste0(s$id, ".yaml")))
+    if (length(lib$i18n)) dir.create(file.path(tmp, "i18n"))
+    for (l in names(lib$i18n)) yaml::write_yaml(lib$i18n[[l]], file.path(tmp, "i18n", paste0(l, ".yaml")))
     files <- list.files(tmp, recursive = TRUE)
     zip::zip(normalizePath(path, mustWork = FALSE), files, root = tmp)
     invisible(path)
@@ -308,11 +355,16 @@ read_library_payload <- function(b64, name) {
 load_scenario <- function(lib, id, strict = TRUE) {
     raw <- lib$scenarios[[id]]
     if (is.null(raw)) stop(sprintf("the library has no scenario '%s'", id), call. = FALSE)
-    normalize_scenario(raw, lib$dictionary, strict = strict)
+    sc <- normalize_scenario(raw, lib$dictionary, strict = strict)
+    # what students see: the library's translations, then the scenario's own
+    sc$i18n <- merge_i18n(lib$i18n, raw$i18n)
+    sc
 }
 
 # Validate every scenario; also checks names usable as column names.
 check_library <- function(lib) {
+    prev <- .langdict$active
+    on.exit(.langdict$active <- prev)
     out <- list()
     for (id in names(lib$scenarios)) {
         sc <- tryCatch(load_scenario(lib, id, strict = FALSE), error = function(e) {
@@ -322,6 +374,20 @@ check_library <- function(lib) {
         bad <- names(lib$scenarios[[id]]$variables)[!grepl("^[A-Za-z][A-Za-z0-9_]*$", names(lib$scenarios[[id]]$variables))]
         for (b in bad) p[nrow(p) + 1, ] <- list(sprintf("variable '%s'", b), "error",
                                                  "names must start with a letter and use only letters, digits and _")
+        if (!is.null(sc$order)) {
+            # translated names become column names: valid and unique per language
+            use_i18n(sc)
+            ids <- c(sc$order, names(sc$outcomes), names(sc$interventions), "id", "set", "case", "time", "sequence", "period")
+            for (l in union(LANGS, names(sc$i18n))) {
+                nm <- dname(ids, l)
+                for (b in unique(nm[!grepl("^[A-Za-z][A-Za-z0-9_]*$", nm)]))
+                    p[nrow(p) + 1, ] <- list(sprintf("translations (%s)", l), "error", sprintf(
+                        "the name '%s' must start with a letter and use only letters, digits and _", b))
+                for (d in unique(nm[duplicated(nm)]))
+                    p[nrow(p) + 1, ] <- list(sprintf("translations (%s)", l), "error", sprintf(
+                        "'%s' names two columns (%s)", d, paste(ids[nm == d], collapse = ", ")))
+            }
+        }
         if (nrow(p)) { p$scenario <- id; out[[id]] <- p }
     }
     if (length(out) == 0) return(data.frame(scenario = character(), where = character(), level = character(),
@@ -345,7 +411,7 @@ get_library <- function(payload = "", name = "") {
 library_subset <- function(lib, ids) {
     sc <- lib$scenarios[ids]
     used <- unique(unlist(lapply(sc, function(s) names(Filter(function(v) is.null(v$type) || identical(v$from, "dictionary"), s$variables)))))
-    list(dictionary = lib$dictionary[intersect(names(lib$dictionary), used)], scenarios = sc)
+    list(dictionary = lib$dictionary[intersect(names(lib$dictionary), used)], scenarios = sc, i18n = lib$i18n)
 }
 
 # a readable one-line description of a variable's marginal distribution
@@ -362,13 +428,17 @@ describe_variable <- function(v) {
 
 .langdict <- new.env()
 
+# The translations in force: those of the scenario being simulated (set by
+# use_i18n), else the built-in library's. Each analysis sets them before it
+# formats anything, so a custom library's names never leak into another run.
+use_i18n <- function(sc = NULL) {
+    .langdict$active <- if (is.null(sc)) NULL else sc$i18n %||% list()
+    invisible(sc)
+}
+
 lang_dict <- function(lang = "en") {
-    if (is.null(.langdict[[lang]])) {
-        f <- system.file("library", "i18n", paste0(lang, ".yaml"), package = "studysim")
-        if (!nzchar(f)) f <- file.path("inst", "library", "i18n", paste0(lang, ".yaml"))
-        .langdict[[lang]] <- if (file.exists(f)) read_yaml_file(f) else list(names = list(), levels = list())
-    }
-    .langdict[[lang]]
+    d <- if (is.null(.langdict$active)) builtin_library()$i18n else .langdict$active
+    d[[lang]] %||% list(names = list(), levels = list())
 }
 
 # column name of an id, and label of a level, in `lang` (unchanged when absent)

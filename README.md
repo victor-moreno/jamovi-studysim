@@ -76,7 +76,9 @@ Spanish and Catalan; jamovi uses the language chosen in its settings. The
 dataset follows the language too: column names and category labels come from
 three editable dictionaries, `inst/library/i18n/{en,es,ca}.yaml` (e.g. `age` →
 `edad` / `edat`, `current` → `fumador`). The engine keeps working with the
-library's ids, so a saved analysis reopens in any language. The interface
+library's ids, so a saved analysis reopens in any language. A custom library can
+bring its own translations (an `i18n:` section, `i18n/<lang>.yaml` in a zip, or a
+`translations` sheet in Excel); see `inst/library/schema.md`. The interface
 translations are in `jamovi/i18n/*.po` (`python3 tools/fill-translations.py`
 after `jmc --i18n . --update`).
 

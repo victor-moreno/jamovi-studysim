@@ -27,7 +27,7 @@ simStudyClass <- R6::R6Class(
             o <- self$options
             ctx <- tryCatch({
                 lib <- get_library(o$libContent, o$libName)
-                sc <- load_scenario(lib, o$scenario)
+                sc <- use_i18n(load_scenario(lib, o$scenario))
                 oid <- if (nzchar(o$outcome) && o$outcome %in% names(sc$outcomes)) o$outcome else names(sc$outcomes)[1]
                 ok <- compatible_designs(sc, oid)
                 if (!o$design %in% ok)

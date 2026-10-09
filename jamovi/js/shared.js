@@ -42,10 +42,15 @@ function tr(x, l) {
     return String(x);
 }
 
-// column name shown for an id (inst/library/i18n/<lang>.yaml)
-function dname(id, l) {
-    var d = BUILTIN.i18n && BUILTIN.i18n[l] && BUILTIN.i18n[l].names;
-    return (d && d[id]) || id;
+// column name shown for an id: the scenario's own translations, then the
+// library's (built-in merged with a custom JSON one), then the id itself
+function dname(id, l, lib, sc) {
+    var srcs = [sc && sc.i18n, lib && lib.i18n, BUILTIN.i18n];
+    for (var i = 0; i < srcs.length; i++) {
+        var d = srcs[i] && srcs[i][l] && srcs[i][l].names;
+        if (d && d[id]) return d[id];
+    }
+    return id;
 }
 
 function b64ToText(b64) {
@@ -63,18 +68,30 @@ function customLibrary(ui) {
     if (!/\.json$/i.test(name)) return { lib: null, error: 'notjson' };
     try {
         var doc = JSON.parse(b64ToText(b64));
-        return { lib: { variables: doc.variables || {}, scenarios: doc.scenarios || {} }, error: '' };
+        return { lib: { variables: doc.variables || {}, scenarios: doc.scenarios || {}, i18n: doc.i18n || {} }, error: '' };
     } catch (e) {
         return { lib: null, error: 'invalid' };
     }
 }
 
 function library(ui) {
-    var lib = { variables: {}, scenarios: {} };
+    var lib = { variables: {}, scenarios: {}, i18n: {} };
     var k;
     for (k in BUILTIN.variables) lib.variables[k] = BUILTIN.variables[k];
     for (k in BUILTIN.scenarios) lib.scenarios[k] = BUILTIN.scenarios[k];
     var c = customLibrary(ui).lib;
+    var mergeI18n = function(src) {
+        for (var l in src || {}) {
+            lib.i18n[l] = lib.i18n[l] || { names: {}, levels: {} };
+            ['names', 'levels'].forEach(function(sec) {
+                var x = (src[l] || {})[sec] || {};
+                lib.i18n[l][sec] = lib.i18n[l][sec] || {};
+                for (var key in x) lib.i18n[l][sec][key] = x[key];
+            });
+        }
+    };
+    mergeI18n(BUILTIN.i18n);
+    if (c) mergeI18n(c.i18n);
     if (c) {
         for (k in c.variables) lib.variables[k] = c.variables[k];
         for (k in c.scenarios) {

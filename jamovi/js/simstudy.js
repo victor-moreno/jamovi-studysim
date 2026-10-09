@@ -6,8 +6,8 @@
 var S = require('./shared');
 
 // the scenario's variables by the names the student will see in the data
-function variablesOf(sc, l) {
-    return Object.keys(sc.variables || {}).map(function(v) { return S.dname(v, l); });
+function variablesOf(sc, l, lib) {
+    return Object.keys(sc.variables || {}).map(function(v) { return S.dname(v, l, lib, sc); });
 }
 
 module.exports = {
@@ -57,14 +57,14 @@ module.exports = {
         // one row per scenario variable, by the name the student will see;
         // a new scenario or outcome starts with none measured, a restore keeps
         // the ticks (even if the names were saved in another language)
-        var vars = variablesOf(sc, l);
+        var vars = variablesOf(sc, l, lib);
         var ids = Object.keys(sc.variables || {});
         var cur = S.getOpt(ui, 'measured') || [];
         var ticked = {};
         cur.forEach(function(m) {
             if (!m || !m.include) return;
             ids.forEach(function(id) {
-                if (m['var'] === id || ['en', 'es', 'ca'].some(function(x) { return S.dname(id, x) === m['var']; })) ticked[id] = true;
+                if (m['var'] === id || ['en', 'es', 'ca'].some(function(x) { return S.dname(id, x, lib, sc) === m['var']; })) ticked[id] = true;
             });
         });
         var rows = ids.map(function(id, i) { return { 'var': vars[i], include: !reset && !!ticked[id] }; });

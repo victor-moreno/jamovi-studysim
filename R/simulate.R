@@ -3,6 +3,7 @@
 
 simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, student_key = "",
                            options = list(), missing = 0, missing_mech = "mcar", lang = "en", key = TRUE) {
+    use_i18n(sc)   # column names and levels in the scenario's translations
     oc <- sc$outcomes[[outcome]]
     if (is.null(oc)) stop(sprintf("scenario '%s' has no outcome '%s'", sc$id, outcome), call. = FALSE)
     ok <- compatible_designs(sc, outcome)

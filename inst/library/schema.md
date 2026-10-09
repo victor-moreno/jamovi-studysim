@@ -136,3 +136,18 @@ levels:           # category labels, by the library's level
 
 The library keeps its own ids and levels; a missing entry is shown as written in
 the library. Names must stay unique within a dataset.
+
+A custom library can carry its own translations, which win over the built-in
+ones: an `i18n:` section in a library file (or in one scenario file, for that
+scenario only), files `i18n/<lang>.yaml` in a zip, or a `translations` sheet in
+Excel (scenario `*` = the whole library; kind `name` or `level`; key; en, es, ca).
+
+```yaml
+i18n:
+  es:
+    names: {potassium: potasio}
+    levels: {low: bajo, high: alto}
+```
+
+The Library check reports translated names that are not valid column names or
+that name two columns.
