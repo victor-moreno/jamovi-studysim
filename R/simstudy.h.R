@@ -33,6 +33,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             carryover = 0,
             missing = 0,
             missingMech = "mcar",
+            reliability = 1,
+            misclass = 0,
+            entryErrors = 0,
+            noiseVars = 0,
             seed = 1,
             studentKey = "",
             showDictionary = TRUE,
@@ -255,8 +259,33 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 missingMech,
                 options=list(
                     "mcar",
-                    "mar"),
+                    "mar",
+                    "mnar"),
                 default="mcar")
+            private$..reliability <- jmvcore::OptionNumber$new(
+                "reliability",
+                reliability,
+                default=1,
+                min=0.2,
+                max=1)
+            private$..misclass <- jmvcore::OptionNumber$new(
+                "misclass",
+                misclass,
+                default=0,
+                min=0,
+                max=40)
+            private$..entryErrors <- jmvcore::OptionNumber$new(
+                "entryErrors",
+                entryErrors,
+                default=0,
+                min=0,
+                max=10)
+            private$..noiseVars <- jmvcore::OptionInteger$new(
+                "noiseVars",
+                noiseVars,
+                default=0,
+                min=0,
+                max=50)
             private$..seed <- jmvcore::OptionInteger$new(
                 "seed",
                 seed,
@@ -323,6 +352,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..carryover)
             self$.addOption(private$..missing)
             self$.addOption(private$..missingMech)
+            self$.addOption(private$..reliability)
+            self$.addOption(private$..misclass)
+            self$.addOption(private$..entryErrors)
+            self$.addOption(private$..noiseVars)
             self$.addOption(private$..seed)
             self$.addOption(private$..studentKey)
             self$.addOption(private$..showDictionary)
@@ -361,6 +394,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         carryover = function() private$..carryover$value,
         missing = function() private$..missing$value,
         missingMech = function() private$..missingMech$value,
+        reliability = function() private$..reliability$value,
+        misclass = function() private$..misclass$value,
+        entryErrors = function() private$..entryErrors$value,
+        noiseVars = function() private$..noiseVars$value,
         seed = function() private$..seed$value,
         studentKey = function() private$..studentKey$value,
         showDictionary = function() private$..showDictionary$value,
@@ -398,6 +435,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..carryover = NA,
         ..missing = NA,
         ..missingMech = NA,
+        ..reliability = NA,
+        ..misclass = NA,
+        ..entryErrors = NA,
+        ..noiseVars = NA,
         ..seed = NA,
         ..studentKey = NA,
         ..showDictionary = NA,
@@ -462,6 +503,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "carryover",
                     "missing",
                     "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Html$new(
@@ -494,6 +539,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "carryover",
                     "missing",
                     "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -528,6 +577,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "carryover",
                     "missing",
                     "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -583,6 +636,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "carryover",
                     "missing",
                     "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -677,7 +734,9 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "regionSd",
                     "contextSd",
                     "period",
-                    "carryover"),
+                    "carryover",
+                    "reliability",
+                    "misclass"),
                 columns=list(
                     list(
                         `name`="variable", 
@@ -770,6 +829,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "carryover",
                     "missing",
                     "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -804,6 +867,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "carryover",
                     "missing",
                     "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -843,6 +910,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "carryover",
                     "missing",
                     "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -933,6 +1004,12 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param carryover .
 #' @param missing .
 #' @param missingMech .
+#' @param reliability share of the observed variance that is true variance (1
+#'   = no measurement error)
+#' @param misclass .
+#' @param entryErrors share of numeric cells with a typing error (decimal
+#'   slip, swapped digits, 999)
+#' @param noiseVars .
 #' @param seed .
 #' @param studentKey any text (e.g. a student ID); each key gives a different
 #'   dataset
@@ -994,6 +1071,10 @@ simStudy <- function(
     carryover = 0,
     missing = 0,
     missingMech = "mcar",
+    reliability = 1,
+    misclass = 0,
+    entryErrors = 0,
+    noiseVars = 0,
     seed = 1,
     studentKey = "",
     showDictionary = TRUE,
@@ -1040,6 +1121,10 @@ simStudy <- function(
         carryover = carryover,
         missing = missing,
         missingMech = missingMech,
+        reliability = reliability,
+        misclass = misclass,
+        entryErrors = entryErrors,
+        noiseVars = noiseVars,
         seed = seed,
         studentKey = studentKey,
         showDictionary = showDictionary,

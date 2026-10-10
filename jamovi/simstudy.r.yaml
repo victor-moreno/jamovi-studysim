@@ -10,7 +10,7 @@ items:
       visible: false
       clearWith: &gen [libContent, scenario, outcome, design, measured, n, ccRatio, followup, loss,
                        accrual, subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd, period, carryover,
-                       missing, missingMech, seed,
+                       missing, missingMech, reliability, misclass, entryErrors, noiseVars, seed,
                        studentKey]
 
     - name: summary
@@ -92,7 +92,7 @@ items:
       rows: 0
       clearWith: [libContent, scenario, outcome, design, measured, ccRatio, followup, loss, accrual,
                   subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd,
-                  period, carryover]
+                  period, carryover, reliability, misclass]
       columns:
           - name: variable
             title: Variable

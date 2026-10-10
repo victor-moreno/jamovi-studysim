@@ -36,6 +36,7 @@ GENERIC <- list(
     cat_quintiles = list(en = "quintiles", es = "quintiles", ca = "quintils"),
     cat_cuts = list(en = "grouped by cut points", es = "agrupada por puntos de corte", ca = "agrupada per punts de tall"),
     cat_scale = list(en = "divided by", es = "dividida por", ca = "dividida per"),
+    extra = list(en = "Extra variable", es = "Variable adicional", ca = "Variable addicional"),
     cat_log2 = list(en = "log2", es = "log2", ca = "log2"),
     cat_log10 = list(en = "log10", es = "log10", ca = "log10"),
     per_log2 = list(en = "per doubling", es = "por cada duplicación", ca = "per cada duplicació"),
@@ -156,7 +157,7 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
 data_dictionary <- function(sc, df, factors, ids = names(df)) {
     rows <- lapply(seq_along(df), function(j) {
         x <- df[[j]]; id <- ids[j]
-        role <- if (id %in% factors || !is.null(attr(x, "eco"))) "factor"
+        role <- if (id %in% factors || !is.null(attr(x, "eco")) || grepl("^extra_[0-9]+$", id)) "factor"
                 else if (id %in% c("id", "set", "sequence", "period", "subcohort", "cluster", "look", "visit", "region", "population")) "design"
                 else if (id %in% names(sc$interventions)) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
@@ -175,6 +176,7 @@ apply_missing <- function(df, cols, pct, mech, seed, driver = NULL, unit = df$id
     ids <- unique(unit)
     first <- match(ids, unit)
     drv <- NULL
+    own <- mech == "mnar"   # missing not at random: driven by each variable's own value
     if (mech == "mar" && !is.null(driver)) {
         drv <- as.numeric(df[[driver]][first])
         drv <- (drv - mean(drv, na.rm = TRUE)) / (stats::sd(drv, na.rm = TRUE) %||% 1)
@@ -182,6 +184,12 @@ apply_missing <- function(df, cols, pct, mech, seed, driver = NULL, unit = df$id
     }
     with_seed(seed, {
         for (v in cols) {
+            if (own) {
+                drv <- as.numeric(df[[v]][first])
+                drv <- (drv - mean(drv, na.rm = TRUE)) / (stats::sd(drv, na.rm = TRUE) %||% 1)
+                drv[!is.finite(drv)] <- 0
+                drv <- -drv   # higher values more often missing (sign below)
+            }
             p <- if (is.null(drv)) rep(pct, length(ids)) else {
                 # odds of missingness x3 per SD of the outcome, calibrated to pct
                 a <- stats::uniroot(function(a) mean(stats::plogis(a - log(3) * drv)) - pct, c(-20, 20))$root
@@ -211,7 +219,7 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
                   else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct", "case_cohort", "cluster_rct", "factorial")) c("time", oc$id)
                   else oc$id)
     if (design == "diagnostic") out <- c(out, unlist(lapply(oc$markers, marker_cols)))
-    c(out, intersect(sc$order, factors))
+    c(out, intersect(sc$order, factors), noise_names(opt$noise %||% 0))
 }
 
 # What the descriptives table shows for each column, known before the data
@@ -236,6 +244,7 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         else if (nm %in% names(sc$interventions)) sc$interventions[[nm]]$levels
         else if (nm == "case") c("control", "case")
         else if (nm == "subcohort") c("no", "yes")
+        else if (grepl("^extra_[0-9]+$", nm)) { if (as.integer(sub("extra_", "", nm)) %% 2 == 1) "cont" else c("no", "yes") }
         else if (nm == "time" || nm %in% unlist(lapply(oc$markers, marker_cols))) "cont"
         else if (nm == oc$id) {
             if ("time" %in% cols) { if (!is.null(oc$competing) && design != "case_cohort") c("0", "1", "2") else c("0", "1") }

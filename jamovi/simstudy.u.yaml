@@ -161,6 +161,18 @@ children:
             format: number
           - type: ComboBox
             name: missingMech
+          - type: TextBox
+            name: reliability
+            format: number
+          - type: TextBox
+            name: misclass
+            format: number
+          - type: TextBox
+            name: entryErrors
+            format: number
+          - type: TextBox
+            name: noiseVars
+            format: number
   - type: CollapseBox
     label: Output
     collapsed: true

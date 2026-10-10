@@ -3,7 +3,7 @@
 
 simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, student_key = "",
                            options = list(), missing = 0, missing_mech = "mcar", lang = "en", key = TRUE,
-                           categorize = list()) {
+                           categorize = list(), noise = 0, entry = 0) {
     use_i18n(sc)   # column names and levels in the scenario's translations
     oc <- sc$outcomes[[outcome]]
     if (is.null(oc)) stop(sprintf("scenario '%s' has no outcome '%s'", sc$id, outcome), call. = FALSE)
@@ -18,10 +18,16 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     cal <- calibrate(sc, oc)
     res <- run_design(design, sc, oc, cal, seed_eff, n, opt)
     df <- format_study(sc, oc, design, res, factors, lang)
+    # measurement error before grouping (misclassification follows), as in the key
+    df <- measurement_error(df, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed(seed_eff, "measurement"))
     df <- categorize_study(df, sc, categorize, lang)
+    df <- add_noise_vars(df, noise, derive_seed(seed_eff, "noise"), lang)
     driver <- if (design %in% CASE_DESIGNS) "case" else oc$id
-    mcols <- if (design == "ecological") unlist(lapply(factors, function(v) eco_cols(sc, v))) else factors
+    mcols <- c(if (design == "ecological") unlist(lapply(factors, function(v) eco_cols(sc, v))) else factors, noise_names(noise))
     df <- apply_missing(df, mcols, missing, missing_mech, derive_seed(seed_eff, "missing"), driver, df$id %||% df$region)
+    df <- entry_errors(df, intersect(mcols, names(df)), entry, derive_seed(seed_eff, "entry"))
+    res$facts$entry_errors <- attr(df, "entry_errors")
+    if (noise > 0) res$facts$noise <- noise
     ids <- names(df)
     raw <- df   # engine names and the library's levels, for the tables keyed by them
     df <- localise_data(df, lang)

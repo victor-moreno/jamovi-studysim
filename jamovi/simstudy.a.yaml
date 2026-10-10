@@ -334,7 +334,41 @@ options:
             title: Completely at random
           - name: mar
             title: Depending on the outcome
+          - name: mnar
+            title: Depending on the missing value itself
       default: mcar
+
+    - name: reliability
+      title: Reliability of numeric measures
+      type: Number
+      default: 1
+      min: 0.2
+      max: 1
+      description:
+          R: share of the observed variance that is true variance (1 = no measurement error)
+
+    - name: misclass
+      title: Misclassified categories (%)
+      type: Number
+      default: 0
+      min: 0
+      max: 40
+
+    - name: entryErrors
+      title: Data-entry errors (%)
+      type: Number
+      default: 0
+      min: 0
+      max: 10
+      description:
+          R: share of numeric cells with a typing error (decimal slip, swapped digits, 999)
+
+    - name: noiseVars
+      title: Extra variables with no effect
+      type: Integer
+      default: 0
+      min: 0
+      max: 50
 
     - name: seed
       title: Seed

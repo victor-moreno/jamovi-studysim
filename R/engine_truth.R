@@ -207,6 +207,8 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     if (design == "ecological") opt$regions <- 200
     big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), n_big, opt)
     fd <- format_study(sc, oc, design, big, sc$order, "en")
+    # the measured variables with the same measurement error as the student's data
+    fd <- measurement_error(fd, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed("truth", "measurement"))
     fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
     estimate_table(sc, oc, design, fd, factors, lang, categorize)
 }

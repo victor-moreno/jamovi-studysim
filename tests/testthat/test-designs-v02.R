@@ -142,3 +142,20 @@ test_that("a two-arm intervention effect can depend on a modifier", {
     f <- glm(dis ~ drug + age + sex + bmi + snp, binomial, r[r$smoke == l, ]); exp(coef(f)[["drugdrug"]]) }, 0)
   expect_equal(unname(ors), c(1.3, 0.8, 0.5), tolerance = 0.12)
 })
+
+test_that("realism: measurement error dilutes, MNAR hides high values, noise and entry errors appear", {
+  sc <- toy()
+  f <- c("age", "bmi", "sex", "smoke")
+  r0 <- simulate_study(sc, "sbp", "cross_sectional", 3000, f, key = FALSE)
+  r1 <- simulate_study(sc, "sbp", "cross_sectional", 3000, f, key = FALSE, options = list(reliability = 0.5, misclass = 0.2))
+  b <- function(d) coef(lm(sbp ~ bmi + age, d))[["bmi"]]
+  expect_lt(b(r1$data_raw), 0.8 * b(r0$data_raw))
+  expect_gt(cor(r0$data_raw$bmi, r1$data_raw$bmi), 0.6)
+  expect_lt(mean(r1$data_raw$sex == r0$data_raw$sex), 0.9)
+  m <- simulate_study(sc, "sbp", "cross_sectional", 3000, f, key = FALSE, missing = 0.3, missing_mech = "mnar")
+  expect_lt(mean(m$data_raw$bmi, na.rm = TRUE), mean(r0$data_raw$bmi) - 0.3)
+  x <- simulate_study(sc, "sbp", "cross_sectional", 500, f, key = FALSE, noise = 3, entry = 0.05)
+  expect_true(all(c("extra_01", "extra_02", "extra_03") %in% names(x$data)))
+  expect_gt(x$facts$entry_errors, 20)
+  expect_identical(tail(planned_columns(sc, sc$outcomes$sbp, "cross_sectional", f, list(noise = 3)), 3), c("extra_01", "extra_02", "extra_03"))
+})

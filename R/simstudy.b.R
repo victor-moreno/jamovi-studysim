@@ -49,6 +49,8 @@ simStudyClass <- R6::R6Class(
                 opt$loss <- o$loss / 100
             }
             if (d %in% c("cohort", "prognosis") && o$accrual > 0) opt$accrual <- o$accrual
+            # realism that also shapes the answer key (measurement error) or the columns (noise)
+            opt$reliability <- o$reliability; opt$misclass <- o$misclass / 100; opt$noise <- o$noiseVars
             if (d == "case_cohort") opt$subcohort <- o$subcohort / 100
             if (d == "rct") opt$looks <- o$looks
             if (d == "cluster_rct") { opt$clusters <- o$clusters; opt$icc <- o$icc }
@@ -83,7 +85,7 @@ simStudyClass <- R6::R6Class(
             for (nm in planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors, private$.designOptions(ctx)))
                 dic$addRow(rowKey = nm, values = list(name = dname(nm, ctx$lang)))
             if (self$options$showDescriptives) {
-                for (r in describe_plan(planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats), ctx$lang))
+                for (r in describe_plan(planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats, private$.designOptions(ctx)), ctx$lang))
                     self$results$descriptives$addRow(rowKey = r$key, values = list(variable = r$variable, level = r$level))
             }
             if (self$options$showDag) private$.initDag(ctx)
@@ -137,7 +139,7 @@ simStudyClass <- R6::R6Class(
                 res <- tryCatch(simulate_study(ctx$sc, ctx$oc$id, ctx$design, o$n, ctx$factors, seed = o$seed,
                                                student_key = o$studentKey, options = private$.designOptions(ctx),
                                                missing = o$missing / 100, missing_mech = o$missingMech, lang = ctx$lang,
-                                               key = FALSE, categorize = ctx$cats),
+                                               key = FALSE, categorize = ctx$cats, noise = o$noiseVars, entry = o$entryErrors / 100),
                                 error = function(e) e)
                 if (inherits(res, "error")) {
                     private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(conditionMessage(res))))
@@ -148,7 +150,7 @@ simStudyClass <- R6::R6Class(
                 private$.fillDictionary(res)
                 if (o$showDescriptives) {
                     tbl <- self$results$descriptives
-                    for (r in describe_data(res$data_raw, planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats), ctx$lang))
+                    for (r in describe_data(res$data_raw, planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats, private$.designOptions(ctx)), ctx$lang))
                         if (r$key %in% tbl$rowKeys)
                             tbl$setRow(rowKey = r$key, values = list(level = dlevel(r$level, ctx$lang), stat = r$stat, missing = r$missing))
                 }
@@ -207,6 +209,12 @@ simStudyClass <- R6::R6Class(
                                                       k = length(f$looks$n), ns = paste(cumsum(f$looks$n), collapse = ", "),
                                                       b = paste(sprintf("%.2f", f$looks$bounds), collapse = ", ")))
             if (!is.null(f$sequences)) li <- c(li, jmvcore::format(.("sequences: {a} and {b} participants"), a = f$sequences[1], b = f$sequences[2]))
+            o <- self$options
+            if (o$reliability < 1 || o$misclass > 0)
+                li <- c(li, jmvcore::format(.("measurement error: reliability {r} for numeric variables, {m}% of categories misclassified"),
+                                            r = o$reliability, m = o$misclass))
+            if (isTRUE(f$noise > 0)) li <- c(li, jmvcore::format(.("{k} extra variables (extra_01, …) with no effect"), k = f$noise))
+            if (isTRUE(f$entry_errors > 0)) li <- c(li, jmvcore::format(.("{n} data-entry errors to find and correct"), n = f$entry_errors))
             um <- setdiff(names(ctx$oc$effects), c(ctx$factors, names(sc$interventions)))
             if (length(um)) li <- c(li, jmvcore::format(.("not measured (they still act): {vars}"), vars = paste(dname(um, l), collapse = ", ")))
             seedtxt <- if (nzchar(trimws(self$options$studentKey))) jmvcore::format(.("seed {seed} with student key \"{key}\""),
@@ -257,6 +265,8 @@ simStudyClass <- R6::R6Class(
                     tbl$setNote("interaction", .("With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level."))
                 if (!is.null(ctx$oc$competing) && ctx$design %in% c("cohort", "prognosis", "rct", "cluster_rct", "factorial"))
                     tbl$setNote("competing", .("Status 2 is a competing event: a Cox model that censors it estimates the true cause-specific hazard ratios; 1 - Kaplan-Meier then overstates the cumulative incidence of the event (use the cumulative incidence function)."))
+                if (opt$reliability < 1 || opt$misclass > 0)
+                    tbl$setNote("error", .("The measured variables have measurement error, also in this large study: the estimates are diluted towards no effect, and confounding is only partly removed."))
                 if (ctx$design == "ecological")
                     tbl$setNote("ecological", .("Ecological regression on the regions: a percentage is compared all versus none of the region, a mean per unit. The true values are effects on individuals; the gap is the ecological bias."))
                 if (ctx$design == "longitudinal")
