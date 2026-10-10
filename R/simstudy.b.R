@@ -257,28 +257,28 @@ simStudyClass <- R6::R6Class(
             self$results$keyNotes$setContent(html)
         },
 
-        # image sized to the number of layers and the most crowded one
+        .dagCaption = function() {
+            cap <- .("Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.")
+            if (isTRUE(self$options$dagValues)) cap <- paste(cap, .("Red: raises the outcome, blue: lowers it; * the effect depends on another variable."))
+            cap
+        },
+
+        # image sized to the layout (pixels) and its caption
         .initDag = function(ctx) {
-            img <- self$results$dag
             g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
-            nl <- max(g$nodes$layer) + 1
-            nk <- max(table(g$nodes$layer))
-            w <- min(1200, max(600, 210 * nl))
-            h <- min(1000, max(380, 58 * nk + 110))
-            img$setSize(w, h)
+            sz <- dag_size(g, private$.dagCaption())
+            self$results$dag$setSize(sz[["w"]], sz[["h"]])
         },
 
         # the state is set in .run(): jamovi restores the previous (empty)
         # state after .init(), which would wipe one set there
         .fillDag = function(ctx) {
             img <- self$results$dag
-            if (is.null(img$state)) {
+            # a state saved by v0.1 has no routed points: draw it again
+            if (is.null(img$state) || is.null(img$state$g$points)) {
                 g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
-                w <- img$width; h <- img$height
-                key <- isTRUE(self$options$dagValues)
-                cap <- .("Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.")
-                if (key) cap <- paste(cap, .("Red: raises the outcome, blue: lowers it; * the effect depends on another variable."))
-                img$setState(list(g = g, w = w, h = h, key = key, caption = cap))
+                img$setState(list(g = g, w = img$width, h = img$height, key = isTRUE(self$options$dagValues),
+                                  caption = private$.dagCaption()))
             }
         },
 
