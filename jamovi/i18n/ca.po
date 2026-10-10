@@ -350,8 +350,8 @@ msgstr "talls"
 
 #: simCompare/ui/measured.columns.label
 #: simStudy/ui/measured.columns.label
-msgid "Cuts"
-msgstr "Talls"
+msgid "Cuts / scale"
+msgstr "Talls / escala"
 
 #: simStudy/options/showDictionary.title
 #: simStudy/results/dictionary.title
@@ -929,6 +929,11 @@ msgstr "Files"
 #: simStudy/options/n.title
 msgid "Sample size"
 msgstr "Mida mostral"
+
+#: simCompare/options/measured.template/form/scale.title
+#: simStudy/options/measured.template/form/scale.title
+msgid "scale"
+msgstr "escala"
 
 #: R/simstudy.b.R
 #: simCompare/options/scenario.title

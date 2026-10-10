@@ -35,6 +35,7 @@ GENERIC <- list(
     cat_quartiles = list(en = "quartiles", es = "cuartiles", ca = "quartils"),
     cat_quintiles = list(en = "quintiles", es = "quintiles", ca = "quintils"),
     cat_cuts = list(en = "grouped by cut points", es = "agrupada por puntos de corte", ca = "agrupada per punts de tall"),
+    cat_scale = list(en = "divided by", es = "dividida por", ca = "dividida per"),
     cat_log2 = list(en = "log2", es = "log2", ca = "log2"),
     cat_log10 = list(en = "log10", es = "log10", ca = "log10"),
     per_log2 = list(en = "per doubling", es = "por cada duplicación", ca = "per cada duplicació"),
@@ -295,11 +296,18 @@ describe_plan <- function(kinds, lang = "en") {
 
 # ---- categorising continuous variables -----------------------------------------
 
-CAT_FORMS <- c("continuous", "median", "tertiles", "quartiles", "quintiles", "cuts", "log2", "log10")
+CAT_FORMS <- c("continuous", "median", "tertiles", "quartiles", "quintiles", "cuts", "log2", "log10", "scale")
 LOG_FORMS <- c("log2", "log10")
 
-# a spec that groups the variable (not continuous, not a log transform)
-is_grouping <- function(spec) !is.null(spec) && !spec$form %in% c("continuous", LOG_FORMS)
+# a spec that groups the variable (not continuous, not a transform)
+is_grouping <- function(spec) !is.null(spec) && !spec$form %in% c("continuous", LOG_FORMS, "scale")
+
+# the divisor of the scale form, typed in the Cuts column ("10", "2,5")
+scale_of <- function(spec) {
+    k <- suppressWarnings(as.numeric(gsub(",", ".", trimws(as.character(spec$cuts %||% "")))))
+    if (length(k) != 1 || is.na(k) || k <= 0) stop("write the divisor in Cuts, a positive number such as 10", call. = FALSE)
+    k
+}
 
 # "18.5, 25, 30" -> values; "10%, 90%" -> percentiles; with a decimal comma,
 # separate by ";" ("18,5; 25")
@@ -320,6 +328,7 @@ parse_cuts <- function(txt) {
 
 # number of groups a categorisation spec gives (known before the data exist)
 cat_groups <- function(spec) switch(spec$form, median = 2L, tertiles = 3L, quartiles = 4L, quintiles = 5L,
+                                    scale = { scale_of(spec); 1L },
                                     cuts = length(parse_cuts(spec$cuts)$x) + 1L, 1L)
 
 cat_prefix <- function(spec) if (spec$form == "cuts" && parse_cuts(spec$cuts)$type == "value") "G" else "Q"
@@ -357,6 +366,13 @@ categorize_study <- function(df, sc, categorize, lang = "en") {
         spec <- categorize[[v]]
         if (spec$form == "continuous" || !sc$variables[[v]]$type %in% c("continuous", "count")) next
         desc <- attr(df[[v]], "jmv-desc")
+        if (spec$form == "scale") {
+            # in units of k: an effect per unit of the new column is per k original units
+            k <- scale_of(spec)
+            df[[v]] <- round(df[[v]] / k, 6)
+            attr(df[[v]], "jmv-desc") <- sprintf("%s, %s %s", desc, gtext("cat_scale", lang), base::format(k))
+            next
+        }
         if (spec$form %in% LOG_FORMS) {
             # log2 or log10; with zeros or negatives, of x + 1
             x <- df[[v]]
@@ -372,7 +388,14 @@ categorize_study <- function(df, sc, categorize, lang = "en") {
 }
 
 # answer-key rows of a categorised variable: each group against the first
-cat_rows <- function(v, spec, lang = "en") {
+cat_rows <- function(v, spec, lang = "en", sc = NULL) {
+    # a scaled variable keeps one row, per k of its units
+    if (spec$form == "scale") {
+        u <- sc$variables[[v]]$units
+        return(data.frame(variable = v, contrast = sprintf("%s %s%s", gtext("per", lang), base::format(scale_of(spec)),
+                                                           if (is.null(u)) "" else paste0(" ", tr_text(u, lang))),
+                          idx = NA_integer_, stringsAsFactors = FALSE))
+    }
     # a log transform keeps one row: per doubling or per 10-fold increase
     if (spec$form %in% LOG_FORMS)
         return(data.frame(variable = v, contrast = gtext(paste0("per_", spec$form), lang), idx = NA_integer_, stringsAsFactors = FALSE))

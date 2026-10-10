@@ -111,3 +111,15 @@ test_that("the Library lists only the scenarios that fit a design filter", {
   r <- simLibrary(data = data.frame(), source = "builtin", scenario = "isis2", designFilter = "factorial")
   expect_setequal(r$scenarios$asDF$id, c("antihypertensive_trial", "physicians_health", "isis2"))
 })
+
+test_that("the scale form divides a variable and re-expresses the true effect", {
+  r <- simCompare(data = data.frame(), scenario = "breast_cancer_risk", outcome = "breast_cancer", designs = c("case_control", "cohort"),
+                  n = 600, measured = list(list(var = "age", include = TRUE), list(var = "alcohol", include = TRUE, form = "scale", cuts = "1")))
+  e <- r$estimates$asDF
+  a <- e[e$variable == "alcohol", ]
+  expect_true(all(a$contrast == "per 1 g/day"))
+  expect_equal(unique(a$truth), 1.07^(1 / 10), tolerance = 1e-6)
+  bad <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100,
+                  measured = list(list(var = "bmi", include = TRUE, form = "scale", cuts = "")))
+  expect_match(bad$notice$content, "divisor")
+})

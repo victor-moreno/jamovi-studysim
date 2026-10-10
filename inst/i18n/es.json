@@ -217,8 +217,8 @@
             "cuts": [
                 "cortes"
             ],
-            "Cuts": [
-                "Cortes"
+            "Cuts / scale": [
+                "Cortes / escala"
             ],
             "Data dictionary": [
                 "Diccionario de datos"
@@ -582,6 +582,9 @@
             ],
             "Sample size": [
                 "Tamaño muestral"
+            ],
+            "scale": [
+                "escala"
             ],
             "Scenario": [
                 "Escenario"

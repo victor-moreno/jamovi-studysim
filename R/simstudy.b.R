@@ -112,7 +112,7 @@ simStudyClass <- R6::R6Class(
             main <- if (length(iv)) iv else ctx$factors
             rows <- list()
             for (v in main) {
-                cr <- if (!is.null(ctx$cats[[v]])) cat_rows(v, ctx$cats[[v]], ctx$lang) else contrast_rows(ctx$sc, ctx$oc, v, ctx$lang)
+                cr <- if (!is.null(ctx$cats[[v]])) cat_rows(v, ctx$cats[[v]], ctx$lang, ctx$sc) else contrast_rows(ctx$sc, ctx$oc, v, ctx$lang)
                 for (i in seq_len(nrow(cr)))
                     rows[[length(rows) + 1]] <- list(key = paste(v, cr$contrast[i]), variable = v, contrast = cr$contrast[i])
             }

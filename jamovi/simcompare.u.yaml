@@ -112,7 +112,7 @@ children:
         template:
           type: ComboBox
       - name: cuts
-        label: Cuts
+        label: Cuts / scale
         maxWidth: 110
         selectable: false
         template:

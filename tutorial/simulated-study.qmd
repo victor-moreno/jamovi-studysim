@@ -24,7 +24,10 @@ title: "Simulated study"
   as values (`18.5, 25, 30`; with a decimal comma `18,5; 25`) or percentiles
   (`10%, 90%`). Labels read `Q2: 120–131` or `G1: ≤25`. **log2** and **log10**
   transform it instead (of x + 1 when there are zeros); the answer key then
-  gives the effect per doubling or per 10-fold increase.
+  gives the effect per doubling or per 10-fold increase. **scale** divides it by
+  the number typed in *Cuts / scale* (e.g. `10` for alcohol in units of 10 g/day,
+  or `1` to undo the scenario's default unit); the answer key labels the
+  contrast *per 10 g/day* and re-expresses the true effect in that unit.
 - **Sample size**: people in the study (cases plus controls in a case-control
   study).
 

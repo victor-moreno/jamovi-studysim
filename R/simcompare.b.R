@@ -45,7 +45,7 @@ simCompareClass <- R6::R6Class(
             for (d in ctx$designs) {
                 iv <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, d, ctx$factors))
                 for (v in if (length(iv)) iv else ctx$factors) {
-                    cr <- if (!is.null(ctx$cats[[v]])) cat_rows(v, ctx$cats[[v]], ctx$lang) else contrast_rows(ctx$sc, ctx$oc, v, ctx$lang)
+                    cr <- if (!is.null(ctx$cats[[v]])) cat_rows(v, ctx$cats[[v]], ctx$lang, ctx$sc) else contrast_rows(ctx$sc, ctx$oc, v, ctx$lang)
                     for (i in seq_len(nrow(cr)))
                         rows[[length(rows) + 1]] <- list(key = paste(d, v, cr$contrast[i]), design = d, variable = v, contrast = cr$contrast[i])
                 }

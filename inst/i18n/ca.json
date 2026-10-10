@@ -217,8 +217,8 @@
             "cuts": [
                 "talls"
             ],
-            "Cuts": [
-                "Talls"
+            "Cuts / scale": [
+                "Talls / escala"
             ],
             "Data dictionary": [
                 "Diccionari de dades"
@@ -582,6 +582,9 @@
             ],
             "Sample size": [
                 "Mida mostral"
+            ],
+            "scale": [
+                "escala"
             ],
             "Scenario": [
                 "Escenari"

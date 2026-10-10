@@ -135,7 +135,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                                 "quintiles",
                                 "cuts",
                                 "log2",
-                                "log10"),
+                                "log10",
+                                "scale"),
                             default="continuous"),
                         jmvcore::OptionString$new(
                             "cuts",
@@ -897,10 +898,11 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param design study design; must fit the outcome
 #' @param measured one entry per scenario variable, list(var = name, include =
 #'   TRUE/FALSE, form =
-#'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10",
-#'   cuts = "18.5, 25, 30" or "10\%, 90\%"); included variables are in the
-#'   dataset, the others are unmeasured (they still act); form groups a
-#'   continuous variable (quantiles from the sample)
+#'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10"/"scale",
+#'   cuts = "18.5, 25, 30" or "10\%, 90\%", or the divisor for scale, e.g.
+#'   "10"); included variables are in the dataset, the others are unmeasured
+#'   (they still act); form groups a continuous variable (quantiles from the
+#'   sample)
 #' @param n number of participants (cases plus controls in case-control
 #'   designs)
 #' @param ccRatio .

@@ -399,6 +399,8 @@ V02.update({
 "log10": ("log10", "log10"),
 "log2": ("log2", "log2"),
 "Scenarios for design": ("Escenarios para el diseño", "Escenaris per al disseny"),
+"scale": ("escala", "escala"),
+"Cuts / scale": ("Cortes / escala", "Talls / escala"),
 "Causal diagram (the same for every design)": ("Diagrama causal (el mismo para todos los diseños)", "Diagrama causal (el mateix per a tots els dissenys)"),
 })
 NEW.update(V02)

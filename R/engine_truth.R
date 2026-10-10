@@ -225,8 +225,9 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
         cr <- contrast_rows(sc, oc, v, lang)
         catd <- is.ordered(fd[[v]]) && is_grouping(categorize[[v]])
         logd <- !is.null(categorize[[v]]) && categorize[[v]]$form %in% LOG_FORMS && is.numeric(fd[[v]])
-        if (logd) cr <- data.frame(variable = v, contrast = cat_rows(v, categorize[[v]], lang)$contrast, coefname = v,
-                                   per = 1, level = NA_integer_, stringsAsFactors = FALSE)
+        scaled <- !is.null(categorize[[v]]) && categorize[[v]]$form == "scale" && is.numeric(fd[[v]])
+        if (logd || scaled) cr <- data.frame(variable = v, contrast = cat_rows(v, categorize[[v]], lang, sc)$contrast, coefname = v,
+                                             per = 1, level = NA_integer_, stringsAsFactors = FALSE)
         if (catd) {
             # categorised: groups against the first, named by position (the big
             # study's cut points differ slightly from the student's)
@@ -235,7 +236,7 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
             cr <- data.frame(variable = v, contrast = cr0$contrast, coefname = paste0(v, levels(fd[[v]])[cr0$idx]),
                              per = 1, level = NA_integer_, stringsAsFactors = FALSE)
         }
-        if (design == "ecological" && !catd && !logd && !is.null(sc$variables[[v]]) && !sc$variables[[v]]$type %in% c("continuous", "count")) {
+        if (design == "ecological" && !catd && !logd && !scaled && !is.null(sc$variables[[v]]) && !sc$variables[[v]]$type %in% c("continuous", "count")) {
             # all versus none of the region in the level (100 percentage points)
             x <- sc$variables[[v]]
             cr$coefname <- if (x$type == "binary") v else eco_col(v, x$levels[cr$level])
@@ -251,6 +252,9 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
         note <- ""
         if (catd) { tv[] <- NA_real_; note <- gtext("categorised", lang) }
         if (logd) { tv[] <- NA_real_; note <- gtext("transformed", lang) }
+        # scaled: the true effect re-expressed per k units (the library gives it per `per`)
+        if (scaled && !is.null(eff) && is.null(eff$by))
+            tv[] <- (if (eff$log) exp else identity)(eff$coef * scale_of(categorize[[v]]) / eff$per)
         if (!is.null(eff$by)) {
             # a modified effect has no single true value: give it per level
             back <- function(b) if (eff$log) exp(b) else b
