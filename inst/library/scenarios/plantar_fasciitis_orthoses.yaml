@@ -1,0 +1,91 @@
+id: plantar_fasciitis_orthoses
+label: {en: "Foot orthoses for plantar fasciitis", es: "Ortesis plantares para la fascitis plantar", ca: "Ortesis plantars per a la fasciïtis plantar"}
+domain: podiatry
+population: {en: "Adults with plantar fasciitis for at least 4 weeks, Sydney, 1999-2001", es: "Adultos con fascitis plantar de al menos 4 semanas, Sídney, 1999-2001", ca: "Adults amb fasciïtis plantar d'almenys 4 setmanes, Sydney, 1999-2001"}
+
+# From the published 3-month results (135 participants, three arms): foot
+# function (0-100, higher is better) 7.5 points better with customised
+# orthoses than with sham (95% CI 0.3 to 14.7), similar with prefabricated
+# ones; no difference at 12 months. Means, SD and covariate effects are
+# teaching values.
+variables:
+  age: {from: dictionary, dist: "normal(48, 12)", range: [18, 80]}
+  sex: {from: dictionary, p: 0.35}
+  bmi: {from: dictionary, dist: "lognormal(29, 5)", range: [18, 50]}
+  duration:
+    type: continuous
+    dist: lognormal(12, 10)
+    range: [1, 60]
+    round: 0
+    units: {en: months, es: meses, ca: mesos}
+    label: {en: Duration of heel pain, es: Duración del dolor de talón, ca: Durada del dolor de taló}
+  standing_job:
+    type: binary
+    p: 0.45
+    levels: [no, yes]
+    label: {en: Works standing most of the day, es: Trabaja de pie casi todo el día, ca: Treballa dret gairebé tot el dia}
+
+correlations:
+  - [bmi, standing_job, 0.10]
+
+interventions:
+  orthosis:
+    levels: [sham, prefabricated, customised]
+    label: {en: Foot orthosis, es: Ortesis plantar, ca: Ortesi plantar}
+
+outcomes:
+  foot_function:
+    type: continuous
+    label: {en: Foot function score at 3 months (0-100), es: Puntuación de función del pie a los 3 meses (0-100), ca: Puntuació de funció del peu als 3 mesos (0-100)}
+    mean: 70
+    sd: 20
+    round: 0
+    range: [0, 100]
+    within_cor: 0.5
+    designs: [rct]
+    effects:
+      orthosis: {beta: [0, 7.0, 7.5]}
+      bmi: {beta: -0.5, per: 1}
+      duration: {beta: -0.2, per: 1}
+      standing_job: {beta: -4}
+
+null_variables: [age, sex]
+
+references:
+  - "Landorf KB, Keenan AM, Herbert RD. Effectiveness of foot orthoses to treat plantar fasciitis: a randomized trial. Arch Intern Med 2006;166:1305-10."
+
+i18n:
+  en: {names: {age: age, sex: sex, bmi: bmi, duration: duration, standing_job: standing_job, orthosis: orthosis, foot_function: foot_function},
+       levels: {sham: sham, prefabricated: prefabricated, customised: customised}}
+  es: {names: {age: edad, sex: sexo, bmi: imc, duration: duracion, standing_job: trabajo_de_pie, orthosis: ortesis, foot_function: funcion_pie},
+       levels: {sham: simulada, prefabricated: prefabricada, customised: a_medida}}
+  ca: {names: {age: edat, sex: sexe, bmi: imc, duration: durada, standing_job: treball_dret, orthosis: ortesi, foot_function: funcio_peu},
+       levels: {sham: simulada, prefabricated: prefabricada, customised: a_mida}}
+
+teaching:
+  en: >
+    A sham orthosis (soft thin foam) is the placebo: patients improve a lot in
+    every arm, so a before-after comparison would credit the orthosis with the
+    natural course. Against sham, real orthoses add a small benefit, and the
+    expensive customised ones are no better than prefabricated ones. With about
+    45 patients per arm the interval is wide: estimate the sample size needed to
+    detect a difference of 7 points (the trial was not powered for it). Scores
+    cannot exceed 100: this ceiling shrinks the estimates a little.
+  es: >
+    Una ortesis simulada (espuma fina y blanda) es el placebo: los pacientes
+    mejoran mucho en todos los grupos, así que una comparación antes-después
+    atribuiría a la ortesis la evolución natural. Frente a la simulada, las
+    ortesis reales aportan un beneficio pequeño, y las caras a medida no son
+    mejores que las prefabricadas. Con unos 45 pacientes por grupo el intervalo
+    es amplio: estime el tamaño muestral necesario para detectar una diferencia
+    de 7 puntos. Las puntuaciones no pueden pasar de 100: este techo reduce algo
+    las estimaciones.
+  ca: >
+    Una ortesi simulada (escuma fina i tova) és el placebo: els pacients milloren
+    molt a tots els grups, així que una comparació abans-després atribuiria a
+    l'ortesi l'evolució natural. Enfront de la simulada, les ortesis reals
+    aporten un benefici petit, i les cares a mida no són millors que les
+    prefabricades. Amb uns 45 pacients per grup l'interval és ampli: estimeu la
+    mida mostral necessària per detectar una diferència de 7 punts. Les
+    puntuacions no poden passar de 100: aquest sostre redueix una mica les
+    estimacions.

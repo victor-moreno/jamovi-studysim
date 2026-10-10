@@ -1,0 +1,104 @@
+id: periodontitis_smoking
+label: {en: "Periodontitis in adults: smoking and diabetes", es: "Periodontitis en adultos: tabaco y diabetes", ca: "Periodontitis en adults: tabac i diabetis"}
+domain: odontology
+population: {en: "US adults aged 30 and over with a full-mouth periodontal examination (NHANES)", es: "Adultos de EE. UU. de 30 años o más con una exploración periodontal completa (NHANES)", ca: "Adults dels EUA de 30 anys o més amb una exploració periodontal completa (NHANES)"}
+
+# Prevalence of periodontitis 46% (NHANES 2009-12, Eke 2015); odds ratio about
+# 4 for current smokers (Tomar & Asma 2000, NHANES III); higher prevalence
+# with age, in men, in Hispanic and Black adults and with uncontrolled
+# diabetes (Eke 2016). Values rounded for teaching.
+variables:
+  age: {from: dictionary, dist: "uniform(30, 80)"}
+  sex: {from: dictionary, p: 0.48}
+  race:
+    type: nominal
+    levels: [white, black, hispanic, other]
+    probs: [0.66, 0.11, 0.14, 0.09]
+    label: {en: Race and ethnicity, es: Raza y etnia, ca: Raça i ètnia}
+  education:
+    type: ordinal
+    levels: [low, middle, high]
+    probs: [0.18, 0.25, 0.57]
+    label: {en: Education, es: Estudios, ca: Estudis}
+  smoking:
+    type: nominal
+    levels: [never, former, current]
+    probs: [0.55, 0.25, 0.20]
+    label: {en: Smoking, es: Tabaquismo, ca: Tabaquisme}
+  diabetes:
+    type: nominal
+    levels: [no, controlled, uncontrolled]
+    probs: [0.86, 0.08, 0.06]
+    label: {en: Diabetes (HbA1c 7% or more = uncontrolled), es: Diabetes (HbA1c 7% o más = no controlada), ca: Diabetis (HbA1c 7% o més = no controlada)}
+  flossing:
+    type: binary
+    p: 0.30
+    levels: [no, daily]
+    label: {en: Flosses daily, es: Usa hilo dental a diario, ca: Fa servir fil dental cada dia}
+  last_visit:
+    type: binary
+    p: 0.35
+    levels: [within_year, over_a_year]
+    label: {en: Last dental visit, es: Última visita al dentista, ca: Última visita al dentista}
+
+structure:
+  - [education, smoking, -0.25]
+  - [education, flossing, 0.20]
+  - [education, last_visit, -0.30]
+  - [age, diabetes, 0.30]
+  - [race, education, -0.15]
+
+outcomes:
+  periodontitis:
+    type: binary
+    label: {en: Periodontitis (CDC/AAP definition), es: Periodontitis (definición CDC/AAP), ca: Periodontitis (definició CDC/AAP)}
+    levels: [no, yes]
+    prevalence: 0.46
+    designs: [cross_sectional, case_control]
+    effects:
+      age: {OR: 1.6, per: 10}
+      sex: {OR: 1.6}
+      race: {OR: [1, 1.6, 1.9, 1.3]}
+      education: {OR: [1, 0.8, 0.6]}
+      smoking: {OR: [1, 1.5, 4.0]}
+      diabetes: {OR: [1, 1.2, 1.8]}
+      last_visit: {OR: 1.3}
+
+null_variables: [flossing]
+
+references:
+  - "Eke PI, Dye BA, Wei L et al. Update on prevalence of periodontitis in adults in the United States: NHANES 2009 to 2012. J Periodontol 2015;86:611-22."
+  - "Eke PI, Wei L, Thornton-Evans GO et al. Risk indicators for periodontitis in US adults: NHANES 2009 to 2012. J Periodontol 2016;87:1174-85."
+  - "Tomar SL, Asma S. Smoking-attributable periodontitis in the United States: findings from NHANES III. J Periodontol 2000;71:743-51."
+
+i18n:
+  en: {names: {age: age, sex: sex, race: race, education: education, smoking: smoking, diabetes: diabetes, flossing: flossing, last_visit: last_visit, periodontitis: periodontitis},
+       levels: {white: white, black: black, hispanic: hispanic, other: other, low: low, middle: middle, high: high, controlled: controlled, uncontrolled: uncontrolled, daily: daily, within_year: within_year, over_a_year: over_a_year}}
+  es: {names: {age: edad, sex: sexo, race: raza, education: estudios, smoking: tabaco, diabetes: diabetes, flossing: hilo_dental, last_visit: ultima_visita, periodontitis: periodontitis},
+       levels: {white: blanca, black: negra, hispanic: hispana, other: otra, low: bajos, middle: medios, high: altos, controlled: controlada, uncontrolled: no_controlada, daily: diario, within_year: menos_de_un_año, over_a_year: mas_de_un_año}}
+  ca: {names: {age: edat, sex: sexe, race: raca, education: estudis, smoking: tabac, diabetes: diabetis, flossing: fil_dental, last_visit: darrera_visita, periodontitis: periodontitis},
+       levels: {white: blanca, black: negra, hispanic: hispana, other: altra, low: baixos, middle: mitjans, high: alts, controlled: controlada, uncontrolled: no_controlada, daily: diari, within_year: menys_dun_any, over_a_year: mes_dun_any}}
+
+teaching:
+  en: >
+    Almost half of adults have periodontitis, so in this cross-sectional survey
+    odds ratios exaggerate prevalence ratios: compare a logistic with a log-
+    binomial or Poisson model. Smoking is the strongest modifiable factor;
+    education confounds it, because less educated adults smoke more and visit
+    the dentist less. Daily flossing looks protective in a crude analysis only
+    because better educated people floss.
+  es: >
+    Casi la mitad de los adultos tiene periodontitis, así que en esta encuesta
+    transversal las odds ratios exageran las razones de prevalencia: compare un
+    modelo logístico con uno log-binomial o de Poisson. El tabaco es el factor
+    modificable más fuerte; los estudios lo confunden, porque los adultos con
+    menos estudios fuman más y van menos al dentista. El hilo dental diario solo
+    parece protector en el análisis crudo porque lo usan más las personas con más
+    estudios.
+  ca: >
+    Gairebé la meitat dels adults té periodontitis, així que en aquesta enquesta
+    transversal les odds ratios exageren les raons de prevalença: compareu un
+    model logístic amb un de log-binomial o de Poisson. El tabac és el factor
+    modificable més fort; els estudis el confonen, perquè els adults amb menys
+    estudis fumen més i van menys al dentista. El fil dental diari només sembla
+    protector en l'anàlisi crua perquè l'usen més les persones amb més estudis.

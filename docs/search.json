@@ -4,7 +4,7 @@
     "href": "scenarios.html",
     "title": "Scenario catalogue",
     "section": "",
-    "text": "The module ships with 42 scenarios, one clinical question each. Most replicate a real study: 25 were estimated from open patient-level data and the others from the published tables of the study. Use the catalogue below to find one for a domain, a study design or a teaching point. In jamovi, all of them are in the scenario picker of Simulated study and Compare designs, grouped by domain.",
+    "text": "The module ships with 49 scenarios, one clinical question each. Most replicate a real study: 26 were estimated from open patient-level data and the others from the published tables of the study. Use the catalogue below to find one for a domain, a study design or a teaching point. In jamovi, all of them are in the scenario picker of Simulated study and Compare designs, grouped by domain.",
     "crumbs": [
       "Scenario catalogue"
     ]
@@ -34,7 +34,7 @@
     "href": "scenarios.html#choosing-a-scenario",
     "title": "Scenario catalogue",
     "section": "Choosing a scenario",
-    "text": "Choosing a scenario\n\nFor a design, filter by design. Most scenarios fit several designs, and Compare designs simulates them from the same population: the classic contrasts are a case-control vs a cohort study for a rare cancer, an ecological vs an individual analysis (water hardness, dietary fat), or a parallel vs a crossover trial (hypnotics, asthma).\nFor a statistical idea, use the features and the search box:\n\nconfounding: free light chains, lung cancer and smoking, NHANES;\nmediation: myopia, birth weight;\neffect modification: RECOVERY, ISIS-2, breast cancer risk;\ncompeting risks: MGUS, PBC, colon cancer;\nmisclassification: Wilms tumour;\noverdispersion: epilepsy;\ndropout: Beat the Blues;\noverfitting with many markers: glaucoma;\nrare outcomes and sample size: polio vaccine.\n\nFor your own course, export a scenario from Library as Excel or YAML, change it, and load it back; or derive a new one from your own data with Derive scenario.",
+    "text": "Choosing a scenario\n\nFor a design, filter by design. Most scenarios fit several designs, and Compare designs simulates them from the same population: the classic contrasts are a case-control vs a cohort study for a rare cancer, an ecological vs an individual analysis (water hardness, dietary fat), or a parallel vs a crossover trial (hypnotics, asthma).\nFor a statistical idea, use the features and the search box:\n\nconfounding: free light chains, lung cancer and smoking, NHANES;\nmediation: myopia, birth weight;\neffect modification: RECOVERY, ISIS-2, breast cancer risk;\ncompeting risks: MGUS, PBC, colon cancer;\nmisclassification: Wilms tumour;\noverdispersion: epilepsy;\ndropout: Beat the Blues;\noverfitting with many markers: glaucoma;\nrare outcomes and sample size: polio vaccine.\n\nFor dentistry and podiatry courses, filter the domains Odontology (periodontal treatment in pregnancy, fluoride varnish, periodontitis) and Podiatry (diabetic foot ulcer, onychomycosis, plantar fasciitis, ankle- and toe-brachial index).\nFor your own course, export a scenario from Library as Excel or YAML, change it, and load it back; or derive a new one from your own data with Derive scenario.",
     "crumbs": [
       "Scenario catalogue"
     ]
@@ -134,7 +134,7 @@
     "href": "index.html#the-scenarios",
     "title": "studysim: simulated medical studies for teaching",
     "section": "The scenarios",
-    "text": "The scenarios\nThe module ships with 42 scenarios across 17 clinical domains, most of them replicating a real study from its open data or its published tables, with several scenarios for every design. The scenario catalogue explains how they were made and lets you filter them by domain, design, outcome and teaching topic.",
+    "text": "The scenarios\nThe module ships with 49 scenarios across 19 clinical domains (dentistry and podiatry among them), most of them replicating a real study from its open data or its published tables, with several scenarios for every design. The scenario catalogue explains how they were made and lets you filter them by domain, design, outcome and teaching topic.",
     "crumbs": [
       "studysim: simulated medical studies for teaching"
     ]
@@ -194,7 +194,7 @@
     "href": "teaching.html#confounding-by-indication-chemotherapy",
     "title": "Teaching with studysim",
     "section": "Confounding by indication: chemotherapy",
-    "text": "Confounding by indication: chemotherapy\nBreast cancer prognosis, prognosis design. Chemotherapy truly lowers the hazard (HR 0.75), but it is given to younger women with more nodes and higher grade; its crude hazard ratio points the wrong way.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.03\n1.03\n1.03\nHR\n\n\ntumour_size\nper 10 mm\nHR\n1.15\n1.16\n1.14\nHR\n\n\nnodes\nper 1\nHR\n1.08\n1.08\n1.08\nHR\n\n\ngrade\nG2 vs G1\nHR\n1.50\n1.68\n1.75\nHR\n\n\ngrade\nG3 vs G1\nHR\n2.20\n2.60\n2.85\nHR\n\n\nchemo\nyes vs no\nHR\n0.75\n1.11\n0.79\nHR",
+    "text": "Confounding by indication: chemotherapy\nBreast cancer prognosis, prognosis design. Chemotherapy truly lowers the hazard (HR 0.75), but it is given to younger women with more nodes and higher grade; its crude hazard ratio points the wrong way.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.03\n1.03\n1.03\nHR\n\n\ntumour_size\nper 10 mm\nHR\n1.15\n1.14\n1.13\nHR\n\n\nnodes\nper 1\nHR\n1.08\n1.08\n1.08\nHR\n\n\ngrade\nG2 vs G1\nHR\n1.50\n1.65\n1.73\nHR\n\n\ngrade\nG3 vs G1\nHR\n2.20\n2.55\n2.82\nHR\n\n\nchemo\nyes vs no\nHR\n0.75\n1.07\n0.77\nHR",
     "crumbs": [
       "Teaching with studysim"
     ]
@@ -234,7 +234,7 @@
     "href": "teaching.html#trials-parallel-and-crossover",
     "title": "Teaching with studysim",
     "section": "Trials: parallel and crossover",
-    "text": "Trials: parallel and crossover\nAntihypertensive drug vs placebo: in the parallel trial the unadjusted difference is unbiased, and adjusting for baseline pressure (ANCOVA) narrows the interval. In the 2×2 crossover each patient is their own control: 30 patients give a precise estimate, and the period effect must be in the model.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-9.23\n-9.12\nbeta\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.8\n-8.8\nbeta\n\n\n\n\n\nBioequivalence: AUC and Cmax are log-normal; analyse log values and back-transform to a geometric mean ratio, then check whether its 90% CI lies within 0.80–1.25.",
+    "text": "Trials: parallel and crossover\nAntihypertensive drug vs placebo: in the parallel trial the unadjusted difference is unbiased, and adjusting for baseline pressure (ANCOVA) narrows the interval. In the 2×2 crossover each patient is their own control: 30 patients give a precise estimate, and the period effect must be in the model.\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-9.09\n-9.12\nbeta\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\n\nCrude\nAdjusted\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.8\n-8.8\nbeta\n\n\n\n\n\nBioequivalence: AUC and Cmax are log-normal; analyse log values and back-transform to a geometric mean ratio, then check whether its 90% CI lies within 0.80–1.25.",
     "crumbs": [
       "Teaching with studysim"
     ]

@@ -1,0 +1,108 @@
+id: diabetic_foot_ulcer
+label: {en: "Foot ulceration in diabetes", es: "Úlcera del pie en la diabetes", ca: "Úlcera del peu en la diabetis"}
+domain: podiatry
+population: {en: "People with diabetes attending primary care or diabetes clinics, without an active ulcer", es: "Personas con diabetes atendidas en atención primaria o consultas de diabetes, sin úlcera activa", ca: "Persones amb diabetis ateses a l'atenció primària o consultes de diabetis, sense úlcera activa"}
+
+# Hazard ratios from the PODUS individual patient data meta-analysis (Crawford
+# et al. 2018): previous ulceration OR 6.59, insensitivity to a 10 g
+# monofilament 3.18, any absent pedal pulse 1.97; first ulcers in about 2-6%
+# a year depending on the score. Duration, age and sex rounded teaching values.
+variables:
+  age: {from: dictionary, dist: "normal(63, 12)", range: [25, 95]}
+  sex: {from: dictionary, p: 0.56}
+  duration:
+    type: continuous
+    dist: lognormal(12, 8)
+    range: [0, 50]
+    round: 0
+    units: {en: years, es: años, ca: anys}
+    label: {en: Duration of diabetes, es: Duración de la diabetes, ca: Durada de la diabetis}
+  hba1c:
+    type: continuous
+    dist: normal(7.6, 1.4)
+    range: [5, 14]
+    round: 1
+    units: "%"
+    label: {en: HbA1c, es: HbA1c, ca: HbA1c}
+  monofilament:
+    type: binary
+    p: 0.25
+    levels: [felt, not_felt]
+    label: {en: 10 g monofilament (insensitive = neuropathy), es: Monofilamento de 10 g (no percibido = neuropatía), ca: Monofilament de 10 g (no percebut = neuropatia)}
+  pulses:
+    type: binary
+    p: 0.20
+    levels: [present, absent]
+    label: {en: Any absent pedal pulse, es: Algún pulso pedio ausente, ca: Algun pols pedi absent}
+  previous_ulcer:
+    type: binary
+    p: 0.10
+    levels: [no, yes]
+    label: {en: Previous foot ulcer, es: Úlcera previa del pie, ca: Úlcera prèvia del peu}
+
+structure:
+  - [duration, monofilament, 0.40]
+  - [hba1c, monofilament, 0.20]
+  - [age, monofilament, 0.20]
+  - [age, pulses, 0.30]
+  - [duration, pulses, 0.15]
+  - [monofilament, previous_ulcer, 0.50]
+  - [pulses, previous_ulcer, 0.25]
+
+outcomes:
+  ulcer:
+    type: event
+    label: {en: New foot ulcer, es: Nueva úlcera del pie, ca: Nova úlcera del peu}
+    risk: {value: 0.05, at: 2}
+    window: 2
+    followup: 2
+    designs: [cohort, prognosis, case_control, nested_cc]
+    effects:
+      previous_ulcer: {HR: 6.6}
+      monofilament: {HR: 3.2}
+      pulses: {HR: 2.0}
+      duration: {HR: 1.1, per: 10}
+      sex: {HR: 1.2}
+
+null_variables: [age, hba1c]
+
+designs:
+  cohort: {loss: 0.03}
+  prognosis: {accrual: 1, followup: 2, loss: 0.03}
+
+references:
+  - "Crawford F, Cezard G, Chappell FM et al. The development and validation of a multivariable prognostic model to predict foot ulceration in diabetes using a systematic review and individual patient data meta-analyses. Diabet Med 2018;35:1480-93."
+  - "Chappell FM, Crawford F, Horne M et al. Development and validation of a clinical prediction rule for development of diabetic foot ulceration: an analysis of data from five cohort studies. BMJ Open Diabetes Res Care 2021;9:e002150."
+
+i18n:
+  en: {names: {age: age, sex: sex, duration: duration, hba1c: hba1c, monofilament: monofilament, pulses: pulses, previous_ulcer: previous_ulcer, ulcer: ulcer},
+       levels: {felt: felt, not_felt: not_felt, present: present, absent: absent}}
+  es: {names: {age: edad, sex: sexo, duration: duracion, hba1c: hba1c, monofilament: monofilamento, pulses: pulsos, previous_ulcer: ulcera_previa, ulcer: ulcera},
+       levels: {felt: percibido, not_felt: no_percibido, present: presentes, absent: ausente}}
+  ca: {names: {age: edat, sex: sexe, duration: durada, hba1c: hba1c, monofilament: monofilament, pulses: polsos, previous_ulcer: ulcera_previa, ulcer: ulcera},
+       levels: {felt: percebut, not_felt: no_percebut, present: presents, absent: absent}}
+
+teaching:
+  en: >
+    Three quick bedside items predict most foot ulcers: a previous ulcer, a
+    monofilament that is not felt and an absent pedal pulse (the PODUS rule).
+    Neuropathy causes the previous ulcers, so its effect is partly carried by
+    them: its crude hazard ratio is larger than its adjusted one. HbA1c and long
+    duration act through neuropathy and add little once it is known. Build a
+    risk score from the cohort and check its calibration in a second study.
+  es: >
+    Tres exploraciones rápidas predicen la mayoría de las úlceras del pie: una
+    úlcera previa, un monofilamento que no se percibe y un pulso pedio ausente
+    (la regla PODUS). La neuropatía causa las úlceras previas, así que su efecto
+    se transmite en parte por ellas: su hazard ratio crudo es mayor que el
+    ajustado. La HbA1c y la duración larga actúan a través de la neuropatía y
+    añaden poco cuando esta se conoce. Construya una escala de riesgo con la
+    cohorte y compruebe su calibración en un segundo estudio.
+  ca: >
+    Tres exploracions ràpides prediuen la majoria de les úlceres del peu: una
+    úlcera prèvia, un monofilament que no es percep i un pols pedi absent (la
+    regla PODUS). La neuropatia causa les úlceres prèvies, així que el seu efecte
+    es transmet en part per elles: el seu hazard ratio cru és més gran que
+    l'ajustat. L'HbA1c i la durada llarga actuen a través de la neuropatia i hi
+    afegeixen poc quan aquesta es coneix. Construïu una escala de risc amb la
+    cohort i comproveu-ne la calibració en un segon estudi.

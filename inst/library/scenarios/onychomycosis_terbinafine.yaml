@@ -1,0 +1,87 @@
+id: onychomycosis_terbinafine
+label: {en: "Terbinafine vs itraconazole for toenail onychomycosis", es: "Terbinafina frente a itraconazol en la onicomicosis de las uñas de los pies", ca: "Terbinafina enfront d'itraconazole en l'onicomicosi de les ungles dels peus"}
+domain: podiatry
+population: {en: "Adults aged 18-75 with dermatophyte toenail onychomycosis, 35 European centres (LION study)", es: "Adultos de 18 a 75 años con onicomicosis por dermatofitos en las uñas de los pies, 35 centros europeos (estudio LION)", ca: "Adults de 18 a 75 anys amb onicomicosi per dermatòfits a les ungles dels peus, 35 centres europeus (estudi LION)"}
+
+# From the published results (12-week arms): mycological cure at 72 weeks in
+# 75.7% with continuous terbinafine vs 38.3% with pulsed itraconazole (odds
+# ratio about 5). Effects of age, nail involvement, diabetes and peripheral
+# circulation are teaching values.
+variables:
+  age: {from: dictionary, dist: "normal(47, 12)", range: [18, 75]}
+  sex: {from: dictionary, p: 0.65}
+  nail_involved:
+    type: continuous
+    dist: normal(55, 20)
+    range: [25, 100]
+    round: 0
+    units: "%"
+    label: {en: Target nail area affected, es: Área de la uña afectada, ca: Àrea de l'ungla afectada}
+  diabetes: {from: dictionary, p: 0.08}
+  poor_circulation:
+    type: binary
+    p: 0.10
+    levels: [no, yes]
+    label: {en: Peripheral vascular disease, es: Enfermedad vascular periférica, ca: Malaltia vascular perifèrica}
+
+structure:
+  - [age, nail_involved, 0.20]
+  - [age, poor_circulation, 0.30]
+  - [diabetes, poor_circulation, 0.30]
+
+interventions:
+  treatment:
+    levels: [itraconazole, terbinafine]
+    label: {en: Oral antifungal for 12 weeks, es: Antifúngico oral durante 12 semanas, ca: Antifúngic oral durant 12 setmanes}
+
+outcomes:
+  cure:
+    type: binary
+    label: {en: Mycological cure at 72 weeks, es: Curación micológica a las 72 semanas, ca: Curació micològica a les 72 setmanes}
+    levels: [no, yes]
+    prevalence: 0.38
+    designs: [rct]
+    effects:
+      treatment: {OR: [1, 5.0]}
+      age: {OR: 0.85, per: 10}
+      nail_involved: {OR: 0.85, per: 10}
+      diabetes: {OR: 0.6}
+      poor_circulation: {OR: 0.6}
+
+null_variables: [sex]
+
+references:
+  - "Evans EGV, Sigurgeirsson B, for the LION Study Group. Double blind, randomised study of continuous terbinafine compared with intermittent itraconazole in treatment of toenail onychomycosis. BMJ 1999;318:1031-5."
+
+i18n:
+  en: {names: {age: age, sex: sex, nail_involved: nail_involved, diabetes: diabetes, poor_circulation: poor_circulation, treatment: treatment, cure: cure},
+       levels: {itraconazole: itraconazole, terbinafine: terbinafine}}
+  es: {names: {age: edad, sex: sexo, nail_involved: una_afectada, diabetes: diabetes, poor_circulation: mala_circulacion, treatment: tratamiento, cure: curacion},
+       levels: {itraconazole: itraconazol, terbinafine: terbinafina}}
+  ca: {names: {age: edat, sex: sexe, nail_involved: ungla_afectada, diabetes: diabetis, poor_circulation: mala_circulacio, treatment: tractament, cure: curacio},
+       levels: {itraconazole: itraconazole, terbinafine: terbinafina}}
+
+teaching:
+  en: >
+    Twice as many patients were cured with terbinafine (76% vs 38%): a risk
+    ratio of 2 but an odds ratio of 5, because cure is common. Report the
+    difference in risks and the number needed to treat (about 3) as well. Older
+    patients, extensive nail involvement, diabetes and poor circulation make
+    cure less likely in both arms; adjusting for them changes the odds ratio a
+    little even though randomisation balanced them (non-collapsibility).
+  es: >
+    Con terbinafina se curaron el doble de pacientes (76% frente a 38%): una
+    razón de riesgos de 2 pero una odds ratio de 5, porque la curación es
+    frecuente. Informe también la diferencia de riesgos y el número necesario a
+    tratar (unos 3). La edad, la afectación extensa de la uña, la diabetes y la
+    mala circulación hacen menos probable la curación en ambos grupos; ajustar
+    por ellas cambia algo la odds ratio aunque la aleatorización las equilibró
+    (no colapsabilidad).
+  ca: >
+    Amb terbinafina es van curar el doble de pacients (76% enfront de 38%): una
+    raó de riscos de 2 però una odds ratio de 5, perquè la curació és freqüent.
+    Informeu també la diferència de riscos i el nombre necessari a tractar (uns
+    3). L'edat, l'afectació extensa de l'ungla, la diabetis i la mala circulació
+    fan menys probable la curació en tots dos grups; ajustar-hi canvia una mica
+    l'odds ratio encara que l'aleatorització les va equilibrar (no
+    col·lapsabilitat).

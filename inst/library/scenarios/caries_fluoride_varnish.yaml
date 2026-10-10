@@ -1,0 +1,109 @@
+id: caries_fluoride_varnish
+label: {en: "Fluoride varnish and dental caries", es: "Barniz de flúor y caries dental", ca: "Vernís de fluor i càries dental"}
+domain: odontology
+population: {en: "Schoolchildren aged 6-12 in a community without water fluoridation", es: "Escolares de 6 a 12 años en una comunidad sin agua fluorada", ca: "Escolars de 6 a 12 anys en una comunitat sense aigua fluorada"}
+
+# The effect is the Cochrane pooled prevented fraction for permanent teeth,
+# 43% (rate ratio 0.57), for varnish applied two or more times a year. The
+# caries increment (new decayed, missing or filled surfaces over 3 years) and
+# the risk factors are teaching values from the caries-risk literature.
+variables:
+  age: {from: dictionary, dist: "uniform(6, 12)", round: 0}
+  sex:
+    type: binary
+    p: 0.5
+    levels: [girl, boy]
+    label: {en: Sex, es: Sexo, ca: Sexe}
+  baseline_caries:
+    type: count
+    dist: negbin(1.8, 0.8)
+    range: [0, 20]
+    units: {en: surfaces, es: superficies, ca: superfícies}
+    label: {en: "Decayed, missing or filled surfaces at entry", es: "Superficies cariadas, ausentes u obturadas al inicio", ca: "Superfícies càries, absents o obturades a l'inici"}
+  sugary_drinks:
+    type: count
+    dist: negbin(1.5, 2)
+    range: [0, 8]
+    units: {en: per day, es: al día, ca: al dia}
+    label: {en: Sugary drinks, es: Bebidas azucaradas, ca: Begudes ensucrades}
+  brushing:
+    type: binary
+    p: 0.6
+    levels: [less, twice_daily]
+    label: {en: Brushes twice a day with fluoride toothpaste, es: Se cepilla dos veces al día con pasta fluorada, ca: Es raspalla dues vegades al dia amb pasta fluorada}
+  deprivation:
+    type: ordinal
+    levels: [low, middle, high]
+    probs: [0.35, 0.40, 0.25]
+    label: {en: Neighbourhood deprivation, es: Privación del barrio, ca: Privació del barri}
+
+structure:
+  - [deprivation, sugary_drinks, 0.30]
+  - [deprivation, brushing, -0.30]
+  - [deprivation, baseline_caries, 0.25]
+  - [sugary_drinks, baseline_caries, 0.25]
+  - [brushing, baseline_caries, -0.20]
+
+interventions:
+  varnish:
+    levels: [no_varnish, varnish]
+    label: {en: Fluoride varnish twice a year, es: Barniz de flúor dos veces al año, ca: Vernís de fluor dues vegades l'any}
+
+outcomes:
+  new_caries:
+    type: count
+    label: {en: "New decayed, missing or filled surfaces in 3 years", es: "Nuevas superficies cariadas, ausentes u obturadas en 3 años", ca: "Noves superfícies càries, absents o obturades en 3 anys"}
+    mean: 3.0
+    size: 1.2
+    designs: [cluster_rct, rct, cohort]
+    effects:
+      varnish: {RR: [1, 0.57]}
+      baseline_caries: {RR: 1.10, per: 1}
+      sugary_drinks: {RR: 1.15, per: 1}
+      brushing: {RR: 0.80}
+      deprivation: {RR: [1, 1.15, 1.35]}
+
+null_variables: [age, sex]
+
+designs:
+  cluster_rct: {clusters: 30, icc: 0.05}
+
+references:
+  - "Marinho VCC, Worthington HV, Walsh T, Clarkson JE. Fluoride varnishes for preventing dental caries in children and adolescents. Cochrane Database Syst Rev 2013;(7):CD002279."
+  - "Selwitz RH, Ismail AI, Pitts NB. Dental caries. Lancet 2007;369:51-9."
+
+i18n:
+  en: {names: {age: age, sex: sex, baseline_caries: baseline_dmfs, sugary_drinks: sugary_drinks, brushing: brushing, deprivation: deprivation, varnish: varnish, new_caries: new_dmfs},
+       levels: {girl: girl, boy: boy, less: less, twice_daily: twice_daily, low: low, middle: middle, high: high, no_varnish: no_varnish, varnish: varnish}}
+  es: {names: {age: edad, sex: sexo, baseline_caries: cao_basal, sugary_drinks: bebidas_azucaradas, brushing: cepillado, deprivation: privacion, varnish: barniz, new_caries: cao_nuevas},
+       levels: {girl: niña, boy: niño, less: menos, twice_daily: dos_al_dia, low: baja, middle: media, high: alta, no_varnish: sin_barniz, varnish: barniz}}
+  ca: {names: {age: edat, sex: sexe, baseline_caries: cao_basal, sugary_drinks: begudes_ensucrades, brushing: raspallat, deprivation: privacio, varnish: vernis, new_caries: cao_noves},
+       levels: {girl: nena, boy: nen, less: menys, twice_daily: dos_al_dia, low: baixa, middle: mitjana, high: alta, no_varnish: sense_vernis, varnish: vernis}}
+
+teaching:
+  en: >
+    Caries counts are very skewed: most children get few new lesions and a few
+    get many, so use a negative binomial model, and report the prevented
+    fraction (1 minus the rate ratio). Varnish programmes are run by school, so
+    schools are randomised and the analysis must allow for clustering. In an
+    observational cohort, varnish would go to the children at highest risk;
+    in the trial it does not, and children who already have caries, drink sugary
+    drinks or brush less get more new lesions.
+  es: >
+    Los recuentos de caries son muy asimétricos: la mayoría de los niños tiene
+    pocas lesiones nuevas y unos pocos muchas, así que use un modelo binomial
+    negativo e informe la fracción prevenida (1 menos la razón de tasas). Los
+    programas de barniz se organizan por escuela, así que se aleatorizan escuelas
+    y el análisis debe tener en cuenta los conglomerados. En una cohorte
+    observacional el barniz iría a los niños de mayor riesgo; en el ensayo no, y
+    los niños que ya tienen caries, toman bebidas azucaradas o se cepillan menos
+    tienen más lesiones nuevas.
+  ca: >
+    Els recomptes de càries són molt asimètrics: la majoria dels infants té poques
+    lesions noves i uns quants moltes, així que feu servir un model binomial
+    negatiu i informeu la fracció previnguda (1 menys la raó de taxes). Els
+    programes de vernís s'organitzen per escola, així que s'aleatoritzen escoles i
+    l'anàlisi ha de tenir en compte els conglomerats. En una cohort observacional
+    el vernís aniria als infants de més risc; a l'assaig no, i els infants que ja
+    tenen càries, prenen begudes ensucrades o es raspallen menys tenen més lesions
+    noves.

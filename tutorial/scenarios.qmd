@@ -259,6 +259,10 @@ cat(sprintf('<script id="cat-data" type="application/json">%s</script>', json))
   - *dropout*: Beat the Blues;
   - *overfitting with many markers*: glaucoma;
   - *rare outcomes and sample size*: polio vaccine.
+- **For dentistry and podiatry courses**, filter the domains *Odontology*
+  (periodontal treatment in pregnancy, fluoride varnish, periodontitis) and
+  *Podiatry* (diabetic foot ulcer, onychomycosis, plantar fasciitis, ankle- and
+  toe-brachial index).
 - **For your own course**, export a scenario from *Library* as Excel or YAML,
   change it, and load it back; or derive a new one from your own data with
   [*Derive scenario*](derive.qmd).

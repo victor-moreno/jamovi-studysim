@@ -42,7 +42,7 @@ Catalan; jamovi's language setting chooses.
 
 ## The scenarios
 
-The module ships with 42 scenarios across 17 clinical domains, most of them
+The module ships with 49 scenarios across 19 clinical domains (dentistry and podiatry among them), most of them
 replicating a real study from its open data or its published tables, with
 several scenarios for every design. The [scenario catalogue](scenarios.qmd)
 explains how they were made and lets you filter them by domain, design, outcome

@@ -1,0 +1,99 @@
+id: pad_ankle_brachial
+label: {en: "Ankle- and toe-brachial index for peripheral arterial disease", es: "Índice tobillo-brazo y dedo-brazo para la enfermedad arterial periférica", ca: "Índex turmell-braç i dit-braç per a la malaltia arterial perifèrica"}
+domain: podiatry
+population: {en: "People with diabetes assessed in a podiatry clinic, with imaging as reference", es: "Personas con diabetes valoradas en una consulta de podología, con imagen como referencia", ca: "Persones amb diabetis valorades en una consulta de podologia, amb imatge com a referència"}
+
+# From the published meta-analyses in diabetes: the ankle-brachial index has
+# AUC about 0.72-0.76 against imaging (sensitivity 0.60-0.64, specificity
+# 0.87-0.89 at 0.9), lowered by medial arterial calcification; the
+# toe-brachial index is more sensitive (0.83) and less specific (0.66), AUC
+# about 0.80 here. Prevalence and risk factors are teaching values.
+variables:
+  age: {from: dictionary, dist: "normal(66, 11)", range: [30, 95]}
+  sex: {from: dictionary, p: 0.58}
+  smoking:
+    type: nominal
+    levels: [never, former, current]
+    probs: [0.45, 0.40, 0.15]
+    label: {en: Smoking, es: Tabaquismo, ca: Tabaquisme}
+  duration:
+    type: continuous
+    dist: lognormal(13, 9)
+    range: [0, 50]
+    round: 0
+    units: {en: years, es: años, ca: anys}
+    label: {en: Duration of diabetes, es: Duración de la diabetes, ca: Durada de la diabetis}
+  ckd:
+    type: binary
+    p: 0.25
+    levels: [no, yes]
+    label: {en: Chronic kidney disease, es: Enfermedad renal crónica, ca: Malaltia renal crònica}
+
+structure:
+  - [age, ckd, 0.30]
+  - [duration, ckd, 0.25]
+
+outcomes:
+  pad:
+    type: binary
+    label: {en: Peripheral arterial disease on imaging, es: Enfermedad arterial periférica en la imagen, ca: Malaltia arterial perifèrica a la imatge}
+    levels: [no, yes]
+    prevalence: 0.30
+    designs: [diagnostic, cross_sectional]
+    effects:
+      age: {OR: 1.5, per: 10}
+      smoking: {OR: [1, 1.6, 2.5]}
+      duration: {OR: 1.3, per: 10}
+      ckd: {OR: 1.8}
+    marker_cor: 0.5
+    markers:
+      abi:
+        label: {en: Ankle-brachial index, es: Índice tobillo-brazo, ca: Índex turmell-braç}
+        dist: normal(1.10, 0.13)
+        range: [0.3, 1.6]
+        round: 2
+        auc: 0.74
+        direction: lower
+      tbi:
+        label: {en: Toe-brachial index, es: Índice dedo-brazo, ca: Índex dit-braç}
+        dist: normal(0.75, 0.13)
+        range: [0.1, 1.2]
+        round: 2
+        auc: 0.80
+        direction: lower
+
+null_variables: [sex]
+
+references:
+  - "Chuter V, Schaper N, Mills J et al. Effectiveness of bedside investigations to diagnose peripheral artery disease among people with diabetes mellitus: a systematic review. Diabetes Metab Res Rev 2024;40:e3683."
+  - "Normahani P, Mustafa C, Standfield NJ et al. Meta-analysis of the diagnostic accuracy of point-of-care tests used to screen and diagnose peripheral artery disease in people with diabetes. Eur J Vasc Endovasc Surg 2021;61:681-90."
+
+i18n:
+  en: {names: {age: age, sex: sex, smoking: smoking, duration: duration, ckd: ckd, pad: pad, abi: abi, tbi: tbi}}
+  es: {names: {age: edad, sex: sexo, smoking: tabaco, duration: duracion, ckd: erc, pad: eap, abi: itb, tbi: idb}}
+  ca: {names: {age: edat, sex: sexe, smoking: tabac, duration: durada, ckd: mrc, pad: map, abi: itb, tbi: idb}}
+
+teaching:
+  en: >
+    Lower values mean disease, so the ROC analysis must use the right direction.
+    In diabetes, calcified ankle arteries resist compression and keep the
+    ankle-brachial index falsely normal: at the usual 0.9 cut-off it misses
+    many patients (low sensitivity). The toe-brachial index is more sensitive
+    but less specific. The two measure related things and are correlated, so
+    compare them on the same patients, and ask what a combination adds.
+  es: >
+    Los valores bajos indican enfermedad, así que el análisis ROC debe usar la
+    dirección correcta. En la diabetes, las arterias del tobillo calcificadas no
+    se comprimen y mantienen el índice tobillo-brazo falsamente normal: con el
+    punto de corte habitual de 0,9 se escapan muchos pacientes (baja
+    sensibilidad). El índice dedo-brazo es más sensible pero menos específico.
+    Ambos miden cosas relacionadas y están correlacionados, así que compárelos en
+    los mismos pacientes y pregúntese qué aporta combinarlos.
+  ca: >
+    Els valors baixos indiquen malaltia, així que l'anàlisi ROC ha de fer servir
+    la direcció correcta. En la diabetis, les artèries del turmell calcificades no
+    es comprimeixen i mantenen l'índex turmell-braç falsament normal: amb el
+    punt de tall habitual de 0,9 se n'escapen molts pacients (baixa
+    sensibilitat). L'índex dit-braç és més sensible però menys específic. Tots
+    dos mesuren coses relacionades i estan correlacionats, així que compareu-los
+    en els mateixos pacients i pregunteu-vos què aporta combinar-los.

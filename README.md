@@ -32,7 +32,7 @@ parameters and what crude and adjusted analyses of that design should find.
 
 ## Scenarios
 
-42 scenarios, most replicating a real study: their parameters were estimated
+49 scenarios, most replicating a real study: their parameters were estimated
 with the module's own *Derive* engine from open patient-level data (R
 packages survival, MASS, datasets, HSAUR3, TH.data, pROC, medicaldata,
 aplore3, NHANES), or taken from the published tables of the study; each was
@@ -68,6 +68,9 @@ explains the method and filters the scenarios by domain, design and topic.
 | Musculoskeletal | Fracture in older women (`glow_fracture`) | cohort, case_control | GLOW500 (R package aplore3) |
 | Neurology | Biomarkers after subarachnoid haemorrhage (`subarachnoid_haemorrhage`) | diagnostic, cohort | R dataset aSAH (pROC package) |
 |  | Progabide for epilepsy (`epilepsy_progabide`) | rct | R dataset epil (MASS package) |
+| Odontology | Fluoride varnish and dental caries (`caries_fluoride_varnish`) | cluster_rct, rct, cohort | published studies |
+|  | Periodontal treatment in pregnancy (`periodontal_pregnancy`) | rct, longitudinal | opt (R package medicaldata) |
+|  | Periodontitis in adults: smoking and diabetes (`periodontitis_smoking`) | cross_sectional, case_control | published studies |
 | Oncology | Adjuvant chemotherapy for colon cancer (`colon_adjuvant`) | rct, prognosis | R dataset colon (survival package) |
 |  | Breast cancer prognosis (`breast_cancer_prognosis`) | prognosis, cohort | published studies |
 |  | Breast cancer risk factors (`breast_cancer_risk`) | case_control, matched_cc, cohort, nested_cc, case_cohort, ecological | published studies |
@@ -85,12 +88,12 @@ explains the method and filters the scenarios by domain, design and topic.
 | Perinatal | Low birth weight (`low_birth_weight`) | cross_sectional, case_control, cohort | R dataset birthwt (MASS package) |
 | Pharmacology | Bioequivalence of two formulations (`bioequivalence`) | crossover, rct | published studies |
 |  | Two hypnotics compared (`hypnotics_sleep`) | crossover, rct | R dataset sleep (datasets package) |
+| Podiatry | Ankle- and toe-brachial index for peripheral arterial disease (`pad_ankle_brachial`) | diagnostic, cross_sectional | published studies |
+|  | Foot orthoses for plantar fasciitis (`plantar_fasciitis_orthoses`) | rct | published studies |
+|  | Foot ulceration in diabetes (`diabetic_foot_ulcer`) | cohort, prognosis, case_control, nested_cc | published studies |
+|  | Terbinafine vs itraconazole for toenail onychomycosis (`onychomycosis_terbinafine`) | rct | published studies |
 | Reproductive | Secondary infertility after abortion (`infertility_abortion`) | matched_cc, case_control, cross_sectional | R dataset infert (datasets package) |
 | Respiratory | Formoterol vs salbutamol in asthma (`asthma_formoterol`) | crossover, rct | published studies |
-
-
-The options, results, built-in scenarios and dataset column names are available in
-English, Spanish and Catalan, following jamovi's language setting.
 
 ## Install
 

@@ -442,6 +442,23 @@ normalize_scenario <- function(raw, dictionary = list(), strict = TRUE) {
         if (!is.null(no)) outcomes[[o]] <- no
     }
     if (length(outcomes) == 0) add_problem(pr, sprintf("scenario '%s'", id), "has no usable outcome")
+    # a translated text whose keys are not language codes was split at a comma
+    # inside {...} (the YAML trap in schema.md)
+    check_text <- function(x, where) {
+        if (!is.list(x)) return(invisible())
+        for (k in names(x)) {
+            v <- x[[k]]
+            if (k %in% c("label", "units", "population", "description") && is.list(v) && !all(grepl("^[a-z]{2}$", names(v))))
+                add_problem(pr, where, sprintf("%s looks split at a comma; put the text in quotes", k), "warning")
+            else if (is.list(v)) check_text(v, if (is.null(names(x))) where else sprintf("%s %s", where, k))
+        }
+    }
+    check_text(raw[c("variables", "outcomes", "interventions", "label", "population")], sprintf("scenario '%s'", id))
+    # names become columns and model terms: R's reserved words cannot be used
+    reserved <- c("if", "else", "repeat", "while", "function", "for", "next", "break", "in", "TRUE", "FALSE",
+                  "NULL", "Inf", "NaN", "NA")
+    for (nm in intersect(c(names(raw$variables), names(raw$outcomes), names(raw$interventions)), reserved))
+        add_problem(pr, sprintf("name '%s'", nm), sprintf("'%s' is a reserved word; choose another name", nm))
     clash <- intersect(names(ivs), ids)
     if (length(clash)) add_problem(pr, "interventions", sprintf("'%s' is both a variable and an intervention", clash[1]))
     for (nv in unlist(raw$null_variables)) {

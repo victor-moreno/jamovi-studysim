@@ -193,7 +193,7 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     n_big <- switch(design, case_control = 3000 * (1 + opt$ratio), matched_cc = 1500 * (1 + opt$ratio),
                     nested_cc = 2000 * (1 + opt$ratio), case_cohort = 8000,
                     cluster_rct = max(20000, 50 * (opt$clusters %||% 20)), longitudinal = 3000, ecological = 200,
-                    crossover = 4000, 20000)
+                    crossover = 4000, 40000)
     # a rare outcome needs a larger study for a stable expectation: about 5000
     # events (cases in a case-cohort), at most 300,000 people
     p_ev <- if (oc$type == "event") cal$achieved$risk_followup else if (oc$type == "binary") min(oc$prevalence, 1 - oc$prevalence) else NA

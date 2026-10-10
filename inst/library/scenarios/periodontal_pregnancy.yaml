@@ -1,0 +1,129 @@
+id: periodontal_pregnancy
+label: {en: "Periodontal treatment in pregnancy", es: "Tratamiento periodontal en el embarazo", ca: "Tractament periodontal a l'embaràs"}
+domain: odontology
+population: {en: "Pregnant women with periodontitis at 13-17 weeks, four US clinics, 2003-05 (OPT trial)", es: "Embarazadas con periodontitis a las 13-17 semanas, cuatro clínicas de EE. UU., 2003-05 (ensayo OPT)", ca: "Embarassades amb periodontitis a les 13-17 setmanes, quatre clíniques dels EUA, 2003-05 (assaig OPT)"}
+
+# Estimated from the 823 women of the R dataset opt (medicaldata): scaling
+# and root planing before 21 weeks vs after delivery. Mean probing depth fell
+# 0.39 mm more with treatment (bleeding on probing 23 points more), but
+# preterm birth (< 37 weeks) was 12.1% vs 13.0% and birth weight did not
+# change; previous preterm birth, Black race and smoking predict both.
+variables:
+  age: {from: dictionary, dist: "normal(26, 5.6)", range: [16, 45]}
+  black:
+    type: binary
+    p: 0.45
+    levels: [no, yes]
+    label: {en: Black, es: Raza negra, ca: Raça negra}
+  smoking:
+    type: binary
+    p: 0.12
+    levels: [no, yes]
+    label: {en: Smokes in pregnancy, es: Fuma en el embarazo, ca: Fuma a l'embaràs}
+  bmi: {from: dictionary, dist: "lognormal(27.7, 7.1)", range: [15, 60]}
+  prev_preterm:
+    type: binary
+    p: 0.13
+    levels: [no, yes]
+    label: {en: Previous preterm birth, es: Parto prematuro previo, ca: Part prematur previ}
+  probing0:
+    type: continuous
+    dist: normal(2.87, 0.56)
+    range: [1.5, 6]
+    round: 2
+    units: mm
+    label: {en: Mean probing depth at entry, es: Profundidad de sondaje media al inicio, ca: Profunditat de sondatge mitjana a l'inici}
+
+structure:
+  - [smoking, probing0, 0.15]
+  - [black, probing0, 0.15]
+
+interventions:
+  treatment:
+    levels: [delayed, during_pregnancy]
+    label: {en: Periodontal treatment, es: Tratamiento periodontal, ca: Tractament periodontal}
+
+outcomes:
+  probing_depth:
+    type: continuous
+    label: {en: Mean probing depth at 29-32 weeks, es: Profundidad de sondaje media a las 29-32 semanas, ca: Profunditat de sondatge mitjana a les 29-32 setmanes}
+    units: mm
+    mean: 2.85
+    sd: 0.35
+    round: 2
+    within_cor: 0.6
+    designs: [rct, longitudinal]
+    effects:
+      treatment: {beta: [0, -0.39]}
+      probing0: {beta: 0.7, per: 1}
+      smoking: {beta: 0.08}
+  preterm:
+    type: binary
+    label: {en: Birth before 37 weeks, es: Parto antes de las 37 semanas, ca: Part abans de les 37 setmanes}
+    levels: [no, yes]
+    prevalence: 0.13
+    designs: [rct]
+    effects:
+      treatment: {OR: [1, 0.92]}
+      prev_preterm: {OR: 3.2}
+      black: {OR: 1.8}
+      smoking: {OR: 1.5}
+  birth_weight:
+    type: continuous
+    label: {en: Birth weight, es: Peso al nacer, ca: Pes en néixer}
+    units: g
+    mean: 3180
+    sd: 650
+    round: 0
+    range: [400, 5500]
+    designs: [rct]
+    effects:
+      treatment: {beta: [0, 30]}
+      black: {beta: -134}
+      smoking: {beta: -190}
+      prev_preterm: {beta: -250}
+
+null_variables: [age, bmi]
+
+designs:
+  longitudinal: {visits: 1, dropout: 0.05}
+
+references:
+  - "Michalowicz BS, Hodges JS, DiAngelis AJ et al. Treatment of periodontal disease and the risk of preterm birth. N Engl J Med 2006;355:1885-94."
+  - "Data: opt (R package medicaldata), 823 women."
+
+i18n:
+  en: {names: {age: age, black: black, smoking: smoking, bmi: bmi, prev_preterm: prev_preterm, probing0: probing_baseline, treatment: treatment, probing_depth: probing_depth, preterm: preterm, birth_weight: birth_weight},
+       levels: {delayed: delayed, during_pregnancy: during_pregnancy}}
+  es: {names: {age: edad, black: raza_negra, smoking: fuma, bmi: imc, prev_preterm: prematuro_previo, probing0: sondaje_basal, treatment: tratamiento, probing_depth: sondaje, preterm: prematuro, birth_weight: peso_nacer},
+       levels: {delayed: diferido, during_pregnancy: en_el_embarazo}}
+  ca: {names: {age: edat, black: raca_negra, smoking: fuma, bmi: imc, prev_preterm: prematur_previ, probing0: sondatge_basal, treatment: tractament, probing_depth: sondatge, preterm: prematur, birth_weight: pes_neixer},
+       levels: {delayed: diferit, during_pregnancy: durant_embaras}}
+
+teaching:
+  en: >
+    Observational studies linked periodontitis with preterm birth, so treating
+    it in pregnancy seemed a cheap way to prevent prematurity. The trial shows
+    the treatment works on the mouth (shallower pockets, less bleeding) but not
+    on the pregnancy: improving a surrogate does not guarantee the outcome that
+    matters, and the observational link was probably confounded by smoking,
+    race and social factors. Adjusting the probing depth for its baseline value
+    (ANCOVA) sharpens the oral comparison.
+  es: >
+    Los estudios observacionales asociaban la periodontitis con el parto
+    prematuro, así que tratarla en el embarazo parecía una forma barata de
+    prevenir la prematuridad. El ensayo muestra que el tratamiento funciona en la
+    boca (bolsas menos profundas, menos sangrado) pero no en el embarazo: mejorar
+    una variable subrogada no garantiza el resultado que importa, y la asociación
+    observacional probablemente estaba confundida por el tabaco, la raza y los
+    factores sociales. Ajustar la profundidad de sondaje por su valor basal
+    (ANCOVA) afina la comparación oral.
+  ca: >
+    Els estudis observacionals associaven la periodontitis amb el part prematur,
+    així que tractar-la a l'embaràs semblava una manera barata de prevenir la
+    prematuritat. L'assaig mostra que el tractament funciona a la boca (bosses
+    menys profundes, menys sagnat) però no a l'embaràs: millorar una variable
+    subrogada no garanteix el resultat que importa, i l'associació observacional
+    probablement estava confosa pel tabac, la raça i els factors socials.
+    Ajustar la profunditat de sondatge pel seu valor basal (ANCOVA) afina la
+    comparació oral.
