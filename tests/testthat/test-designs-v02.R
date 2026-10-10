@@ -59,3 +59,16 @@ test_that("interim looks split a trial by enrolment", {
   expect_equal(round(r$facts$looks$bounds, 2), c(3.47, 2.45, 2.00))
   expect_false("look" %in% names(simulate_study(sc, "ev", "rct", 300, "age", options = list(looks = 3), key = FALSE)$data))
 })
+
+test_that("a longitudinal trial has monotone dropout near the target and the mixed model recovers the effect", {
+  sc <- trial_toy()
+  r <- simulate_study(sc, "sbp", "longitudinal", 2000, "age", options = list(visits = 3, dropout = 0.3), key = FALSE)
+  d <- r$data_raw
+  expect_identical(names(d)[1:3], c("id", "drug", "visit"))
+  expect_equal(r$facts$attending[1], 2000)
+  expect_true(all(diff(r$facts$attending) <= 0))
+  expect_equal(1 - r$facts$attending[4] / 2000, 0.3, tolerance = 0.1)
+  expect_true(all(tapply(d$visit, d$id, function(v) identical(v, seq(0, length(v) - 1)))))
+  e <- estimate_table(sc, sc$outcomes$sbp, "longitudinal", d, "age", ci = TRUE)
+  expect_true(e$lower < -8 && -8 < e$upper)
+})

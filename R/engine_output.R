@@ -15,6 +15,7 @@ GENERIC <- list(
     settime = list(en = "Time at which the set was sampled (the case's event time)", es = "Tiempo en que se muestreó el conjunto (el del evento del caso)",
                    ca = "Temps en què es va mostrejar el conjunt (el de l'esdeveniment del cas)"),
     subcohort = list(en = "Member of the random subcohort", es = "Miembro de la subcohorte aleatoria", ca = "Membre de la subcohort aleatòria"),
+    visit = list(en = "Visit (0 = baseline, before treatment)", es = "Visita (0 = basal, antes del tratamiento)", ca = "Visita (0 = basal, abans del tractament)"),
     cluster = list(en = "Cluster (unit of randomisation)", es = "Conglomerado (unidad de aleatorización)", ca = "Conglomerat (unitat d'aleatorització)"),
     look = list(en = "First interim look that includes the participant", es = "Primer análisis intermedio que incluye al participante",
                 ca = "Primera anàlisi intermèdia que inclou el participant"),
@@ -58,7 +59,7 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
     d <- res$data
     n <- nrow(d)
     out <- list()
-    if (design == "crossover") {
+    if (design %in% c("crossover", "longitudinal")) {
         out$id <- with_desc(as.integer(factor(d$.pid, levels = unique(d$.pid))), gtext("id", lang))
     } else {
         out$id <- with_desc(seq_len(n), gtext("id", lang))
@@ -79,6 +80,7 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
         out[[v]] <- with_desc(factor(x$levels[d[[paste0(".", v)]]], levels = x$levels), tr_text(x$label, lang))
     }
     if (!is.null(d$.look)) out$look <- with_desc(as.integer(d$.look), gtext("look", lang))
+    if (!is.null(d$.visit)) out$visit <- with_desc(as.integer(d$.visit), gtext("visit", lang))
     olab <- var_desc(oc, lang)
     if (design %in% CASE_DESIGNS) {
         lv <- c("control", "case")   # shown in the student's language by localise_data()
@@ -107,7 +109,7 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
 data_dictionary <- function(sc, df, factors, ids = names(df)) {
     rows <- lapply(seq_along(df), function(j) {
         x <- df[[j]]; id <- ids[j]
-        role <- if (id %in% factors) "factor" else if (id %in% c("id", "set", "sequence", "period", "subcohort", "cluster", "look")) "design"
+        role <- if (id %in% factors) "factor" else if (id %in% c("id", "set", "sequence", "period", "subcohort", "cluster", "look", "visit")) "design"
                 else if (id %in% names(sc$interventions)) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
         values <- if (is.factor(x)) paste(levels(x), collapse = ", ")
@@ -149,12 +151,12 @@ apply_missing <- function(df, cols, pct, mech, seed, driver = NULL, unit = df$id
 # The dataset's column names, known before any data are drawn (the results
 # tables need their rows in .init()); mirrors format_study().
 planned_columns <- function(sc, oc, design, factors, opt = list()) {
-    iv <- if (design %in% c("rct", "crossover", "cluster_rct")) trial_iv(sc, oc)$id
+    iv <- if (design %in% c("rct", "crossover", "cluster_rct", "longitudinal")) trial_iv(sc, oc)$id
           else if (design == "factorial") names(factorial_ivs(sc, oc)) else character()
     looks <- design == "rct" && (opt$looks %||% 0) >= 2 && oc$type != "event"
     out <- c("id", if (design %in% c("matched_cc", "nested_cc")) "set", if (design == "case_cohort") "subcohort",
              if (design == "cluster_rct") "cluster", if (design == "crossover") c("sequence", "period"), iv,
-             if (looks) "look")
+             if (looks) "look", if (design == "longitudinal") "visit")
     out <- c(out, if (design %in% CASE_DESIGNS) c("case", if (design == "nested_cc") "time")
                   else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct", "case_cohort", "cluster_rct", "factorial")) c("time", oc$id)
                   else oc$id)
@@ -167,7 +169,7 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
 planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = list(), opt = list()) {
     cols <- planned_columns(sc, oc, design, factors, opt)
     out <- list()
-    for (nm in setdiff(cols, c("id", "set", "cluster", "look"))) {
+    for (nm in setdiff(cols, c("id", "set", "cluster", "look", "visit"))) {
         out[[nm]] <- if (nm == "sequence") {
             lv <- trial_iv(sc, oc)$levels
             c(paste(lv, collapse = "-"), paste(rev(lv), collapse = "-"))

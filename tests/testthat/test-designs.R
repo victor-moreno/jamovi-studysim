@@ -3,7 +3,7 @@ test_that("every compatible design runs and formats", {
   for (o in names(sc$outcomes)) for (d in compatible_designs(sc, o)) {
     r <- simulate_study(sc, o, d, n = 300, seed = 5, key = FALSE)
     expect_true(is.data.frame(r$data), info = paste(o, d))
-    expect_true(nrow(r$data) %in% c(300, 600), info = paste(o, d))
+    expect_true(nrow(r$data) %in% c(300, 600) || length(unique(r$data$id)) == 300, info = paste(o, d))
     expect_false(is.null(attr(r$data$age, "jmv-desc")), info = paste(o, d))
   }
   expect_error(simulate_study(sc, "sbp", "case_control", 100), "does not fit")

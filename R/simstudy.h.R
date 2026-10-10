@@ -22,6 +22,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             clusters = 20,
             icc = 0.05,
             interaction = 0,
+            visits = 4,
+            dropout = 20,
             period = 0,
             carryover = 0,
             missing = 0,
@@ -73,7 +75,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nested_cc",
                     "case_cohort",
                     "cluster_rct",
-                    "factorial"),
+                    "factorial",
+                    "longitudinal"),
                 default="case_control")
             private$..measured <- jmvcore::OptionArray$new(
                 "measured",
@@ -167,6 +170,18 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "interaction",
                 interaction,
                 default=0)
+            private$..visits <- jmvcore::OptionInteger$new(
+                "visits",
+                visits,
+                default=4,
+                min=1,
+                max=12)
+            private$..dropout <- jmvcore::OptionNumber$new(
+                "dropout",
+                dropout,
+                default=20,
+                min=0,
+                max=80)
             private$..period <- jmvcore::OptionNumber$new(
                 "period",
                 period,
@@ -243,6 +258,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..clusters)
             self$.addOption(private$..icc)
             self$.addOption(private$..interaction)
+            self$.addOption(private$..visits)
+            self$.addOption(private$..dropout)
             self$.addOption(private$..period)
             self$.addOption(private$..carryover)
             self$.addOption(private$..missing)
@@ -274,6 +291,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         clusters = function() private$..clusters$value,
         icc = function() private$..icc$value,
         interaction = function() private$..interaction$value,
+        visits = function() private$..visits$value,
+        dropout = function() private$..dropout$value,
         period = function() private$..period$value,
         carryover = function() private$..carryover$value,
         missing = function() private$..missing$value,
@@ -304,6 +323,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..clusters = NA,
         ..icc = NA,
         ..interaction = NA,
+        ..visits = NA,
+        ..dropout = NA,
         ..period = NA,
         ..carryover = NA,
         ..missing = NA,
@@ -361,6 +382,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "clusters",
                     "icc",
                     "interaction",
+                    "visits",
+                    "dropout",
                     "period",
                     "carryover",
                     "missing",
@@ -387,6 +410,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "clusters",
                     "icc",
                     "interaction",
+                    "visits",
+                    "dropout",
                     "period",
                     "carryover",
                     "missing",
@@ -415,6 +440,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "clusters",
                     "icc",
                     "interaction",
+                    "visits",
+                    "dropout",
                     "period",
                     "carryover",
                     "missing",
@@ -464,6 +491,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "clusters",
                     "icc",
                     "interaction",
+                    "visits",
+                    "dropout",
                     "period",
                     "carryover",
                     "missing",
@@ -555,6 +584,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "clusters",
                     "icc",
                     "interaction",
+                    "visits",
+                    "dropout",
                     "period",
                     "carryover"),
                 columns=list(
@@ -607,6 +638,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "clusters",
                     "icc",
                     "interaction",
+                    "visits",
+                    "dropout",
                     "period",
                     "carryover",
                     "missing",
@@ -635,6 +668,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "clusters",
                     "icc",
                     "interaction",
+                    "visits",
+                    "dropout",
                     "period",
                     "carryover",
                     "missing",
@@ -668,6 +703,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "clusters",
                     "icc",
                     "interaction",
+                    "visits",
+                    "dropout",
                     "period",
                     "carryover",
                     "missing",
@@ -744,6 +781,10 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param icc .
 #' @param interaction 2x2 factorial trial, added to the linear predictor of
 #'   those given both (beta, or log OR/HR/RR)
+#' @param visits longitudinal trial, number of visits after baseline (the last
+#'   one is the outcome's time)
+#' @param dropout longitudinal trial, participants missing the last visit;
+#'   dropout depends on the last value seen (missing at random)
 #' @param period .
 #' @param carryover .
 #' @param missing .
@@ -797,6 +838,8 @@ simStudy <- function(
     clusters = 20,
     icc = 0.05,
     interaction = 0,
+    visits = 4,
+    dropout = 20,
     period = 0,
     carryover = 0,
     missing = 0,
@@ -836,6 +879,8 @@ simStudy <- function(
         clusters = clusters,
         icc = icc,
         interaction = interaction,
+        visits = visits,
+        dropout = dropout,
         period = period,
         carryover = carryover,
         missing = missing,

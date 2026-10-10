@@ -79,6 +79,8 @@ options:
             title: Cluster randomised trial
           - name: factorial
             title: 2x2 factorial trial
+          - name: longitudinal
+            title: Longitudinal trial (repeated visits)
       default: case_control
       description:
           R: study design; must fit the outcome
@@ -206,6 +208,24 @@ options:
       default: 0
       description:
           R: 2x2 factorial trial, added to the linear predictor of those given both (beta, or log OR/HR/RR)
+
+    - name: visits
+      title: Follow-up visits
+      type: Integer
+      default: 4
+      min: 1
+      max: 12
+      description:
+          R: longitudinal trial, number of visits after baseline (the last one is the outcome's time)
+
+    - name: dropout
+      title: Dropout by the last visit (%)
+      type: Number
+      default: 20
+      min: 0
+      max: 80
+      description:
+          R: longitudinal trial, participants missing the last visit; dropout depends on the last value seen (missing at random)
 
     - name: period
       title: Period effect

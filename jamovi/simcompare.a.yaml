@@ -79,6 +79,8 @@ options:
             title: Cluster randomised trial
           - name: factorial
             title: 2x2 factorial trial
+          - name: longitudinal
+            title: Longitudinal trial (repeated visits)
       default: [case_control, matched_cc, cohort]
       description:
           R: designs to compare; those that do not fit the outcome are skipped

@@ -68,6 +68,10 @@ children:
           name: designs_factorial
           optionName: designs
           optionPart: factorial
+        - type: CheckBox
+          name: designs_longitudinal
+          optionName: designs
+          optionPart: longitudinal
   - type: ListBox
     name: measured
     showColumnHeaders: true

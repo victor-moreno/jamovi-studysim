@@ -33,7 +33,7 @@ outcomes:
     mean: 8.0
     sd: 0.8
     round: 1
-    designs: [rct, cluster_rct]
+    designs: [rct, cluster_rct, longitudinal]
     effects:
       hba1c0: {beta: 0.6, per: 1}
       bmi: {beta: 0.01, per: 1}
@@ -59,14 +59,23 @@ teaching:
     The treatment effect on HbA1c is a difference in means (-1.0 points). The
     same trial analysed as "controlled below 7%" gives an odds ratio whose size
     depends on how far patients start from the threshold: dichotomising loses
-    information and changes the question.
+    information and changes the question. Followed over repeated visits,
+    patients whose HbA1c stays high drop out more often: analysing only those
+    who reach the last visit discards information, a mixed model uses every
+    visit.
   es: >
     El efecto del tratamiento sobre la HbA1c es una diferencia de medias (-1,0
     puntos). El mismo ensayo analizado como "controlado por debajo del 7%" da una
     odds ratio cuyo tamaño depende de lo lejos del umbral que empiezan los
-    pacientes: dicotomizar pierde información y cambia la pregunta.
+    pacientes: dicotomizar pierde información y cambia la pregunta. Con visitas
+    repetidas, los pacientes con la HbA1c alta abandonan más: analizar solo a
+    quienes llegan a la última visita desperdicia información, un modelo mixto
+    usa todas las visitas.
   ca: >
     L'efecte del tractament sobre l'HbA1c és una diferència de mitjanes (-1,0
     punts). El mateix assaig analitzat com a "controlat per sota del 7%" dona una
     odds ratio la mida de la qual depèn de com de lluny del llindar comencen els
-    pacients: dicotomitzar perd informació i canvia la pregunta.
+    pacients: dicotomitzar perd informació i canvia la pregunta. Amb visites
+    repetides, els pacients amb l'HbA1c alta abandonen més: analitzar només els
+    que arriben a l'última visita malbarata informació, un model mixt fa servir
+    totes les visites.

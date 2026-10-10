@@ -53,6 +53,7 @@ simStudyClass <- R6::R6Class(
             if (d == "rct") opt$looks <- o$looks
             if (d == "cluster_rct") { opt$clusters <- o$clusters; opt$icc <- o$icc }
             if (d == "factorial") opt$interaction <- o$interaction
+            if (d == "longitudinal") { opt$visits <- o$visits; opt$dropout <- o$dropout / 100 }
             if (d == "crossover") {
                 if (o$period != 0) opt$period <- o$period
                 if (o$carryover != 0) opt$carryover <- o$carryover
@@ -180,6 +181,8 @@ simStudyClass <- R6::R6Class(
                                                          k = f$clusters[1], by = paste(f$clusters[-1], collapse = "/"), icc = f$icc))
             if (!is.null(f$factorial)) li <- c(li, jmvcore::format(.("2x2 factorial: {a} and {b} randomised independently; {cells} participants per combination"),
                                                           a = dname(f$factorial[1], l), b = dname(f$factorial[2], l), cells = paste(f$cells, collapse = "/")))
+            if (!is.null(f$attending)) li <- c(li, jmvcore::format(.("baseline and {k} follow-up visits; participants seen at each visit: {n}"),
+                                                          k = f$visits, n = paste(f$attending, collapse = ", ")))
             if (!is.null(f$looks)) li <- c(li, jmvcore::format(.("{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}"),
                                                       k = length(f$looks$n), ns = paste(cumsum(f$looks$n), collapse = ", "),
                                                       b = paste(sprintf("%.2f", f$looks$bounds), collapse = ", ")))
@@ -232,6 +235,8 @@ simStudyClass <- R6::R6Class(
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
                 if (ctx$design == "factorial" && opt$interaction != 0)
                     tbl$setNote("interaction", .("With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level."))
+                if (ctx$design == "longitudinal")
+                    tbl$setNote("longitudinal", .("Crude: difference at the last visit among those who attended it (completers). Adjusted: linear mixed model with all visits (random intercept, an effect per visit), valid when dropout depends on values already seen."))
                 if (ctx$design == "cluster_rct")
                     tbl$setNote("cluster", .("True values are conditional on the cluster; a model that ignores the clusters estimates a population-average effect (closer to the null for OR and HR) and needs cluster-robust standard errors."))
                 mm <- unique(ex$true_measure[ex$true_measure != ex$measure & ex$true_measure %in% c("HR", "OR", "RR")])
@@ -325,7 +330,8 @@ design_title <- function(d, self) {
            nested_cc = .("Nested case-control"),
            case_cohort = .("Case-cohort"),
            cluster_rct = .("Cluster randomised trial"),
-           factorial = .("2x2 factorial trial"), d)
+           factorial = .("2x2 factorial trial"),
+           longitudinal = .("Longitudinal trial (repeated visits)"), d)
 }
 
 # the panel's Variables list -> measured factor ids and the grouping of the

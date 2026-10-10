@@ -81,6 +81,7 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
         fd$.start <- ifelse(fd$subcohort == "yes", 0, fd$time * (1 - 1e-6))
         fd <- fd[fd$time > fd$.start, , drop = FALSE]   # censored at time 0: no contribution
     }
+    if (design == "longitudinal") return(fit_longitudinal(sc, oc, fd, terms, full))
     if (design == "crossover" && full) {
         # subject fixed effects by the within transformation: same estimate as
         # lm(y ~ trt + period + factor(id)), without a column per subject
@@ -116,6 +117,44 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
          log = model != "linear")
 }
 
+# Longitudinal trial. full = FALSE: completers only, difference at the last
+# visit (what a naive analysis gives, biased when dropout depends on the
+# outcome); full = TRUE: a linear mixed model with all visits (random
+# intercept, a treatment effect per follow-up visit, baseline without one),
+# unbiased under missing at random. Terms other than the intervention adjust.
+fit_longitudinal <- function(sc, oc, fd, terms, full) {
+    iv <- intersect(names(sc$interventions), terms)
+    if (length(iv) == 0) iv <- intersect(names(sc$interventions), names(fd))
+    lv <- levels(fd[[iv]])
+    K <- max(fd$visit)
+    y <- if (isTRUE(oc$log)) log(fd[[oc$id]]) else fd[[oc$id]]
+    meas <- if (isTRUE(oc$log)) "ratio" else "beta"
+    if (!full) {
+        last <- fd$visit == K
+        f <- stats::lm(y[last] ~ fd[[iv]][last])
+        b <- stats::coef(f)[-1]; se <- sqrt(diag(stats::vcov(f)))[-1]
+        names(b) <- names(se) <- paste0(iv, lv[-1])
+        return(list(coef = b, se = se, measure = meas, log = isTRUE(oc$log)))
+    }
+    d <- data.frame(.y = y, .visit = factor(fd$visit), .id = fd$id)
+    cols <- character()
+    for (L in lv[-1]) for (j in seq_len(K)) {
+        nm <- if (j == K) paste0(iv, L) else sprintf(".t%d_%s", j, L)
+        d[[nm]] <- as.numeric(fd[[iv]] == L & fd$visit == j)
+        cols <- c(cols, nm)
+    }
+    adj <- setdiff(terms, iv)
+    for (v in adj) d[[v]] <- fd[[v]]
+    rhs <- paste(c(".visit", sprintf("`%s`", cols), adj), collapse = " + ")
+    f <- nlme::lme(stats::as.formula(paste(".y ~", rhs)), random = ~ 1 | .id, data = d, na.action = stats::na.omit,
+                   control = nlme::lmeControl(returnObject = TRUE))
+    tt <- summary(f)$tTable
+    rownames(tt) <- gsub("`", "", rownames(tt))
+    b <- tt[, "Value"]; se <- tt[, "Std.Error"]
+    # factor terms of the adjustment are named as lm names them already
+    list(coef = b, se = se, measure = meas, log = isTRUE(oc$log))
+}
+
 # Cluster-robust (sandwich) standard errors of a linear or canonical-link GLM:
 # the scores x (y - mu) summed within clusters, with the small-sample factor
 # G / (G - 1)
@@ -133,7 +172,7 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     cal <- calibrate(sc, oc)
     n_big <- switch(design, case_control = 3000 * (1 + opt$ratio), matched_cc = 1500 * (1 + opt$ratio),
                     nested_cc = 2000 * (1 + opt$ratio), case_cohort = 8000,
-                    cluster_rct = max(20000, 50 * (opt$clusters %||% 20)),
+                    cluster_rct = max(20000, 50 * (opt$clusters %||% 20)), longitudinal = 3000,
                     crossover = 4000, 20000)
     # the expectation of a cluster trial does not depend on the number of
     # clusters; many clusters keep the cluster effects from blurring it

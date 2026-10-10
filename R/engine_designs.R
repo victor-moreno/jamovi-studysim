@@ -20,6 +20,7 @@ design_defaults <- function(design, oc, sc) {
         nested_cc = list(ratio = 1, followup = oc$followup, loss = 0.02, accrual = 0),
         cluster_rct = list(followup = oc$followup, loss = 0.02, clusters = 20, icc = 0.05),
         factorial = list(followup = oc$followup, loss = 0.02, block = 4, interaction = 0),
+        longitudinal = list(block = 4, visits = 4, dropout = 0.2),
         case_cohort = list(subcohort = 0.1, followup = oc$followup, loss = 0.02, accrual = 0))
     utils::modifyList(d, sc$design_defaults[[design]] %||% list())
 }
@@ -343,12 +344,66 @@ sim_crossover <- function(sc, oc, cal, seed, n, opt) {
     list(data = d, facts = list(sequences = tabulate(sq, 2), within_cor = rho))
 }
 
+# a continuous outcome's value from its linear predictor and noise (log
+# scale, range, rounding), as draw_outcome() does
+finish_continuous <- function(y, oc) {
+    if (isTRUE(oc$log)) y <- exp(y)
+    if (!is.null(oc$range)) y <- pmin(pmax(y, oc$range[1]), oc$range[2])
+    if (!is.null(oc$round)) y <- round(y, oc$round)
+    y
+}
+
+# Longitudinal trial: the outcome at baseline (visit 0, before treatment) and
+# at `visits` follow-up visits; the treatment effect grows linearly to its full
+# value at the last visit; a subject random intercept gives the correlation
+# `within_cor` between visits. Dropout is monotone and missing at random: the
+# odds of leaving before the next visit double per SD of the last observed
+# value, calibrated so that `dropout` of the participants miss the last visit.
+sim_longitudinal <- function(sc, oc, cal, seed, n, opt) {
+    if (oc$type != "continuous") stop("a longitudinal trial needs a continuous outcome", call. = FALSE)
+    iv <- trial_iv(sc, oc)
+    K <- as.integer(opt$visits)
+    if (K < 1) stop("a longitudinal trial needs at least one follow-up visit", call. = FALSE)
+    pop <- population(sc, oc$id, seed, n)
+    arm <- randomise(iv, n, opt$block, derive_seed(seed, sc$id, "randomisation", n))
+    lp0 <- linear_predictor(oc, pop$cov)
+    tr <- linear_predictor(oc, pop$cov, stats::setNames(list(arm), iv$id)) - lp0
+    rho <- oc$within_cor
+    e <- with_seed(derive_seed(seed, sc$id, oc$id, "visits", n, K), matrix(stats::rnorm(n * (K + 1)), n))
+    Y <- sapply(0:K, function(j) cal$a + lp0 + tr * j / K + oc$sd * (sqrt(rho) * pop$noise$z + sqrt(1 - rho) * e[, j + 1]))
+    # dropout after visit j (0..K-1), driven by the value seen at visit j
+    U <- with_seed(derive_seed(seed, sc$id, oc$id, "dropout", n, K), matrix(stats::runif(n * K), n))
+    Z <- scale(Y[, 1:K, drop = FALSE])
+    last <- function(alpha) {
+        drop <- U < stats::plogis(alpha + log(2) * Z)
+        apply(cbind(drop, TRUE), 1, function(x) which(x)[1]) - 1L   # last visit attended
+    }
+    lastv <- if (opt$dropout <= 0) rep(K, n) else {
+        alpha <- stats::uniroot(function(a) mean(last(a) < K) - opt$dropout, c(-30, 10))$root
+        last(alpha)
+    }
+    rows <- lapply(0:K, function(j) {
+        keep <- lastv >= j
+        d <- pop$cov[keep, , drop = FALSE]
+        d[[paste0(".", iv$id)]] <- arm[keep]
+        d$.visit <- j; d$.y <- finish_continuous(Y[keep, j + 1], oc); d$.row <- which(keep)
+        d
+    })
+    d <- do.call(rbind, rows)
+    d <- d[order(d$.row, d$.visit), ]
+    d$.row <- NULL
+    rownames(d) <- NULL
+    list(data = d, facts = list(arms = stats::setNames(as.list(tabulate(arm, length(iv$levels))), iv$levels),
+                                visits = K, attending = vapply(0:K, function(j) sum(lastv >= j), 0L),
+                                completers_by_arm = tabulate(arm[lastv == K], length(iv$levels))))
+}
+
 run_design <- function(design, sc, oc, cal, seed, n, opt) {
     f <- switch(design,
         cross_sectional = sim_cross_sectional, cohort = sim_cohort, prognosis = sim_cohort,
         case_control = sim_case_control, matched_cc = sim_matched_cc,
         rct = sim_rct, crossover = sim_crossover, nested_cc = sim_nested_cc, case_cohort = sim_case_cohort,
-        cluster_rct = sim_cluster_rct, factorial = sim_factorial,
+        cluster_rct = sim_cluster_rct, factorial = sim_factorial, longitudinal = sim_longitudinal,
         stop(sprintf("unknown design '%s'", design), call. = FALSE))
     f(sc, oc, cal, seed, n, opt)
 }

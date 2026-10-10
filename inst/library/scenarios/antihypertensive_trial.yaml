@@ -46,7 +46,7 @@ outcomes:
     sd: 10
     round: 0
     within_cor: 0.6
-    designs: [rct, crossover, cluster_rct, factorial]
+    designs: [rct, crossover, cluster_rct, factorial, longitudinal]
     effects:
       sbp0: {beta: 0.6, per: 1}
       age: {beta: 0.15, per: 1}

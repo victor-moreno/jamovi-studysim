@@ -115,6 +115,14 @@ children:
             format: number
             enable: (design:factorial)
           - type: TextBox
+            name: visits
+            format: number
+            enable: (design:longitudinal)
+          - type: TextBox
+            name: dropout
+            format: number
+            enable: (design:longitudinal)
+          - type: TextBox
             name: period
             format: number
             enable: (design:crossover)

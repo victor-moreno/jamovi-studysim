@@ -9,7 +9,7 @@
 
 var BUILTIN = require('./builtin');
 
-var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis', 'nested_cc', 'case_cohort', 'cluster_rct', 'factorial'];
+var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis', 'nested_cc', 'case_cohort', 'cluster_rct', 'factorial', 'longitudinal'];
 var LIB_MAX = 700000;   // base64 characters; the options hop to the engine is 1 MiB
 
 function getOpt(ui, name) {
@@ -156,7 +156,7 @@ function designsFor(sc, oc) {
     d = d.slice();
     if (hasIv) {
         d.push('rct', 'cluster_rct');
-        if (oc.type === 'continuous') d.push('crossover');
+        if (oc.type === 'continuous') d.push('crossover', 'longitudinal');
         var two = effects.filter(function(v) { return ivs.hasOwnProperty(v) && (ivs[v].levels || ['a', 'b']).length === 2; });
         if (two.length >= 2) d.push('factorial');
     }
