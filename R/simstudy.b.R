@@ -44,12 +44,15 @@ simStudyClass <- R6::R6Class(
             d <- ctx$design
             opt <- list()
             if (d %in% CASE_DESIGNS) opt$ratio <- o$ccRatio
-            if (d %in% c("cohort", "prognosis", "rct", "nested_cc", "case_cohort")) {
+            if (d %in% c("cohort", "prognosis", "rct", "nested_cc", "case_cohort", "cluster_rct", "factorial")) {
                 if (o$followup > 0) opt$followup <- o$followup
                 opt$loss <- o$loss / 100
             }
             if (d %in% c("cohort", "prognosis") && o$accrual > 0) opt$accrual <- o$accrual
             if (d == "case_cohort") opt$subcohort <- o$subcohort / 100
+            if (d == "rct") opt$looks <- o$looks
+            if (d == "cluster_rct") { opt$clusters <- o$clusters; opt$icc <- o$icc }
+            if (d == "factorial") opt$interaction <- o$interaction
             if (d == "crossover") {
                 if (o$period != 0) opt$period <- o$period
                 if (o$carryover != 0) opt$carryover <- o$carryover
@@ -74,7 +77,7 @@ simStudyClass <- R6::R6Class(
                 return()
             }
             dic <- self$results$dictionary
-            for (nm in planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors))
+            for (nm in planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors, private$.designOptions(ctx)))
                 dic$addRow(rowKey = nm, values = list(name = dname(nm, ctx$lang)))
             if (self$options$showDescriptives) {
                 for (r in describe_plan(planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats), ctx$lang))
@@ -173,6 +176,13 @@ simStudyClass <- R6::R6Class(
             if (isTRUE(f$incomplete_sets > 0)) li <- c(li, jmvcore::format(.("{n} cases have fewer controls than asked"), n = f$incomplete_sets))
             if (!is.null(f$events)) li <- c(li, jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)))
             if (!is.null(f$arms)) li <- c(li, paste(sprintf("%s: %s", dlevel(names(f$arms), l), unlist(f$arms)), collapse = ", "))
+            if (!is.null(f$clusters)) li <- c(li, jmvcore::format(.("{k} clusters randomised ({by} by arm), intraclass correlation {icc}"),
+                                                         k = f$clusters[1], by = paste(f$clusters[-1], collapse = "/"), icc = f$icc))
+            if (!is.null(f$factorial)) li <- c(li, jmvcore::format(.("2x2 factorial: {a} and {b} randomised independently; {cells} participants per combination"),
+                                                          a = dname(f$factorial[1], l), b = dname(f$factorial[2], l), cells = paste(f$cells, collapse = "/")))
+            if (!is.null(f$looks)) li <- c(li, jmvcore::format(.("{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}"),
+                                                      k = length(f$looks$n), ns = paste(cumsum(f$looks$n), collapse = ", "),
+                                                      b = paste(sprintf("%.2f", f$looks$bounds), collapse = ", ")))
             if (!is.null(f$sequences)) li <- c(li, jmvcore::format(.("sequences: {a} and {b} participants"), a = f$sequences[1], b = f$sequences[2]))
             um <- setdiff(names(ctx$oc$effects), c(ctx$factors, names(sc$interventions)))
             if (length(um)) li <- c(li, jmvcore::format(.("not measured (they still act): {vars}"), vars = paste(dname(um, l), collapse = ", ")))
@@ -220,6 +230,10 @@ simStudyClass <- R6::R6Class(
                 }
                 tbl$setNote("n", jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
+                if (ctx$design == "factorial" && opt$interaction != 0)
+                    tbl$setNote("interaction", .("With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level."))
+                if (ctx$design == "cluster_rct")
+                    tbl$setNote("cluster", .("True values are conditional on the cluster; a model that ignores the clusters estimates a population-average effect (closer to the null for OR and HR) and needs cluster-robust standard errors."))
                 mm <- unique(ex$true_measure[ex$true_measure != ex$measure & ex$true_measure %in% c("HR", "OR", "RR")])
                 if (length(mm))
                     tbl$setNote("measure", jmvcore::format(.("True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."),
@@ -309,7 +323,9 @@ design_title <- function(d, self) {
            cohort = .("Cohort"), cross_sectional = .("Cross-sectional"), rct = .("Randomised trial"),
            crossover = .("2x2 crossover trial"), prognosis = .("Prognosis (patient cohort)"),
            nested_cc = .("Nested case-control"),
-           case_cohort = .("Case-cohort"), d)
+           case_cohort = .("Case-cohort"),
+           cluster_rct = .("Cluster randomised trial"),
+           factorial = .("2x2 factorial trial"), d)
 }
 
 # the panel's Variables list -> measured factor ids and the grouping of the

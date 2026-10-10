@@ -75,6 +75,10 @@ options:
             title: Nested case-control
           - name: case_cohort
             title: Case-cohort
+          - name: cluster_rct
+            title: Cluster randomised trial
+          - name: factorial
+            title: 2x2 factorial trial
       default: case_control
       description:
           R: study design; must fit the outcome
@@ -170,6 +174,38 @@ options:
       max: 90
       description:
           R: case-cohort design, the random subcohort as a percentage of the cohort
+
+    - name: looks
+      title: Interim looks
+      type: Integer
+      default: 0
+      min: 0
+      max: 5
+      description:
+          R: randomised trial, number of equally spaced analyses (2 to 5; 0 or 1 = none); adds a look column
+
+    - name: clusters
+      title: Clusters
+      type: Integer
+      default: 20
+      min: 4
+      max: 1000
+      description:
+          R: cluster randomised trial, number of clusters (randomised by cluster)
+
+    - name: icc
+      title: Intraclass correlation
+      type: Number
+      default: 0.05
+      min: 0
+      max: 0.9
+
+    - name: interaction
+      title: Interaction of the two interventions
+      type: Number
+      default: 0
+      description:
+          R: 2x2 factorial trial, added to the linear predictor of those given both (beta, or log OR/HR/RR)
 
     - name: period
       title: Period effect

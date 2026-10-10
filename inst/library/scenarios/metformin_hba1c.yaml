@@ -33,7 +33,7 @@ outcomes:
     mean: 8.0
     sd: 0.8
     round: 1
-    designs: [rct]
+    designs: [rct, cluster_rct]
     effects:
       hba1c0: {beta: 0.6, per: 1}
       bmi: {beta: 0.01, per: 1}
@@ -44,7 +44,7 @@ outcomes:
     label: {en: HbA1c below 7% at 6 months, es: HbA1c inferior al 7% a los 6 meses, ca: HbA1c inferior al 7% als 6 mesos}
     levels: [no, yes]
     prevalence: 0.30
-    designs: [rct]
+    designs: [rct, cluster_rct]
     effects:
       hba1c0: {OR: 0.45, per: 1}
       bmi: {OR: 0.97, per: 1}

@@ -18,6 +18,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             loss = 2,
             accrual = 0,
             subcohort = 10,
+            looks = 0,
+            clusters = 20,
+            icc = 0.05,
+            interaction = 0,
             period = 0,
             carryover = 0,
             missing = 0,
@@ -67,7 +71,9 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "crossover",
                     "prognosis",
                     "nested_cc",
-                    "case_cohort"),
+                    "case_cohort",
+                    "cluster_rct",
+                    "factorial"),
                 default="case_control")
             private$..measured <- jmvcore::OptionArray$new(
                 "measured",
@@ -139,6 +145,28 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=10,
                 min=0.1,
                 max=90)
+            private$..looks <- jmvcore::OptionInteger$new(
+                "looks",
+                looks,
+                default=0,
+                min=0,
+                max=5)
+            private$..clusters <- jmvcore::OptionInteger$new(
+                "clusters",
+                clusters,
+                default=20,
+                min=4,
+                max=1000)
+            private$..icc <- jmvcore::OptionNumber$new(
+                "icc",
+                icc,
+                default=0.05,
+                min=0,
+                max=0.9)
+            private$..interaction <- jmvcore::OptionNumber$new(
+                "interaction",
+                interaction,
+                default=0)
             private$..period <- jmvcore::OptionNumber$new(
                 "period",
                 period,
@@ -211,6 +239,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..loss)
             self$.addOption(private$..accrual)
             self$.addOption(private$..subcohort)
+            self$.addOption(private$..looks)
+            self$.addOption(private$..clusters)
+            self$.addOption(private$..icc)
+            self$.addOption(private$..interaction)
             self$.addOption(private$..period)
             self$.addOption(private$..carryover)
             self$.addOption(private$..missing)
@@ -238,6 +270,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         loss = function() private$..loss$value,
         accrual = function() private$..accrual$value,
         subcohort = function() private$..subcohort$value,
+        looks = function() private$..looks$value,
+        clusters = function() private$..clusters$value,
+        icc = function() private$..icc$value,
+        interaction = function() private$..interaction$value,
         period = function() private$..period$value,
         carryover = function() private$..carryover$value,
         missing = function() private$..missing$value,
@@ -264,6 +300,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..loss = NA,
         ..accrual = NA,
         ..subcohort = NA,
+        ..looks = NA,
+        ..clusters = NA,
+        ..icc = NA,
+        ..interaction = NA,
         ..period = NA,
         ..carryover = NA,
         ..missing = NA,
@@ -317,6 +357,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "accrual",
                     "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
                     "period",
                     "carryover",
                     "missing",
@@ -339,6 +383,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "accrual",
                     "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
                     "period",
                     "carryover",
                     "missing",
@@ -363,6 +411,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "accrual",
                     "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
                     "period",
                     "carryover",
                     "missing",
@@ -408,6 +460,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "accrual",
                     "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
                     "period",
                     "carryover",
                     "missing",
@@ -495,6 +551,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "accrual",
                     "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
                     "period",
                     "carryover"),
                 columns=list(
@@ -543,6 +603,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "accrual",
                     "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
                     "period",
                     "carryover",
                     "missing",
@@ -567,6 +631,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "accrual",
                     "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
                     "period",
                     "carryover",
                     "missing",
@@ -596,6 +664,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "accrual",
                     "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
                     "period",
                     "carryover",
                     "missing",
@@ -665,6 +737,13 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param accrual 0 uses the design's default (staggered entry for prognosis)
 #' @param subcohort case-cohort design, the random subcohort as a percentage
 #'   of the cohort
+#' @param looks randomised trial, number of equally spaced analyses (2 to 5; 0
+#'   or 1 = none); adds a look column
+#' @param clusters cluster randomised trial, number of clusters (randomised by
+#'   cluster)
+#' @param icc .
+#' @param interaction 2x2 factorial trial, added to the linear predictor of
+#'   those given both (beta, or log OR/HR/RR)
 #' @param period .
 #' @param carryover .
 #' @param missing .
@@ -714,6 +793,10 @@ simStudy <- function(
     loss = 2,
     accrual = 0,
     subcohort = 10,
+    looks = 0,
+    clusters = 20,
+    icc = 0.05,
+    interaction = 0,
     period = 0,
     carryover = 0,
     missing = 0,
@@ -749,6 +832,10 @@ simStudy <- function(
         loss = loss,
         accrual = accrual,
         subcohort = subcohort,
+        looks = looks,
+        clusters = clusters,
+        icc = icc,
+        interaction = interaction,
         period = period,
         carryover = carryover,
         missing = missing,

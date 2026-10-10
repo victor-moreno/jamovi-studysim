@@ -85,11 +85,11 @@ children:
           - type: TextBox
             name: followup
             format: number
-            enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort)
+            enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort || design:cluster_rct || design:factorial)
           - type: TextBox
             name: loss
             format: number
-            enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort)
+            enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort || design:cluster_rct || design:factorial)
           - type: TextBox
             name: accrual
             format: number
@@ -98,6 +98,22 @@ children:
             name: subcohort
             format: number
             enable: (design:case_cohort)
+          - type: TextBox
+            name: looks
+            format: number
+            enable: (design:rct)
+          - type: TextBox
+            name: clusters
+            format: number
+            enable: (design:cluster_rct)
+          - type: TextBox
+            name: icc
+            format: number
+            enable: (design:cluster_rct)
+          - type: TextBox
+            name: interaction
+            format: number
+            enable: (design:factorial)
           - type: TextBox
             name: period
             format: number

@@ -101,23 +101,43 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
     f <- switch(model,
         logistic = stats::glm(stats::as.formula(paste(".s ~", rhs)), stats::binomial(), fd),
         clogit = survival::clogit(stats::as.formula(paste(".s ~", rhs, "+ strata(set)")), data = fd),
-        cox = survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, ") ~", rhs)), data = fd),
+        cox = if (design == "cluster_rct")
+                  survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, ") ~", rhs)), data = fd, cluster = cluster)
+              else survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, ") ~", rhs)), data = fd),
         prentice = survival::coxph(stats::as.formula(paste("Surv(.start, time,", oc$id, ") ~", rhs)), data = fd,
                                    robust = TRUE, id = id, control = survival::coxph.control(timefix = FALSE)),
         poisson = stats::glm(stats::as.formula(paste(oc$id, "~", rhs)), stats::poisson(), fd),
         linear = stats::lm(stats::as.formula(paste(if (isTRUE(oc$log)) sprintf("log(%s)", oc$id) else oc$id, "~", rhs)), fd))
     se <- sqrt(diag(as.matrix(stats::vcov(f))))
+    if (design == "cluster_rct" && model != "cox") se <- cluster_se(f, fd$cluster)
     if (model == "linear" && isTRUE(oc$log))
         return(list(coef = stats::coef(f), se = se, measure = "ratio", log = TRUE))
     list(coef = stats::coef(f), se = se, measure = c(logistic = "OR", clogit = "OR", cox = "HR", prentice = "HR", poisson = "RR", linear = "beta")[[model]],
          log = model != "linear")
 }
 
+# Cluster-robust (sandwich) standard errors of a linear or canonical-link GLM:
+# the scores x (y - mu) summed within clusters, with the small-sample factor
+# G / (G - 1)
+cluster_se <- function(f, cl) {
+    if (!is.null(f$na.action)) cl <- cl[-f$na.action]
+    X <- stats::model.matrix(f)
+    U <- rowsum(X * stats::residuals(f, type = "response"), cl)
+    B <- summary(f)$cov.unscaled
+    G <- nrow(U)
+    V <- B %*% crossprod(U) %*% B * G / (G - 1)
+    stats::setNames(sqrt(diag(V)), colnames(X))
+}
+
 expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", categorize = list()) {
     cal <- calibrate(sc, oc)
     n_big <- switch(design, case_control = 3000 * (1 + opt$ratio), matched_cc = 1500 * (1 + opt$ratio),
                     nested_cc = 2000 * (1 + opt$ratio), case_cohort = 8000,
+                    cluster_rct = max(20000, 50 * (opt$clusters %||% 20)),
                     crossover = 4000, 20000)
+    # the expectation of a cluster trial does not depend on the number of
+    # clusters; many clusters keep the cluster effects from blurring it
+    if (design == "cluster_rct") opt$clusters <- max(opt$clusters, 400)
     big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), n_big, opt)
     fd <- format_study(sc, oc, design, big, sc$order, "en")
     fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")

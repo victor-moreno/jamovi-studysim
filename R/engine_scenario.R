@@ -290,7 +290,7 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
 # Outcome type -> designs it can feed (scenario-first menu, task_plan.md);
 # trials need an intervention. An outcome's own `designs:` list overrides.
 DESIGNS <- c("cross_sectional", "cohort", "case_control", "matched_cc", "rct", "crossover", "prognosis",
-             "nested_cc", "case_cohort")
+             "nested_cc", "case_cohort", "cluster_rct", "factorial")
 
 compatible_designs <- function(sc, outcome) {
     oc <- sc$outcomes[[outcome]]
@@ -302,8 +302,10 @@ compatible_designs <- function(sc, outcome) {
         continuous = c("cross_sectional", "cohort"),
         count = c("cross_sectional", "cohort"))
     if (has_iv) {
-        d <- c(d, "rct")
+        d <- c(d, "rct", "cluster_rct")
         if (oc$type == "continuous") d <- c(d, "crossover")
+        two <- Filter(function(v) length(sc$interventions[[v]]$levels) == 2, intersect(names(oc$effects), names(sc$interventions)))
+        if (length(two) >= 2) d <- c(d, "factorial")
     }
     d
 }

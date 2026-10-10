@@ -60,6 +60,14 @@ children:
           name: designs_case_cohort
           optionName: designs
           optionPart: case_cohort
+        - type: CheckBox
+          name: designs_cluster_rct
+          optionName: designs
+          optionPart: cluster_rct
+        - type: CheckBox
+          name: designs_factorial
+          optionName: designs
+          optionPart: factorial
   - type: ListBox
     name: measured
     showColumnHeaders: true

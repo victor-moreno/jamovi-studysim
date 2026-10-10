@@ -33,6 +33,9 @@ interventions:
   drug:
     levels: [placebo, amlodipine]
     label: {en: Treatment arm, es: Grupo de tratamiento, ca: Grup de tractament}
+  diet:
+    levels: [usual, low_salt]
+    label: {en: Dietary advice, es: Consejo dietético, ca: Consell dietètic}
 
 outcomes:
   sbp:
@@ -43,13 +46,14 @@ outcomes:
     sd: 10
     round: 0
     within_cor: 0.6
-    designs: [rct, crossover]
+    designs: [rct, crossover, cluster_rct, factorial]
     effects:
       sbp0: {beta: 0.6, per: 1}
       age: {beta: 0.15, per: 1}
       bmi: {beta: 0.3, per: 1}
       salt: {beta: 0.6, per: 1}
       drug: {beta: [0, -9]}
+      diet: {beta: [0, -4]}
 
 designs:
   crossover: {period: -1.5, carryover: 0}
@@ -65,16 +69,24 @@ teaching:
     difference is unbiased; adjusting for baseline SBP (ANCOVA) gives the same
     effect with a narrower interval. In the crossover each patient is their own
     control: a paired analysis needs far fewer patients, and the period effect
-    must be in the model.
+    must be in the model. A 2x2 factorial trial tests the drug and low-salt
+    advice in the same patients; randomising practices instead of patients
+    (cluster trial) needs cluster-robust intervals.
   es: >
     La aleatorización equilibra la presión basal entre grupos, por lo que la
     diferencia sin ajustar no está sesgada; ajustar por la PAS basal (ANCOVA) da
     el mismo efecto con un intervalo más estrecho. En el diseño cruzado cada
     paciente es su propio control: el análisis apareado necesita muchos menos
-    pacientes y el efecto periodo debe estar en el modelo.
+    pacientes y el efecto periodo debe estar en el modelo. Un ensayo factorial
+    2x2 evalúa el fármaco y el consejo de reducir la sal en los mismos
+    pacientes; aleatorizar centros en lugar de pacientes (ensayo por
+    conglomerados) exige intervalos robustos por conglomerado.
   ca: >
     L'aleatorització equilibra la pressió basal entre grups, per això la
     diferència sense ajustar no està esbiaixada; ajustar per la PAS basal
     (ANCOVA) dona el mateix efecte amb un interval més estret. En el disseny
     creuat cada pacient és el seu propi control: l'anàlisi aparellada necessita
-    molts menys pacients i l'efecte període ha de ser al model.
+    molts menys pacients i l'efecte període ha de ser al model. Un assaig
+    factorial 2x2 avalua el fàrmac i el consell de reduir la sal en els mateixos
+    pacients; aleatoritzar centres en lloc de pacients (assaig per
+    conglomerats) exigeix intervals robustos per conglomerat.

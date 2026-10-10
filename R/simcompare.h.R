@@ -61,7 +61,9 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "crossover",
                     "prognosis",
                     "nested_cc",
-                    "case_cohort"),
+                    "case_cohort",
+                    "cluster_rct",
+                    "factorial"),
                 default=list(
                     "case_control",
                     "matched_cc",

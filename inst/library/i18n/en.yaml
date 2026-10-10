@@ -17,6 +17,7 @@ names:
   look: look
   region: region
   population: population
+  diet: diet
   age: age
   alcohol: alcohol
   auc: auc
@@ -59,6 +60,8 @@ names:
   tumour_size: tumour_size
   weight: weight
 levels:
+  usual: usual
+  low_salt: low_salt
   "control": control
   "case": case
   "no": "no"

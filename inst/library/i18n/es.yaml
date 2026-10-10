@@ -16,6 +16,7 @@ names:
   look: analisis
   region: region
   population: poblacion
+  diet: consejo
   age: edad
   alcohol: alcohol
   auc: auc
@@ -58,6 +59,8 @@ names:
   tumour_size: tamano_tumor
   weight: peso
 levels:
+  usual: habitual
+  low_salt: dieta_baja_sal
   "control": control
   "case": caso
   "no": "no"

@@ -75,6 +75,10 @@ options:
             title: Nested case-control
           - name: case_cohort
             title: Case-cohort
+          - name: cluster_rct
+            title: Cluster randomised trial
+          - name: factorial
+            title: 2x2 factorial trial
       default: [case_control, matched_cc, cohort]
       description:
           R: designs to compare; those that do not fit the outcome are skipped

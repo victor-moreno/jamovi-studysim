@@ -18,6 +18,8 @@ design_defaults <- function(design, oc, sc) {
         rct = list(followup = oc$followup, loss = 0.02, block = 4),
         crossover = list(period = 0, carryover = 0),
         nested_cc = list(ratio = 1, followup = oc$followup, loss = 0.02, accrual = 0),
+        cluster_rct = list(followup = oc$followup, loss = 0.02, clusters = 20, icc = 0.05),
+        factorial = list(followup = oc$followup, loss = 0.02, block = 4, interaction = 0),
         case_cohort = list(subcohort = 0.1, followup = oc$followup, loss = 0.02, accrual = 0))
     utils::modifyList(d, sc$design_defaults[[design]] %||% list())
 }
@@ -50,9 +52,12 @@ sim_cross_sectional <- function(sc, oc, cal, seed, n, opt) {
     list(data = d, facts = list())
 }
 
-sim_cohort <- function(sc, oc, cal, seed, n, opt, trt = NULL) {
-    pop <- population(sc, oc$id, seed, n)
-    lp <- linear_predictor(oc, pop$cov, trt)
+# lp_add: extra terms of the linear predictor (a cluster effect, an
+# interaction); noise_z: replaces the person's noise of a continuous outcome
+sim_cohort <- function(sc, oc, cal, seed, n, opt, trt = NULL, lp_add = 0, noise_z = NULL, pop = NULL) {
+    if (is.null(pop)) pop <- population(sc, oc$id, seed, n)
+    if (!is.null(noise_z)) pop$noise$z <- noise_z
+    lp <- linear_predictor(oc, pop$cov, trt) + lp_add
     d <- pop$cov
     if (!is.null(trt)) for (v in names(trt)) d[[paste0(".", v)]] <- trt[[v]]
     if (oc$type == "event") {
@@ -232,6 +237,21 @@ trial_iv <- function(sc, oc) {
     sc$interventions[[iv[1]]]
 }
 
+# the two interventions of a 2x2 factorial trial (two levels each)
+factorial_ivs <- function(sc, oc) {
+    iv <- intersect(names(oc$effects), names(sc$interventions))
+    iv <- iv[vapply(iv, function(v) length(sc$interventions[[v]]$levels) == 2, TRUE)]
+    if (length(iv) < 2) stop(sprintf("a 2x2 factorial trial needs two interventions with two levels acting on '%s'", oc$id), call. = FALSE)
+    sc$interventions[iv[1:2]]
+}
+
+# O'Brien-Fleming boundaries (two-sided 5%) for K equally spaced looks:
+# |z| >= c_K sqrt(K / k) at look k (Jennison & Turnbull 2000, table 2.3)
+obf_bounds <- function(K) {
+    cK <- c(`2` = 1.977, `3` = 2.004, `4` = 2.024, `5` = 2.040)[[as.character(K)]]
+    cK * sqrt(K / seq_len(K))
+}
+
 # permuted-block randomisation of n people to the intervention's levels
 randomise <- function(iv, n, block, seed) {
     unit <- rep(seq_along(iv$levels), round(iv$ratio))
@@ -246,6 +266,52 @@ sim_rct <- function(sc, oc, cal, seed, n, opt) {
     trt <- stats::setNames(list(arm), iv$id)
     r <- sim_cohort(sc, oc, cal, seed, n, opt, trt)
     r$facts$arms <- stats::setNames(as.list(tabulate(arm, length(iv$levels))), iv$levels)
+    # interim looks: participants in order of enrolment, each analysed from the
+    # first look after their outcome is known (not for time-to-event outcomes,
+    # whose information grows with follow-up)
+    K <- opt$looks %||% 0
+    if (K >= 2 && oc$type != "event") {
+        r$data$.look <- ceiling(K * seq_len(n) / n)
+        r$facts$looks <- list(n = as.integer(table(r$data$.look)), bounds = obf_bounds(K))
+    }
+    r
+}
+
+# Cluster-randomised trial: n people in `clusters` clusters of (nearly) equal
+# size, arms randomised by cluster, a cluster random effect giving the
+# intraclass correlation `icc` (on the latent logistic scale for non-continuous
+# outcomes). The true effects are conditional on the cluster.
+sim_cluster_rct <- function(sc, oc, cal, seed, n, opt) {
+    iv <- trial_iv(sc, oc)
+    K <- as.integer(opt$clusters)
+    if (K < 4 || K > n / 2) stop("a cluster trial needs at least 4 clusters and 2 people per cluster", call. = FALSE)
+    if (opt$icc < 0 || opt$icc >= 1) stop("the intraclass correlation must be between 0 and 1", call. = FALSE)
+    cl <- sort(rep(seq_len(K), length.out = n))
+    carm <- randomise(iv, K, length(iv$levels) * 2, derive_seed(seed, sc$id, "cluster randomisation", n, K))
+    b <- with_seed(derive_seed(seed, sc$id, oc$id, "clusters", n, K), stats::rnorm(K))
+    pop <- population(sc, oc$id, seed, n)
+    trt <- stats::setNames(list(carm[cl]), iv$id)
+    r <- if (oc$type == "continuous")
+        sim_cohort(sc, oc, cal, seed, n, opt, trt, noise_z = sqrt(1 - opt$icc) * pop$noise$z + sqrt(opt$icc) * b[cl], pop = pop)
+    else sim_cohort(sc, oc, cal, seed, n, opt, trt, lp_add = sqrt(opt$icc / (1 - opt$icc) * pi^2 / 3) * b[cl], pop = pop)
+    r$data$.cluster <- cl
+    r$facts$arms <- stats::setNames(as.list(tabulate(carm[cl], length(iv$levels))), iv$levels)
+    r$facts$clusters <- c(K, tabulate(carm, length(iv$levels)))
+    r$facts$icc <- opt$icc
+    r
+}
+
+# 2x2 factorial trial: two interventions randomised independently (permuted
+# blocks of the four combinations); `interaction` is added to the linear
+# predictor of those given both (beta, or log OR/HR/RR)
+sim_factorial <- function(sc, oc, cal, seed, n, opt) {
+    ivs <- factorial_ivs(sc, oc)
+    combo <- randomise(list(levels = 1:4, ratio = rep(1, 4)), n, max(4, opt$block), derive_seed(seed, sc$id, "factorial", n))
+    a1 <- (combo - 1L) %% 2L + 1L; a2 <- (combo - 1L) %/% 2L + 1L
+    trt <- stats::setNames(list(a1, a2), names(ivs))
+    r <- sim_cohort(sc, oc, cal, seed, n, opt, trt, lp_add = (opt$interaction %||% 0) * (a1 == 2 & a2 == 2))
+    r$facts$cells <- tabulate(combo, 4)
+    r$facts$factorial <- names(ivs)
     r
 }
 
@@ -282,6 +348,7 @@ run_design <- function(design, sc, oc, cal, seed, n, opt) {
         cross_sectional = sim_cross_sectional, cohort = sim_cohort, prognosis = sim_cohort,
         case_control = sim_case_control, matched_cc = sim_matched_cc,
         rct = sim_rct, crossover = sim_crossover, nested_cc = sim_nested_cc, case_cohort = sim_case_cohort,
+        cluster_rct = sim_cluster_rct, factorial = sim_factorial,
         stop(sprintf("unknown design '%s'", design), call. = FALSE))
     f(sc, oc, cal, seed, n, opt)
 }

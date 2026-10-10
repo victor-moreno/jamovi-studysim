@@ -22,3 +22,40 @@ test_that("case-cohort keeps a random subcohort plus all cases and estimates the
   e <- estimate_table(sc, sc$outcomes$ev, "case_cohort", r$data_raw, c("age", "smoke"), ci = TRUE)
   expect_true(all(e$lower < e$true & e$true < e$upper))
 })
+
+trial_toy <- function() {
+  raw <- toy_raw()
+  raw$interventions$salt <- list(levels = c("usual", "lowsalt"))
+  raw$outcomes$sbp$effects$salt <- list(beta = c(0, -4))
+  normalize_scenario(raw)
+}
+
+test_that("a cluster trial randomises clusters and gives the intended ICC", {
+  sc <- trial_toy()
+  expect_true(all(c("cluster_rct", "factorial") %in% compatible_designs(sc, "sbp")))
+  r <- simulate_study(sc, "sbp", "cluster_rct", 3000, c("age"), options = list(clusters = 60, icc = 0.1), key = FALSE)
+  d <- r$data_raw
+  expect_identical(names(d)[1:3], c("id", "cluster", "drug"))
+  expect_true(all(tapply(as.integer(d$drug), d$cluster, function(x) length(unique(x))) == 1))
+  a <- anova(lm(sbp ~ factor(cluster), d)); m <- 50
+  expect_equal((a[1, 3] - a[2, 3]) / (a[1, 3] + (m - 1) * a[2, 3]), 0.1, tolerance = 0.05)
+  naive <- summary(lm(sbp ~ drug + age, d))$coef[2, 2]
+  e <- estimate_table(sc, sc$outcomes$sbp, "cluster_rct", d, "age", ci = TRUE)
+  expect_gt((e$upper - e$lower) / (2 * 1.96), 1.5 * naive)
+})
+
+test_that("a 2x2 factorial trial balances the four cells and averages over an interaction", {
+  sc <- trial_toy()
+  r <- simulate_study(sc, "sbp", "factorial", 4000, "age", options = list(interaction = 4), key = FALSE)
+  expect_equal(r$facts$cells, rep(1000, 4))
+  e <- estimate_table(sc, sc$outcomes$sbp, "factorial", r$data_raw, "age")
+  expect_equal(e$adjusted, c(-8, -4) + 2, tolerance = 0.15)
+})
+
+test_that("interim looks split a trial by enrolment", {
+  sc <- trial_toy()
+  r <- simulate_study(sc, "sbp", "rct", 300, "age", options = list(looks = 3), key = FALSE)
+  expect_equal(as.integer(table(r$data$look)), c(100, 100, 100))
+  expect_equal(round(r$facts$looks$bounds, 2), c(3.47, 2.45, 2.00))
+  expect_false("look" %in% names(simulate_study(sc, "ev", "rct", 300, "age", options = list(looks = 3), key = FALSE)$data))
+})
