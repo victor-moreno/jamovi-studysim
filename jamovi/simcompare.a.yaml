@@ -71,6 +71,10 @@ options:
             title: 2x2 crossover trial
           - name: prognosis
             title: Prognosis (patient cohort)
+          - name: nested_cc
+            title: Nested case-control
+          - name: case_cohort
+            title: Case-cohort
       default: [case_control, matched_cc, cohort]
       description:
           R: designs to compare; those that do not fit the outcome are skipped

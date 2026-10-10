@@ -71,6 +71,10 @@ options:
             title: 2x2 crossover trial
           - name: prognosis
             title: Prognosis (patient cohort)
+          - name: nested_cc
+            title: Nested case-control
+          - name: case_cohort
+            title: Case-cohort
       default: case_control
       description:
           R: study design; must fit the outcome
@@ -157,6 +161,15 @@ options:
       max: 20
       description:
           R: 0 uses the design's default (staggered entry for prognosis)
+
+    - name: subcohort
+      title: Subcohort (% of the cohort)
+      type: Number
+      default: 10
+      min: 0.1
+      max: 90
+      description:
+          R: case-cohort design, the random subcohort as a percentage of the cohort
 
     - name: period
       title: Period effect

@@ -52,6 +52,14 @@ children:
           name: designs_prognosis
           optionName: designs
           optionPart: prognosis
+        - type: CheckBox
+          name: designs_nested_cc
+          optionName: designs
+          optionPart: nested_cc
+        - type: CheckBox
+          name: designs_case_cohort
+          optionName: designs
+          optionPart: case_cohort
   - type: ListBox
     name: measured
     showColumnHeaders: true

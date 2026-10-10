@@ -104,7 +104,8 @@ simCompareClass <- R6::R6Class(
             for (d in names(res$runs)) {
                 f <- res$runs[[d]]$facts
                 det <- c(
-                    if (!is.null(f$cases)) jmvcore::format(.("{cases} cases and {controls} controls"), cases = num(f$cases), controls = num(f$controls)),
+                    if (!is.null(f$controls)) jmvcore::format(.("{cases} cases and {controls} controls"), cases = num(f$cases), controls = num(f$controls)),
+                    if (!is.null(f$subcohort)) jmvcore::format(.("subcohort {sub} of a cohort of {n}; {cases} cases"), sub = num(f$subcohort), n = num(f$cohort), cases = num(f$cases)),
                     if (!is.null(f$matched_on)) jmvcore::format(.("matched on {vars}"), vars = paste(dname(f$matched_on, ctx$lang), collapse = ", ")),
                     if (!is.null(f$events)) jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)),
                     if (!is.null(f$arms)) paste(sprintf("%s: %s", dlevel(names(f$arms), ctx$lang), unlist(f$arms)), collapse = ", "),

@@ -17,6 +17,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             followup = 0,
             loss = 2,
             accrual = 0,
+            subcohort = 10,
             period = 0,
             carryover = 0,
             missing = 0,
@@ -64,7 +65,9 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "cross_sectional",
                     "rct",
                     "crossover",
-                    "prognosis"),
+                    "prognosis",
+                    "nested_cc",
+                    "case_cohort"),
                 default="case_control")
             private$..measured <- jmvcore::OptionArray$new(
                 "measured",
@@ -130,6 +133,12 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=0,
                 min=0,
                 max=20)
+            private$..subcohort <- jmvcore::OptionNumber$new(
+                "subcohort",
+                subcohort,
+                default=10,
+                min=0.1,
+                max=90)
             private$..period <- jmvcore::OptionNumber$new(
                 "period",
                 period,
@@ -201,6 +210,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..followup)
             self$.addOption(private$..loss)
             self$.addOption(private$..accrual)
+            self$.addOption(private$..subcohort)
             self$.addOption(private$..period)
             self$.addOption(private$..carryover)
             self$.addOption(private$..missing)
@@ -227,6 +237,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         followup = function() private$..followup$value,
         loss = function() private$..loss$value,
         accrual = function() private$..accrual$value,
+        subcohort = function() private$..subcohort$value,
         period = function() private$..period$value,
         carryover = function() private$..carryover$value,
         missing = function() private$..missing$value,
@@ -252,6 +263,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..followup = NA,
         ..loss = NA,
         ..accrual = NA,
+        ..subcohort = NA,
         ..period = NA,
         ..carryover = NA,
         ..missing = NA,
@@ -304,6 +316,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "accrual",
+                    "subcohort",
                     "period",
                     "carryover",
                     "missing",
@@ -325,6 +338,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "accrual",
+                    "subcohort",
                     "period",
                     "carryover",
                     "missing",
@@ -348,6 +362,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "accrual",
+                    "subcohort",
                     "period",
                     "carryover",
                     "missing",
@@ -392,6 +407,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "accrual",
+                    "subcohort",
                     "period",
                     "carryover",
                     "missing",
@@ -478,6 +494,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "accrual",
+                    "subcohort",
                     "period",
                     "carryover"),
                 columns=list(
@@ -525,6 +542,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "accrual",
+                    "subcohort",
                     "period",
                     "carryover",
                     "missing",
@@ -548,6 +566,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "accrual",
+                    "subcohort",
                     "period",
                     "carryover",
                     "missing",
@@ -576,6 +595,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "accrual",
+                    "subcohort",
                     "period",
                     "carryover",
                     "missing",
@@ -643,6 +663,8 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param followup 0 uses the scenario's default
 #' @param loss .
 #' @param accrual 0 uses the design's default (staggered entry for prognosis)
+#' @param subcohort case-cohort design, the random subcohort as a percentage
+#'   of the cohort
 #' @param period .
 #' @param carryover .
 #' @param missing .
@@ -691,6 +713,7 @@ simStudy <- function(
     followup = 0,
     loss = 2,
     accrual = 0,
+    subcohort = 10,
     period = 0,
     carryover = 0,
     missing = 0,
@@ -725,6 +748,7 @@ simStudy <- function(
         followup = followup,
         loss = loss,
         accrual = accrual,
+        subcohort = subcohort,
         period = period,
         carryover = carryover,
         missing = missing,

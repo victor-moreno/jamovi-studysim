@@ -69,11 +69,18 @@ true_effects <- function(sc, oc, lang = "en") {
 fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
     for (v in names(fd)) if (is.ordered(fd[[v]])) fd[[v]] <- factor(fd[[v]], ordered = FALSE)
     rhs <- paste(terms, collapse = " + ")
-    model <- if (design == "matched_cc") "clogit" else if (design %in% c("case_control")) "logistic"
+    model <- if (design %in% c("matched_cc", "nested_cc")) "clogit" else if (design %in% c("case_control")) "logistic"
+             else if (design == "case_cohort") "prentice"
              else if (!is.null(fd$time)) "cox" else if (oc$type %in% c("binary", "event")) "logistic"
              else if (oc$type == "count") "poisson" else "linear"
-    if (design %in% c("case_control", "matched_cc")) fd$.s <- as.integer(fd$case) - 1L
+    if (design %in% CASE_DESIGNS) fd$.s <- as.integer(fd$case) - 1L
     else if (model == "logistic") fd$.s <- as.integer(fd[[oc$id]]) - 1L
+    # case-cohort, Prentice: the subcohort is at risk from the start, a case
+    # outside it only just before its event; robust (sandwich) variance
+    if (model == "prentice") {
+        fd$.start <- ifelse(fd$subcohort == "yes", 0, fd$time * (1 - 1e-6))
+        fd <- fd[fd$time > fd$.start, , drop = FALSE]   # censored at time 0: no contribution
+    }
     if (design == "crossover" && full) {
         # subject fixed effects by the within transformation: same estimate as
         # lm(y ~ trt + period + factor(id)), without a column per subject
@@ -95,18 +102,21 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
         logistic = stats::glm(stats::as.formula(paste(".s ~", rhs)), stats::binomial(), fd),
         clogit = survival::clogit(stats::as.formula(paste(".s ~", rhs, "+ strata(set)")), data = fd),
         cox = survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, ") ~", rhs)), data = fd),
+        prentice = survival::coxph(stats::as.formula(paste("Surv(.start, time,", oc$id, ") ~", rhs)), data = fd,
+                                   robust = TRUE, id = id, control = survival::coxph.control(timefix = FALSE)),
         poisson = stats::glm(stats::as.formula(paste(oc$id, "~", rhs)), stats::poisson(), fd),
         linear = stats::lm(stats::as.formula(paste(if (isTRUE(oc$log)) sprintf("log(%s)", oc$id) else oc$id, "~", rhs)), fd))
     se <- sqrt(diag(as.matrix(stats::vcov(f))))
     if (model == "linear" && isTRUE(oc$log))
         return(list(coef = stats::coef(f), se = se, measure = "ratio", log = TRUE))
-    list(coef = stats::coef(f), se = se, measure = c(logistic = "OR", clogit = "OR", cox = "HR", poisson = "RR", linear = "beta")[[model]],
+    list(coef = stats::coef(f), se = se, measure = c(logistic = "OR", clogit = "OR", cox = "HR", prentice = "HR", poisson = "RR", linear = "beta")[[model]],
          log = model != "linear")
 }
 
 expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", categorize = list()) {
     cal <- calibrate(sc, oc)
     n_big <- switch(design, case_control = 3000 * (1 + opt$ratio), matched_cc = 1500 * (1 + opt$ratio),
+                    nested_cc = 2000 * (1 + opt$ratio), case_cohort = 8000,
                     crossover = 4000, 20000)
     big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), n_big, opt)
     fd <- format_study(sc, oc, design, big, sc$order, "en")

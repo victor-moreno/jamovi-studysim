@@ -81,19 +81,23 @@ children:
           - type: TextBox
             name: ccRatio
             format: number
-            enable: (design:case_control || design:matched_cc)
+            enable: (design:case_control || design:matched_cc || design:nested_cc)
           - type: TextBox
             name: followup
             format: number
-            enable: (design:cohort || design:prognosis || design:rct)
+            enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort)
           - type: TextBox
             name: loss
             format: number
-            enable: (design:cohort || design:prognosis || design:rct)
+            enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort)
           - type: TextBox
             name: accrual
             format: number
             enable: (design:cohort || design:prognosis)
+          - type: TextBox
+            name: subcohort
+            format: number
+            enable: (design:case_cohort)
           - type: TextBox
             name: period
             format: number

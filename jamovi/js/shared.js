@@ -9,7 +9,7 @@
 
 var BUILTIN = require('./builtin');
 
-var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis'];
+var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis', 'nested_cc', 'case_cohort'];
 var LIB_MAX = 700000;   // base64 characters; the options hop to the engine is 1 MiB
 
 function getOpt(ui, name) {
@@ -150,7 +150,7 @@ function designsFor(sc, oc) {
     var ivs = sc.interventions || {};
     var hasIv = effects.some(function(v) { return ivs.hasOwnProperty(v); });
     var d = ({ binary: ['cross_sectional', 'cohort', 'case_control', 'matched_cc'],
-               event: ['cohort', 'case_control', 'matched_cc'],
+               event: ['cohort', 'case_control', 'matched_cc', 'nested_cc', 'case_cohort'],
                continuous: ['cross_sectional', 'cohort'],
                count: ['cross_sectional', 'cohort'] })[oc.type] || [];
     d = d.slice();

@@ -5,6 +5,9 @@
 
 MAX_SCAN <- 400L   # chunks, i.e. 2 million people, before "outcome too rare"
 
+# designs whose outcome column is case/control status
+CASE_DESIGNS <- c("case_control", "matched_cc", "nested_cc")
+
 design_defaults <- function(design, oc, sc) {
     d <- switch(design,
         cross_sectional = list(),
@@ -13,7 +16,9 @@ design_defaults <- function(design, oc, sc) {
         case_control = list(ratio = 1),
         matched_cc = list(ratio = 1, match = intersect(c("age", "sex"), names(sc$variables)), caliper = 2),
         rct = list(followup = oc$followup, loss = 0.02, block = 4),
-        crossover = list(period = 0, carryover = 0))
+        crossover = list(period = 0, carryover = 0),
+        nested_cc = list(ratio = 1, followup = oc$followup, loss = 0.02, accrual = 0),
+        case_cohort = list(subcohort = 0.1, followup = oc$followup, loss = 0.02, accrual = 0))
     utils::modifyList(d, sc$design_defaults[[design]] %||% list())
 }
 
@@ -147,6 +152,80 @@ sim_matched_cc <- function(sc, oc, cal, seed, n, opt) {
                                 caliper = if (length(near)) opt$caliper else NULL, incomplete_sets = incomplete))
 }
 
+# A followed cohort (event outcome), chunk by chunk, until enough(d) is TRUE
+# for the cohort so far; d has the covariates, .time, .status and .u (a
+# uniform per person for designs that sample at random, e.g. a subcohort).
+scan_cohort <- function(sc, oc, cal, seed, opt, enough) {
+    parts <- list(); k <- 0L
+    repeat {
+        k <- k + 1L
+        if (k > MAX_SCAN)
+            stop(sprintf("the outcome is too rare: too few events among %s people. Ask for a smaller study, or raise its frequency.",
+                         base::format(MAX_SCAN * CHUNK, big.mark = ",")), call. = FALSE)
+        ch <- pop_chunk(sc, oc$id, seed, k)
+        fu <- follow_up(draw_outcome(oc, cal, linear_predictor(oc, ch$cov), ch$noise), ch$noise,
+                        opt$followup, opt$loss, opt$accrual %||% 0)
+        d <- ch$cov
+        d$.time <- fu$time; d$.status <- fu$status
+        d$.u <- with_seed(derive_seed(seed, sc$id, "sampling", k), stats::runif(CHUNK))
+        parts[[k]] <- d
+        all <- do.call(rbind, parts)
+        m <- enough(all)
+        if (!is.na(m)) { all <- all[seq_len(m), , drop = FALSE]; rownames(all) <- NULL; return(all) }
+    }
+}
+
+# Nested case-control: every event of a followed cohort is a case; its controls
+# are drawn from its risk set (people still followed at the case's event time,
+# future cases included), so a person can be a control more than once and a
+# control can later become a case. The OR of conditional logistic regression
+# estimates the hazard ratio, with no rare-disease assumption.
+sim_nested_cc <- function(sc, oc, cal, seed, n, opt) {
+    if (oc$type != "event") stop("a nested case-control study needs a time-to-event outcome", call. = FALSE)
+    ratio <- opt$ratio
+    n_cases <- max(1L, round(n / (1 + ratio)))
+    coh <- scan_cohort(sc, oc, cal, seed, opt, function(d) {
+        m <- match(n_cases, cumsum(d$.status)); if (is.na(m)) NA else m })
+    o <- order(coh$.time)
+    t_sorted <- coh$.time[o]
+    cases <- which(coh$.status == 1)
+    sets <- list(); short <- 0L
+    with_seed(derive_seed(seed, sc$id, oc$id, "risksets", n), {
+        for (i in seq_along(cases)) {
+            ci <- cases[i]
+            # risk set: followed at least as long as the case, the case excluded
+            rs <- o[t_sorted >= coh$.time[ci]]
+            rs <- rs[rs != ci]
+            take <- if (length(rs) > ratio) rs[sample.int(length(rs), ratio)] else rs
+            if (length(take) < ratio) short <- short + 1L
+            sets[[i]] <- data.frame(row = c(ci, take), set = i, case = c(1L, rep(0L, length(take))), at = coh$.time[ci])
+        }
+    })
+    s <- do.call(rbind, sets)
+    d <- coh[s$row, , drop = FALSE]
+    d$.set <- s$set; d$.y <- s$case; d$.at <- s$at
+    rownames(d) <- NULL
+    list(data = d, facts = list(cases = n_cases, controls = nrow(d) - n_cases, source_population = nrow(coh),
+                                risk_in_source = mean(coh$.status), person_time = sum(coh$.time),
+                                incomplete_sets = short))
+}
+
+# Case-cohort: a random subcohort of the followed cohort plus every case
+# outside it. The cohort is as large as needed for the study to have n people.
+sim_case_cohort <- function(sc, oc, cal, seed, n, opt) {
+    if (oc$type != "event") stop("a case-cohort study needs a time-to-event outcome", call. = FALSE)
+    f <- opt$subcohort
+    if (!is.numeric(f) || f <= 0 || f >= 1) stop("the subcohort fraction must be between 0 and 1", call. = FALSE)
+    coh <- scan_cohort(sc, oc, cal, seed, opt, function(d) {
+        size <- cumsum(d$.u < f | d$.status == 1)
+        m <- match(n, size); if (is.na(m)) NA else m })
+    coh$.sub <- as.integer(coh$.u < f)
+    d <- coh[coh$.sub == 1 | coh$.status == 1, , drop = FALSE]
+    rownames(d) <- NULL
+    list(data = d, facts = list(cohort = nrow(coh), subcohort = sum(coh$.sub), cases = sum(coh$.status),
+                                cases_in_subcohort = sum(coh$.sub == 1 & coh$.status == 1)))
+}
+
 trial_iv <- function(sc, oc) {
     iv <- intersect(names(oc$effects), names(sc$interventions))
     if (length(iv) == 0) stop(sprintf("outcome '%s' has no intervention effect, so it cannot be a trial", oc$id), call. = FALSE)
@@ -202,7 +281,7 @@ run_design <- function(design, sc, oc, cal, seed, n, opt) {
     f <- switch(design,
         cross_sectional = sim_cross_sectional, cohort = sim_cohort, prognosis = sim_cohort,
         case_control = sim_case_control, matched_cc = sim_matched_cc,
-        rct = sim_rct, crossover = sim_crossover,
+        rct = sim_rct, crossover = sim_crossover, nested_cc = sim_nested_cc, case_cohort = sim_case_cohort,
         stop(sprintf("unknown design '%s'", design), call. = FALSE))
     f(sc, oc, cal, seed, n, opt)
 }

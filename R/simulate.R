@@ -19,7 +19,7 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     res <- run_design(design, sc, oc, cal, seed_eff, n, opt)
     df <- format_study(sc, oc, design, res, factors, lang)
     df <- categorize_study(df, sc, categorize, lang)
-    driver <- if (design %in% c("case_control", "matched_cc")) "case" else oc$id
+    driver <- if (design %in% CASE_DESIGNS) "case" else oc$id
     df <- apply_missing(df, factors, missing, missing_mech, derive_seed(seed_eff, "missing"), driver, df$id)
     ids <- names(df)
     raw <- df   # engine names and the library's levels, for the tables keyed by them

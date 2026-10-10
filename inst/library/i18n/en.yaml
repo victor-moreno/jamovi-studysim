@@ -10,6 +10,13 @@ names:
   time: time
   sequence: sequence
   period: period
+  subcohort: subcohort
+  design: design
+  cluster: cluster
+  visit: visit
+  look: look
+  region: region
+  population: population
   age: age
   alcohol: alcohol
   auc: auc

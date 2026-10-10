@@ -10,6 +10,11 @@ GENERIC <- list(
     time = list(en = "Follow-up time", es = "Tiempo de seguimiento", ca = "Temps de seguiment"),
     event = list(en = "1 = event, 0 = censored", es = "1 = evento, 0 = censurado", ca = "1 = esdeveniment, 0 = censurat"),
     set = list(en = "Matched set", es = "Grupo emparejado", ca = "Grup aparellat"),
+    riskset = list(en = "Risk set (one case and its controls)", es = "Conjunto de riesgo (un caso y sus controles)",
+                   ca = "Conjunt de risc (un cas i els seus controls)"),
+    settime = list(en = "Time at which the set was sampled (the case's event time)", es = "Tiempo en que se muestreó el conjunto (el del evento del caso)",
+                   ca = "Temps en què es va mostrejar el conjunt (el de l'esdeveniment del cas)"),
+    subcohort = list(en = "Member of the random subcohort", es = "Miembro de la subcohorte aleatoria", ca = "Membre de la subcohort aleatòria"),
     sequence = list(en = "Treatment sequence", es = "Secuencia de tratamiento", ca = "Seqüència de tractament"),
     period = list(en = "Period", es = "Periodo", ca = "Període"),
     id = list(en = "Participant identifier", es = "Identificador del participante", ca = "Identificador del participant"),
@@ -57,6 +62,8 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
     }
     iv <- intersect(names(sc$interventions), sub("^\\.", "", names(d)))
     if (design == "matched_cc") out$set <- with_desc(as.integer(d$.set), gtext("set", lang))
+    if (design == "nested_cc") out$set <- with_desc(as.integer(d$.set), gtext("riskset", lang))
+    if (design == "case_cohort") out$subcohort <- with_desc(factor(c("no", "yes")[d$.sub + 1L], levels = c("no", "yes")), gtext("subcohort", lang))
     if (design == "crossover") {
         lv <- sc$interventions[[iv]]$levels
         seqs <- c(paste(lv, collapse = "-"), paste(rev(lv), collapse = "-"))
@@ -68,9 +75,10 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
         out[[v]] <- with_desc(factor(x$levels[d[[paste0(".", v)]]], levels = x$levels), tr_text(x$label, lang))
     }
     olab <- var_desc(oc, lang)
-    if (design %in% c("case_control", "matched_cc")) {
+    if (design %in% CASE_DESIGNS) {
         lv <- c("control", "case")   # shown in the student's language by localise_data()
         out$case <- with_desc(factor(lv[d$.y + 1L], levels = lv), sprintf("%s: %s", gtext("case", lang), tr_text(oc$label, lang)))
+        if (design == "nested_cc") out$time <- with_desc(round(d$.at, 3), sprintf("%s (%s)", gtext("settime", lang), oc$time_units))
     } else if (!is.null(d$.time)) {
         out$time <- with_desc(round(d$.time, 3), sprintf("%s (%s)", gtext("time", lang), oc$time_units))
         out[[oc$id]] <- with_desc(as.integer(d$.status), sprintf("%s: %s", tr_text(oc$label, lang), gtext("event", lang)))
@@ -94,7 +102,7 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
 data_dictionary <- function(sc, df, factors, ids = names(df)) {
     rows <- lapply(seq_along(df), function(j) {
         x <- df[[j]]; id <- ids[j]
-        role <- if (id %in% factors) "factor" else if (id %in% c("id", "set", "sequence", "period")) "design"
+        role <- if (id %in% factors) "factor" else if (id %in% c("id", "set", "sequence", "period", "subcohort")) "design"
                 else if (id %in% names(sc$interventions)) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
         values <- if (is.factor(x)) paste(levels(x), collapse = ", ")
@@ -137,9 +145,10 @@ apply_missing <- function(df, cols, pct, mech, seed, driver = NULL, unit = df$id
 # tables need their rows in .init()); mirrors format_study().
 planned_columns <- function(sc, oc, design, factors) {
     iv <- if (design %in% c("rct", "crossover")) trial_iv(sc, oc)$id else character()
-    out <- c("id", if (design == "matched_cc") "set", if (design == "crossover") c("sequence", "period"), iv)
-    out <- c(out, if (design %in% c("case_control", "matched_cc")) "case"
-                  else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct")) c("time", oc$id)
+    out <- c("id", if (design %in% c("matched_cc", "nested_cc")) "set", if (design == "case_cohort") "subcohort",
+             if (design == "crossover") c("sequence", "period"), iv)
+    out <- c(out, if (design %in% CASE_DESIGNS) c("case", if (design == "nested_cc") "time")
+                  else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct", "case_cohort")) c("time", oc$id)
                   else oc$id)
     c(out, intersect(sc$order, factors))
 }
@@ -157,6 +166,7 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         } else if (nm == "period") c("1", "2")
         else if (nm %in% names(sc$interventions)) sc$interventions[[nm]]$levels
         else if (nm == "case") c("control", "case")
+        else if (nm == "subcohort") c("no", "yes")
         else if (nm == "time") "cont"
         else if (nm == oc$id) {
             if ("time" %in% cols) c("0", "1") else if (oc$type %in% c("binary", "event")) oc$levels else "cont"

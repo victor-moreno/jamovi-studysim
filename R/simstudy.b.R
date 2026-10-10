@@ -43,12 +43,13 @@ simStudyClass <- R6::R6Class(
             o <- self$options
             d <- ctx$design
             opt <- list()
-            if (d %in% c("case_control", "matched_cc")) opt$ratio <- o$ccRatio
-            if (d %in% c("cohort", "prognosis", "rct")) {
+            if (d %in% CASE_DESIGNS) opt$ratio <- o$ccRatio
+            if (d %in% c("cohort", "prognosis", "rct", "nested_cc", "case_cohort")) {
                 if (o$followup > 0) opt$followup <- o$followup
                 opt$loss <- o$loss / 100
             }
             if (d %in% c("cohort", "prognosis") && o$accrual > 0) opt$accrual <- o$accrual
+            if (d == "case_cohort") opt$subcohort <- o$subcohort / 100
             if (d == "crossover") {
                 if (o$period != 0) opt$period <- o$period
                 if (o$carryover != 0) opt$carryover <- o$carryover
@@ -162,9 +163,12 @@ simStudyClass <- R6::R6Class(
                 sprintf("<b>%s</b>: %s", .("Outcome"), htmlEscape(tr_text(ctx$oc$label, l))),
                 sprintf("<b>%s</b>: %s, %s", .("Design"), private$.designTitle(ctx$design),
                         jmvcore::format(.("{n} rows"), n = num(nrow(res$data)))))
-            if (!is.null(f$cases)) li <- c(li, jmvcore::format(.("{cases} cases and {controls} controls"), cases = num(f$cases), controls = num(f$controls)))
+            if (!is.null(f$controls)) li <- c(li, jmvcore::format(.("{cases} cases and {controls} controls"), cases = num(f$cases), controls = num(f$controls)))
             if (!is.null(f$source_population)) li <- c(li, jmvcore::format(.("cases found among {n} people of the source population (risk {risk}%)"),
                                                                   n = num(f$source_population), risk = num(100 * f$risk_in_source, 2)))
+            if (!is.null(f$subcohort)) li <- c(li, jmvcore::format(.("a random subcohort of {sub} people from a cohort of {n}, plus every case: {cases} cases, {insub} of them in the subcohort"),
+                                                          sub = num(f$subcohort), n = num(f$cohort), cases = num(f$cases), insub = num(f$cases_in_subcohort)))
+            if (ctx$design == "nested_cc") li <- c(li, .("controls drawn from each case's risk set: a person can be a control more than once, and a control can later be a case"))
             if (!is.null(f$matched_on)) li <- c(li, jmvcore::format(.("matched on {vars}"), vars = paste(dname(f$matched_on, l), collapse = ", ")))
             if (isTRUE(f$incomplete_sets > 0)) li <- c(li, jmvcore::format(.("{n} cases have fewer controls than asked"), n = f$incomplete_sets))
             if (!is.null(f$events)) li <- c(li, jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)))
@@ -303,7 +307,9 @@ simStudyClass <- R6::R6Class(
 design_title <- function(d, self) {
     switch(d, case_control = .("Case-control"), matched_cc = .("Matched case-control"),
            cohort = .("Cohort"), cross_sectional = .("Cross-sectional"), rct = .("Randomised trial"),
-           crossover = .("2x2 crossover trial"), prognosis = .("Prognosis (patient cohort)"), d)
+           crossover = .("2x2 crossover trial"), prognosis = .("Prognosis (patient cohort)"),
+           nested_cc = .("Nested case-control"),
+           case_cohort = .("Case-cohort"), d)
 }
 
 # the panel's Variables list -> measured factor ids and the grouping of the

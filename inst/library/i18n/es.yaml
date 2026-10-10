@@ -9,6 +9,13 @@ names:
   time: tiempo
   sequence: secuencia
   period: periodo
+  subcohort: subcohorte
+  design: diseno
+  cluster: conglomerado
+  visit: visita
+  look: analisis
+  region: region
+  population: poblacion
   age: edad
   alcohol: alcohol
   auc: auc
