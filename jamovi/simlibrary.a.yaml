@@ -79,6 +79,10 @@ options:
             title: Ecological (regions)
           - name: diagnostic
             title: Diagnostic accuracy
+          - name: pre_post
+            title: Before-after (single group)
+          - name: method_comparison
+            title: Method comparison
       default: any
       description:
           R: lists only the scenarios with an outcome that fits this design

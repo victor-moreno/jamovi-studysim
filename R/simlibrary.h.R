@@ -60,7 +60,9 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factorial",
                     "longitudinal",
                     "ecological",
-                    "diagnostic"),
+                    "diagnostic",
+                    "pre_post",
+                    "method_comparison"),
                 default="any")
             private$..scenario <- jmvcore::OptionString$new(
                 "scenario",
