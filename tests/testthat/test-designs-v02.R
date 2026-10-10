@@ -204,3 +204,13 @@ test_that("several outcomes: links, secondary columns and illness-death", {
   m <- simulate_study(sm, "hba1c", "rct", 3000, sm$order, options = list(secondary = TRUE), key = FALSE)$data_raw
   expect_lt(cor(m$hba1c, as.integer(m$controlled == "yes")), -0.4)
 })
+
+test_that("an illness-death outcome with its own target has a key", {
+  lib <- builtin_library()
+  lib$scenarios$colon_adjuvant$outcomes$death$risk <- list(value = 0.05, at = 5)
+  sc <- load_scenario(lib, "colon_adjuvant")
+  te <- true_effects(sc, sc$outcomes$death)
+  expect_true(all(c("treatment", "age") %in% te$variable))
+  r <- simulate_study(sc, "death", "prognosis", 500, sc$order)
+  expect_true(nrow(r$data_raw) > 0)
+})

@@ -76,9 +76,9 @@ sim_cohort <- function(sc, oc, cal, seed, n, opt, trt = NULL, lp_add = 0, noise_
     lp <- linear_predictor(oc, pop$cov, trt) + lp_add
     d <- pop$cov
     if (!is.null(trt)) for (v in names(trt)) d[[paste0(".", v)]] <- trt[[v]]
-    if (oc$type == "event" && !is.null(oc$after)) {
+    if (oc$type == "event" && !is.null(oc[["after"]])) {
         # illness-death: death after a first event, followed with this outcome's censoring
-        t <- after_event_times(sc, oc, cal, pop$cov, pop$noise, noise_for(sc, oc$after, seed, pop$cov$.pid), trt)
+        t <- after_event_times(sc, oc, cal, pop$cov, pop$noise, noise_for(sc, oc[["after"]], seed, pop$cov$.pid), trt)
         fu <- follow_up(t, pop$noise, opt$followup, opt$loss, opt$accrual %||% 0)
         d$.time <- fu$time; d$.status <- fu$status
         facts <- list(events = sum(fu$status == 1L), person_time = sum(fu$time))
@@ -256,7 +256,7 @@ sim_case_cohort <- function(sc, oc, cal, seed, n, opt) {
 
 trial_iv <- function(sc, oc) {
     # an illness-death outcome is treated through its transitions
-    effs <- c(names(oc$effects), names(oc$after_event$effects), if (!is.null(oc$after)) names(sc$outcomes[[oc$after]]$effects))
+    effs <- c(names(oc$effects), names(oc$after_event$effects), if (!is.null(oc[["after"]])) names(sc$outcomes[[oc[["after"]]]]$effects))
     iv <- intersect(unique(effs), names(sc$interventions))
     if (length(iv) == 0) stop(sprintf("outcome '%s' has no intervention effect, so it cannot be a trial", oc$id), call. = FALSE)
     sc$interventions[[iv[1]]]

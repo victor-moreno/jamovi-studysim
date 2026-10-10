@@ -295,12 +295,12 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
             out$target <- list(kind = "risk", value = g(o$risk$value), at = g(o$risk$at))
         } else if (!is.null(o$median)) {
             out$target <- list(kind = "median", value = g(o$median))
-        } else if (is.null(o$after)) add_problem(pr, where, "an event outcome needs rate, risk {value, at} or median")
+        } else if (is.null(o[["after"]])) add_problem(pr, where, "an event outcome needs rate, risk {value, at} or median")
         # illness-death: death (this outcome) after a first event X; its own
         # target, if any, is the hazard without X (else X's competing event),
         # after_event the hazard once X has happened
-        if (!is.null(o$after)) {
-            out$after <- as.character(o$after)[1]
+        if (!is.null(o[["after"]])) {
+            out$after <- as.character(o[["after"]])[1]
             if (is.null(o$after_event)) add_problem(pr, where, "after needs after_event: {median, risk or rate; shape; effects}")
             else {
                 ae <- o$after_event; ae$type <- "event"; ae$followup <- ae$followup %||% o$followup %||% o$window
@@ -355,7 +355,7 @@ DESIGNS <- c("cross_sectional", "cohort", "case_control", "matched_cc", "rct", "
 compatible_designs <- function(sc, outcome) {
     oc <- sc$outcomes[[outcome]]
     # an illness-death outcome needs people followed from the start
-    if (!is.null(oc$after)) return(intersect(oc$designs %||% c("cohort", "prognosis", "rct"), c("cohort", "prognosis", "rct")))
+    if (!is.null(oc[["after"]])) return(intersect(oc$designs %||% c("cohort", "prognosis", "rct"), c("cohort", "prognosis", "rct")))
     if (length(oc$designs)) return(intersect(oc$designs, DESIGNS))
     has_iv <- length(sc$interventions) > 0 && any(names(oc$effects) %in% names(sc$interventions))
     d <- switch(oc$type,

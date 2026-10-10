@@ -91,7 +91,7 @@ competing_time <- function(oc, cal, noise, cov, trt = NULL) {
 # or X's competing event); after X, death comes after a further time from
 # after_event. nz: this outcome's noise, nzx: X's.
 after_event_times <- function(sc, oc, cal, cov, nz, nzx, trt = NULL) {
-    ox <- sc$outcomes[[oc$after]]; calx <- calibrate(sc, ox)
+    ox <- sc$outcomes[[oc[["after"]]]]; calx <- calibrate(sc, ox)
     t1 <- draw_outcome(ox, calx, linear_predictor(ox, cov, trt), nzx)
     if (!is.null(oc$target)) {
         t0 <- draw_outcome(oc, cal, linear_predictor(oc, cov, trt), nz); upost <- nz$u4

@@ -47,11 +47,12 @@ null_value <- function(oc) if (null_measure(oc) == "beta") 0 else 1
 true_effects <- function(sc, oc, lang = "en") {
     # illness-death: the effects of the two transitions (death without the
     # first event, and after it); there is no single hazard ratio
-    if (!is.null(oc$after)) {
-        ox <- sc$outcomes[[oc$after]]
+    if (!is.null(oc[["after"]])) {   # [[ ]]: $ would partially match after_event
+        ox <- sc$outcomes[[oc[["after"]]]]
         base <- if (!is.null(oc$target)) oc else ox$competing
-        a <- true_effects(sc, base, lang); a$note <- sprintf(gtext("without_x", lang), tr_text(ox$label, lang))
-        b <- true_effects(sc, oc$after_event, lang); b$note <- sprintf(gtext("after_x", lang), tr_text(ox$label, lang))
+        base$after <- NULL   # its own target: the plain outcome, or this recurses
+        a <- true_effects(sc, base, lang); a$note <- rep_len(sprintf(gtext("without_x", lang), tr_text(ox$label, lang)), nrow(a))
+        b <- true_effects(sc, oc$after_event, lang); b$note <- rep_len(sprintf(gtext("after_x", lang), tr_text(ox$label, lang)), nrow(b))
         return(rbind(a[a$variable %in% names(base$effects), ], b[b$variable %in% names(oc$after_event$effects), ]))
     }
     vars <- unique(c(names(oc$effects), intersect(sc$null_variables, names(sc$variables))))
@@ -69,6 +70,9 @@ true_effects <- function(sc, oc, lang = "en") {
                    value = if (is.null(eff)) null_value(oc) else vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0),
                    note = if (is.null(eff)) "no effect (null variable)" else note, stringsAsFactors = FALSE)
     })
+    # no effects at all (e.g. a transition without covariates): an empty table
+    if (!length(rows)) return(data.frame(variable = character(), contrast = character(), measure = character(),
+                                         value = numeric(), note = character(), stringsAsFactors = FALSE))
     do.call(rbind, rows)
 }
 
@@ -324,7 +328,7 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
     nul <- !out$variable %in% names(oc$effects)
     out$true[nul] <- if (adj$log) 1 else 0
     out$note[nul] <- ""
-    if (!is.null(oc$after)) { out$true <- NA_real_; out$note <- gtext("illness_death", lang) }
+    if (!is.null(oc[["after"]])) { out$true <- NA_real_; out$note <- gtext("illness_death", lang) }
     attr(out, "n") <- nrow(fd)
     attr(out, "adjusted_for") <- adj_terms
     out
