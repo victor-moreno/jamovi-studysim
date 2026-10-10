@@ -1,0 +1,115 @@
+id: gbsg2_breast
+label: {en: "Hormonal therapy in node-positive breast cancer", es: "Hormonoterapia en el cáncer de mama con ganglios positivos", ca: "Hormonoteràpia en el càncer de mama amb ganglis positius"}
+domain: oncology
+population: {en: "Women with node-positive breast cancer, German Breast Cancer Study Group (GBSG-2), 1984-89", es: "Mujeres con cáncer de mama con ganglios positivos, German Breast Cancer Study Group (GBSG-2), 1984-89", ca: "Dones amb càncer de mama amb ganglis positius, German Breast Cancer Study Group (GBSG-2), 1984-89"}
+
+# Estimated from the 686 women of the R dataset GBSG2 (TH.data): Cox model of
+# recurrence-free survival on tamoxifen, age, menopause, tumour size, grade,
+# positive nodes and receptors (progesterone receptor as positive >= 20
+# fmol/mg, about 3 log units above negative).
+variables:
+  age: {from: dictionary, dist: "normal(53, 10)", range: [21, 80]}
+  menopause:
+    type: binary
+    levels: [pre, post]
+    p: plogis((age - 50) / 2)
+    label: {en: Menopausal status, es: Estado menopáusico, ca: Estat menopàusic}
+  tumour_size:
+    type: continuous
+    dist: lognormal(29.3, 14.3)
+    range: [3, 120]
+    round: 0
+    units: mm
+    label: {en: Tumour size, es: Tamaño tumoral, ca: Mida tumoral}
+  grade:
+    type: ordinal
+    levels: [I, II, III]
+    probs: [0.118, 0.647, 0.235]
+    label: {en: Tumour grade, es: Grado tumoral, ca: Grau tumoral}
+  nodes:
+    type: count
+    dist: negbin(5, 1.0)
+    range: [1, 51]
+    units: {en: nodes, es: ganglios, ca: ganglis}
+    label: {en: Positive lymph nodes, es: Ganglios linfáticos positivos, ca: Ganglis limfàtics positius}
+  er:
+    type: binary
+    p: 0.65
+    levels: [negative, positive]
+    label: {en: Oestrogen receptor, es: Receptor de estrógenos, ca: Receptor d'estrògens}
+  pr:
+    type: binary
+    p: 0.62
+    levels: [negative, positive]
+    label: {en: Progesterone receptor, es: Receptor de progesterona, ca: Receptor de progesterona}
+
+structure:
+  - [tumour_size, nodes, 0.32]
+  - [grade, nodes, 0.12]
+  - [grade, er, -0.31]
+  - [er, pr, 0.60]
+  - [grade, pr, -0.20]
+
+interventions:
+  tamoxifen:
+    levels: ["no", "yes"]
+    label: {en: Tamoxifen, es: Tamoxifeno, ca: Tamoxifèn}
+
+outcomes:
+  recurrence:
+    type: event
+    label: {en: Recurrence or death, es: Recidiva o muerte, ca: Recidiva o mort}
+    risk: {value: 0.55, at: 5}
+    shape: 1.27
+    window: 5
+    followup: 7
+    designs: [rct, prognosis]
+    effects:
+      tamoxifen: {HR: [1, 0.70]}
+      nodes: {HR: 1.053, per: 1}
+      grade: {HR: [1, 1.6, 2.0]}
+      tumour_size: {HR: 1.06, per: 10}
+      menopause: {HR: 1.26}
+      pr: {HR: 0.58}
+
+null_variables: [age, er]
+
+designs:
+  prognosis: {accrual: 5, followup: 2, loss: 0.01}
+  rct: {loss: 0.01}
+
+references:
+  - "Schumacher M, Bastert G, Bojar H et al. Randomized 2 x 2 trial evaluating hormonal treatment and the duration of chemotherapy in node-positive breast cancer patients. J Clin Oncol 1994;12:2086-93."
+  - "Sauerbrei W, Royston P. Building multivariable prognostic and diagnostic models: transformation of the predictors by using fractional polynomials. J R Stat Soc A 1999;162:71-94."
+  - "Data: R dataset GBSG2 (TH.data package), 686 women, 299 events."
+
+i18n:
+  en: {names: {age: age, menopause: menopause, tumour_size: tumour_size, grade: grade, nodes: nodes, er: er, pr: pr, tamoxifen: tamoxifen, recurrence: recurrence},
+       levels: {pre: pre, post: post, negative: negative, positive: positive}}
+  es: {names: {age: edad, menopause: menopausia, tumour_size: tamano_tumor, grade: grado, nodes: ganglios, er: re, pr: rp, tamoxifen: tamoxifeno, recurrence: recidiva},
+       levels: {pre: pre, post: post, negative: negativo, positive: positivo}}
+  ca: {names: {age: edat, menopause: menopausa, tumour_size: mida_tumor, grade: grau, nodes: ganglis, er: re, pr: rp, tamoxifen: tamoxifen, recurrence: recidiva},
+       levels: {pre: pre, post: post, negative: negatiu, positive: positiu}}
+
+teaching:
+  en: >
+    Tamoxifen lowered the hazard of recurrence by about 30%. The number of
+    positive nodes is the strongest prognostic factor, and grade acts partly
+    through the receptors: oestrogen receptor adds nothing once the
+    progesterone receptor is known. These data are the standard example for
+    building prognostic models (how to model nodes and receptors, which
+    variables to keep).
+  es: >
+    El tamoxifeno redujo el riesgo de recidiva un 30%. El número de ganglios
+    positivos es el factor pronóstico más fuerte, y el grado actúa en parte a
+    través de los receptores: el receptor de estrógenos no añade nada si se
+    conoce el de progesterona. Estos datos son el ejemplo estándar para
+    construir modelos pronósticos (cómo modelar los ganglios y los receptores,
+    qué variables mantener).
+  ca: >
+    El tamoxifèn va reduir el risc de recidiva un 30%. El nombre de ganglis
+    positius és el factor pronòstic més fort, i el grau actua en part a través
+    dels receptors: el receptor d'estrògens no hi afegeix res si es coneix el de
+    progesterona. Aquestes dades són l'exemple estàndard per construir models
+    pronòstics (com modelar els ganglis i els receptors, quines variables
+    mantenir).

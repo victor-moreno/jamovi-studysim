@@ -1,0 +1,91 @@
+id: veterans_lung
+label: {en: "Chemotherapy for advanced lung cancer", es: "Quimioterapia en el cáncer de pulmón avanzado", ca: "Quimioteràpia en el càncer de pulmó avançat"}
+domain: oncology
+population: {en: "Men with advanced inoperable lung cancer, Veterans Administration hospitals (USA), 1960s", es: "Hombres con cáncer de pulmón avanzado inoperable, hospitales de veteranos (EE. UU.), años 60", ca: "Homes amb càncer de pulmó avançat inoperable, hospitals de veterans (EUA), anys 60"}
+
+# Estimated from the 137 patients of the R dataset veteran (survival
+# package): Cox model of death on treatment, cell type, Karnofsky score,
+# months since diagnosis, age and prior therapy; time in months.
+variables:
+  age: {from: dictionary, dist: "normal(58.3, 10.5)", range: [34, 81]}
+  cell_type:
+    type: nominal
+    levels: [squamous, smallcell, adeno, large]
+    probs: [0.255, 0.35, 0.197, 0.198]
+    label: {en: Cell type, es: Tipo celular, ca: Tipus cel·lular}
+  karnofsky:
+    type: continuous
+    dist: normal(58.6, 20)
+    range: [10, 99]
+    round: 0
+    label: {en: Karnofsky performance score, es: Índice de Karnofsky, ca: Índex de Karnofsky}
+  months_diagnosis:
+    type: count
+    dist: negbin(8.8, 1.5)
+    range: [1, 87]
+    units: {en: months, es: meses, ca: mesos}
+    label: {en: Months from diagnosis to entry, es: Meses desde el diagnóstico, ca: Mesos des del diagnòstic}
+  prior_therapy:
+    type: binary
+    p: 0.29
+    levels: [no, yes]
+    label: {en: Prior therapy, es: Tratamiento previo, ca: Tractament previ}
+
+interventions:
+  treatment:
+    levels: [standard, test]
+    label: {en: Chemotherapy, es: Quimioterapia, ca: Quimioteràpia}
+
+outcomes:
+  death:
+    type: event
+    label: {en: Death, es: Muerte, ca: Mort}
+    median: 3
+    shape: 0.85
+    window: 12
+    followup: 24
+    time_units: months
+    designs: [rct, prognosis]
+    effects:
+      treatment: {HR: [1, 1.34]}
+      cell_type: {HR: [1, 2.37, 3.31, 1.49]}
+      karnofsky: {HR: 0.72, per: 10}
+
+null_variables: [age, months_diagnosis, prior_therapy]
+
+designs:
+  rct: {loss: 0.002}
+  prognosis: {accrual: 12, followup: 12, loss: 0.002}
+
+references:
+  - "Prentice RL. Exponential survivals with censoring and explanatory variables. Biometrika 1973;60:279-88."
+  - "Kalbfleisch JD, Prentice RL. The Statistical Analysis of Failure Time Data. Wiley; 1980."
+  - "Data: R dataset veteran (survival package), 137 patients, 128 deaths."
+
+i18n:
+  en: {names: {age: age, cell_type: cell_type, karnofsky: karnofsky, months_diagnosis: months_diagnosis, prior_therapy: prior_therapy, treatment: treatment, death: death},
+       levels: {squamous: squamous, smallcell: small_cell, adeno: adeno, large: large_cell, standard: standard, test: test}}
+  es: {names: {age: edad, cell_type: tipo_celular, karnofsky: karnofsky, months_diagnosis: meses_diagnostico, prior_therapy: tratamiento_previo, treatment: tratamiento, death: muerte},
+       levels: {squamous: escamoso, smallcell: celula_pequena, adeno: adeno, large: celula_grande, standard: estandar, test: experimental}}
+  ca: {names: {age: edat, cell_type: tipus_cellular, karnofsky: karnofsky, months_diagnosis: mesos_diagnostic, prior_therapy: tractament_previ, treatment: tractament, death: mort},
+       levels: {squamous: escamos, smallcell: cellula_petita, adeno: adeno, large: cellula_gran, standard: estandard, test: experimental}}
+
+teaching:
+  en: >
+    Almost everyone dies within a year, and the new chemotherapy did not help
+    (if anything it looked worse). What matters is how well the patient
+    functions (the Karnofsky score) and the type of tumour: prognostic factors
+    dwarf the treatment effect. The classic data for checking proportional
+    hazards: the effect of the Karnofsky score fades over time.
+  es: >
+    Casi todos mueren en un año, y la nueva quimioterapia no ayudó (si acaso
+    pareció peor). Lo que importa es cómo funciona el paciente (el índice de
+    Karnofsky) y el tipo de tumor: los factores pronósticos superan con creces
+    el efecto del tratamiento. Son los datos clásicos para comprobar los riesgos
+    proporcionales: el efecto del índice de Karnofsky se atenúa con el tiempo.
+  ca: >
+    Gairebé tothom mor en un any, i la nova quimioteràpia no va ajudar (si de cas
+    va semblar pitjor). El que importa és com funciona el pacient (l'índex de
+    Karnofsky) i el tipus de tumor: els factors pronòstics superen de llarg
+    l'efecte del tractament. Són les dades clàssiques per comprovar els riscos
+    proporcionals: l'efecte de l'índex de Karnofsky s'atenua amb el temps.

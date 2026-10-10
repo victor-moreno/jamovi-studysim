@@ -1,0 +1,92 @@
+id: lung_ncctg
+label: {en: "Survival in advanced lung cancer", es: "Supervivencia en el cáncer de pulmón avanzado", ca: "Supervivència en el càncer de pulmó avançat"}
+domain: oncology
+population: {en: "Patients with advanced lung cancer in the North Central Cancer Treatment Group (USA), 1980s", es: "Pacientes con cáncer de pulmón avanzado del North Central Cancer Treatment Group (EE. UU.), años 80", ca: "Pacients amb càncer de pulmó avançat del North Central Cancer Treatment Group (EUA), anys 80"}
+
+# Estimated from the 228 patients of the R dataset lung (survival package):
+# Cox model of death on age, sex, physician-rated ECOG performance,
+# patient-rated Karnofsky score, weight loss and calories; time in months.
+variables:
+  age: {from: dictionary, dist: "normal(62.5, 9.1)", range: [39, 82]}
+  sex: {from: dictionary, p: 0.60}
+  ecog:
+    type: ordinal
+    levels: ["0", "1", "2+"]
+    probs: [0.28, 0.50, 0.22]
+    label: {en: ECOG performance status (physician), es: Estado funcional ECOG (médico), ca: Estat funcional ECOG (metge)}
+  patient_karnofsky:
+    type: continuous
+    dist: normal(80, 14.6)
+    range: [30, 100]
+    round: 0
+    label: {en: Karnofsky score rated by the patient, es: Índice de Karnofsky valorado por el paciente, ca: Índex de Karnofsky valorat pel pacient}
+  weight_loss:
+    type: continuous
+    dist: normal(9.8, 13.1)
+    range: [-24, 68]
+    round: 0
+    units: {en: lb in 6 months, es: lb en 6 meses, ca: lb en 6 mesos}
+    label: {en: Weight loss, es: Pérdida de peso, ca: Pèrdua de pes}
+  calories:
+    type: continuous
+    dist: normal(929, 402)
+    range: [96, 2600]
+    round: 0
+    units: kcal
+    label: {en: Calories consumed at meals, es: Calorías consumidas en las comidas, ca: Calories consumides als àpats}
+
+structure:
+  - [ecog, patient_karnofsky, -0.50]
+  - [ecog, weight_loss, 0.20]
+  - [ecog, calories, -0.20]
+
+outcomes:
+  death:
+    type: event
+    label: {en: Death, es: Muerte, ca: Mort}
+    median: 8.4
+    shape: 1.32
+    window: 12
+    followup: 24
+    time_units: months
+    designs: [prognosis]
+    effects:
+      sex: {HR: 1.71}
+      ecog: {HR: [1, 1.40, 2.40]}
+      patient_karnofsky: {HR: 0.91, per: 10}
+
+null_variables: [age, weight_loss, calories]
+
+designs:
+  prognosis: {accrual: 24, followup: 6, loss: 0.002}
+
+references:
+  - "Loprinzi CL, Laurie JA, Wieand HS et al. Prospective evaluation of prognostic variables from patient-completed questionnaires. J Clin Oncol 1994;12:601-7."
+  - "Data: R dataset lung (survival package), 228 patients, 165 deaths."
+
+i18n:
+  en: {names: {age: age, sex: sex, ecog: ecog, patient_karnofsky: patient_karnofsky, weight_loss: weight_loss, calories: calories, death: death}}
+  es: {names: {age: edad, sex: sexo, ecog: ecog, patient_karnofsky: karnofsky_paciente, weight_loss: perdida_peso, calories: calorias, death: muerte}}
+  ca: {names: {age: edat, sex: sexe, ecog: ecog, patient_karnofsky: karnofsky_pacient, weight_loss: perdua_pes, calories: calories, death: mort}}
+
+teaching:
+  en: >
+    Does the patient's own assessment add to the physician's? The ECOG status
+    rated by the physician and the Karnofsky score rated by the patient are
+    correlated, so each looks stronger alone than together. Men die sooner.
+    Weight loss and calories, often thought prognostic, add nothing once
+    performance is known: they are consequences of a poor general state.
+  es: >
+    ¿Añade algo la valoración del propio paciente a la del médico? El estado
+    ECOG valorado por el médico y el índice de Karnofsky valorado por el
+    paciente están correlacionados, así que cada uno parece más fuerte solo que
+    juntos. Los hombres mueren antes. La pérdida de peso y las calorías, que a
+    menudo se creen pronósticas, no añaden nada si se conoce el estado
+    funcional: son consecuencias de un mal estado general.
+  ca: >
+    Hi afegeix alguna cosa la valoració del mateix pacient a la del metge?
+    L'estat ECOG valorat pel metge i l'índex de Karnofsky valorat pel pacient
+    estan correlacionats, així que cadascun sembla més fort sol que junts. Els
+    homes moren abans. La pèrdua de pes i les calories, que sovint es creuen
+    pronòstiques, no hi afegeixen res si es coneix l'estat funcional: són
+    conseqüències d'un mal estat general.

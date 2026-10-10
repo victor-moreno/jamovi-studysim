@@ -1,0 +1,101 @@
+id: mgus_progression
+label: {en: "Progression of MGUS", es: "Progresión de la GMSI", ca: "Progressió de la GMSI"}
+domain: haematology
+population: {en: "Residents of southeastern Minnesota diagnosed with monoclonal gammopathy of undetermined significance at the Mayo Clinic, 1960-94", es: "Residentes del sureste de Minnesota con gammapatía monoclonal de significado incierto diagnosticada en la Clínica Mayo, 1960-94", ca: "Residents del sud-est de Minnesota amb gammapatia monoclonal de significat incert diagnosticada a la Clínica Mayo, 1960-94"}
+
+# Estimated from the 1,384 patients of the R dataset mgus2 (survival
+# package): cause-specific Cox models of progression to a plasma-cell
+# malignancy (115) and of death without progression (860).
+variables:
+  age: {from: dictionary, dist: "normal(70.4, 12.2)", range: [24, 96]}
+  sex: {from: dictionary, p: 0.544}
+  haemoglobin:
+    type: continuous
+    dist: normal(13.3, 2.0)
+    range: [5.7, 18.9]
+    round: 1
+    units: g/dL
+    label: {en: Haemoglobin, es: Hemoglobina, ca: Hemoglobina}
+  creatinine:
+    type: continuous
+    dist: lognormal(1.25, 0.5)
+    range: [0.4, 10]
+    round: 1
+    units: mg/dL
+    label: {en: Serum creatinine, es: Creatinina sérica, ca: Creatinina sèrica}
+  m_spike:
+    type: continuous
+    dist: normal(1.16, 0.57)
+    range: [0, 3]
+    round: 1
+    units: g/dL
+    label: {en: Size of the monoclonal protein (M-spike), es: Tamaño de la proteína monoclonal (pico M), ca: Mida de la proteïna monoclonal (pic M)}
+
+structure:
+  - [sex, haemoglobin, 0.40]
+  - [age, haemoglobin, -0.20]
+  - [age, creatinine, 0.20]
+  - [sex, creatinine, 0.25]
+
+outcomes:
+  progression:
+    type: event
+    label: {en: Progression to a plasma-cell malignancy, es: Progresión a una neoplasia de células plasmáticas, ca: Progressió a una neoplàsia de cèl·lules plasmàtiques}
+    risk: {value: 0.095, at: 10}
+    shape: 1.18
+    window: 10
+    followup: 15
+    designs: [prognosis, cohort]
+    effects:
+      m_spike: {HR: 2.49, per: 1}
+      haemoglobin: {HR: 0.874, per: 1}
+    competing:
+      label: {en: Death without progression, es: Muerte sin progresión, ca: Mort sense progressió}
+      risk: {value: 0.55, at: 10}
+      shape: 0.86
+      effects:
+        age: {HR: 1.061, per: 1}
+        sex: {HR: 1.63}
+        haemoglobin: {HR: 0.88, per: 1}
+        creatinine: {HR: 1.056, per: 1}
+
+null_variables: [age, sex, creatinine]
+
+designs:
+  prognosis: {accrual: 20, followup: 5, loss: 0.005}
+  cohort: {loss: 0.005}
+
+references:
+  - "Kyle RA, Therneau TM, Rajkumar SV et al. A long-term study of prognosis in monoclonal gammopathy of undetermined significance. N Engl J Med 2002;346:564-9."
+  - "Therneau T, Crowson C, Atkinson E. Multi-state models and competing risks. Vignette of the R package survival."
+  - "Data: R dataset mgus2 (survival package), 1,384 patients."
+
+i18n:
+  en: {names: {age: age, sex: sex, haemoglobin: haemoglobin, creatinine: creatinine, m_spike: m_spike, progression: progression}}
+  es: {names: {age: edad, sex: sexo, haemoglobin: hemoglobina, creatinine: creatinina, m_spike: pico_m, progression: progresion}}
+  ca: {names: {age: edat, sex: sexe, haemoglobin: hemoglobina, creatinine: creatinina, m_spike: pic_m, progression: progressio}}
+
+teaching:
+  en: >
+    Monoclonal gammopathy progresses to myeloma in about 1% of patients a year,
+    but these patients are old and most die of something else first: death is a
+    strong competing event. The size of the M-spike predicts progression and age
+    predicts death, not progression. Kaplan-Meier treating deaths as censored
+    overstates the risk of progression: compare it with the cumulative incidence
+    function, and with cause-specific and subdistribution (Fine-Gray) hazards.
+  es: >
+    La gammapatía monoclonal progresa a mieloma en un 1% de los pacientes al año,
+    pero son pacientes mayores y la mayoría muere antes de otra cosa: la muerte
+    es un evento competitivo importante. El tamaño del pico M predice la
+    progresión y la edad predice la muerte, no la progresión. Kaplan-Meier
+    tratando las muertes como censuras sobrestima el riesgo de progresión:
+    compárelo con la función de incidencia acumulada y con los riesgos
+    específicos de causa y de subdistribución (Fine-Gray).
+  ca: >
+    La gammapatia monoclonal progressa a mieloma en un 1% dels pacients l'any,
+    però són pacients grans i la majoria mor abans d'una altra cosa: la mort és
+    un esdeveniment competitiu important. La mida del pic M prediu la
+    progressió i l'edat prediu la mort, no la progressió. Kaplan-Meier tractant
+    les morts com a censures sobreestima el risc de progressió: compareu-lo amb
+    la funció d'incidència acumulada i amb els riscos específics de causa i de
+    subdistribució (Fine-Gray).

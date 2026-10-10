@@ -1,0 +1,120 @@
+id: colon_adjuvant
+label: {en: "Adjuvant chemotherapy for colon cancer", es: "Quimioterapia adyuvante en el cáncer de colon", ca: "Quimioteràpia adjuvant en el càncer de còlon"}
+domain: oncology
+population: {en: "Patients with resected stage III (Dukes C) colon cancer, US intergroup trial, 1984-87", es: "Pacientes con cáncer de colon resecado en estadio III (Dukes C), ensayo intergrupo de EE. UU., 1984-87", ca: "Pacients amb càncer de còlon ressecat en estadi III (Dukes C), assaig intergrup dels EUA, 1984-87"}
+
+# Estimated from the 929 patients of the R dataset colon (survival package):
+# Cox model of recurrence on treatment and tumour characteristics; deaths
+# without recurrence (38) as the competing event.
+variables:
+  age: {from: dictionary, dist: "normal(59.8, 12)", range: [18, 85]}
+  sex: {from: dictionary, p: 0.52}
+  nodes:
+    type: count
+    dist: negbin(3.7, 1.2)
+    range: [1, 33]
+    units: {en: nodes, es: ganglios, ca: ganglis}
+    label: {en: Positive lymph nodes, es: Ganglios linfáticos positivos, ca: Ganglis limfàtics positius}
+  extent:
+    type: ordinal
+    levels: [submucosa, muscle, serosa, contiguous]
+    probs: [0.023, 0.114, 0.817, 0.046]
+    label: {en: Local spread, es: Extensión local, ca: Extensió local}
+  differentiation:
+    type: ordinal
+    levels: [well, moderate, poor]
+    probs: [0.103, 0.732, 0.165]
+    label: {en: Differentiation, es: Diferenciación, ca: Diferenciació}
+  obstruction:
+    type: binary
+    p: 0.194
+    levels: [no, yes]
+    label: {en: Obstruction by the tumour, es: Obstrucción por el tumor, ca: Obstrucció pel tumor}
+  adherence:
+    type: binary
+    p: 0.145
+    levels: [no, yes]
+    label: {en: Adherence to nearby organs, es: Adherencia a órganos vecinos, ca: Adherència a òrgans veïns}
+  late_start:
+    type: binary
+    p: 0.266
+    levels: [no, yes]
+    label: {en: Long time from surgery to registration, es: Tiempo largo desde la cirugía, ca: Temps llarg des de la cirurgia}
+
+structure:
+  - [extent, nodes, 0.20]
+  - [extent, adherence, 0.25]
+  - [obstruction, adherence, 0.15]
+
+interventions:
+  treatment:
+    levels: [observation, levamisole, lev_5fu]
+    label: {en: Treatment, es: Tratamiento, ca: Tractament}
+
+outcomes:
+  recurrence:
+    type: event
+    label: {en: Recurrence, es: Recidiva, ca: Recidiva}
+    risk: {value: 0.55, at: 5}
+    shape: 0.68
+    window: 5
+    followup: 8
+    designs: [rct, prognosis]
+    effects:
+      treatment: {HR: [1, 0.93, 0.60]}
+      nodes: {HR: 1.08, per: 1}
+      extent: {HR: [1, 1.48, 2.46, 3.61]}
+      differentiation: {HR: [1, 0.97, 1.25]}
+      obstruction: {HR: 1.19}
+      adherence: {HR: 1.18}
+      late_start: {HR: 1.27}
+    competing:
+      label: {en: Death without recurrence, es: Muerte sin recidiva, ca: Mort sense recidiva}
+      risk: {value: 0.05, at: 5}
+      shape: 1.06
+      effects:
+        age: {HR: 1.09, per: 1}
+        sex: {HR: 1.5}
+
+
+designs:
+  prognosis: {accrual: 3, followup: 5, loss: 0.01}
+  rct: {loss: 0.01}
+
+references:
+  - "Moertel CG, Fleming TR, Macdonald JS et al. Levamisole and fluorouracil for adjuvant therapy of resected colon carcinoma. N Engl J Med 1990;322:352-8."
+  - "Laurie JA, Moertel CG, Fleming TR et al. Surgical adjuvant therapy of large-bowel carcinoma. J Clin Oncol 1989;7:1447-56."
+  - "Data: R dataset colon (survival package), 929 patients, 468 recurrences."
+
+i18n:
+  en: {names: {age: age, sex: sex, nodes: nodes, extent: extent, differentiation: differentiation, obstruction: obstruction, adherence: adherence, late_start: late_start, treatment: treatment, recurrence: recurrence},
+       levels: {submucosa: submucosa, muscle: muscle, serosa: serosa, contiguous: contiguous, well: well, moderate: moderate, poor: poor, observation: observation, levamisole: levamisole, lev_5fu: lev_5fu}}
+  es: {names: {age: edad, sex: sexo, nodes: ganglios, extent: extension, differentiation: diferenciacion, obstruction: obstruccion, adherence: adherencia, late_start: inicio_tardio, treatment: tratamiento, recurrence: recidiva},
+       levels: {submucosa: submucosa, muscle: muscular, serosa: serosa, contiguous: contigua, well: buena, moderate: moderada, poor: mala, observation: observacion, levamisole: levamisol, lev_5fu: lev_5fu}}
+  ca: {names: {age: edat, sex: sexe, nodes: ganglis, extent: extensio, differentiation: diferenciacio, obstruction: obstruccio, adherence: adherencia, late_start: inici_tarda, treatment: tractament, recurrence: recidiva},
+       levels: {submucosa: submucosa, muscle: muscular, serosa: serosa, contiguous: contigua, well: bona, moderate: moderada, poor: dolenta, observation: observacio, levamisole: levamisol, lev_5fu: lev_5fu}}
+
+teaching:
+  en: >
+    A three-arm trial: levamisole alone did nothing, levamisole with
+    fluorouracil cut recurrence by 40%, and the combination became standard
+    adjuvant therapy. The number of positive nodes and the local spread are the
+    strongest prognostic factors. A few patients die before any recurrence
+    (status 2): censoring them is right for the hazard ratio of recurrence, but
+    1 - Kaplan-Meier then overstates the probability of recurring.
+  es: >
+    Un ensayo de tres grupos: el levamisol solo no hizo nada, el levamisol con
+    fluorouracilo redujo la recidiva un 40% y la combinación se convirtió en el
+    tratamiento adyuvante estándar. El número de ganglios positivos y la
+    extensión local son los factores pronósticos más fuertes. Algunos pacientes
+    mueren antes de recidivar (estado 2): censurarlos es correcto para el hazard
+    ratio de la recidiva, pero 1 - Kaplan-Meier sobrestima entonces la
+    probabilidad de recidivar.
+  ca: >
+    Un assaig de tres grups: el levamisol sol no va fer res, el levamisol amb
+    fluorouracil va reduir la recidiva un 40% i la combinació es va convertir en
+    el tractament adjuvant estàndard. El nombre de ganglis positius i
+    l'extensió local són els factors pronòstics més forts. Alguns pacients moren
+    abans de recidivar (estat 2): censurar-los és correcte per al hazard ratio de
+    la recidiva, però 1 - Kaplan-Meier sobreestima llavors la probabilitat de
+    recidivar.

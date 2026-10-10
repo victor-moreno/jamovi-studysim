@@ -1,0 +1,127 @@
+id: pbc_mayo
+label: {en: "Primary biliary cholangitis", es: "Colangitis biliar primaria", ca: "Colangitis biliar primària"}
+domain: hepatology
+population: {en: "Patients with primary biliary cholangitis at the Mayo Clinic, 1974-84", es: "Pacientes con colangitis biliar primaria en la Clínica Mayo, 1974-84", ca: "Pacients amb colangitis biliar primària a la Clínica Mayo, 1974-84"}
+
+# Estimated from the 312 randomised patients of the R dataset pbc (survival
+# package): Cox model of death on D-penicillamine, age, sex, log bilirubin,
+# albumin, prothrombin time and oedema (the Mayo risk score), liver
+# transplantation (19) as the competing event.
+variables:
+  age: {from: dictionary, dist: "normal(50, 10.6)", range: [26, 78]}
+  sex: {from: dictionary, p: 0.115}
+  bilirubin:
+    type: continuous
+    dist: lognormal(3.26, 4.4)
+    range: [0.3, 28]
+    round: 1
+    units: mg/dL
+    label: {en: Serum bilirubin, es: Bilirrubina sérica, ca: Bilirubina sèrica}
+  log_bilirubin:
+    type: continuous
+    formula: log(bilirubin)
+    round: 3
+    label: {en: Log bilirubin, es: Logaritmo de la bilirrubina, ca: Logaritme de la bilirubina}
+  albumin:
+    type: continuous
+    dist: normal(3.52, 0.42)
+    range: [1.9, 4.7]
+    round: 2
+    units: g/dL
+    label: {en: Serum albumin, es: Albúmina sérica, ca: Albúmina sèrica}
+  prothrombin:
+    type: continuous
+    dist: lognormal(10.7, 0.95)
+    range: [9, 17]
+    round: 1
+    units: {en: seconds, es: segundos, ca: segons}
+    label: {en: Prothrombin time, es: Tiempo de protrombina, ca: Temps de protrombina}
+  oedema:
+    type: ordinal
+    levels: [none, treated, persistent]
+    probs: [0.843, 0.093, 0.064]
+    label: {en: Oedema, es: Edema, ca: Edema}
+
+correlations:
+  - [bilirubin, albumin, -0.38]
+  - [bilirubin, prothrombin, 0.34]
+  - [bilirubin, oedema, 0.36]
+  - [albumin, oedema, -0.40]
+  - [prothrombin, oedema, 0.40]
+  - [albumin, prothrombin, -0.24]
+  - [age, albumin, -0.20]
+  - [age, prothrombin, 0.19]
+  - [age, oedema, 0.22]
+
+interventions:
+  treatment:
+    levels: [placebo, penicillamine]
+    label: {en: Treatment, es: Tratamiento, ca: Tractament}
+
+outcomes:
+  death:
+    type: event
+    label: {en: Death, es: Muerte, ca: Mort}
+    risk: {value: 0.56, at: 10}
+    shape: 1.13
+    window: 10
+    followup: 12
+    designs: [prognosis, rct]
+    effects:
+      treatment: {HR: [1, 1.07]}
+      age: {HR: 1.032, per: 1}
+      sex: {HR: 1.41}
+      log_bilirubin: {HR: 2.40, per: 1}
+      albumin: {HR: 0.374, per: 1}
+      prothrombin: {HR: 1.31, per: 1}
+      oedema: {HR: [1, 1.21, 2.53]}
+    competing:
+      label: {en: Liver transplant, es: Trasplante hepático, ca: Trasplantament hepàtic}
+      risk: {value: 0.11, at: 10}
+      effects:
+        age: {HR: 0.92, per: 1}
+        log_bilirubin: {HR: 2.24, per: 1}
+
+null_variables: [bilirubin]
+
+designs:
+  prognosis: {accrual: 10, followup: 2, loss: 0.01}
+  rct: {followup: 8, loss: 0.01}
+
+references:
+  - "Dickson ER, Grambsch PM, Fleming TR, Fisher LD, Langworthy A. Prognosis in primary biliary cirrhosis: model for decision making. Hepatology 1989;10:1-7."
+  - "Fleming TR, Harrington DP. Counting Processes and Survival Analysis. Wiley; 1991."
+  - "Data: R dataset pbc (survival package), 312 randomised patients, 125 deaths."
+
+i18n:
+  en: {names: {age: age, sex: sex, bilirubin: bilirubin, log_bilirubin: log_bilirubin, albumin: albumin, prothrombin: prothrombin, oedema: oedema, treatment: treatment, death: death},
+       levels: {none: none, treated: treated, persistent: persistent, placebo: placebo, penicillamine: penicillamine}}
+  es: {names: {age: edad, sex: sexo, bilirubin: bilirrubina, log_bilirubin: log_bilirrubina, albumin: albumina, prothrombin: protrombina, oedema: edema, treatment: tratamiento, death: muerte},
+       levels: {none: ninguno, treated: tratado, persistent: persistente, placebo: placebo, penicillamine: penicilamina}}
+  ca: {names: {age: edat, sex: sexe, bilirubin: bilirubina, log_bilirubin: log_bilirubina, albumin: albumina, prothrombin: protrombina, oedema: edema, treatment: tractament, death: mort},
+       levels: {none: cap, treated: tractat, persistent: persistent, placebo: placebo, penicillamine: penicil·lamina}}
+
+teaching:
+  en: >
+    The trial found that D-penicillamine does not prolong life, but its data
+    gave the Mayo risk score, still used to time liver transplantation:
+    bilirubin (on the log scale), albumin, prothrombin time, oedema and age.
+    Bilirubin is very skewed; its effect is linear in its logarithm. Patients
+    who receive a transplant leave the risk of death from the disease
+    (status 2), a competing event that depends on bilirubin too.
+  es: >
+    El ensayo mostró que la D-penicilamina no alarga la vida, pero sus datos
+    dieron la escala de riesgo de la Mayo, que aún se usa para decidir el
+    trasplante hepático: bilirrubina (en escala logarítmica), albúmina, tiempo
+    de protrombina, edema y edad. La bilirrubina es muy asimétrica; su efecto es
+    lineal en su logaritmo. Los pacientes trasplantados dejan de estar en riesgo
+    de morir por la enfermedad (estado 2), un evento competitivo que también
+    depende de la bilirrubina.
+  ca: >
+    L'assaig va mostrar que la D-penicil·lamina no allarga la vida, però les
+    seves dades van donar l'escala de risc de la Mayo, que encara es fa servir
+    per decidir el trasplantament hepàtic: bilirubina (en escala logarítmica),
+    albúmina, temps de protrombina, edema i edat. La bilirubina és molt
+    asimètrica; el seu efecte és lineal en el seu logaritme. Els pacients
+    trasplantats deixen d'estar en risc de morir per la malaltia (estat 2), un
+    esdeveniment competitiu que també depèn de la bilirubina.
