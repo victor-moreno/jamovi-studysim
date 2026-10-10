@@ -1,0 +1,107 @@
+id: wilms_tumour
+label: {en: "Relapse of Wilms tumour", es: "Recaída del tumor de Wilms", ca: "Recaiguda del tumor de Wilms"}
+domain: paediatric oncology
+population: {en: "Children treated for Wilms tumour in the National Wilms Tumor Studies 3 and 4 (USA, 1979-94)", es: "Niños tratados por un tumor de Wilms en los National Wilms Tumor Studies 3 y 4 (EE. UU., 1979-94)", ca: "Infants tractats per un tumor de Wilms als National Wilms Tumor Studies 3 i 4 (EUA, 1979-94)"}
+
+# Estimated from the 4,028 children of the R dataset nwtco (survival package):
+# Cox model of relapse on central histology, stage, age and study. Local
+# histology reproduces the agreement with central review in the data
+# (sensitivity 0.72, specificity 0.98).
+variables:
+  age:
+    type: continuous
+    dist: gamma(3.55, 2.6)
+    range: [0.1, 16]
+    round: 1
+    units: {en: years, es: años, ca: anys}
+    label: {en: Age at diagnosis, es: Edad al diagnóstico, ca: Edat al diagnòstic}
+  histology:
+    type: binary
+    p: 0.114
+    levels: [favourable, unfavourable]
+    label: {en: Histology (central review), es: Histología (revisión central), ca: Histologia (revisió central)}
+  local_histology:
+    type: binary
+    levels: [favourable, unfavourable]
+    p: ifelse(histology == "unfavourable", 0.72, 0.021)
+    label: {en: Histology (local pathologist), es: Histología (patólogo local), ca: Histologia (patòleg local)}
+  stage:
+    type: ordinal
+    levels: [I, II, III, IV]
+    probs: [0.39, 0.26, 0.235, 0.115]
+    label: {en: Stage, es: Estadio, ca: Estadi}
+  study:
+    type: binary
+    p: 0.54
+    levels: [NWTS-3, NWTS-4]
+    label: {en: Study, es: Estudio, ca: Estudi}
+
+structure:
+  - [age, stage, 0.30]
+  - [histology, stage, 0.16]
+
+outcomes:
+  relapse:
+    type: event
+    label: {en: Relapse, es: Recaída, ca: Recaiguda}
+    risk: {value: 0.147, at: 5}
+    shape: 0.4
+    window: 5
+    followup: 10
+    designs: [cohort, case_cohort, nested_cc, case_control]
+    effects:
+      histology: {HR: 4.9}
+      stage: {HR: [1, 1.97, 2.28, 3.19]}
+      age: {HR: 1.07, per: 1}
+      study: {HR: 0.89}
+
+null_variables: [local_histology]
+
+designs:
+  case_cohort: {subcohort: 0.166, followup: 10, loss: 0.01}
+  cohort: {loss: 0.01}
+  nested_cc: {ratio: 3, followup: 10, loss: 0.01}
+
+references:
+  - "Breslow NE, Chatterjee N. Design and analysis of two-phase studies with binary outcome applied to Wilms tumour prognosis. Appl Stat 1999;48:457-68."
+  - "D'Angio GJ et al. Treatment of Wilms' tumor: results of the third National Wilms' Tumor Study. Cancer 1989;64:349-60."
+  - "Data: R dataset nwtco (survival package), 4,028 children, 571 relapses."
+
+i18n:
+  en: {names: {age: age, histology: histology, local_histology: local_histology, stage: stage, study: study, relapse: relapse},
+       levels: {favourable: favourable, unfavourable: unfavourable}}
+  es: {names: {age: edad, histology: histologia, local_histology: histologia_local, stage: estadio, study: estudio, relapse: recaida},
+       levels: {favourable: favorable, unfavourable: desfavorable}}
+  ca: {names: {age: edat, histology: histologia, local_histology: histologia_local, stage: estadi, study: estudi, relapse: recaiguda},
+       levels: {favourable: favorable, unfavourable: desfavorable}}
+
+teaching:
+  en: >
+    Unfavourable histology is the strongest predictor of relapse, but the local
+    pathologist misses more than a quarter of it: with local histology the hazard
+    ratio shrinks towards 1 (misclassification). Central review is expensive, so
+    the investigators reviewed only a random subcohort plus every child who
+    relapsed: the case-cohort design, analysed with weighted Cox models, gives
+    nearly the full-cohort estimates at a fraction of the cost. Older children
+    present at later stages, so the crude age effect is partly stage. Relapses
+    happen early (a hazard that falls with time).
+  es: >
+    La histología desfavorable es el predictor más fuerte de la recaída, pero el
+    patólogo local no la detecta en más de una cuarta parte: con la histología
+    local el hazard ratio se acerca a 1 (error de clasificación). La revisión
+    central es cara, así que se revisó solo una subcohorte aleatoria y a todos
+    los niños que recayeron: el diseño de caso-cohorte, analizado con modelos de
+    Cox ponderados, da casi las estimaciones de la cohorte completa por una
+    fracción del coste. Los niños mayores se diagnostican en estadios más
+    avanzados, así que el efecto crudo de la edad es en parte el del estadio. Las
+    recaídas son precoces (un riesgo que baja con el tiempo).
+  ca: >
+    La histologia desfavorable és el predictor més fort de la recaiguda, però el
+    patòleg local no la detecta en més d'una quarta part: amb la histologia local
+    el hazard ratio s'acosta a 1 (error de classificació). La revisió central és
+    cara, així que només es va revisar una subcohort aleatòria i tots els infants
+    que van recaure: el disseny de cas-cohort, analitzat amb models de Cox
+    ponderats, dona gairebé les estimacions de la cohort completa per una fracció
+    del cost. Els infants més grans es diagnostiquen en estadis més avançats, per
+    això l'efecte cru de l'edat és en part el de l'estadi. Les recaigudes són
+    precoces (un risc que baixa amb el temps).

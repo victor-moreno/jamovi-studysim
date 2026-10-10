@@ -77,9 +77,10 @@ test_that("effect modification by a binary variable is generated as specified", 
 test_that("the three language dictionaries name every column uniquely and validly", {
   lib <- read_library_dir(lib_dir())
   for (l in c("en", "es", "ca")) {
-    d <- lang_dict(l)
     for (id in names(lib$scenarios)) {
       sc <- load_scenario(lib, id)
+      # the library's names merged with the scenario's own i18n
+      d <- sc$i18n[[l]] %||% list(names = list(), levels = list())
       for (o in names(sc$outcomes)) for (des in compatible_designs(sc, o)) {
         cols <- planned_columns(sc, sc$outcomes[[o]], des, sc$order)
         cols <- setdiff(cols, unlist(lapply(sc$order, function(v) setdiff(eco_cols(sc, v), v))))
@@ -90,7 +91,8 @@ test_that("the three language dictionaries name every column uniquely and validl
         expect_true(all(grepl("^[A-Za-z][A-Za-z0-9_]*$", nm)), info = paste(l, id))
       }
       for (v in sc$variables) if (!is.null(v$levels) && v$type != "genotype")
-        expect_true(all(v$levels %in% names(d$levels)), info = paste(l, id, v$id))
+        # codes without lowercase letters (25-34, IV, NWTS-3) read the same in every language
+        expect_true(all(v$levels[grepl("[a-z]", v$levels)] %in% names(d$levels)), info = paste(l, id, v$id))
     }
   }
   sc <- load_scenario(lib, "chd_incidence")

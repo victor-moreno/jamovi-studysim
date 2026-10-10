@@ -1,0 +1,84 @@
+id: esoph_cancer
+label: {en: "Oesophageal cancer: alcohol and tobacco", es: "Cáncer de esófago: alcohol y tabaco", ca: "Càncer d'esòfag: alcohol i tabac"}
+domain: oncology
+population: {en: "Men aged 25 and over in Ille-et-Vilaine (Brittany, France), 1972-74", es: "Hombres de 25 años o más de Ille-et-Vilaine (Bretaña, Francia), 1972-74", ca: "Homes de 25 anys o més d'Ille-et-Vilaine (Bretanya, França), 1972-74"}
+
+# Marginals and correlations from the 775 controls, effects from the
+# logistic model of age, alcohol and tobacco in the 200 cases and 775 controls
+# (R dataset esoph), as in Breslow & Day 1980, chapter 6.
+variables:
+  age_group:
+    type: ordinal
+    levels: ["25-34", "35-44", "45-54", "55-64", "65-74", "75+"]
+    probs: [0.148, 0.245, 0.215, 0.214, 0.137, 0.041]
+    units: {en: years, es: años, ca: anys}
+    label: {en: Age group, es: Grupo de edad, ca: Grup d'edat}
+  alcohol:
+    type: ordinal
+    levels: ["0-39", "40-79", "80-119", "120+"]
+    probs: [0.498, 0.361, 0.112, 0.029]
+    units: {en: g/day, es: g/día, ca: g/dia}
+    label: {en: Alcohol consumption, es: Consumo de alcohol, ca: Consum d'alcohol}
+  tobacco:
+    type: ordinal
+    levels: ["0-9", "10-19", "20-29", "30+"]
+    probs: [0.577, 0.230, 0.127, 0.066]
+    units: {en: g/day, es: g/día, ca: g/dia}
+    label: {en: Tobacco consumption, es: Consumo de tabaco, ca: Consum de tabac}
+
+correlations:
+  - [alcohol, tobacco, 0.16]
+  - [age_group, tobacco, -0.10]
+
+outcomes:
+  oesophageal_cancer:
+    type: event
+    label: {en: Oesophageal cancer, es: Cáncer de esófago, ca: Càncer d'esòfag}
+    rate: 0.0004
+    window: 10
+    followup: 10
+    designs: [case_control, matched_cc, cohort]
+    effects:
+      age_group: {HR: [1, 7, 40, 75, 130, 125]}
+      alcohol: {HR: [1, 4.2, 7.3, 36.7]}
+      tobacco: {HR: [1, 1.55, 1.67, 5.16]}
+
+designs:
+  case_control: {ratio: 4}
+  matched_cc: {match: [age_group], ratio: 4}
+
+references:
+  - "Tuyns AJ, Péquignot G, Jensen OM. Le cancer de l'oesophage en Ille-et-Vilaine en fonction des niveaux de consommation d'alcool et de tabac. Bull Cancer 1977;64:45-60."
+  - "Breslow NE, Day NE. Statistical Methods in Cancer Research, vol. 1: The Analysis of Case-Control Studies. IARC Sci Publ 32; 1980."
+  - "Data: R dataset esoph (datasets package), 200 cases and 775 controls."
+
+i18n:
+  en: {names: {age_group: age_group, alcohol: alcohol, tobacco: tobacco, oesophageal_cancer: oesophageal_cancer}}
+  es: {names: {age_group: grupo_edad, alcohol: alcohol, tobacco: tabaco, oesophageal_cancer: cancer_esofago}}
+  ca: {names: {age_group: grup_edat, alcohol: alcohol, tobacco: tabac, oesophageal_cancer: cancer_esofag}}
+
+teaching:
+  en: >
+    A classic case-control study with about four controls per case. Alcohol and
+    tobacco act multiplicatively: heavy drinkers who are heavy smokers have
+    roughly 190 times the risk of light drinkers who smoke little. Alcohol and
+    tobacco are correlated, so each crude odds ratio is partly the other's.
+    Age is the strongest factor; matching on age group makes the age effect
+    unestimable but sharpens the rest. The odds ratios approach the hazard
+    ratios because the disease is rare.
+  es: >
+    Un estudio de casos y controles clásico con unos cuatro controles por caso.
+    El alcohol y el tabaco actúan de forma multiplicativa: los grandes bebedores
+    que fuman mucho tienen unas 190 veces el riesgo de quienes beben y fuman
+    poco. Alcohol y tabaco están correlacionados, de modo que cada odds ratio
+    cruda es en parte la del otro. La edad es el factor más fuerte; emparejar por
+    grupo de edad impide estimar su efecto pero afina el resto. Las odds ratios
+    se acercan a los hazard ratios porque la enfermedad es rara.
+  ca: >
+    Un estudi de casos i controls clàssic amb uns quatre controls per cas.
+    L'alcohol i el tabac actuen de manera multiplicativa: els grans bevedors que
+    fumen molt tenen unes 190 vegades el risc dels qui beuen i fumen poc. Alcohol
+    i tabac estan correlacionats, de manera que cada odds ratio crua és en part la
+    de l'altre. L'edat és el factor més fort; aparellar per grup d'edat impedeix
+    estimar-ne l'efecte però afina la resta. Les odds ratios s'acosten als hazard
+    ratios perquè la malaltia és rara.

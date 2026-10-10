@@ -194,6 +194,13 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
                     nested_cc = 2000 * (1 + opt$ratio), case_cohort = 8000,
                     cluster_rct = max(20000, 50 * (opt$clusters %||% 20)), longitudinal = 3000, ecological = 200,
                     crossover = 4000, 20000)
+    # a rare outcome needs a larger study for a stable expectation: about 3000
+    # events (cases in a case-cohort), at most 300,000 people
+    p_ev <- if (oc$type == "event") cal$achieved$risk_followup else if (oc$type == "binary") min(oc$prevalence, 1 - oc$prevalence) else NA
+    if (!is.na(p_ev) && design %in% c("cohort", "prognosis", "rct", "cluster_rct", "factorial", "cross_sectional"))
+        n_big <- min(300000, max(n_big, ceiling(3000 / p_ev)))
+    if (!is.na(p_ev) && design == "case_cohort")
+        n_big <- min(300000, max(n_big, ceiling(opt$subcohort * 3000 / p_ev + 3000)))
     # the expectation of a cluster trial does not depend on the number of
     # clusters; many clusters keep the cluster effects from blurring it
     if (design == "cluster_rct") opt$clusters <- max(opt$clusters, 400)

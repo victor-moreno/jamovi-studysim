@@ -1,0 +1,97 @@
+id: free_light_chain
+label: {en: "Serum free light chains and mortality", es: "Cadenas ligeras libres en suero y mortalidad", ca: "Cadenes lleugeres lliures en sèrum i mortalitat"}
+domain: haematology
+population: {en: "Residents of Olmsted County (Minnesota) aged 50 and over with stored serum", es: "Residentes del condado de Olmsted (Minnesota) de 50 años o más con suero almacenado", ca: "Residents del comtat d'Olmsted (Minnesota) de 50 anys o més amb sèrum emmagatzemat"}
+
+# Estimated from the 7,874 people of the R dataset flchain (survival package):
+# Cox model of death on age, sex, total free light chain (kappa + lambda),
+# creatinine and MGUS; latent paths from the observed correlations.
+variables:
+  age:
+    from: dictionary
+    dist: "lognormal(64.3, 10.5)"
+    range: [50, 101]
+  sex: {from: dictionary, p: 0.448}
+  creatinine:
+    type: continuous
+    dist: lognormal(1.09, 0.42)
+    range: [0.4, 10]
+    round: 1
+    units: mg/dL
+    label: {en: Serum creatinine, es: Creatinina sérica, ca: Creatinina sèrica}
+  flc:
+    type: continuous
+    dist: lognormal(3.13, 1.84)
+    range: [0.1, 43]
+    round: 2
+    units: mg/dL
+    label: {en: Total free light chains (kappa + lambda), es: Cadenas ligeras libres totales (kappa + lambda), ca: Cadenes lleugeres lliures totals (kappa + lambda)}
+  mgus:
+    type: binary
+    p: 0.015
+    levels: [no, yes]
+    label: {en: Monoclonal gammopathy (MGUS), es: Gammapatía monoclonal (GMSI), ca: Gammapatia monoclonal (GMSI)}
+
+structure:
+  - [age, creatinine, 0.13]
+  - [sex, creatinine, 0.38]
+  - [age, flc, 0.22]
+  - [creatinine, flc, 0.55]
+  - [sex, flc, -0.10]
+
+outcomes:
+  death:
+    type: event
+    label: {en: Death from any cause, es: Muerte por cualquier causa, ca: Mort per qualsevol causa}
+    risk: {value: 0.235, at: 10}
+    shape: 1
+    window: 10
+    followup: 10
+    designs: [cohort, case_cohort, nested_cc]
+    effects:
+      age: {HR: 1.11, per: 1}
+      sex: {HR: 1.38}
+      flc: {HR: 1.14, per: 1}
+
+null_variables: [creatinine, mgus]
+
+designs:
+  case_cohort: {subcohort: 0.1, loss: 0.005}
+  nested_cc: {ratio: 2, loss: 0.005}
+  cohort: {loss: 0.005}
+
+references:
+  - "Dispenzieri A, Katzmann JA, Kyle RA et al. Use of nonclonal serum immunoglobulin free light chains to predict overall survival in the general population. Mayo Clin Proc 2012;87:517-23."
+  - "Data: R dataset flchain (survival package), 7,874 residents, 2,169 deaths."
+
+i18n:
+  en: {names: {age: age, sex: sex, creatinine: creatinine, flc: flc, mgus: mgus, death: death}}
+  es: {names: {age: edad, sex: sexo, creatinine: creatinina, flc: clf, mgus: gmsi, death: muerte}}
+  ca: {names: {age: edat, sex: sexe, creatinine: creatinina, flc: cll, mgus: gmsi, death: mort}}
+
+teaching:
+  en: >
+    Free light chains in stored serum predict death from any cause, even in
+    people without a plasma-cell disorder. The kidneys clear them, so levels rise
+    with creatinine and age: creatinine looks like a strong predictor in a crude
+    analysis but has no effect once age and free light chains are in the model.
+    Assaying stored serum for everybody is costly; a nested case-control or a
+    case-cohort study measures it only in the deaths and a sample, with nearly
+    the same hazard ratios.
+  es: >
+    Las cadenas ligeras libres en suero almacenado predicen la muerte por
+    cualquier causa, incluso en personas sin un trastorno de células
+    plasmáticas. Los riñones las eliminan, así que suben con la creatinina y la
+    edad: la creatinina parece un predictor fuerte en el análisis crudo pero no
+    tiene efecto al incluir la edad y las cadenas ligeras. Analizar el suero de
+    todos es caro; un estudio de casos y controles anidado o de caso-cohorte lo
+    mide solo en los fallecidos y en una muestra, con casi los mismos hazard
+    ratios.
+  ca: >
+    Les cadenes lleugeres lliures en sèrum emmagatzemat prediuen la mort per
+    qualsevol causa, fins i tot en persones sense un trastorn de cèl·lules
+    plasmàtiques. Els ronyons les eliminen, per això pugen amb la creatinina i
+    l'edat: la creatinina sembla un predictor fort en l'anàlisi crua però no té
+    efecte en incloure l'edat i les cadenes lleugeres. Analitzar el sèrum de tots
+    és car; un estudi de casos i controls niat o de cas-cohort el mesura només en
+    els morts i en una mostra, amb gairebé els mateixos hazard ratios.

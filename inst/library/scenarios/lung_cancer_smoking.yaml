@@ -1,0 +1,95 @@
+id: lung_cancer_smoking
+label: {en: "Lung cancer and smoking", es: "Cáncer de pulmón y tabaco", ca: "Càncer de pulmó i tabac"}
+domain: oncology
+population: {en: "Adults aged 35-80 in England around 1950", es: "Adultos de 35 a 80 años en Inglaterra hacia 1950", ca: "Adults de 35 a 80 anys a Anglaterra cap al 1950"}
+
+# Smoking distribution from the controls of Doll & Hill (1950); hazard ratios
+# by smoking from the British Doctors cohort (Doll et al. 2004): lung cancer
+# mortality 0.17 per 1000 per year in lifelong non-smokers, 1.31, 2.33 and
+# 4.17 in current smokers of 1-14, 15-24 and 25+ cigarettes a day.
+variables:
+  age:
+    from: dictionary
+    dist: "normal(58, 10)"
+    range: [35, 80]
+  sex: {from: dictionary, p: 0.5}
+  smoking:
+    type: ordinal
+    levels: [never, former, "1-14", "15-24", "25+"]
+    probs: [0.30, 0.08, 0.30, 0.22, 0.10]
+    units: {en: cigarettes/day, es: cigarrillos/día, ca: cigarretes/dia}
+    label: {en: Smoking, es: Tabaquismo, ca: Tabaquisme}
+  social_class:
+    type: ordinal
+    levels: [I-II, III, IV-V]
+    probs: [0.20, 0.50, 0.30]
+    label: {en: Social class (Registrar General), es: Clase social, ca: Classe social}
+  urban:
+    type: binary
+    p: 0.45
+    levels: [no, yes]
+    label: {en: Lives in a large town, es: Vive en una gran ciudad, ca: Viu en una gran ciutat}
+
+structure:
+  - [sex, smoking, 0.60]
+  - [social_class, smoking, 0.25]
+  - [urban, smoking, 0.10]
+
+outcomes:
+  lung_cancer:
+    type: event
+    label: {en: Lung cancer, es: Cáncer de pulmón, ca: Càncer de pulmó}
+    rate: 0.0008
+    window: 10
+    followup: 10
+    designs: [case_control, matched_cc, cohort, nested_cc]
+    effects:
+      age: {HR: 1.09, per: 1}
+      sex: {HR: 1.2}
+      smoking: {HR: [1, 4, 7.7, 13.7, 24.5]}
+
+null_variables: [social_class, urban]
+
+designs:
+  case_control: {ratio: 1}
+  matched_cc: {match: [age, sex], caliper: 5, ratio: 1}
+  nested_cc: {ratio: 2, followup: 20}
+  cohort: {followup: 20}
+
+references:
+  - "Doll R, Hill AB. Smoking and carcinoma of the lung: preliminary report. BMJ 1950;2:739-48."
+  - "Doll R, Peto R, Boreham J, Sutherland I. Mortality in relation to smoking: 50 years' observations on male British doctors. BMJ 2004;328:1519."
+  - "Data: Doll & Hill 1950 smoking tables, R dataset Smoking_DollHill1950 (HSAUR3)."
+
+i18n:
+  en: {names: {age: age, sex: sex, smoking: smoking, social_class: social_class, urban: urban, lung_cancer: lung_cancer}}
+  es: {names: {age: edad, sex: sexo, smoking: tabaco, social_class: clase_social, urban: urbano, lung_cancer: cancer_pulmon},
+       levels: {"I-II": "I-II", "III": "III", "IV-V": "IV-V"}}
+  ca: {names: {age: edat, sex: sexe, smoking: tabac, social_class: classe_social, urban: urba, lung_cancer: cancer_pulmo},
+       levels: {"I-II": "I-II", "III": "III", "IV-V": "IV-V"}}
+
+teaching:
+  en: >
+    Doll and Hill matched each patient with lung cancer to a control of the same
+    sex and age group from the same hospital: only 2 of 649 men with lung cancer
+    were non-smokers. The risk rises with the number of cigarettes smoked
+    (dose-response) and falls after stopping. Social class and living in a town
+    have no effect of their own, but smokers are more common in both, so their
+    crude odds ratios suggest one. The cohort of British doctors, followed for 50
+    years, confirmed the case-control estimates.
+  es: >
+    Doll y Hill emparejaron a cada paciente con cáncer de pulmón con un control
+    del mismo sexo y grupo de edad del mismo hospital: solo 2 de 649 hombres con
+    cáncer de pulmón no fumaban. El riesgo aumenta con el número de cigarrillos
+    (dosis-respuesta) y baja tras dejar de fumar. La clase social y vivir en una
+    ciudad no tienen efecto propio, pero los fumadores abundan más en ambos
+    grupos, de modo que sus odds ratios crudas sugieren uno. La cohorte de
+    médicos británicos, seguida 50 años, confirmó las estimaciones.
+  ca: >
+    Doll i Hill van aparellar cada pacient amb càncer de pulmó amb un control del
+    mateix sexe i grup d'edat del mateix hospital: només 2 de 649 homes amb
+    càncer de pulmó no fumaven. El risc augmenta amb el nombre de cigarretes
+    (dosi-resposta) i baixa en deixar de fumar. La classe social i viure en una
+    ciutat no tenen efecte propi, però els fumadors abunden més en tots dos
+    grups, de manera que les seves odds ratios crues en suggereixen un. La
+    cohort de metges britànics, seguida 50 anys, va confirmar les estimacions.

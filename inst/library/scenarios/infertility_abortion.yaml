@@ -1,0 +1,94 @@
+id: infertility_abortion
+label: {en: "Secondary infertility after abortion", es: "Infertilidad secundaria tras un aborto", ca: "Infertilitat secundària després d'un avortament"}
+domain: reproductive
+population: {en: "Parous women aged 21-44 attending hospitals in Athens, 1970s", es: "Mujeres con hijos de 21 a 44 años atendidas en hospitales de Atenas, años 70", ca: "Dones amb fills de 21 a 44 anys ateses en hospitals d'Atenes, anys 70"}
+
+# Distributions and latent paths from the 165 controls, odds ratios from the
+# conditional logistic regression of the 83 matched sets (R dataset infert).
+variables:
+  age:
+    from: dictionary
+    dist: "normal(31.5, 5.3)"
+    range: [21, 44]
+  education:
+    type: ordinal
+    levels: ["0-5", "6-11", "12+"]
+    probs: [0.05, 0.49, 0.46]
+    units: {en: years, es: años, ca: anys}
+    label: {en: Education, es: Estudios, ca: Estudis}
+  parity:
+    type: ordinal
+    levels: ["1", "2", "3", "4+"]
+    probs: [0.40, 0.33, 0.145, 0.125]
+    units: {en: children, es: hijos, ca: fills}
+    label: {en: Number of children, es: Número de hijos, ca: Nombre de fills}
+  induced:
+    type: ordinal
+    levels: ["0", "1", "2+"]
+    probs: [0.58, 0.27, 0.15]
+    label: {en: Previous induced abortions, es: Abortos provocados previos, ca: Avortaments provocats previs}
+  spontaneous:
+    type: ordinal
+    levels: ["0", "1", "2+"]
+    probs: [0.685, 0.24, 0.075]
+    label: {en: Previous spontaneous abortions, es: Abortos espontáneos previos, ca: Avortaments espontanis previs}
+
+structure:
+  - [age, education, -0.38]
+  - [education, parity, -0.37]
+  - [parity, induced, 0.50]
+  - [education, induced, 0.34]
+  - [parity, spontaneous, 0.49]
+  - [education, spontaneous, 0.17]
+
+outcomes:
+  infertility:
+    type: binary
+    label: {en: Secondary infertility, es: Infertilidad secundaria, ca: Infertilitat secundària}
+    levels: [no, yes]
+    prevalence: 0.05
+    designs: [matched_cc, case_control, cross_sectional]
+    effects:
+      induced: {OR: [1, 4.0, 16.8]}
+      spontaneous: {OR: [1, 7.7, 51]}
+
+null_variables: [age, education, parity]
+
+designs:
+  matched_cc: {match: [age, education, parity], caliper: 2, ratio: 2}
+  case_control: {ratio: 2}
+
+references:
+  - "Trichopoulos D, Handanos N, Danezis J, Kalandidi A, Kalapothaki V. Induced abortion and secondary infertility. Br J Obstet Gynaecol 1976;83:645-50."
+  - "Data: R dataset infert (datasets package), 83 cases and 165 matched controls."
+
+i18n:
+  en: {names: {age: age, education: education, parity: parity, induced: induced, spontaneous: spontaneous, infertility: infertility}}
+  es: {names: {age: edad, education: estudios, parity: paridad, induced: provocados, spontaneous: espontaneos, infertility: infertilidad}}
+  ca: {names: {age: edat, education: estudis, parity: paritat, induced: provocats, spontaneous: espontanis, infertility: infertilitat}}
+
+teaching:
+  en: >
+    Each woman with secondary infertility was matched to two controls of the
+    same age, education and parity, so the analysis must keep the matched sets
+    (conditional logistic regression); an unconditional analysis of matched data
+    biases the odds ratios. Women with more children have had more abortions of
+    both kinds: matching on parity removes that confounding but makes its own
+    effect unestimable. Both previous induced and spontaneous abortions raise the
+    risk, with a clear gradient.
+  es: >
+    Cada mujer con infertilidad secundaria se emparejó con dos controles de la
+    misma edad, estudios y paridad, por lo que el análisis debe mantener los
+    grupos emparejados (regresión logística condicional); un análisis no
+    condicional de datos emparejados sesga las odds ratios. Las mujeres con más
+    hijos han tenido más abortos de ambos tipos: emparejar por paridad elimina
+    esa confusión pero impide estimar su efecto. Los abortos provocados y los
+    espontáneos previos aumentan el riesgo, con un gradiente claro.
+  ca: >
+    Cada dona amb infertilitat secundària es va aparellar amb dos controls de la
+    mateixa edat, estudis i paritat, per això l'anàlisi ha de mantenir els grups
+    aparellats (regressió logística condicional); una anàlisi no condicional de
+    dades aparellades esbiaixa les odds ratios. Les dones amb més fills han tingut
+    més avortaments dels dos tipus: aparellar per paritat elimina aquesta confusió
+    però impedeix estimar-ne l'efecte. Els avortaments provocats i els espontanis
+    previs augmenten el risc, amb un gradient clar.
