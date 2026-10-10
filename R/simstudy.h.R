@@ -41,6 +41,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             reliability = 1,
             misclass = 0,
             entryErrors = 0,
+            lodHandling = "missing",
+            batches = 0,
+            batchCv = 15,
+            batchConfounded = FALSE,
             noiseVars = 0,
             seed = 1,
             studentKey = "",
@@ -317,6 +321,31 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=0,
                 min=0,
                 max=10)
+            private$..lodHandling <- jmvcore::OptionList$new(
+                "lodHandling",
+                lodHandling,
+                options=list(
+                    "missing",
+                    "half",
+                    "lod",
+                    "none"),
+                default="missing")
+            private$..batches <- jmvcore::OptionInteger$new(
+                "batches",
+                batches,
+                default=0,
+                min=0,
+                max=20)
+            private$..batchCv <- jmvcore::OptionNumber$new(
+                "batchCv",
+                batchCv,
+                default=15,
+                min=0,
+                max=100)
+            private$..batchConfounded <- jmvcore::OptionBool$new(
+                "batchConfounded",
+                batchConfounded,
+                default=FALSE)
             private$..noiseVars <- jmvcore::OptionInteger$new(
                 "noiseVars",
                 noiseVars,
@@ -397,6 +426,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..reliability)
             self$.addOption(private$..misclass)
             self$.addOption(private$..entryErrors)
+            self$.addOption(private$..lodHandling)
+            self$.addOption(private$..batches)
+            self$.addOption(private$..batchCv)
+            self$.addOption(private$..batchConfounded)
             self$.addOption(private$..noiseVars)
             self$.addOption(private$..seed)
             self$.addOption(private$..studentKey)
@@ -444,6 +477,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         reliability = function() private$..reliability$value,
         misclass = function() private$..misclass$value,
         entryErrors = function() private$..entryErrors$value,
+        lodHandling = function() private$..lodHandling$value,
+        batches = function() private$..batches$value,
+        batchCv = function() private$..batchCv$value,
+        batchConfounded = function() private$..batchConfounded$value,
         noiseVars = function() private$..noiseVars$value,
         seed = function() private$..seed$value,
         studentKey = function() private$..studentKey$value,
@@ -490,6 +527,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..reliability = NA,
         ..misclass = NA,
         ..entryErrors = NA,
+        ..lodHandling = NA,
+        ..batches = NA,
+        ..batchCv = NA,
+        ..batchConfounded = NA,
         ..noiseVars = NA,
         ..seed = NA,
         ..studentKey = NA,
@@ -564,6 +605,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "misclass",
                     "entryErrors",
                     "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Html$new(
@@ -605,6 +650,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "misclass",
                     "entryErrors",
                     "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -648,6 +697,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "misclass",
                     "entryErrors",
                     "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -712,6 +765,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "misclass",
                     "entryErrors",
                     "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -915,6 +972,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "misclass",
                     "entryErrors",
                     "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -958,6 +1019,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "misclass",
                     "entryErrors",
                     "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1006,6 +1071,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "misclass",
                     "entryErrors",
                     "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1110,6 +1179,10 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param misclass .
 #' @param entryErrors share of numeric cells with a typing error (decimal
 #'   slip, swapped digits, 999)
+#' @param lodHandling assays with a limit of detection in the library (lod)
+#' @param batches .
+#' @param batchCv .
+#' @param batchConfounded .
 #' @param noiseVars .
 #' @param seed .
 #' @param studentKey any text (e.g. a student ID); each key gives a different
@@ -1180,6 +1253,10 @@ simStudy <- function(
     reliability = 1,
     misclass = 0,
     entryErrors = 0,
+    lodHandling = "missing",
+    batches = 0,
+    batchCv = 15,
+    batchConfounded = FALSE,
     noiseVars = 0,
     seed = 1,
     studentKey = "",
@@ -1235,6 +1312,10 @@ simStudy <- function(
         reliability = reliability,
         misclass = misclass,
         entryErrors = entryErrors,
+        lodHandling = lodHandling,
+        batches = batches,
+        batchCv = batchCv,
+        batchConfounded = batchConfounded,
         noiseVars = noiseVars,
         seed = seed,
         studentKey = studentKey,

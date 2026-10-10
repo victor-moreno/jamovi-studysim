@@ -33,6 +33,7 @@ outcomes:
         dist: lognormal(0.16, 0.13)
         range: [0.03, 2.1]
         round: 2
+        lod: 0.05
         auc: 0.73
       ndka:
         label: {en: Nucleoside diphosphate kinase A (NDKA), es: Nucleósido difosfato quinasa A (NDKA), ca: Nucleòsid difosfat cinasa A (NDKA)}

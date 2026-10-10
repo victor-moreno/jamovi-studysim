@@ -51,6 +51,8 @@ simStudyClass <- R6::R6Class(
             if (d %in% c("cohort", "prognosis") && o$accrual > 0) opt$accrual <- o$accrual
             # realism that also shapes the answer key (measurement error) or the columns (noise)
             opt$reliability <- o$reliability; opt$misclass <- o$misclass / 100; opt$noise <- o$noiseVars
+            opt$lod_handling <- o$lodHandling
+            if (d == "diagnostic") { opt$batches <- o$batches; opt$batch_cv <- o$batchCv / 100; opt$batch_confounded <- o$batchConfounded }
             if (d == "case_cohort") opt$subcohort <- o$subcohort / 100
             if (d == "rct") opt$looks <- o$looks
             if (d == "cluster_rct") { opt$clusters <- o$clusters; opt$icc <- o$icc }
@@ -228,6 +230,9 @@ simStudyClass <- R6::R6Class(
             if (o$reliability < 1 || o$misclass > 0)
                 li <- c(li, jmvcore::format(.("measurement error: reliability {r} for numeric variables, {m}% of categories misclassified"),
                                             r = o$reliability, m = o$misclass))
+            if (ctx$design == "diagnostic" && o$batches >= 2)
+                li <- c(li, jmvcore::format(.("markers assayed in {k} batches ({cv}% variation between batches){conf}"), k = o$batches, cv = o$batchCv,
+                                            conf = if (o$batchConfounded) .(", cases and controls in separate batches") else ""))
             if (isTRUE(f$noise > 0)) li <- c(li, jmvcore::format(.("{k} extra variables (extra_01, …) with no effect"), k = f$noise))
             if (isTRUE(f$entry_errors > 0)) li <- c(li, jmvcore::format(.("{n} data-entry errors to find and correct"), n = f$entry_errors))
             um <- setdiff(names(ctx$oc$effects), c(ctx$factors, names(sc$interventions)))

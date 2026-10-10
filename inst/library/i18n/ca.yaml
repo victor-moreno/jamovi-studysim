@@ -9,6 +9,7 @@ names:
   time: temps
   sequence: sequencia
   period: periode
+  batch: lot
   subcohort: subcohort
   design: disseny
   cluster: conglomerat

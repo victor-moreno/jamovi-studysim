@@ -176,3 +176,14 @@ test_that("before-after shows regression to the mean; method comparison recovers
   expect_equal(nrow(r$keyExpected$asDF), 4)
   expect_identical(r$dictionary$asDF$name[2:3], c("sbp_a", "sbp_b"))
 })
+
+test_that("assays: values below the limit of detection and batches", {
+  sc <- load_scenario(builtin_library(), "troponin_mi")
+  r <- simulate_study(sc, "ami", "diagnostic", 1000, "age", options = list(lod_handling = "half"), key = FALSE)
+  expect_equal(min(r$data_raw$troponin), 0.005)
+  r2 <- simulate_study(sc, "ami", "diagnostic", 1000, "age", options = list(batches = 5, batch_confounded = TRUE), key = FALSE)
+  expect_identical(names(r2$data_raw), planned_columns(sc, sc$outcomes$ami, "diagnostic", "age", list(batches = 5)))
+  expect_true(any(is.na(r2$data_raw$troponin)))
+  tb <- table(r2$data_raw$batch, r2$data_raw$ami)
+  expect_true(sum(apply(tb, 1, min) == 0) >= 3)
+})

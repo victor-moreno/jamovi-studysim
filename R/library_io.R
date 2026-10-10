@@ -111,7 +111,7 @@ rbind_rows <- function(rows) {
     }))
 }
 
-VAR_FIELDS <- c("from", "type", "dist", "p", "maf", "round", "formula", "only_if", "otherwise")
+VAR_FIELDS <- c("from", "type", "dist", "p", "maf", "round", "formula", "only_if", "otherwise", "lod")
 
 var_row <- function(scenario, id, v) {
     r <- list(scenario = scenario, variable = id)
@@ -121,7 +121,7 @@ var_row <- function(scenario, id, v) {
     c(r, ml_cols(v$units, "units"), ml_cols(v$label, "label"), ml_cols(v$description, "description"))
 }
 
-MARKER_FIELDS <- c("dist", "round", "auc", "direction", "block", "informative", "rho")
+MARKER_FIELDS <- c("dist", "round", "auc", "direction", "block", "informative", "rho", "lod")
 
 OUTCOME_FIELDS <- c("type", "scale", "prevalence", "rate", "median", "shape", "mean", "sd", "within_cor",
                     "size", "window", "followup", "round", "time_units", "marker_cor")

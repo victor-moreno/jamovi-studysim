@@ -93,3 +93,50 @@ entry_errors <- function(fd, cols, pct, seed = 1) {
     attr(fd, "entry_errors") <- total
     fd
 }
+
+# Laboratory realism for assays: markers (diagnostic design) and variables
+# with a limit of detection (`lod:` in the library).
+# - batches: people are assayed in `batches` consecutive groups (or, when
+#   `confounded`, diseased and non-diseased in separate batches); each batch
+#   multiplies the markers by exp(N(0, cv)) (adds N(0, cv) to a standardised
+#   block), and a `batch` column records it;
+# - below the limit of detection a value is reported missing, as LOD/2 or as
+#   LOD (`lod_handling`), or kept ("none").
+assay_realism <- function(fd, sc, oc, design, factors, opt, seed = 1, status = NULL, lang = "en") {
+    nb <- as.integer(opt$batches %||% 0)
+    mk <- if (design == "diagnostic") oc$markers else list()
+    with_seed(seed, {
+        if (nb >= 2 && length(mk)) {
+            n <- nrow(fd)
+            ord <- if (isTRUE(opt$batch_confounded) && !is.null(status)) order(status, seq_len(n)) else seq_len(n)
+            b <- integer(n); b[ord] <- ceiling(seq_len(n) * nb / n)
+            shift <- stats::rnorm(nb, 0, opt$batch_cv %||% 0.15)
+            for (m in mk) for (nm in marker_cols(m)) {
+                x <- fd[[nm]]; desc <- attr(x, "jmv-desc")
+                x <- if (is.null(m$block) && all(x > 0, na.rm = TRUE)) x * exp(shift[b]) else x + shift[b]
+                if (!is.null(m$round)) x <- round(x, m$round)
+                attr(x, "jmv-desc") <- desc; fd[[nm]] <- x
+            }
+            fd$batch <- with_desc(b, gtext("batch", lang))
+            # right after the markers, where planned_columns() puts it
+            last <- max(match(unlist(lapply(mk, marker_cols)), names(fd)))
+            cols <- names(fd)[names(fd) != "batch"]
+            fd <- fd[, append(cols, "batch", after = last), drop = FALSE]
+        }
+    })
+    how <- opt$lod_handling %||% "missing"
+    if (how == "none") return(fd)
+    lods <- c(lapply(stats::setNames(mk, vapply(mk, `[[`, "", "id")), `[[`, "lod"),
+              lapply(stats::setNames(intersect(factors, names(fd)), intersect(factors, names(fd))), function(v) sc$variables[[v]]$lod))
+    for (nm in names(lods)) {
+        L <- lods[[nm]]
+        if (is.null(L) || is.na(L) || !is.numeric(fd[[nm]])) next
+        x <- fd[[nm]]; desc <- attr(x, "jmv-desc")
+        low <- !is.na(x) & x < L
+        x[low] <- switch(how, missing = NA, half = L / 2, lod = L)
+        attr(x, "jmv-desc") <- sprintf("%s; < %s: %s", desc, base::format(L), switch(how, missing = gtext("lod_missing", lang),
+                                       half = "LOD/2", lod = "LOD"))
+        fd[[nm]] <- x
+    }
+    fd
+}

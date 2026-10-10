@@ -193,6 +193,19 @@ children:
           - type: TextBox
             name: noiseVars
             format: number
+          - type: ComboBox
+            name: lodHandling
+          - type: TextBox
+            name: batches
+            format: number
+            enable: (design:diagnostic)
+          - type: TextBox
+            name: batchCv
+            format: number
+            enable: (design:diagnostic)
+          - type: CheckBox
+            name: batchConfounded
+            enable: (design:diagnostic)
   - type: CollapseBox
     label: Output
     collapsed: true

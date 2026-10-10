@@ -53,6 +53,8 @@ GENERIC <- list(
     mc_note = list(en = "the regression slope is attenuated by A's own error; the true slope is per unit of the true value",
                    es = "la pendiente de regresión se atenúa por el error del propio A; la pendiente verdadera es por unidad del valor verdadero",
                    ca = "el pendent de regressió s'atenua per l'error del mateix A; el pendent veritable és per unitat del valor veritable"),
+    batch = list(en = "Assay batch", es = "Lote de análisis", ca = "Lot d'anàlisi"),
+    lod_missing = list(en = "missing", es = "falta", ca = "falta"),
     extra = list(en = "Extra variable", es = "Variable adicional", ca = "Variable addicional"),
     cat_log2 = list(en = "log2", es = "log2", ca = "log2"),
     cat_log10 = list(en = "log10", es = "log10", ca = "log10"),
@@ -183,7 +185,7 @@ data_dictionary <- function(sc, df, factors, ids = names(df)) {
     rows <- lapply(seq_along(df), function(j) {
         x <- df[[j]]; id <- ids[j]
         role <- if (id %in% factors || !is.null(attr(x, "eco")) || grepl("^extra_[0-9]+$", id)) "factor"
-                else if (id %in% c("id", "set", "sequence", "period", "subcohort", "cluster", "look", "visit", "region", "population")) "design"
+                else if (id %in% c("id", "set", "sequence", "period", "subcohort", "cluster", "look", "visit", "region", "population", "batch")) "design"
                 else if (id %in% names(sc$interventions)) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
         values <- if (is.factor(x)) paste(levels(x), collapse = ", ")
@@ -245,7 +247,7 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
                   else if (design %in% CASE_DESIGNS) c("case", if (design == "nested_cc") "time")
                   else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct", "case_cohort", "cluster_rct", "factorial")) c("time", oc$id)
                   else oc$id)
-    if (design == "diagnostic") out <- c(out, unlist(lapply(oc$markers, marker_cols)))
+    if (design == "diagnostic") out <- c(out, unname(unlist(lapply(oc$markers, marker_cols))), if ((opt$batches %||% 0) >= 2) "batch")
     c(out, intersect(sc$order, factors), noise_names(opt$noise %||% 0))
 }
 
@@ -256,7 +258,7 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
     cols <- planned_columns(sc, oc, design, factors, opt)
     out <- list()
     iv_pp <- if (design == "pre_post") trial_iv(sc, oc)$id else character()   # everybody treated: not described
-    for (nm in setdiff(cols, c("id", "set", "cluster", "look", "visit", "region", "population", iv_pp))) {
+    for (nm in setdiff(cols, c("id", "set", "cluster", "look", "visit", "region", "population", "batch", iv_pp))) {
         if (design == "ecological") {
             # region totals, means and percentages; a categorised mean has groups
             spec <- categorize[[nm]]

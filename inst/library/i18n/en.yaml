@@ -10,6 +10,7 @@ names:
   time: time
   sequence: sequence
   period: period
+  batch: batch
   subcohort: subcohort
   design: design
   cluster: cluster

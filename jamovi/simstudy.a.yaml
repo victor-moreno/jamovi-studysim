@@ -412,6 +412,41 @@ options:
       description:
           R: share of numeric cells with a typing error (decimal slip, swapped digits, 999)
 
+    - name: lodHandling
+      title: Values below the detection limit
+      type: List
+      options:
+          - name: missing
+            title: Reported as missing
+          - name: half
+            title: Replaced by LOD/2
+          - name: lod
+            title: Replaced by the LOD
+          - name: none
+            title: Kept (no limit)
+      default: missing
+      description:
+          R: assays with a limit of detection in the library (lod)
+
+    - name: batches
+      title: Assay batches (markers)
+      type: Integer
+      default: 0
+      min: 0
+      max: 20
+
+    - name: batchCv
+      title: Variation between batches (%)
+      type: Number
+      default: 15
+      min: 0
+      max: 100
+
+    - name: batchConfounded
+      title: Cases and controls in separate batches
+      type: Bool
+      default: false
+
     - name: noiseVars
       title: Extra variables with no effect
       type: Integer

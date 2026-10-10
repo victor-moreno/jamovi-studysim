@@ -10,7 +10,8 @@ items:
       visible: false
       clearWith: &gen [libContent, scenario, outcome, design, measured, n, ccRatio, followup, loss,
                        accrual, subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd, threshold, mcBias, mcSlope, mcErrorA, mcErrorB,
-                       period, carryover, missing, missingMech, reliability, misclass, entryErrors, noiseVars, seed,
+                       period, carryover, missing, missingMech, reliability, misclass, entryErrors, noiseVars, lodHandling,
+                       batches, batchCv, batchConfounded, seed,
                        studentKey]
 
     - name: summary

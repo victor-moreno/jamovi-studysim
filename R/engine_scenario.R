@@ -76,6 +76,7 @@ normalize_variable <- function(id, v, dict, pr) {
     }
     out <- list(id = id, type = v$type, label = v$label %||% id, description = v$description,
                 units = v$units, round = v$round)
+    if (!is.null(v$lod)) out$lod <- try_at(pr, where, num_expr(v$lod))   # limit of detection of an assay
     if (!is.null(v$range)) out$range <- try_at(pr, where, num_vec(v$range))
     # rules (engine_rules.R), parsed once all the variables are known
     out$rules_raw <- list(formula = v$formula, only_if = v$only_if, p = v$p)
@@ -261,6 +262,7 @@ normalize_marker <- function(oc_id, id, m, pr) {
     }
     if (!is.null(m$range)) out$range <- try_at(pr, where, num_vec(m$range))
     if (!is.null(m$dist)) out$dist <- try_at(pr, where, parse_dist(m$dist))
+    if (!is.null(m$lod)) out$lod <- g(m$lod, NA)   # limit of detection
     out
 }
 

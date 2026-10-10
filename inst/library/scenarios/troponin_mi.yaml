@@ -45,6 +45,7 @@ outcomes:
         dist: lognormal(8, 7)
         range: [3, 10000]
         round: 0
+        lod: 5
         auc: 0.96
       troponin:
         label: {en: Standard troponin T, es: Troponina T convencional, ca: Troponina T convencional}
@@ -52,6 +53,7 @@ outcomes:
         dist: lognormal(0.012, 0.012)
         range: [0.001, 25]
         round: 3
+        lod: 0.01
         auc: 0.90
 
 null_variables: [early]
