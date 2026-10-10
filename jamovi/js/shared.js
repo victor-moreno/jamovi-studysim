@@ -179,11 +179,26 @@ function syncSelect(ui, name, entries, onChange) {
     $input.css('display', 'none');
     var cur = getOpt(ui, name);
     $sel.empty();
+    // entries [value, label, group]: consecutive entries of a group go in one <optgroup>
+    var $parent = $sel, group = null;
     for (var i = 0; i < entries.length; i++) {
+        var g = entries[i][2];
+        if (g && g !== group) { $parent = jq('<optgroup></optgroup>').attr('label', g); $sel.append($parent); group = g; }
         var $o = jq('<option></option>').attr('value', entries[i][0]).text(entries[i][1]);
         if (entries[i][0] === cur) $o.attr('selected', 'selected');
-        $sel.append($o);
+        $parent.append($o);
     }
+}
+
+// scenario picker entries grouped by domain, then sorted by label
+function scenarioEntries(lib, l) {
+    var out = Object.keys(lib.scenarios).map(function(k) {
+        var sc = lib.scenarios[k];
+        var dom = String(sc.domain || '');
+        return [k, tr(sc.label, l) || k, dom ? dom.charAt(0).toUpperCase() + dom.slice(1) : ''];
+    });
+    out.sort(function(a, b) { return a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : a[1].localeCompare(b[1]); });
+    return out;
 }
 
 function browseButton(ui, onLoaded) {
@@ -246,5 +261,5 @@ module.exports = {
     BUILTIN: BUILTIN, DESIGNS: DESIGNS, getOpt: getOpt, setOpt: setOpt, lang: lang, tr: tr, dname: dname, dlevel: dlevel,
     varDef: varDef, isNumeric: isNumeric, unitsText: unitsText,
     library: library, customLibrary: customLibrary, designsFor: designsFor,
-    syncSelect: syncSelect, browseButton: browseButton
+    syncSelect: syncSelect, browseButton: browseButton, scenarioEntries: scenarioEntries
 };

@@ -20,7 +20,7 @@ module.exports = {
         var lib = S.library(ui);
         var ids = Object.keys(lib.scenarios);
         if (!lib.scenarios[S.getOpt(ui, 'scenario')]) S.setOpt(ui, 'scenario', ids[0]);
-        S.syncSelect(ui, 'scenario', ids.map(function(k) { return [k, S.tr(lib.scenarios[k].label, l) || k]; }),
+        S.syncSelect(ui, 'scenario', S.scenarioEntries(lib, l),
             function(v) { S.setOpt(ui, 'scenario', v); });
     },
     view_loaded: function(ui) { this.refresh(ui); },

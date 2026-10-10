@@ -37,7 +37,7 @@ module.exports = {
         if (ocs.indexOf(ocId) < 0) { ocId = ocs[0]; S.setOpt(ui, 'outcome', ocId); reset = true; }
         var oc = sc.outcomes[ocId];
 
-        S.syncSelect(ui, 'scenario', ids.map(function(k) { return [k, S.tr(lib.scenarios[k].label, l) || k]; }),
+        S.syncSelect(ui, 'scenario', S.scenarioEntries(lib, l),
             function(v) { S.setOpt(ui, 'scenario', v); S.setOpt(ui, 'outcome', ''); self.refresh(ui, true); });
         S.syncSelect(ui, 'outcome', ocs.map(function(k) { return [k, S.tr(sc.outcomes[k].label, l) || k]; }),
             function(v) { S.setOpt(ui, 'outcome', v); self.refresh(ui, true); });

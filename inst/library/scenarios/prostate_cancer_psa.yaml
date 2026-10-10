@@ -1,6 +1,6 @@
 id: prostate_cancer_psa
 label: {en: PSA and prostate cancer, es: PSA y cáncer de próstata, ca: PSA i càncer de pròstata}
-domain: diagnostics
+domain: oncology
 population: {en: "Men aged 50-80 referred for a prostate biopsy", es: "Hombres de 50 a 80 años remitidos para una biopsia de próstata", ca: "Homes de 50 a 80 anys derivats per a una biòpsia de pròstata"}
 
 variables:

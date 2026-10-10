@@ -1,6 +1,6 @@
 id: breast_fna
 label: {en: "Breast fine-needle aspirates", es: "Punción aspirativa de mama", ca: "Punció aspirativa de mama"}
-domain: oncology / pathology
+domain: oncology
 population: {en: "Women with a breast lump sampled by fine-needle aspiration, University of Wisconsin hospitals, 1989-91", es: "Mujeres con un nódulo de mama estudiado por punción aspirativa, hospitales de la Universidad de Wisconsin, 1989-91", ca: "Dones amb un nòdul de mama estudiat per punció aspirativa, hospitals de la Universitat de Wisconsin, 1989-91"}
 
 # Estimated from the 683 complete aspirates of the R dataset biopsy (MASS):

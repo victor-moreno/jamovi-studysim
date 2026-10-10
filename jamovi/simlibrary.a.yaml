@@ -4,7 +4,7 @@ title: Library
 menuGroup: Simulate
 menuTitle: Library
 menuSubtitle: Import, check, explore and export scenarios
-version: '0.2.0'
+version: '0.3.0'
 jas: '1.2'
 
 description:

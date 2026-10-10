@@ -4,7 +4,7 @@ title: Derive scenario from data
 menuGroup: Simulate
 menuTitle: Derive scenario
 menuSubtitle: Estimate a scenario from the open dataset
-version: '0.2.0'
+version: '0.3.0'
 jas: '1.2'
 
 description:

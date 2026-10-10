@@ -1,6 +1,6 @@
 id: wilms_tumour
 label: {en: "Relapse of Wilms tumour", es: "Recaída del tumor de Wilms", ca: "Recaiguda del tumor de Wilms"}
-domain: paediatric oncology
+domain: oncology
 population: {en: "Children treated for Wilms tumour in the National Wilms Tumor Studies 3 and 4 (USA, 1979-94)", es: "Niños tratados por un tumor de Wilms en los National Wilms Tumor Studies 3 y 4 (EE. UU., 1979-94)", ca: "Infants tractats per un tumor de Wilms als National Wilms Tumor Studies 3 i 4 (EUA, 1979-94)"}
 
 # Estimated from the 4,028 children of the R dataset nwtco (survival package):

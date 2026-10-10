@@ -30,10 +30,62 @@ parameters and what crude and adjusted analyses of that design should find.
   correlations, conditional effects) and checks it by simulation; an AI prompt and
   a Claude skill in `ai/` turn it into a teaching scenario.
 
-Seven scenarios ship with version 0.2 (breast cancer risk and prognosis, coronary
-heart disease, an antihypertensive trial, metformin, bioequivalence, PSA and
-prostate cancer); the format is in `inst/library/schema.md`. Effect sizes are teaching-grade plausible values
-informed by the cited literature, not meta-analytic estimates.
+## Scenarios
+
+42 scenarios, most replicating a real study: their parameters were estimated
+with the module's own *Derive* engine from open patient-level data (R
+packages survival, MASS, datasets, HSAUR3, TH.data, pROC, medicaldata,
+aplore3, NHANES), or taken from the published tables of the study; each was
+then given a causal structure and a teaching note (English, Spanish, Catalan).
+The files store parameters only, never data. The format is in
+`inst/library/schema.md`. Effect sizes reproduce the source's main estimates
+as teaching values, not meta-analytic estimates.
+
+| domain | scenario | designs | parameters from |
+|---|---|---|---|
+| Cardiovascular | Antihypertensive drug vs placebo (`antihypertensive_trial`) | rct, crossover, cluster_rct, factorial, longitudinal | published studies |
+|  | Aspirin and beta-carotene in male physicians (`physicians_health`) | factorial, rct | published studies |
+|  | Blood pressure in US adults (`nhanes_blood_pressure`) | cross_sectional, case_control | NHANESraw (R package NHANES) |
+|  | Coronary heart disease incidence (`chd_incidence`) | cohort, case_control, matched_cc, nested_cc, case_cohort, ecological | published studies |
+|  | High-sensitivity troponin for myocardial infarction (`troponin_mi`) | diagnostic, cross_sectional | published studies |
+|  | Streptokinase and aspirin after myocardial infarction (`isis2`) | factorial, rct | published studies |
+| Child Health | Vitamin A and child mortality (`vitamin_a_aceh`) | cluster_rct, rct | published studies |
+| Environmental | Succimer for lead-exposed children (`lead_succimer`) | longitudinal, rct | published studies |
+|  | Water hardness and mortality (`water_hardness`) | ecological, cohort | R dataset water (HSAUR3 package) |
+| Gastroenterology | Rectal indomethacin to prevent post-ERCP pancreatitis (`indomethacin_ercp`) | rct, cluster_rct | indo_rct (R package medicaldata) |
+| Haematology | Progression of MGUS (`mgus_progression`) | prognosis, cohort | R dataset mgus2 (survival package) |
+|  | Serum free light chains and mortality (`free_light_chain`) | cohort, case_cohort, nested_cc | R dataset flchain (survival package) |
+| Hepatology | Primary biliary cholangitis (`pbc_mayo`) | prognosis, rct | R dataset pbc (survival package) |
+| Infectious | Dexamethasone in hospitalised COVID-19 (`recovery_dexamethasone`) | rct | published studies |
+|  | Handwashing and childhood pneumonia (`handwashing_karachi`) | cluster_rct, rct | published studies |
+|  | Salk polio vaccine field trial (`polio_vaccine`) | rct, cluster_rct | published studies |
+|  | Streptomycin for pulmonary tuberculosis (`streptomycin_tb`) | rct | strep_tb (R package medicaldata) |
+| Mental Health | Computerised CBT for depression (`beat_the_blues`) | longitudinal, rct | R dataset BtheB (HSAUR3 package) |
+| Metabolic | Diabetes in Pima women (`pima_diabetes`) | cross_sectional, diagnostic, case_control | R datasets Pima.tr and Pima.te (MASS package) |
+|  | Metformin vs placebo on HbA1c (`metformin_hba1c`) | rct, cluster_rct, longitudinal | published studies |
+| Musculoskeletal | Fracture in older women (`glow_fracture`) | cohort, case_control | GLOW500 (R package aplore3) |
+| Neurology | Biomarkers after subarachnoid haemorrhage (`subarachnoid_haemorrhage`) | diagnostic, cohort | R dataset aSAH (pROC package) |
+|  | Progabide for epilepsy (`epilepsy_progabide`) | rct | R dataset epil (MASS package) |
+| Oncology | Adjuvant chemotherapy for colon cancer (`colon_adjuvant`) | rct, prognosis | R dataset colon (survival package) |
+|  | Breast cancer prognosis (`breast_cancer_prognosis`) | prognosis, cohort | published studies |
+|  | Breast cancer risk factors (`breast_cancer_risk`) | case_control, matched_cc, cohort, nested_cc, case_cohort, ecological | published studies |
+|  | Breast fine-needle aspirates (`breast_fna`) | diagnostic | R dataset biopsy (MASS package) |
+|  | Chemotherapy for advanced lung cancer (`veterans_lung`) | rct, prognosis | R dataset veteran (survival package) |
+|  | Dietary fat and breast cancer (`dietary_fat_breast`) | ecological, case_control, cohort | published studies |
+|  | Hormonal therapy in node-positive breast cancer (`gbsg2_breast`) | rct, prognosis | R dataset GBSG2 (TH.data package) |
+|  | Lung cancer and smoking (`lung_cancer_smoking`) | case_control, matched_cc, cohort, nested_cc | Doll & Hill 1950 smoking tables |
+|  | Oesophageal cancer: alcohol and tobacco (`esoph_cancer`) | case_control, matched_cc, cohort | R dataset esoph (datasets package) |
+|  | PSA and prostate cancer (`prostate_cancer_psa`) | diagnostic, cross_sectional, case_control | published studies |
+|  | Relapse of Wilms tumour (`wilms_tumour`) | cohort, case_cohort, nested_cc, case_control | R dataset nwtco (survival package) |
+|  | Survival in advanced lung cancer (`lung_ncctg`) | prognosis | R dataset lung (survival package) |
+| Ophthalmology | Glaucoma by laser scanning tomography (`glaucoma_hrt`) | diagnostic | R dataset GlaucomaM (TH.data package) |
+|  | Myopia in children (`myopia`) | cohort, case_control | myopia (R package aplore3) |
+| Perinatal | Low birth weight (`low_birth_weight`) | cross_sectional, case_control, cohort | R dataset birthwt (MASS package) |
+| Pharmacology | Bioequivalence of two formulations (`bioequivalence`) | crossover, rct | published studies |
+|  | Two hypnotics compared (`hypnotics_sleep`) | crossover, rct | R dataset sleep (datasets package) |
+| Reproductive | Secondary infertility after abortion (`infertility_abortion`) | matched_cc, case_control, cross_sectional | R dataset infert (datasets package) |
+| Respiratory | Formoterol vs salbutamol in asthma (`asthma_formoterol`) | crossover, rct | published studies |
+
 
 The options, results, built-in scenarios and dataset column names are available in
 English, Spanish and Catalan, following jamovi's language setting.
@@ -64,7 +116,11 @@ Designed and built together with Claude Code, over several rounds of design,
 implementation and testing in jamovi. Ideas come from simstudy, simDAG, PRIME-CVD
 and The Islands; no code was copied. Survival models use the R package `survival`
 by Terry Therneau; mixed models in the answer key use `nlme` (Pinheiro, Bates and
-the R Core Team).
+the R Core Team). Scenario parameters were estimated from datasets distributed
+with the R packages survival (Therneau), MASS (Venables and Ripley), datasets
+(R Core Team), HSAUR3 (Everitt and Hothorn), TH.data (Hothorn), pROC (Robin et
+al.), medicaldata (Higgins), aplore3 (Braglia) and NHANES (Pruim); we thank the
+original investigators, cited in each scenario.
 
 This module has been developed with support of the Instituto de Salud Carlos III
 (ISCIII), “Programa FORTALECE del Ministerio de Ciencia e Innovación”, through the

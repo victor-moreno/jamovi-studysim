@@ -4,7 +4,7 @@ title: Simulated study
 menuGroup: Simulate
 menuTitle: Simulated study
 menuSubtitle: Scenario, design, dataset and answer key
-version: '0.2.0'
+version: '0.3.0'
 jas: '1.2'
 
 description:
