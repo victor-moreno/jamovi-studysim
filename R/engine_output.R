@@ -15,6 +15,11 @@ GENERIC <- list(
     settime = list(en = "Time at which the set was sampled (the case's event time)", es = "Tiempo en que se muestreó el conjunto (el del evento del caso)",
                    ca = "Temps en què es va mostrejar el conjunt (el de l'esdeveniment del cas)"),
     subcohort = list(en = "Member of the random subcohort", es = "Miembro de la subcohorte aleatoria", ca = "Membre de la subcohort aleatòria"),
+    region = list(en = "Region", es = "Región", ca = "Regió"),
+    population = list(en = "People in the region", es = "Personas en la región", ca = "Persones a la regió"),
+    cases_in = list(en = "Cases in {w} years", es = "Casos en {w} años", ca = "Casos en {w} anys"),
+    mean_of = list(en = "Mean", es = "Media", ca = "Mitjana"),
+    pct_of = list(en = "% with", es = "% con", ca = "% amb"),
     visit = list(en = "Visit (0 = baseline, before treatment)", es = "Visita (0 = basal, antes del tratamiento)", ca = "Visita (0 = basal, abans del tractament)"),
     cluster = list(en = "Cluster (unit of randomisation)", es = "Conglomerado (unidad de aleatorización)", ca = "Conglomerat (unitat d'aleatorització)"),
     look = list(en = "First interim look that includes the participant", es = "Primer análisis intermedio que incluye al participante",
@@ -54,8 +59,37 @@ code_to_column <- function(x, v) {
         factor(v$levels[x], levels = v$levels))
 }
 
+# One row per region: totals, the outcome, and the region's mean or percentage
+# of each measured variable. A per-level column keeps its variable and level
+# in an attribute, so localise_data() can translate its name.
+format_ecological <- function(sc, oc, res, factors, lang = "en") {
+    d <- res$data
+    out <- list(region = with_desc(as.integer(d$.region), gtext("region", lang)),
+                population = with_desc(as.integer(d$.pop), gtext("population", lang)))
+    out[[oc$id]] <- if (oc$type %in% c("binary", "event"))
+        with_desc(as.integer(d$.y), sprintf("%s: %s", tr_text(oc$label, lang), sub("{w}", base::format(oc$window), gtext("cases_in", lang), fixed = TRUE)))
+    else with_desc(round(d$.y, (oc$round %||% 2) + 1), sprintf("%s: %s", gtext("mean_of", lang), var_desc(oc, lang)))
+    for (v in factors) {
+        x <- sc$variables[[v]]
+        if (x$type %in% c("continuous", "count")) {
+            out[[v]] <- with_desc(round(d[[v]], (x$round %||% 1) + 1), sprintf("%s: %s", gtext("mean_of", lang), var_desc(x, lang)))
+        } else if (x$type == "binary") {
+            out[[v]] <- with_desc(round(100 * d[[v]], 1), sprintf("%s %s: %s", gtext("pct_of", lang), dlevel(x$levels[2], lang), tr_text(x$label, lang)))
+        } else for (k in seq_along(x$levels)[-1]) {
+            nm <- eco_col(v, x$levels[k])
+            col <- with_desc(round(100 * d[[nm]], 1), sprintf("%s %s: %s", gtext("pct_of", lang), dlevel(x$levels[k], lang), tr_text(x$label, lang)))
+            attr(col, "eco") <- c(v, x$levels[k])
+            out[[nm]] <- col
+        }
+    }
+    df <- as.data.frame(out, stringsAsFactors = FALSE, check.names = FALSE)
+    for (nm in names(out)) for (a in c("jmv-desc", "eco")) attr(df[[nm]], a) <- attr(out[[nm]], a)
+    df
+}
+
 # res: list(data, facts) from a design; factors: the scenario variables to show
 format_study <- function(sc, oc, design, res, factors, lang = "en") {
+    if (design == "ecological") return(format_ecological(sc, oc, res, factors, lang))
     d <- res$data
     n <- nrow(d)
     out <- list()
@@ -109,7 +143,8 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
 data_dictionary <- function(sc, df, factors, ids = names(df)) {
     rows <- lapply(seq_along(df), function(j) {
         x <- df[[j]]; id <- ids[j]
-        role <- if (id %in% factors) "factor" else if (id %in% c("id", "set", "sequence", "period", "subcohort", "cluster", "look", "visit")) "design"
+        role <- if (id %in% factors || !is.null(attr(x, "eco"))) "factor"
+                else if (id %in% c("id", "set", "sequence", "period", "subcohort", "cluster", "look", "visit", "region", "population")) "design"
                 else if (id %in% names(sc$interventions)) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
         values <- if (is.factor(x)) paste(levels(x), collapse = ", ")
@@ -151,6 +186,8 @@ apply_missing <- function(df, cols, pct, mech, seed, driver = NULL, unit = df$id
 # The dataset's column names, known before any data are drawn (the results
 # tables need their rows in .init()); mirrors format_study().
 planned_columns <- function(sc, oc, design, factors, opt = list()) {
+    if (design == "ecological")
+        return(c("region", "population", oc$id, unlist(lapply(intersect(sc$order, factors), function(v) eco_cols(sc, v)))))
     iv <- if (design %in% c("rct", "crossover", "cluster_rct", "longitudinal")) trial_iv(sc, oc)$id
           else if (design == "factorial") names(factorial_ivs(sc, oc)) else character()
     looks <- design == "rct" && (opt$looks %||% 0) >= 2 && oc$type != "event"
@@ -169,7 +206,15 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
 planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = list(), opt = list()) {
     cols <- planned_columns(sc, oc, design, factors, opt)
     out <- list()
-    for (nm in setdiff(cols, c("id", "set", "cluster", "look", "visit"))) {
+    for (nm in setdiff(cols, c("id", "set", "cluster", "look", "visit", "region", "population"))) {
+        if (design == "ecological") {
+            # region totals, means and percentages; a categorised mean has groups
+            spec <- categorize[[nm]]
+            out[[nm]] <- if (!is.null(spec) && spec$form != "continuous" && !is.null(sc$variables[[nm]]) &&
+                             sc$variables[[nm]]$type %in% c("continuous", "count"))
+                structure(paste0(cat_prefix(spec), seq_len(cat_groups(spec))), dynamic = TRUE) else "cont"
+            next
+        }
         out[[nm]] <- if (nm == "sequence") {
             lv <- trial_iv(sc, oc)$levels
             c(paste(lv, collapse = "-"), paste(rev(lv), collapse = "-"))

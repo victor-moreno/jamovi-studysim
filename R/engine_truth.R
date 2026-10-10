@@ -82,6 +82,7 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
         fd <- fd[fd$time > fd$.start, , drop = FALSE]   # censored at time 0: no contribution
     }
     if (design == "longitudinal") return(fit_longitudinal(sc, oc, fd, terms, full))
+    if (design == "ecological") return(fit_ecological(sc, oc, fd, terms))
     if (design == "crossover" && full) {
         # subject fixed effects by the within transformation: same estimate as
         # lm(y ~ trt + period + factor(id)), without a column per subject
@@ -155,6 +156,24 @@ fit_longitudinal <- function(sc, oc, fd, terms, full) {
     list(coef = b, se = se, measure = meas, log = isTRUE(oc$log))
 }
 
+# Ecological regression on region totals: cases out of the population
+# (logistic, OR), the mean outcome weighted by population (linear, beta; quasi-
+# Poisson for counts, RR). A variable stands for its region mean or
+# percentage(s); a percentage's coefficient is per percentage point.
+fit_ecological <- function(sc, oc, fd, terms) {
+    cols <- unlist(lapply(terms, function(v) if (v %in% names(fd)) v else eco_cols(sc, v)))
+    rhs <- paste(sprintf("`%s`", cols), collapse = " + ")
+    f <- switch(if (oc$type %in% c("binary", "event")) "binary" else oc$type,
+        binary = stats::glm(stats::as.formula(sprintf("cbind(`%s`, population - `%s`) ~ %s", oc$id, oc$id, rhs)), stats::binomial(), fd),
+        count = stats::glm(stats::as.formula(sprintf("`%s` ~ %s", oc$id, rhs)), stats::quasipoisson(), fd, weights = population),
+        continuous = stats::lm(stats::as.formula(sprintf("%s ~ %s", if (isTRUE(oc$log)) sprintf("log(`%s`)", oc$id) else sprintf("`%s`", oc$id), rhs)),
+                               fd, weights = population))
+    b <- stats::coef(f); names(b) <- gsub("`", "", names(b))
+    se <- sqrt(diag(as.matrix(stats::vcov(f)))); names(se) <- names(b)
+    meas <- if (oc$type %in% c("binary", "event")) "OR" else if (oc$type == "count") "RR" else if (isTRUE(oc$log)) "ratio" else "beta"
+    list(coef = b, se = se, measure = meas, log = meas != "beta")
+}
+
 # Cluster-robust (sandwich) standard errors of a linear or canonical-link GLM:
 # the scores x (y - mu) summed within clusters, with the small-sample factor
 # G / (G - 1)
@@ -172,11 +191,12 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     cal <- calibrate(sc, oc)
     n_big <- switch(design, case_control = 3000 * (1 + opt$ratio), matched_cc = 1500 * (1 + opt$ratio),
                     nested_cc = 2000 * (1 + opt$ratio), case_cohort = 8000,
-                    cluster_rct = max(20000, 50 * (opt$clusters %||% 20)), longitudinal = 3000,
+                    cluster_rct = max(20000, 50 * (opt$clusters %||% 20)), longitudinal = 3000, ecological = 200,
                     crossover = 4000, 20000)
     # the expectation of a cluster trial does not depend on the number of
     # clusters; many clusters keep the cluster effects from blurring it
     if (design == "cluster_rct") opt$clusters <- max(opt$clusters, 400)
+    if (design == "ecological") opt$regions <- 200
     big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), n_big, opt)
     fd <- format_study(sc, oc, design, big, sc$order, "en")
     fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
@@ -203,6 +223,12 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
             cr0 <- cr0[cr0$idx <= nlevels(fd[[v]]), ]
             cr <- data.frame(variable = v, contrast = cr0$contrast, coefname = paste0(v, levels(fd[[v]])[cr0$idx]),
                              per = 1, level = NA_integer_, stringsAsFactors = FALSE)
+        }
+        if (design == "ecological" && !catd && !is.null(sc$variables[[v]]) && !sc$variables[[v]]$type %in% c("continuous", "count")) {
+            # all versus none of the region in the level (100 percentage points)
+            x <- sc$variables[[v]]
+            cr$coefname <- if (x$type == "binary") v else eco_col(v, x$levels[cr$level])
+            cr$per <- 100
         }
         crude <- fit_design_model(design, sc, oc, fd, v, full = FALSE)
         get <- function(fit, z = 0) {

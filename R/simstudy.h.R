@@ -24,6 +24,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             interaction = 0,
             visits = 4,
             dropout = 20,
+            regions = 30,
+            regionSize = 2000,
+            regionSd = 0.5,
+            contextSd = 0.2,
             period = 0,
             carryover = 0,
             missing = 0,
@@ -76,7 +80,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "case_cohort",
                     "cluster_rct",
                     "factorial",
-                    "longitudinal"),
+                    "longitudinal",
+                    "ecological"),
                 default="case_control")
             private$..measured <- jmvcore::OptionArray$new(
                 "measured",
@@ -182,6 +187,30 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=20,
                 min=0,
                 max=80)
+            private$..regions <- jmvcore::OptionInteger$new(
+                "regions",
+                regions,
+                default=30,
+                min=3,
+                max=500)
+            private$..regionSize <- jmvcore::OptionInteger$new(
+                "regionSize",
+                regionSize,
+                default=2000,
+                min=10,
+                max=100000)
+            private$..regionSd <- jmvcore::OptionNumber$new(
+                "regionSd",
+                regionSd,
+                default=0.5,
+                min=0,
+                max=2)
+            private$..contextSd <- jmvcore::OptionNumber$new(
+                "contextSd",
+                contextSd,
+                default=0.2,
+                min=0,
+                max=2)
             private$..period <- jmvcore::OptionNumber$new(
                 "period",
                 period,
@@ -260,6 +289,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..interaction)
             self$.addOption(private$..visits)
             self$.addOption(private$..dropout)
+            self$.addOption(private$..regions)
+            self$.addOption(private$..regionSize)
+            self$.addOption(private$..regionSd)
+            self$.addOption(private$..contextSd)
             self$.addOption(private$..period)
             self$.addOption(private$..carryover)
             self$.addOption(private$..missing)
@@ -293,6 +326,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         interaction = function() private$..interaction$value,
         visits = function() private$..visits$value,
         dropout = function() private$..dropout$value,
+        regions = function() private$..regions$value,
+        regionSize = function() private$..regionSize$value,
+        regionSd = function() private$..regionSd$value,
+        contextSd = function() private$..contextSd$value,
         period = function() private$..period$value,
         carryover = function() private$..carryover$value,
         missing = function() private$..missing$value,
@@ -325,6 +362,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..interaction = NA,
         ..visits = NA,
         ..dropout = NA,
+        ..regions = NA,
+        ..regionSize = NA,
+        ..regionSd = NA,
+        ..contextSd = NA,
         ..period = NA,
         ..carryover = NA,
         ..missing = NA,
@@ -384,6 +425,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "interaction",
                     "visits",
                     "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
                     "period",
                     "carryover",
                     "missing",
@@ -412,6 +457,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "interaction",
                     "visits",
                     "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
                     "period",
                     "carryover",
                     "missing",
@@ -442,6 +491,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "interaction",
                     "visits",
                     "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
                     "period",
                     "carryover",
                     "missing",
@@ -493,6 +546,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "interaction",
                     "visits",
                     "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
                     "period",
                     "carryover",
                     "missing",
@@ -586,6 +643,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "interaction",
                     "visits",
                     "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
                     "period",
                     "carryover"),
                 columns=list(
@@ -640,6 +701,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "interaction",
                     "visits",
                     "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
                     "period",
                     "carryover",
                     "missing",
@@ -670,6 +735,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "interaction",
                     "visits",
                     "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
                     "period",
                     "carryover",
                     "missing",
@@ -705,6 +774,10 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "interaction",
                     "visits",
                     "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
                     "period",
                     "carryover",
                     "missing",
@@ -785,6 +858,13 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   one is the outcome's time)
 #' @param dropout longitudinal trial, participants missing the last visit;
 #'   dropout depends on the last value seen (missing at random)
+#' @param regions ecological study, number of regions (rows); the sample size
+#'   is not used
+#' @param regionSize .
+#' @param regionSd ecological study, SD of the regions' shifts of the
+#'   variables (latent standard-normal scale)
+#' @param contextSd ecological study, SD of an unexplained region effect on
+#'   the outcome (linear predictor scale)
 #' @param period .
 #' @param carryover .
 #' @param missing .
@@ -840,6 +920,10 @@ simStudy <- function(
     interaction = 0,
     visits = 4,
     dropout = 20,
+    regions = 30,
+    regionSize = 2000,
+    regionSd = 0.5,
+    contextSd = 0.2,
     period = 0,
     carryover = 0,
     missing = 0,
@@ -881,6 +965,10 @@ simStudy <- function(
         interaction = interaction,
         visits = visits,
         dropout = dropout,
+        regions = regions,
+        regionSize = regionSize,
+        regionSd = regionSd,
+        contextSd = contextSd,
         period = period,
         carryover = carryover,
         missing = missing,

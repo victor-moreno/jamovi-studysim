@@ -45,7 +45,7 @@ outcomes:
     label: {en: Coronary heart disease event, es: Evento coronario, ca: Esdeveniment coronari}
     risk: {value: 0.08, at: 10}
     followup: 10
-    designs: [cohort, case_control, matched_cc, nested_cc, case_cohort]
+    designs: [cohort, case_control, matched_cc, nested_cc, case_cohort, ecological]
     effects:
       age: {HR: 1.05, per: 1}
       sex: {HR: 1.6}

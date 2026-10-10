@@ -109,6 +109,7 @@ simCompareClass <- R6::R6Class(
                     if (!is.null(f$matched_on)) jmvcore::format(.("matched on {vars}"), vars = paste(dname(f$matched_on, ctx$lang), collapse = ", ")),
                     if (!is.null(f$events)) jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)),
                     if (!is.null(f$arms)) paste(sprintf("%s: %s", dlevel(names(f$arms), ctx$lang), unlist(f$arms)), collapse = ", "),
+                    if (!is.null(f$regions)) jmvcore::format(.("{k} regions of {m} people"), k = num(f$regions), m = num(f$region_size)),
                     if (!is.null(f$sequences)) jmvcore::format(.("sequences: {a} and {b} participants"), a = f$sequences[1], b = f$sequences[2]))
                 self$results$studies$setRow(rowKey = d, values = list(rows = nrow(res$runs[[d]]$data), detail = paste(det, collapse = "; ")))
             }

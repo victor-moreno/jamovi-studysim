@@ -21,6 +21,7 @@ design_defaults <- function(design, oc, sc) {
         cluster_rct = list(followup = oc$followup, loss = 0.02, clusters = 20, icc = 0.05),
         factorial = list(followup = oc$followup, loss = 0.02, block = 4, interaction = 0),
         longitudinal = list(block = 4, visits = 4, dropout = 0.2),
+        ecological = list(regions = 30, region_size = 2000, region_sd = 0.5, context_sd = 0.2),
         case_cohort = list(subcohort = 0.1, followup = oc$followup, loss = 0.02, accrual = 0))
     utils::modifyList(d, sc$design_defaults[[design]] %||% list())
 }
@@ -398,12 +399,60 @@ sim_longitudinal <- function(sc, oc, cal, seed, n, opt) {
                                 completers_by_arm = tabulate(arm[lastv == K], length(iv$levels))))
 }
 
+# Ecological study: `regions` regions of `region_size` people each (whole
+# regions: the study size n is not used). Regions differ in
+# the means of the exogenous latents (SD `region_sd`, correlated as the
+# variables are), which the structure carries to the others, and in an
+# unexplained region effect on the outcome (SD `context_sd`, linear predictor
+# scale). Only region totals and means are kept: population, cases (binary or
+# event outcomes, within the risk window) or the mean outcome, the mean of
+# each numeric variable and the proportion in each non-reference level.
+sim_ecological <- function(sc, oc, cal, seed, n, opt) {
+    m <- as.integer(opt$region_size)
+    n <- as.integer(opt$regions)
+    if (n < 3) stop("an ecological study needs at least 3 regions", call. = FALSE)
+    if (m < 10) stop("regions need at least 10 people", call. = FALSE)
+    exo <- sc$exogenous
+    rows <- lapply(seq_len(n), function(g) {
+        shift <- with_seed(derive_seed(seed, sc$id, "region", g), {
+            z <- stats::rnorm(length(exo))
+            stats::setNames(opt$region_sd * as.numeric(z %*% chol(sc$R_exo[exo, exo, drop = FALSE])), exo)
+        })
+        ctx <- with_seed(derive_seed(seed, sc$id, oc$id, "context", g), stats::rnorm(1)) * opt$context_sd
+        cov <- with_seed(derive_seed(seed, sc$id, "region people", g), gen_covariates(sc, m, shift))
+        noise <- with_seed(derive_seed(seed, sc$id, oc$id, "region noise", g),
+                           data.frame(u = stats::runif(m), z = stats::rnorm(m), u2 = stats::runif(m), u3 = stats::runif(m)))
+        lp <- linear_predictor(oc, cov) + ctx
+        y <- if (oc$type %in% c("binary", "event")) status_of(oc, cal, lp, noise) else draw_outcome(oc, cal, lp, noise)
+        out <- list(.region = g, .pop = m, .y = if (oc$type %in% c("binary", "event")) sum(y) else mean(y))
+        for (v in sc$order) {
+            x <- sc$variables[[v]]
+            if (x$type %in% c("continuous", "count", "binary")) out[[v]] <- mean(cov[[v]])
+            else for (k in seq_along(x$levels)[-1]) out[[eco_col(v, x$levels[k])]] <- mean(cov[[v]] == k)
+        }
+        as.data.frame(out, check.names = FALSE)
+    })
+    d <- do.call(rbind, rows)
+    list(data = d, facts = list(regions = n, region_size = m, population = n * m,
+                                total = if (oc$type %in% c("binary", "event")) sum(d$.y) else NULL))
+}
+
+# column of the proportion in one level of a categorical variable (engine name)
+eco_col <- function(v, level) paste0(v, "_", gsub("[^A-Za-z0-9]+", "_", level))
+
+# region-level columns standing for a variable
+eco_cols <- function(sc, v) {
+    x <- sc$variables[[v]]
+    if (is.null(x) || x$type %in% c("continuous", "count", "binary")) v else eco_col(v, x$levels[-1])
+}
+
 run_design <- function(design, sc, oc, cal, seed, n, opt) {
     f <- switch(design,
         cross_sectional = sim_cross_sectional, cohort = sim_cohort, prognosis = sim_cohort,
         case_control = sim_case_control, matched_cc = sim_matched_cc,
         rct = sim_rct, crossover = sim_crossover, nested_cc = sim_nested_cc, case_cohort = sim_case_cohort,
         cluster_rct = sim_cluster_rct, factorial = sim_factorial, longitudinal = sim_longitudinal,
+        ecological = sim_ecological,
         stop(sprintf("unknown design '%s'", design), call. = FALSE))
     f(sc, oc, cal, seed, n, opt)
 }

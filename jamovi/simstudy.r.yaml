@@ -9,7 +9,8 @@ items:
       type: Html
       visible: false
       clearWith: &gen [libContent, scenario, outcome, design, measured, n, ccRatio, followup, loss,
-                       accrual, subcohort, looks, clusters, icc, interaction, visits, dropout, period, carryover, missing, missingMech, seed,
+                       accrual, subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd, period, carryover,
+                       missing, missingMech, seed,
                        studentKey]
 
     - name: summary
@@ -90,7 +91,8 @@ items:
       visible: (showKey)
       rows: 0
       clearWith: [libContent, scenario, outcome, design, measured, ccRatio, followup, loss, accrual,
-                  subcohort, looks, clusters, icc, interaction, visits, dropout, period, carryover]
+                  subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd,
+                  period, carryover]
       columns:
           - name: variable
             title: Variable

@@ -81,6 +81,8 @@ options:
             title: 2x2 factorial trial
           - name: longitudinal
             title: Longitudinal trial (repeated visits)
+          - name: ecological
+            title: Ecological (regions)
       default: [case_control, matched_cc, cohort]
       description:
           R: designs to compare; those that do not fit the outcome are skipped

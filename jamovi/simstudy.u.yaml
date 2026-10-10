@@ -123,6 +123,22 @@ children:
             format: number
             enable: (design:longitudinal)
           - type: TextBox
+            name: regions
+            format: number
+            enable: (design:ecological)
+          - type: TextBox
+            name: regionSize
+            format: number
+            enable: (design:ecological)
+          - type: TextBox
+            name: regionSd
+            format: number
+            enable: (design:ecological)
+          - type: TextBox
+            name: contextSd
+            format: number
+            enable: (design:ecological)
+          - type: TextBox
             name: period
             format: number
             enable: (design:crossover)

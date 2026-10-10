@@ -54,6 +54,8 @@ simStudyClass <- R6::R6Class(
             if (d == "cluster_rct") { opt$clusters <- o$clusters; opt$icc <- o$icc }
             if (d == "factorial") opt$interaction <- o$interaction
             if (d == "longitudinal") { opt$visits <- o$visits; opt$dropout <- o$dropout / 100 }
+            if (d == "ecological") { opt$regions <- o$regions; opt$region_size <- o$regionSize
+                                     opt$region_sd <- o$regionSd; opt$context_sd <- o$contextSd }
             if (d == "crossover") {
                 if (o$period != 0) opt$period <- o$period
                 if (o$carryover != 0) opt$carryover <- o$carryover
@@ -181,6 +183,8 @@ simStudyClass <- R6::R6Class(
                                                          k = f$clusters[1], by = paste(f$clusters[-1], collapse = "/"), icc = f$icc))
             if (!is.null(f$factorial)) li <- c(li, jmvcore::format(.("2x2 factorial: {a} and {b} randomised independently; {cells} participants per combination"),
                                                           a = dname(f$factorial[1], l), b = dname(f$factorial[2], l), cells = paste(f$cells, collapse = "/")))
+            if (!is.null(f$regions)) li <- c(li, jmvcore::format(.("{k} regions of {m} people (the sample size is not used): only totals, means and percentages per region are kept"),
+                                                        k = num(f$regions), m = num(f$region_size)))
             if (!is.null(f$attending)) li <- c(li, jmvcore::format(.("baseline and {k} follow-up visits; participants seen at each visit: {n}"),
                                                           k = f$visits, n = paste(f$attending, collapse = ", ")))
             if (!is.null(f$looks)) li <- c(li, jmvcore::format(.("{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}"),
@@ -235,6 +239,8 @@ simStudyClass <- R6::R6Class(
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
                 if (ctx$design == "factorial" && opt$interaction != 0)
                     tbl$setNote("interaction", .("With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level."))
+                if (ctx$design == "ecological")
+                    tbl$setNote("ecological", .("Ecological regression on the regions: a percentage is compared all versus none of the region, a mean per unit. The true values are effects on individuals; the gap is the ecological bias."))
                 if (ctx$design == "longitudinal")
                     tbl$setNote("longitudinal", .("Crude: difference at the last visit among those who attended it (completers). Adjusted: linear mixed model with all visits (random intercept, an effect per visit), valid when dropout depends on values already seen."))
                 if (ctx$design == "cluster_rct")
@@ -331,7 +337,8 @@ design_title <- function(d, self) {
            case_cohort = .("Case-cohort"),
            cluster_rct = .("Cluster randomised trial"),
            factorial = .("2x2 factorial trial"),
-           longitudinal = .("Longitudinal trial (repeated visits)"), d)
+           longitudinal = .("Longitudinal trial (repeated visits)"),
+           ecological = .("Ecological (regions)"), d)
 }
 
 # the panel's Variables list -> measured factor ids and the grouping of the

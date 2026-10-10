@@ -28,13 +28,15 @@ with_seed <- function(seed, expr) {
     expr
 }
 
-latent_draw <- function(sc, n) {
+# shift: means of the exogenous latents (a region's, in the ecological design)
+latent_draw <- function(sc, n, shift = NULL) {
     p <- length(sc$order)
     Z <- matrix(0, n, p, dimnames = list(NULL, sc$order))
     exo <- sc$exogenous
     if (length(exo)) {
         L <- chol(sc$R_exo[exo, exo, drop = FALSE])
         Z[, exo] <- matrix(stats::rnorm(n * length(exo)), n) %*% L
+        if (!is.null(shift)) Z[, exo] <- Z[, exo] + rep(shift[exo], each = n)
     }
     for (v in setdiff(sc$order, exo)) {
         pe <- sc$edges[sc$edges$to == v, , drop = FALSE]
@@ -58,8 +60,8 @@ latent_to_code <- function(z, v) {
         findInterval(u, cumsum(v$probs)[-length(v$probs)]) + 1L)
 }
 
-gen_covariates <- function(sc, n) {
-    Z <- latent_draw(sc, n)
+gen_covariates <- function(sc, n, shift = NULL) {
+    Z <- latent_draw(sc, n, shift)
     cov <- as.data.frame(lapply(stats::setNames(sc$order, sc$order), function(v) {
         x <- sc$variables[[v]]
         if (!is.null(x$formula)) return(rep(NA_real_, n))   # filled by its rule

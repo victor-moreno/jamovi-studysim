@@ -81,6 +81,8 @@ options:
             title: 2x2 factorial trial
           - name: longitudinal
             title: Longitudinal trial (repeated visits)
+          - name: ecological
+            title: Ecological (regions)
       default: case_control
       description:
           R: study design; must fit the outcome
@@ -226,6 +228,40 @@ options:
       max: 80
       description:
           R: longitudinal trial, participants missing the last visit; dropout depends on the last value seen (missing at random)
+
+    - name: regions
+      title: Regions
+      type: Integer
+      default: 30
+      min: 3
+      max: 500
+      description:
+          R: ecological study, number of regions (rows); the sample size is not used
+
+    - name: regionSize
+      title: People per region
+      type: Integer
+      default: 2000
+      min: 10
+      max: 100000
+
+    - name: regionSd
+      title: Differences between regions (exposures)
+      type: Number
+      default: 0.5
+      min: 0
+      max: 2
+      description:
+          R: ecological study, SD of the regions' shifts of the variables (latent standard-normal scale)
+
+    - name: contextSd
+      title: Differences between regions (outcome)
+      type: Number
+      default: 0.2
+      min: 0
+      max: 2
+      description:
+          R: ecological study, SD of an unexplained region effect on the outcome (linear predictor scale)
 
     - name: period
       title: Period effect

@@ -72,3 +72,19 @@ test_that("a longitudinal trial has monotone dropout near the target and the mix
   e <- estimate_table(sc, sc$outcomes$sbp, "longitudinal", d, "age", ci = TRUE)
   expect_true(e$lower < -8 && -8 < e$upper)
 })
+
+test_that("an ecological study keeps region totals and percentages", {
+  sc <- toy()
+  r <- simulate_study(sc, "dis", "ecological", 100, c("age", "sex", "smoke"), options = list(regions = 12, region_size = 500),
+                      lang = "es", key = FALSE)
+  d <- r$data_raw
+  expect_equal(nrow(d), 12)
+  expect_identical(names(d), c("region", "population", "dis", "age", "sex", "smoke_former", "smoke_current"))
+  expect_true(all(d$dis <= d$population))
+  expect_true(all(d$smoke_former + d$smoke_current < 100))
+  expect_true(sd(d$age) > 1)
+  e <- estimate_table(sc, sc$outcomes$dis, "ecological", d, c("age", "sex", "smoke"), ci = TRUE)
+  expect_equal(nrow(e), 4)
+  expect_true(all(is.finite(e$adjusted)))
+  expect_identical(names(r$data)[6], "smoke_former")
+})

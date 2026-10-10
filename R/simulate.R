@@ -20,7 +20,8 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     df <- format_study(sc, oc, design, res, factors, lang)
     df <- categorize_study(df, sc, categorize, lang)
     driver <- if (design %in% CASE_DESIGNS) "case" else oc$id
-    df <- apply_missing(df, factors, missing, missing_mech, derive_seed(seed_eff, "missing"), driver, df$id)
+    mcols <- if (design == "ecological") unlist(lapply(factors, function(v) eco_cols(sc, v))) else factors
+    df <- apply_missing(df, mcols, missing, missing_mech, derive_seed(seed_eff, "missing"), driver, df$id %||% df$region)
     ids <- names(df)
     raw <- df   # engine names and the library's levels, for the tables keyed by them
     df <- localise_data(df, lang)

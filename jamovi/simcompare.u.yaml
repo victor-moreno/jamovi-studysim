@@ -72,6 +72,10 @@ children:
           name: designs_longitudinal
           optionName: designs
           optionPart: longitudinal
+        - type: CheckBox
+          name: designs_ecological
+          optionName: designs
+          optionPart: ecological
   - type: ListBox
     name: measured
     showColumnHeaders: true
