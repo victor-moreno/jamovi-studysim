@@ -165,4 +165,13 @@ items:
       clearWith: *gen
       columns:
           - {name: fired, title: '', type: text}
+
+    - name: keyState
+      title: ''
+      type: Table
+      visible: false
+      rows: 0
+      clearWith: *gen
+      columns:
+          - {name: fired, title: '', type: text}
 ...

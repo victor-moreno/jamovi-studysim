@@ -123,3 +123,15 @@ test_that("the scale form divides a variable and re-expresses the true effect", 
                   measured = list(list(var = "bmi", include = TRUE, form = "scale", cuts = "")))
   expect_match(bad$notice$content, "divisor")
 })
+
+test_that("the teacher's answer-key report is a self-contained HTML page", {
+  a <- simStudyClass$new(options = simStudyOptions$new(scenario = "troponin_mi", outcome = "ami", design = "diagnostic", n = 200, showKey = TRUE),
+                         data = data.frame(), datasetId = "d", analysisId = "1", revision = 1)
+  a$init(); a$run()
+  p <- a$.__enclos_env__$private
+  ctx <- p$.context()
+  html <- p$.keyReport(ctx, utils::modifyList(design_defaults("diagnostic", ctx$oc, ctx$sc), list()))
+  expect_match(html, "data:image/png;base64,")
+  expect_match(html, "AUC")
+  expect_match(html, "Reichlin")
+})

@@ -502,4 +502,11 @@ options:
       title: Export CSV
       type: Action
       action: openExternal
+
+    - name: exportKey
+      title: Answer key report
+      type: Action
+      action: openExternal
+      description:
+          R: saves the answer key (true model, expected estimates, diagram, notes) as an HTML page for the teacher
 ...

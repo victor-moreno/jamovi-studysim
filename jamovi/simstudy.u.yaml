@@ -233,3 +233,5 @@ children:
                 enable: (showDag)
           - type: CheckBox
             name: showKey
+          - type: ActionButton
+            name: exportKey

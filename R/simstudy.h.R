@@ -54,7 +54,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             dagValues = TRUE,
             showKey = FALSE,
             openData = FALSE,
-            exportCsv = FALSE, ...) {
+            exportCsv = FALSE,
+            exportKey = FALSE, ...) {
 
             super$initialize(
                 package="studysim",
@@ -390,6 +391,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "exportCsv",
                 exportCsv,
                 action="openExternal")
+            private$..exportKey <- jmvcore::OptionAction$new(
+                "exportKey",
+                exportKey,
+                action="openExternal")
 
             self$.addOption(private$..libName)
             self$.addOption(private$..libContent)
@@ -440,6 +445,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..showKey)
             self$.addOption(private$..openData)
             self$.addOption(private$..exportCsv)
+            self$.addOption(private$..exportKey)
         }),
     active = list(
         libName = function() private$..libName$value,
@@ -490,7 +496,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         dagValues = function() private$..dagValues$value,
         showKey = function() private$..showKey$value,
         openData = function() private$..openData$value,
-        exportCsv = function() private$..exportCsv$value),
+        exportCsv = function() private$..exportCsv$value,
+        exportKey = function() private$..exportKey$value),
     private = list(
         ..libName = NA,
         ..libContent = NA,
@@ -540,7 +547,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..dagValues = NA,
         ..showKey = NA,
         ..openData = NA,
-        ..exportCsv = NA)
+        ..exportCsv = NA,
+        ..exportKey = NA)
 )
 
 simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -557,7 +565,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         keyMarkers = function() private$.items[["keyMarkers"]],
         keyNotes = function() private$.items[["keyNotes"]],
         openState = function() private$.items[["openState"]],
-        csvState = function() private$.items[["csvState"]]),
+        csvState = function() private$.items[["csvState"]],
+        keyState = function() private$.items[["keyState"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -1081,6 +1090,58 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="fired", 
                         `title`="", 
+                        `type`="text"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="keyState",
+                title="",
+                visible=FALSE,
+                rows=0,
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "design",
+                    "measured",
+                    "n",
+                    "ccRatio",
+                    "followup",
+                    "loss",
+                    "accrual",
+                    "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
+                    "visits",
+                    "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
+                    "period",
+                    "carryover",
+                    "missing",
+                    "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
+                    "seed",
+                    "studentKey"),
+                columns=list(
+                    list(
+                        `name`="fired", 
+                        `title`="", 
                         `type`="text"))))}))
 
 simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -1194,6 +1255,8 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param showKey .
 #' @param openData .
 #' @param exportCsv .
+#' @param exportKey saves the answer key (true model, expected estimates,
+#'   diagram, notes) as an HTML page for the teacher
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$notice} \tab \tab \tab \tab \tab a html \cr
@@ -1207,6 +1270,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$keyNotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$openState} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$csvState} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$keyState} \tab \tab \tab \tab \tab a table \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -1266,7 +1330,8 @@ simStudy <- function(
     dagValues = TRUE,
     showKey = FALSE,
     openData = FALSE,
-    exportCsv = FALSE) {
+    exportCsv = FALSE,
+    exportKey = FALSE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("simStudy requires jmvcore to be installed (restart may be required)")
@@ -1325,7 +1390,8 @@ simStudy <- function(
         dagValues = dagValues,
         showKey = showKey,
         openData = openData,
-        exportCsv = exportCsv)
+        exportCsv = exportCsv,
+        exportKey = exportKey)
 
     analysis <- simStudyClass$new(
         options = options,

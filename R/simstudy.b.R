@@ -81,7 +81,7 @@ simStudyClass <- R6::R6Class(
         },
 
         .init = function() {
-            for (nm in c("openState", "csvState"))
+            for (nm in c("openState", "csvState", "keyState"))
                 if (self$results[[nm]]$rowCount == 0)
                     self$results[[nm]]$addRow(rowKey = 1, values = list(fired = ""))
             ctx <- private$.context()
@@ -174,6 +174,57 @@ simStudyClass <- R6::R6Class(
             }
             if (o$showDag) private$.fillDag(ctx)
             if (o$showKey) private$.fillKey(ctx, calibrate(ctx$sc, ctx$oc), opt)
+            private$.once("keyState", "exportKey", function(action) {
+                writeLines(private$.keyReport(ctx, opt), action$params$fullPath, useBytes = TRUE)
+                list(filename = sprintf("%s_%s_answer_key.html", ctx$sc$id, ctx$design))
+            })
+        },
+
+        # Teacher's answer key as one self-contained HTML page: study, true
+        # model, what the design should estimate, markers, diagram, notes
+        .keyReport = function(ctx, opt) {
+            l <- ctx$lang; sc <- ctx$sc; oc <- ctx$oc
+            esc <- htmlEscape
+            num <- function(x) ifelse(is.na(x), "", formatC(signif(x, 3), format = "fg", digits = 3))
+            tab <- function(head, rows) paste0("<table><tr>", paste0("<th>", esc(head), "</th>", collapse = ""), "</tr>",
+                paste0(apply(rows, 1, function(r) paste0("<tr>", paste0("<td>", esc(r), "</td>", collapse = ""), "</tr>")), collapse = ""), "</table>")
+            te <- true_effects(sc, oc, l)
+            ex <- self$results$keyExpected$state %||% expected_estimates(sc, oc, ctx$design, opt, ctx$factors, l, ctx$cats)
+            g <- dag_layout(sc, oc, ctx$factors, l)
+            sz <- dag_size(g, "")
+            png_file <- tempfile(fileext = ".png")
+            grDevices::png(png_file, sz[["w"]] * 2, sz[["h"]] * 2, res = 144)
+            print(dag_plot(g, sz[["w"]], sz[["h"]], TRUE, ""))
+            grDevices::dev.off()
+            img <- jsonlite::base64_enc(readBin(png_file, "raw", file.size(png_file)))
+            unlink(png_file)
+            o <- self$options
+            facts <- c(sprintf("%s: %s", .("Scenario"), tr_text(sc$label, l)), sprintf("%s: %s", .("Outcome"), tr_text(oc$label, l)),
+                       sprintf("%s: %s", .("Design"), design_title(ctx$design, self)), sprintf("%s: %s", .("Sample size"), o$n),
+                       sprintf("%s: %s%s", .("Seed"), o$seed, if (nzchar(trimws(o$studentKey))) paste0(" / ", trimws(o$studentKey)) else ""),
+                       sprintf("%s: %s", .("Variables"), paste(dname(ctx$factors, l), collapse = ", ")))
+            html <- c("<!doctype html><html><head><meta charset='utf-8'><title>", esc(.("Answer key")), "</title><style>",
+                      "body{font:14px/1.45 system-ui,sans-serif;max-width:960px;margin:24px auto;padding:0 16px;color:#222}",
+                      "table{border-collapse:collapse;margin:8px 0 18px}th,td{border-bottom:1px solid #ddd;padding:4px 10px;text-align:left}",
+                      "th{background:#f3f3f3}h1{font-size:22px}h2{font-size:17px;margin-top:26px}img{max-width:100%}</style></head><body>",
+                      "<h1>", esc(.("Answer key")), ": ", esc(tr_text(sc$label, l)), "</h1><ul>", paste0("<li>", esc(facts), "</li>", collapse = ""), "</ul>",
+                      "<h2>", esc(.("Answer key: true model")), "</h2>",
+                      tab(c(.("Variable"), .("Contrast"), .("Measure"), .("True value"), .("Note")),
+                          cbind(dname(te$variable, l), te$contrast, te$measure, num(te$value), te$note)))
+            if (!is.null(ex) && nrow(ex)) html <- c(html, "<h2>", esc(.("Answer key: what this design should estimate")), "</h2>",
+                tab(c(.("Variable"), .("Contrast"), .("True"), .("Crude"), .("Adjusted"), .("Estimate"), .("Note")),
+                    cbind(dname(ex$variable, l), ex$contrast, num(ex$true), num(ex$crude), num(ex$adjusted), ex$measure, ex$note)))
+            if (ctx$design == "diagnostic") {
+                mt <- self$results$keyMarkers$state %||% expected_markers(sc, oc, opt)
+                html <- c(html, "<h2>", esc(.("Answer key: markers")), "</h2>",
+                          tab(c(.("Marker"), .("Columns"), .("True AUC"), .("Large study")), cbind(mt$marker, mt$part, num(mt$true), num(mt$auc))))
+            }
+            html <- c(html, "<h2>", esc(.("Causal diagram")), "</h2><img alt='DAG' src='data:image/png;base64,", img, "'>",
+                      "<h2>", esc(.("Teaching note")), "</h2><p>", esc(tr_text(sc$teaching, l)), "</p>",
+                      if (length(sc$references)) c("<h2>", esc(.("Sources of the parameters")), "</h2><ul>",
+                                                   paste0("<li>", esc(sc$references), "</li>", collapse = ""), "</ul>"),
+                      "</body></html>")
+            paste(html, collapse = "")
         },
 
         # TRUE when a button was pressed and has not been served yet; resets
