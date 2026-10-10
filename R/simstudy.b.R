@@ -15,11 +15,7 @@ simStudyClass <- R6::R6Class(
             if (is.character(l) && length(l) == 1 && grepl("^[a-z]{2}$", l)) l else "en"
         },
 
-        .designTitle = function(d) {
-            switch(d, case_control = .("Case-control"), matched_cc = .("Matched case-control"),
-                   cohort = .("Cohort"), cross_sectional = .("Cross-sectional"), rct = .("Randomised trial"),
-                   crossover = .("2x2 crossover trial"), prognosis = .("Prognosis (patient cohort)"), d)
-        },
+        .designTitle = function(d) design_title(d, self),
 
         # library, scenario, outcome, design and measured variables, or an error
         .context = function() {
@@ -34,20 +30,8 @@ simStudyClass <- R6::R6Class(
                     stop(jmvcore::format(.("The {design} design does not fit this outcome. Possible designs: {list}."),
                                  design = private$.designTitle(o$design),
                                  list = paste(vapply(ok, private$.designTitle, ""), collapse = ", ")), call. = FALSE)
-                # the panel lists the variables by their shown names (any language)
-                inc <- Filter(function(m) isTRUE(m$include), o$measured)
-                fac <- ids_from_names(vapply(inc, function(m) as.character(m$var), ""), sc$order)
-                # grouping of measured continuous variables (form != as is)
-                cats <- list()
-                for (m in inc) {
-                    id <- ids_from_names(m$var, sc$order)
-                    if (length(id) == 0 || is.null(m$form) || m$form == "continuous") next
-                    if (!sc$variables[[id]]$type %in% c("continuous", "count")) next
-                    spec <- list(form = m$form, cuts = m$cuts %||% "")
-                    tryCatch(cat_groups(spec), error = function(e)
-                        stop(jmvcore::format(.("Cut points of {var}: {msg}"), var = m$var, msg = conditionMessage(e)), call. = FALSE))
-                    cats[[id]] <- spec
-                }
+                m <- parse_measured(o$measured, sc, self)
+                fac <- m$factors; cats <- m$cats
                 list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
                      factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats)
             }, error = function(e) list(error = conditionMessage(e)))
@@ -314,6 +298,32 @@ simStudyClass <- R6::R6Class(
         }
     )
 )
+
+# `self` is the calling analysis: .() translates through it
+design_title <- function(d, self) {
+    switch(d, case_control = .("Case-control"), matched_cc = .("Matched case-control"),
+           cohort = .("Cohort"), cross_sectional = .("Cross-sectional"), rct = .("Randomised trial"),
+           crossover = .("2x2 crossover trial"), prognosis = .("Prognosis (patient cohort)"), d)
+}
+
+# the panel's Variables list -> measured factor ids and the grouping of the
+# measured continuous ones (form other than continuous); names may be shown
+# names in any language
+parse_measured <- function(measured, sc, self) {
+    inc <- Filter(function(m) isTRUE(m$include), measured)
+    fac <- ids_from_names(vapply(inc, function(m) as.character(m$var), ""), sc$order)
+    cats <- list()
+    for (m in inc) {
+        id <- ids_from_names(m$var, sc$order)
+        if (length(id) == 0 || is.null(m$form) || m$form == "continuous") next
+        if (!sc$variables[[id]]$type %in% c("continuous", "count")) next
+        spec <- list(form = m$form, cuts = m$cuts %||% "")
+        tryCatch(cat_groups(spec), error = function(e)
+            stop(jmvcore::format(.("Cut points of {var}: {msg}"), var = m$var, msg = conditionMessage(e)), call. = FALSE))
+        cats[[id]] <- spec
+    }
+    list(factors = intersect(sc$order, fac), cats = cats)
+}
 
 htmlEscape <- function(x) {
     x <- gsub("&", "&amp;", x, fixed = TRUE)

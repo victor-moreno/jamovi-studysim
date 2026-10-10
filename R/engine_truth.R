@@ -81,8 +81,15 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
         y <- fd[[oc$id]]
         if (isTRUE(oc$log)) y <- log(y)
         w <- function(x) x - stats::ave(x, fd$id)
-        b <- qr.coef(qr(apply(X, 2, w)), w(y))
-        return(list(coef = b, measure = if (isTRUE(oc$log)) "ratio" else "beta", log = isTRUE(oc$log)))
+        Xw <- apply(X, 2, w); yw <- w(y)
+        q <- qr(Xw)
+        b <- qr.coef(q, yw)
+        # residual df lose one per subject as well (the absorbed fixed effects)
+        df <- length(yw) - length(unique(fd$id)) - q$rank
+        s2 <- sum(base::qr.resid(q, yw)^2) / max(1, df)
+        se <- sqrt(diag(chol2inv(qr.R(q))) * s2)[order(q$pivot)]
+        names(se) <- names(b)
+        return(list(coef = b, se = se, measure = if (isTRUE(oc$log)) "ratio" else "beta", log = isTRUE(oc$log)))
     }
     f <- switch(model,
         logistic = stats::glm(stats::as.formula(paste(".s ~", rhs)), stats::binomial(), fd),
@@ -90,9 +97,10 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
         cox = survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, ") ~", rhs)), data = fd),
         poisson = stats::glm(stats::as.formula(paste(oc$id, "~", rhs)), stats::poisson(), fd),
         linear = stats::lm(stats::as.formula(paste(if (isTRUE(oc$log)) sprintf("log(%s)", oc$id) else oc$id, "~", rhs)), fd))
+    se <- sqrt(diag(as.matrix(stats::vcov(f))))
     if (model == "linear" && isTRUE(oc$log))
-        return(list(coef = stats::coef(f), measure = "ratio", log = TRUE))
-    list(coef = stats::coef(f), measure = c(logistic = "OR", clogit = "OR", cox = "HR", poisson = "RR", linear = "beta")[[model]],
+        return(list(coef = stats::coef(f), se = se, measure = "ratio", log = TRUE))
+    list(coef = stats::coef(f), se = se, measure = c(logistic = "OR", clogit = "OR", cox = "HR", poisson = "RR", linear = "beta")[[model]],
          log = model != "linear")
 }
 
@@ -103,6 +111,13 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), n_big, opt)
     fd <- format_study(sc, oc, design, big, sc$order, "en")
     fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
+    estimate_table(sc, oc, design, fd, factors, lang, categorize)
+}
+
+# Crude and adjusted estimates of the main contrasts (the intervention, or
+# every measured factor) in one formatted study `fd` (engine names). With
+# ci = TRUE, also the 95% confidence interval of the adjusted estimate.
+estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize = list(), ci = FALSE) {
     iv <- intersect(names(sc$interventions), names(fd))
     main <- if (length(iv)) iv else factors
     if (length(main) == 0) return(NULL)
@@ -121,8 +136,8 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
                              per = 1, level = NA_integer_, stringsAsFactors = FALSE)
         }
         crude <- fit_design_model(design, sc, oc, fd, v, full = FALSE)
-        get <- function(fit) {
-            b <- fit$coef[cr$coefname] * cr$per
+        get <- function(fit, z = 0) {
+            b <- (fit$coef[cr$coefname] + z * fit$se[cr$coefname]) * cr$per
             if (fit$log) exp(b) else b
         }
         eff <- oc$effects[[v]]
@@ -138,8 +153,10 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
         data.frame(variable = v, contrast = cr$contrast,
                    true = tv,
                    true_measure = if (is.null(eff)) null_measure(oc) else eff$measure,
-                   crude = unname(get(crude)), adjusted = unname(get(adj)), measure = adj$measure,
-                   note = note, stringsAsFactors = FALSE)
+                   crude = unname(get(crude)), adjusted = unname(get(adj)),
+                   lower = if (ci) unname(get(adj, -stats::qnorm(0.975))) else NA_real_,
+                   upper = if (ci) unname(get(adj, stats::qnorm(0.975))) else NA_real_,
+                   measure = adj$measure, note = note, stringsAsFactors = FALSE)
     })
     out <- do.call(rbind, rows)
     # variables without an effect: the null value on the estimate's own scale

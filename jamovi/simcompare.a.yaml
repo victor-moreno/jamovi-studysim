@@ -1,0 +1,187 @@
+---
+name: simCompare
+title: Compare designs
+menuGroup: Simulate
+menuTitle: Compare designs
+menuSubtitle: One scenario, several designs, same population
+version: '0.1.0'
+jas: '1.2'
+
+description:
+    main: >
+        Simulates one scenario under several study designs from the same
+        superpopulation (same seed and student key) and compares what each
+        design estimates, with its 95% confidence interval, against the true
+        values. The studies can be opened as one dataset with a design column.
+    R:
+        dontrun: true
+        usage: |
+            # in R, use the engine directly:
+            # sc <- studysim:::load_scenario(studysim:::builtin_library(), "breast_cancer_risk")
+            # studysim:::compare_designs(sc, "breast_cancer", c("case_control", "cohort"), n = 1000)
+
+options:
+    - name: data
+      type: Data
+
+    - name: libName
+      title: Custom library
+      type: String
+      default: ""
+      description:
+          R: name of the custom library file read by the Browse button (display only)
+
+    - name: libContent
+      title: Custom library payload
+      type: String
+      default: ""
+      hidden: true
+      description:
+          R: base64 of the custom library file (JSON, YAML, Excel or zip)
+
+    - name: scenario
+      title: Scenario
+      type: String
+      default: "breast_cancer_risk"
+      description:
+          R: scenario id
+
+    - name: outcome
+      title: Outcome
+      type: String
+      default: ""
+      description:
+          R: outcome id; empty means the scenario's first outcome
+
+    - name: designs
+      title: Designs
+      type: NMXList
+      options:
+          - name: case_control
+            title: Case-control
+          - name: matched_cc
+            title: Matched case-control
+          - name: cohort
+            title: Cohort
+          - name: cross_sectional
+            title: Cross-sectional
+          - name: rct
+            title: Randomised trial
+          - name: crossover
+            title: 2x2 crossover trial
+          - name: prognosis
+            title: Prognosis (patient cohort)
+      default: [case_control, matched_cc, cohort]
+      description:
+          R: designs to compare; those that do not fit the outcome are skipped
+
+    - name: measured
+      title: Variables
+      type: Array
+      default: []
+      template:
+          type: Group
+          elements:
+              - name: var
+                type: String
+              - name: units
+                type: String
+                default: ""
+              - name: include
+                type: Bool
+                default: false
+              - name: form
+                type: List
+                options:
+                    - name: continuous
+                      title: continuous
+                    - name: median
+                      title: median split
+                    - name: tertiles
+                      title: tertiles
+                    - name: quartiles
+                      title: quartiles
+                    - name: quintiles
+                      title: quintiles
+                    - name: cuts
+                      title: cuts
+                default: continuous
+              - name: cuts
+                type: String
+                default: ""
+      description:
+          R: >
+              one entry per scenario variable, list(var = name, include = TRUE/FALSE,
+              form = "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts",
+              cuts = "18.5, 25, 30" or "10%, 90%"); included variables are in the
+              dataset, the others are unmeasured (they still act); form groups a
+              continuous variable (quantiles from the sample)
+
+    - name: n
+      title: Sample size
+      type: Integer
+      default: 500
+      min: 10
+      max: 200000
+      description:
+          R: number of participants (cases plus controls in case-control designs)
+
+    - name: ccRatio
+      title: Controls per case
+      type: Integer
+      default: 1
+      min: 1
+      max: 5
+
+    - name: followup
+      title: Follow-up (years)
+      type: Number
+      default: 0
+      min: 0
+      max: 50
+      description:
+          R: 0 uses the scenario's default
+
+    - name: loss
+      title: Loss to follow-up (% per year)
+      type: Number
+      default: 2
+      min: 0
+      max: 50
+
+    - name: seed
+      title: Seed
+      type: Integer
+      default: 1
+      min: 1
+      max: 99999999
+
+    - name: studentKey
+      title: Student key
+      type: String
+      default: ""
+      description:
+          R: any text (e.g. a student ID); each key gives a different dataset
+
+    - name: showExpected
+      title: Expected values (large studies)
+      type: Bool
+      default: false
+      description:
+          R: also simulate one large study per design and show its estimates
+
+    - name: showPlot
+      title: Plot
+      type: Bool
+      default: true
+
+    - name: openData
+      title: Open dataset
+      type: Action
+      action: open
+
+    - name: exportCsv
+      title: Export CSV
+      type: Action
+      action: openExternal
+...

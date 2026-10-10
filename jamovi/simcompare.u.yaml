@@ -1,0 +1,138 @@
+title: Compare designs
+name: simCompare
+jus: '3.0'
+stage: 0
+compilerMode: tame
+children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: libName
+        label: Custom library
+        format: string
+        width: large
+      - type: TextBox
+        name: scenario
+        format: string
+        width: large
+      - type: TextBox
+        name: outcome
+        format: string
+        width: large
+  - type: Label
+    label: Designs
+    margin: large
+    children:
+        - type: CheckBox
+          name: designs_case_control
+          optionName: designs
+          optionPart: case_control
+        - type: CheckBox
+          name: designs_matched_cc
+          optionName: designs
+          optionPart: matched_cc
+        - type: CheckBox
+          name: designs_cohort
+          optionName: designs
+          optionPart: cohort
+        - type: CheckBox
+          name: designs_cross_sectional
+          optionName: designs
+          optionPart: cross_sectional
+        - type: CheckBox
+          name: designs_rct
+          optionName: designs
+          optionPart: rct
+        - type: CheckBox
+          name: designs_crossover
+          optionName: designs
+          optionPart: crossover
+        - type: CheckBox
+          name: designs_prognosis
+          optionName: designs
+          optionPart: prognosis
+  - type: ListBox
+    name: measured
+    showColumnHeaders: true
+    fullRowSelect: true
+    stretchFactor: 1
+    height: large
+    columns:
+      - name: var
+        label: Variable
+        stretchFactor: 1
+        selectable: false
+        template:
+          type: Label
+      - name: units
+        label: Units or categories
+        maxWidth: 150
+        selectable: false
+        template:
+          type: Label
+      - name: include
+        label: Measured
+        maxWidth: 70
+        selectable: false
+        template:
+          type: CheckBox
+      - name: form
+        label: Form
+        maxWidth: 95
+        selectable: false
+        template:
+          type: ComboBox
+      - name: cuts
+        label: Cuts
+        maxWidth: 110
+        selectable: false
+        template:
+          type: TextBox
+          format: string
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: TextBox
+        name: n
+        format: number
+      - type: ActionButton
+        name: openData
+      - type: ActionButton
+        name: exportCsv
+  - type: CollapseBox
+    label: Design options
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: TextBox
+            name: ccRatio
+            format: number
+          - type: TextBox
+            name: followup
+            format: number
+          - type: TextBox
+            name: loss
+            format: number
+  - type: CollapseBox
+    label: Output
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: TextBox
+            name: seed
+            format: number
+          - type: TextBox
+            name: studentKey
+            format: string
+            width: large
+          - type: CheckBox
+            name: showExpected
+          - type: CheckBox
+            name: showPlot

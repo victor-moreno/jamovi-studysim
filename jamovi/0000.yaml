@@ -22,6 +22,18 @@ analyses:
       the library, a study design compatible with its outcome, a sample size and
       some realism. The dataset opens in a new window; the answer key holds the
       true parameters and what the design is expected to estimate.
+  - title: Compare designs
+    name: simCompare
+    ns: studysim
+    category: analyses
+    menuGroup: Simulate
+    menuTitle: Compare designs
+    menuSubtitle: One scenario, several designs, same population
+    description: >
+      Simulates one scenario under several study designs from the same
+      superpopulation (same seed and student key) and compares what each design
+      estimates, with its 95% confidence interval, against the true values. The
+      studies can be opened as one dataset with a design column.
   - title: Library
     name: simLibrary
     ns: studysim

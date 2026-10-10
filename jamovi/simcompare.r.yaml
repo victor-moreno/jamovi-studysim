@@ -1,0 +1,101 @@
+---
+name: simCompare
+title: Compare designs
+jrs: '1.1'
+
+items:
+    - name: notice
+      title: ''
+      type: Html
+      visible: false
+      clearWith: &gen [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
+                       seed, studentKey]
+
+    - name: studies
+      title: Studies
+      type: Table
+      rows: 0
+      clearWith: *gen
+      columns:
+          - name: design
+            title: Design
+            type: text
+          - name: rows
+            title: Rows
+            type: integer
+          - name: detail
+            title: Details
+            type: text
+
+    - name: estimates
+      title: Estimates by design
+      type: Table
+      rows: 0
+      clearWith: [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
+                  seed, studentKey, showExpected]
+      columns:
+          - name: design
+            title: Design
+            type: text
+            combineBelow: true
+          - name: variable
+            title: Variable
+            type: text
+            combineBelow: true
+          - name: contrast
+            title: Contrast
+            type: text
+          - name: truth
+            title: 'True'
+            type: number
+          - name: crude
+            title: Crude
+            type: number
+          - name: adjusted
+            title: Adjusted
+            type: number
+          - name: lower
+            title: Lower
+            type: number
+            superTitle: 95% CI
+          - name: upper
+            title: Upper
+            type: number
+            superTitle: 95% CI
+          - name: measure
+            title: Estimate
+            type: text
+          - name: expected
+            title: Large study
+            type: number
+            visible: (showExpected)
+
+    - name: plot
+      title: Estimates by design
+      type: Image
+      visible: (showPlot)
+      width: 700
+      height: 400
+      renderFun: .plot
+      clearWith: [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
+                  seed, studentKey, showExpected]
+
+    # once-only guards for the two buttons (see simstudy.r.yaml)
+    - name: openState
+      title: ''
+      type: Table
+      visible: false
+      rows: 0
+      clearWith: *gen
+      columns:
+          - {name: fired, title: '', type: text}
+
+    - name: csvState
+      title: ''
+      type: Table
+      visible: false
+      rows: 0
+      clearWith: *gen
+      columns:
+          - {name: fired, title: '', type: text}
+...

@@ -34,6 +34,12 @@
             "Adjusted": [
                 "Ajustado"
             ],
+            "Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate.": [
+                "Ajustado por todas las variables medidas (y la intervención); intervalo de confianza del 95% de la estimación ajustada."
+            ],
+            "All designs sample the same superpopulation (same seed and student key); each study has its own participants.": [
+                "Todos los diseños muestrean la misma superpoblación (misma semilla y clave de estudiante); cada estudio tiene sus propios participantes."
+            ],
             "Answer key": [
                 "Clave de respuestas"
             ],
@@ -96,6 +102,9 @@
             ],
             "Column": [
                 "Columna"
+            ],
+            "Compare designs": [
+                "Comparar diseños"
             ],
             "Completely at random": [
                 "Completamente al azar"
@@ -184,6 +193,9 @@
             "Designs": [
                 "Diseños"
             ],
+            "Details": [
+                "Detalles"
+            ],
             "Detect": [
                 "Detectar"
             ],
@@ -208,6 +220,9 @@
             "Estimates a library scenario from the open dataset: the marginal distribution of each variable, their latent correlations and the conditional effects on the outcome. Simulated studies from it resemble the data. The data cannot tell causes from correlates: the scenario has undirected correlations, to be turned into a causal structure before teaching (by you, or an AI with the exported file).": [
                 "Estima un escenario de la biblioteca a partir de los datos abiertos: la distribución marginal de cada variable, sus correlaciones latentes y los efectos condicionales sobre la respuesta. Los estudios simulados desde él se parecen a los datos. Los datos no distinguen causas de correlaciones: el escenario tiene correlaciones sin dirección, que hay que convertir en una estructura causal antes de usarlo en docencia (usted, o una IA con el fichero exportado)."
             ],
+            "Estimates by design": [
+                "Estimaciones por diseño"
+            ],
             "Event (with follow-up time)": [
                 "Evento (con tiempo de seguimiento)"
             ],
@@ -216,6 +231,9 @@
             ],
             "Excel workbook": [
                 "Libro de Excel"
+            ],
+            "Expected values (large studies)": [
+                "Valores esperados (estudios grandes)"
             ],
             "Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}.": [
                 "Valores esperados: estimaciones crudas y ajustadas de un estudio simulado de {n} filas con este diseño; ajustado por {vars}."
@@ -231,6 +249,9 @@
             ],
             "Export scenario": [
                 "Exportar escenario"
+            ],
+            "Filled dot and bar: adjusted estimate and 95% CI; open red circle: crude estimate; cross: large study; dashed line: true value.": [
+                "Punto lleno y barra: estimación ajustada e IC del 95%; círculo rojo vacío: estimación cruda; cruz: estudio grande; línea discontinua: valor verdadero."
             ],
             "Follow-up (years)": [
                 "Seguimiento (años)"
@@ -276,6 +297,9 @@
             ],
             "Label": [
                 "Etiqueta"
+            ],
+            "Large study": [
+                "Estudio grande"
             ],
             "Latent": [
                 "Latente"
@@ -358,6 +382,9 @@
             "Observed r": [
                 "r observada"
             ],
+            "One scenario, several designs, same population": [
+                "Un escenario, varios diseños, la misma población"
+            ],
             "Open dataset": [
                 "Abrir datos"
             ],
@@ -384,6 +411,9 @@
             ],
             "Period effect": [
                 "Efecto periodo"
+            ],
+            "Plot": [
+                "Gráfico"
             ],
             "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them.": [
                 "Pulse <b>Abrir datos</b> para abrir los datos en una ventana nueva, o <b>Exportar CSV</b> para guardarlos."
@@ -433,6 +463,9 @@
             "risk {r} at {t} years": [
                 "riesgo {r} a {t} años"
             ],
+            "Rows": [
+                "Filas"
+            ],
             "Sample size": [
                 "Tamaño muestral"
             ],
@@ -478,8 +511,14 @@
             "Simulates a plausible medical study for teaching: a clinical scenario from the library, a study design compatible with its outcome, a sample size and some realism. The dataset opens in a new window; the answer key holds the true parameters and what the design is expected to estimate.": [
                 "Simula un estudio médico plausible para la docencia: un escenario clínico de la biblioteca, un diseño compatible con su variable respuesta, un tamaño muestral y algo de realismo. Los datos se abren en una ventana nueva; la clave de respuestas contiene los parámetros verdaderos y lo que el diseño debería estimar."
             ],
+            "Simulates one scenario under several study designs from the same superpopulation (same seed and student key) and compares what each design estimates, with its 95% confidence interval, against the true values. The studies can be opened as one dataset with a design column.": [
+                "Simula un escenario con varios diseños de estudio a partir de la misma superpoblación (misma semilla y clave de estudiante) y compara lo que estima cada diseño, con su intervalo de confianza del 95%, con los valores verdaderos. Los estudios se pueden abrir como un único conjunto de datos con una columna de diseño."
+            ],
             "Simulates plausible medical study datasets for teaching": [
                 "Simula datos plausibles de estudios médicos para la docencia"
+            ],
+            "Skipped (they do not fit this outcome): {list}.": [
+                "Omitidos (no encajan con esta respuesta): {list}."
             ],
             "Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.": [
                 "Recuadro continuo: medida; discontinuo: no medida; flechas grises: caminos entre variables; punteado: correlaciones; flechas oscuras: efectos sobre la respuesta."
@@ -501,6 +540,9 @@
             ],
             "Student key": [
                 "Clave de estudiante"
+            ],
+            "Studies": [
+                "Estudios"
             ],
             "Study": [
                 "Estudio"
@@ -531,6 +573,9 @@
             ],
             "There is no scenario '{id}' in this library; choose one listed under Scenarios.": [
                 "No hay ningún escenario '{id}' en esta biblioteca; elija uno de los listados en Escenarios."
+            ],
+            "Tick at least one design that fits this outcome: {list}.": [
+                "Marque al menos un diseño que encaje con esta respuesta: {list}."
             ],
             "Title": [
                 "Título"

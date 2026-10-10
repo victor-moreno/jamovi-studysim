@@ -42,17 +42,7 @@ module.exports = {
         S.syncSelect(ui, 'outcome', ocs.map(function(k) { return [k, S.tr(sc.outcomes[k].label, l) || k]; }),
             function(v) { S.setOpt(ui, 'outcome', v); self.refresh(ui, true); });
 
-        // design: the native ComboBox, with the incompatible designs hidden
-        var ok = S.designsFor(sc, oc);
-        if (ok.length && ok.indexOf(S.getOpt(ui, 'design')) < 0) S.setOpt(ui, 'design', ok[0]);
-        if (ui.design && ui.design.input) {
-            var opts = ui.design.input.options;
-            for (var i = 0; i < opts.length && i < S.DESIGNS.length; i++) {
-                var off = ok.indexOf(S.DESIGNS[i]) < 0;
-                opts[i].hidden = off;
-                opts[i].disabled = off;
-            }
-        }
+        this.syncDesigns(ui, S.designsFor(sc, oc));
 
         // one row per scenario variable, by the name the student will see;
         // a new scenario or outcome starts with none measured, a restore keeps
@@ -77,6 +67,19 @@ module.exports = {
         this._numeric = defs.map(S.isNumeric);
         this.lockForms();
         S.browseButton(ui, function() { self.refresh(ui, false); });
+    },
+
+    // design: the native ComboBox, with the incompatible designs hidden
+    syncDesigns: function(ui, ok) {
+        if (ok.length && ok.indexOf(S.getOpt(ui, 'design')) < 0) S.setOpt(ui, 'design', ok[0]);
+        if (ui.design && ui.design.input) {
+            var opts = ui.design.input.options;
+            for (var i = 0; i < opts.length && i < S.DESIGNS.length; i++) {
+                var off = ok.indexOf(S.DESIGNS[i]) < 0;
+                opts[i].hidden = off;
+                opts[i].disabled = off;
+            }
+        }
     },
 
     // Form and Cut points only apply to numbers: hide them on categorical rows.

@@ -7,4 +7,7 @@ d <- r$dictionary$asDF
 stopifnot(identical(d$name[1:3], c("id", "drug", "sbp")))
 k <- r$keyExpected$asDF
 stopifnot(abs(k$adjusted[1] + 9) < 1.5)
+c2 <- studysim::simCompare(data = data.frame(), scenario = "antihypertensive_trial", outcome = "sbp",
+                          designs = c("rct", "crossover"), n = 100)
+stopifnot(nrow(c2$estimates$asDF) == 2)
 cat("   smoke test passed\n")

@@ -34,6 +34,12 @@
             "Adjusted": [
                 "Ajustat"
             ],
+            "Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate.": [
+                "Ajustat per totes les variables mesurades (i la intervenció); interval de confiança del 95% de l'estimació ajustada."
+            ],
+            "All designs sample the same superpopulation (same seed and student key); each study has its own participants.": [
+                "Tots els dissenys mostregen la mateixa superpoblació (mateixa llavor i clau d'estudiant); cada estudi té els seus propis participants."
+            ],
             "Answer key": [
                 "Clau de respostes"
             ],
@@ -96,6 +102,9 @@
             ],
             "Column": [
                 "Columna"
+            ],
+            "Compare designs": [
+                "Comparar dissenys"
             ],
             "Completely at random": [
                 "Completament a l'atzar"
@@ -184,6 +193,9 @@
             "Designs": [
                 "Dissenys"
             ],
+            "Details": [
+                "Detalls"
+            ],
             "Detect": [
                 "Detectar"
             ],
@@ -208,6 +220,9 @@
             "Estimates a library scenario from the open dataset: the marginal distribution of each variable, their latent correlations and the conditional effects on the outcome. Simulated studies from it resemble the data. The data cannot tell causes from correlates: the scenario has undirected correlations, to be turned into a causal structure before teaching (by you, or an AI with the exported file).": [
                 "Estima un escenari de la biblioteca a partir de les dades obertes: la distribució marginal de cada variable, les seves correlacions latents i els efectes condicionals sobre la resposta. Els estudis simulats des d'ell s'assemblen a les dades. Les dades no distingeixen causes de correlacions: l'escenari té correlacions sense direcció, que cal convertir en una estructura causal abans d'usar-lo en docència (vós, o una IA amb el fitxer exportat)."
             ],
+            "Estimates by design": [
+                "Estimacions per disseny"
+            ],
             "Event (with follow-up time)": [
                 "Esdeveniment (amb temps de seguiment)"
             ],
@@ -216,6 +231,9 @@
             ],
             "Excel workbook": [
                 "Llibre d'Excel"
+            ],
+            "Expected values (large studies)": [
+                "Valors esperats (estudis grans)"
             ],
             "Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}.": [
                 "Valors esperats: estimacions crues i ajustades d'un estudi simulat de {n} files amb aquest disseny; ajustat per {vars}."
@@ -231,6 +249,9 @@
             ],
             "Export scenario": [
                 "Exportar escenari"
+            ],
+            "Filled dot and bar: adjusted estimate and 95% CI; open red circle: crude estimate; cross: large study; dashed line: true value.": [
+                "Punt ple i barra: estimació ajustada i IC del 95%; cercle vermell buit: estimació crua; creu: estudi gran; línia discontínua: valor veritable."
             ],
             "Follow-up (years)": [
                 "Seguiment (anys)"
@@ -276,6 +297,9 @@
             ],
             "Label": [
                 "Etiqueta"
+            ],
+            "Large study": [
+                "Estudi gran"
             ],
             "Latent": [
                 "Latent"
@@ -358,6 +382,9 @@
             "Observed r": [
                 "r observada"
             ],
+            "One scenario, several designs, same population": [
+                "Un escenari, diversos dissenys, la mateixa població"
+            ],
             "Open dataset": [
                 "Obrir dades"
             ],
@@ -384,6 +411,9 @@
             ],
             "Period effect": [
                 "Efecte període"
+            ],
+            "Plot": [
+                "Gràfic"
             ],
             "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them.": [
                 "Premeu <b>Obrir dades</b> per obrir les dades en una finestra nova, o <b>Exportar CSV</b> per desar-les."
@@ -433,6 +463,9 @@
             "risk {r} at {t} years": [
                 "risc {r} a {t} anys"
             ],
+            "Rows": [
+                "Files"
+            ],
             "Sample size": [
                 "Mida mostral"
             ],
@@ -478,8 +511,14 @@
             "Simulates a plausible medical study for teaching: a clinical scenario from the library, a study design compatible with its outcome, a sample size and some realism. The dataset opens in a new window; the answer key holds the true parameters and what the design is expected to estimate.": [
                 "Simula un estudi mèdic plausible per a la docència: un escenari clínic de la biblioteca, un disseny compatible amb la seva variable resposta, una mida mostral i una mica de realisme. Les dades s'obren en una finestra nova; la clau de respostes conté els paràmetres veritables i el que el disseny hauria d'estimar."
             ],
+            "Simulates one scenario under several study designs from the same superpopulation (same seed and student key) and compares what each design estimates, with its 95% confidence interval, against the true values. The studies can be opened as one dataset with a design column.": [
+                "Simula un escenari amb diversos dissenys d'estudi a partir de la mateixa superpoblació (mateixa llavor i clau d'estudiant) i compara el que estima cada disseny, amb el seu interval de confiança del 95%, amb els valors veritables. Els estudis es poden obrir com un únic conjunt de dades amb una columna de disseny."
+            ],
             "Simulates plausible medical study datasets for teaching": [
                 "Simula dades plausibles d'estudis mèdics per a la docència"
+            ],
+            "Skipped (they do not fit this outcome): {list}.": [
+                "Omesos (no encaixen amb aquesta resposta): {list}."
             ],
             "Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.": [
                 "Requadre continu: mesurada; discontinu: no mesurada; fletxes grises: camins entre variables; puntejat: correlacions; fletxes fosques: efectes sobre la resposta."
@@ -501,6 +540,9 @@
             ],
             "Student key": [
                 "Clau d'estudiant"
+            ],
+            "Studies": [
+                "Estudis"
             ],
             "Study": [
                 "Estudi"
@@ -531,6 +573,9 @@
             ],
             "There is no scenario '{id}' in this library; choose one listed under Scenarios.": [
                 "No hi ha cap escenari '{id}' en aquesta biblioteca; trieu-ne un dels llistats a Escenaris."
+            ],
+            "Tick at least one design that fits this outcome: {list}.": [
+                "Marqueu almenys un disseny que encaixi amb aquesta resposta: {list}."
             ],
             "Title": [
                 "Títol"

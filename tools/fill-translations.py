@@ -334,6 +334,25 @@ NEW = {
 "Red: raises the outcome, blue: lowers it; * the effect depends on another variable.": ("Rojo: aumenta la respuesta, azul: la reduce; * el efecto depende de otra variable.", "Vermell: augmenta la resposta, blau: la redueix; * l'efecte depèn d'una altra variable."),
 "Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.": ("Recuadro continuo: medida; discontinuo: no medida; flechas grises: caminos entre variables; punteado: correlaciones; flechas oscuras: efectos sobre la respuesta.", "Requadre continu: mesurada; discontinu: no mesurada; fletxes grises: camins entre variables; puntejat: correlacions; fletxes fosques: efectes sobre la resposta."),
 }
+# v0.2: Compare designs and the Phase 5 designs
+V02 = {
+"Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate.": ("Ajustado por todas las variables medidas (y la intervención); intervalo de confianza del 95% de la estimación ajustada.", "Ajustat per totes les variables mesurades (i la intervenció); interval de confiança del 95% de l'estimació ajustada."),
+"All designs sample the same superpopulation (same seed and student key); each study has its own participants.": ("Todos los diseños muestrean la misma superpoblación (misma semilla y clave de estudiante); cada estudio tiene sus propios participantes.", "Tots els dissenys mostregen la mateixa superpoblació (mateixa llavor i clau d'estudiant); cada estudi té els seus propis participants."),
+"Compare designs": ("Comparar diseños", "Comparar dissenys"),
+"Details": ("Detalles", "Detalls"),
+"Estimates by design": ("Estimaciones por diseño", "Estimacions per disseny"),
+"Expected values (large studies)": ("Valores esperados (estudios grandes)", "Valors esperats (estudis grans)"),
+"Filled dot and bar: adjusted estimate and 95% CI; open red circle: crude estimate; cross: large study; dashed line: true value.": ("Punto lleno y barra: estimación ajustada e IC del 95%; círculo rojo vacío: estimación cruda; cruz: estudio grande; línea discontinua: valor verdadero.", "Punt ple i barra: estimació ajustada i IC del 95%; cercle vermell buit: estimació crua; creu: estudi gran; línia discontínua: valor veritable."),
+"Large study": ("Estudio grande", "Estudi gran"),
+"One scenario, several designs, same population": ("Un escenario, varios diseños, la misma población", "Un escenari, diversos dissenys, la mateixa població"),
+"Plot": ("Gráfico", "Gràfic"),
+"Rows": ("Filas", "Files"),
+"Simulates one scenario under several study designs from the same superpopulation (same seed and student key) and compares what each design estimates, with its 95% confidence interval, against the true values. The studies can be opened as one dataset with a design column.": ("Simula un escenario con varios diseños de estudio a partir de la misma superpoblación (misma semilla y clave de estudiante) y compara lo que estima cada diseño, con su intervalo de confianza del 95%, con los valores verdaderos. Los estudios se pueden abrir como un único conjunto de datos con una columna de diseño.", "Simula un escenari amb diversos dissenys d'estudi a partir de la mateixa superpoblació (mateixa llavor i clau d'estudiant) i compara el que estima cada disseny, amb el seu interval de confiança del 95%, amb els valors veritables. Els estudis es poden obrir com un únic conjunt de dades amb una columna de disseny."),
+"Skipped (they do not fit this outcome): {list}.": ("Omitidos (no encajan con esta respuesta): {list}.", "Omesos (no encaixen amb aquesta resposta): {list}."),
+"Studies": ("Estudios", "Estudis"),
+"Tick at least one design that fits this outcome: {list}.": ("Marque al menos un diseño que encaje con esta respuesta: {list}.", "Marqueu almenys un disseny que encaixi amb aquesta resposta: {list}."),
+}
+NEW.update(V02)
 for k, v in NEW.items():
     ES[k], CA[k] = v
 ES.update(ES2); CA.update(CA2)

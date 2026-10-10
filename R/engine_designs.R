@@ -113,7 +113,8 @@ sim_matched_cc <- function(sc, oc, cal, seed, n, opt) {
     rownames(pool) <- NULL
     exact <- mv[vapply(mv, function(v) sc$variables[[v]]$type %in% c("binary", "nominal", "ordinal", "genotype"), TRUE)]
     near <- setdiff(mv, exact)
-    key <- if (length(exact)) do.call(paste, c(pool[exact], sep = "\r")) else rep("", nrow(pool))
+    # one group for all when matching only on caliper variables (a list cannot be indexed by "")
+    key <- if (length(exact)) paste0("k", do.call(paste, c(pool[exact], sep = "\r"))) else rep("all", nrow(pool))
     avail <- pool$.y == 0
     # candidates grouped by the exact-match key and sorted on the first
     # caliper variable, so each case looks only at a window of its group

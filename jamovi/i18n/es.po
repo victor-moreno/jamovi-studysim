@@ -7,10 +7,12 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "Language: es\n"
 
+#: R/simcompare.b.R
 #: R/simstudy.b.R
 msgid "{cases} cases and {controls} controls"
 msgstr "{cases} casos y {controls} controles"
 
+#: R/simcompare.b.R
 #: R/simstudy.b.R
 msgid "{events} events in {pt} person-years"
 msgstr "{events} eventos en {pt} personas-año"
@@ -28,10 +30,12 @@ msgid "{n} rows, {c} complete for the model"
 msgstr "{n} filas, {c} completas para el modelo"
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/crossover.title
 #: simStudy/options/design/crossover.title
 msgid "2x2 crossover trial"
 msgstr "Ensayo cruzado 2x2"
 
+#: simCompare/results/estimates.columns.superTitle
 #: simDerive/results/effects.columns.superTitle
 msgid "95% CI"
 msgstr "IC 95%"
@@ -40,10 +44,19 @@ msgstr "IC 95%"
 msgid "About the scenario"
 msgstr "Sobre el escenario"
 
+#: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "Adjusted"
 msgstr "Ajustado"
+
+#: R/simcompare.b.R
+msgid "Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate."
+msgstr "Ajustado por todas las variables medidas (y la intervención); intervalo de confianza del 95% de la estimación ajustada."
+
+#: R/simcompare.b.R
+msgid "All designs sample the same superpopulation (same seed and student key); each study has its own participants."
+msgstr "Todos los diseños muestrean la misma superpoblación (misma semilla y clave de estudiante); cada estudio tiene sus propios participantes."
 
 #: simStudy/options/showKey.title
 msgid "Answer key"
@@ -69,6 +82,7 @@ msgstr "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, ries
 msgid "Binary"
 msgstr "Binaria"
 
+#: simCompare/options/scenario.default
 #: simLibrary/options/scenario.default
 #: simStudy/options/scenario.default
 msgid "breast_cancer_risk"
@@ -95,6 +109,7 @@ msgid "Carryover effect"
 msgstr "Efecto residual (carryover)"
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/case_control.title
 #: simStudy/options/design/case_control.title
 msgid "Case-control"
 msgstr "Casos y controles"
@@ -125,6 +140,7 @@ msgid "Choose the outcome and the variables of the scenario (and the follow-up t
 msgstr "Elija la respuesta y las variables del escenario (y el tiempo de seguimiento si la respuesta es un evento)."
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/cohort.title
 #: simStudy/options/design/cohort.title
 msgid "Cohort"
 msgstr "Cohorte"
@@ -132,6 +148,16 @@ msgstr "Cohorte"
 #: simDerive/results/variables.columns.title
 msgid "Column"
 msgstr "Columna"
+
+#: R/simcompare.b.R
+#: package/analyses/simCompare.title
+#: package/analyses/simCompare.menuTitle
+#: simCompare/options.title
+#: simCompare/options.menuTitle
+#: simCompare/ui.title
+#: simCompare/results.title
+msgid "Compare designs"
+msgstr "Comparar diseños"
 
 #: simStudy/options/missingMech/mcar.title
 msgid "Completely at random"
@@ -142,6 +168,7 @@ msgid "Conditional effects on the outcome"
 msgstr "Efectos condicionales sobre la respuesta"
 
 #: R/simstudy.b.R
+#: simCompare/options/measured.template/form/continuous.title
 #: simStudy/options/measured.template/form/continuous.title
 msgid "continuous"
 msgstr "continua"
@@ -154,6 +181,7 @@ msgstr "Continua"
 msgid "Continuous outcome on the log scale"
 msgstr "Respuesta continua en escala logarítmica"
 
+#: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 #: simLibrary/results/effects.columns.title
 #: simStudy/results/keyEffects.columns.title
@@ -161,6 +189,7 @@ msgstr "Respuesta continua en escala logarítmica"
 msgid "Contrast"
 msgstr "Contraste"
 
+#: simCompare/options/ccRatio.title
 #: simStudy/options/ccRatio.title
 msgid "Controls per case"
 msgstr "Controles por caso"
@@ -174,10 +203,12 @@ msgid "Count"
 msgstr "Recuento"
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/cross_sectional.title
 #: simStudy/options/design/cross_sectional.title
 msgid "Cross-sectional"
 msgstr "Transversal"
 
+#: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "Crude"
@@ -187,6 +218,8 @@ msgstr "Crudo"
 msgid "custom"
 msgstr "propio"
 
+#: simCompare/options/libName.title
+#: simCompare/ui[0]/libName.label
 #: simLibrary/options/libName.title
 #: simLibrary/ui[0]/libName.label
 #: simStudy/options/libName.title
@@ -194,6 +227,7 @@ msgstr "propio"
 msgid "Custom library"
 msgstr "Biblioteca propia"
 
+#: simCompare/options/libContent.title
 #: simLibrary/options/libContent.title
 #: simStudy/options/libContent.title
 msgid "Custom library payload"
@@ -207,10 +241,12 @@ msgstr "Solo la propia"
 msgid "Cut points of {var}: {msg}"
 msgstr "Puntos de corte de {var}: {msg}"
 
+#: simCompare/options/measured.template/form/cuts.title
 #: simStudy/options/measured.template/form/cuts.title
 msgid "cuts"
 msgstr "cortes"
 
+#: simCompare/ui/measured.columns.label
 #: simStudy/ui/measured.columns.label
 msgid "Cuts"
 msgstr "Cortes"
@@ -254,17 +290,26 @@ msgid "Descriptives"
 msgstr "Descriptivos"
 
 #: R/simstudy.b.R
+#: simCompare/results/studies.columns.title
+#: simCompare/results/estimates.columns.title
 #: simStudy/options/design.title
 msgid "Design"
 msgstr "Diseño"
 
+#: simCompare/ui[4].label
 #: simStudy/ui[3].label
 msgid "Design options"
 msgstr "Opciones del diseño"
 
+#: simCompare/options/designs.title
+#: simCompare/ui[1].label
 #: simLibrary/results/scenarios.columns.title
 msgid "Designs"
 msgstr "Diseños"
+
+#: simCompare/results/studies.columns.title
+msgid "Details"
+msgstr "Detalles"
 
 #: simDerive/options/outcomeType/auto.title
 msgid "Detect"
@@ -287,6 +332,7 @@ msgstr "Los efectos son valores plausibles para la docencia, basados en la liter
 msgid "Effects on the outcomes"
 msgstr "Efectos sobre las variables respuesta"
 
+#: simCompare/results/estimates.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "Estimate"
 msgstr "Estimación"
@@ -301,6 +347,11 @@ msgstr "Estimar un escenario a partir de los datos abiertos"
 msgid "Estimates a library scenario from the open dataset: the marginal distribution of each variable, their latent correlations and the conditional effects on the outcome. Simulated studies from it resemble the data. The data cannot tell causes from correlates: the scenario has undirected correlations, to be turned into a causal structure before teaching (by you, or an AI with the exported file)."
 msgstr "Estima un escenario de la biblioteca a partir de los datos abiertos: la distribución marginal de cada variable, sus correlaciones latentes y los efectos condicionales sobre la respuesta. Los estudios simulados desde él se parecen a los datos. Los datos no distinguen causas de correlaciones: el escenario tiene correlaciones sin dirección, que hay que convertir en una estructura causal antes de usarlo en docencia (usted, o una IA con el fichero exportado)."
 
+#: simCompare/results/estimates.title
+#: simCompare/results/plot.title
+msgid "Estimates by design"
+msgstr "Estimaciones por diseño"
+
 #: simDerive/options/outcomeType/event.title
 msgid "Event (with follow-up time)"
 msgstr "Evento (con tiempo de seguimiento)"
@@ -314,6 +365,10 @@ msgstr "Plantilla Excel"
 msgid "Excel workbook"
 msgstr "Libro de Excel"
 
+#: simCompare/options/showExpected.title
+msgid "Expected values (large studies)"
+msgstr "Valores esperados (estudios grandes)"
+
 #: R/simstudy.b.R
 msgid "Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."
 msgstr "Valores esperados: estimaciones crudas y ajustadas de un estudio simulado de {n} filas con este diseño; ajustado por {vars}."
@@ -324,6 +379,7 @@ msgstr "Valores esperados: estimaciones crudas y ajustadas de un estudio simulad
 msgid "Export"
 msgstr "Exportar"
 
+#: simCompare/options/exportCsv.title
 #: simStudy/options/exportCsv.title
 msgid "Export CSV"
 msgstr "Exportar CSV"
@@ -336,6 +392,11 @@ msgstr "Exportar biblioteca"
 msgid "Export scenario"
 msgstr "Exportar escenario"
 
+#: R/simcompare.b.R
+msgid "Filled dot and bar: adjusted estimate and 95% CI; open red circle: crude estimate; cross: large study; dashed line: true value."
+msgstr "Punto lleno y barra: estimación ajustada e IC del 95%; círculo rojo vacío: estimación cruda; cruz: estudio grande; línea discontinua: valor verdadero."
+
+#: simCompare/options/followup.title
 #: simStudy/options/followup.title
 msgid "Follow-up (years)"
 msgstr "Seguimiento (años)"
@@ -345,6 +406,7 @@ msgstr "Seguimiento (años)"
 msgid "Follow-up time (event outcomes)"
 msgstr "Tiempo de seguimiento (eventos)"
 
+#: simCompare/ui/measured.columns.label
 #: simStudy/ui/measured.columns.label
 msgid "Form"
 msgstr "Forma"
@@ -400,6 +462,10 @@ msgstr "Tipo"
 msgid "Label"
 msgstr "Etiqueta"
 
+#: simCompare/results/estimates.columns.title
+msgid "Large study"
+msgstr "Estudio grande"
+
 #: simDerive/results/correlations.columns.title
 msgid "Latent"
 msgstr "Latente"
@@ -430,10 +496,12 @@ msgstr "Biblioteca mostrada"
 msgid "log intercept {a}"
 msgstr "constante logarítmica {a}"
 
+#: simCompare/options/loss.title
 #: simStudy/options/loss.title
 msgid "Loss to follow-up (% per year)"
 msgstr "Pérdidas de seguimiento (% anual)"
 
+#: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 msgid "Lower"
 msgstr "Inferior"
@@ -444,10 +512,12 @@ msgid "Manages the scenario library of the Study Simulator: reads a custom libra
 msgstr "Gestiona la biblioteca de escenarios del Simulador de estudios: lee una biblioteca propia (YAML, Excel, JSON o un zip de ellos), la comprueba, muestra sus escenarios y exporta la biblioteca o un escenario en Excel, JSON o YAML, o una plantilla Excel para empezar una nueva."
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/matched_cc.title
 #: simStudy/options/design/matched_cc.title
 msgid "Matched case-control"
 msgstr "Casos y controles emparejados"
 
+#: R/simcompare.b.R
 #: R/simstudy.b.R
 msgid "matched on {vars}"
 msgstr "emparejados por {vars}"
@@ -468,6 +538,7 @@ msgstr "media {m}, DE residual {s}"
 msgid "Measure"
 msgstr "Medida"
 
+#: simCompare/ui/measured.columns.label
 #: simStudy/ui/measured.columns.label
 msgid "Measured"
 msgstr "Medida"
@@ -476,6 +547,7 @@ msgstr "Medida"
 msgid "median {m} years"
 msgstr "mediana {m} años"
 
+#: simCompare/options/measured.template/form/median.title
 #: simStudy/options/measured.template/form/median.title
 msgid "median split"
 msgstr "mediana"
@@ -502,6 +574,7 @@ msgstr "no"
 msgid "No problems found in {n} scenarios."
 msgstr "No se han encontrado problemas en {n} escenarios."
 
+#: R/simcompare.b.R
 #: R/simstudy.b.R
 msgid "No variables measured yet: tick them under Measured."
 msgstr "Aún no hay variables medidas: márquelas en la columna Medida."
@@ -524,6 +597,12 @@ msgstr "Nota"
 msgid "Observed r"
 msgstr "r observada"
 
+#: package/analyses/simCompare.menuSubtitle
+#: simCompare/options.menuSubtitle
+msgid "One scenario, several designs, same population"
+msgstr "Un escenario, varios diseños, la misma población"
+
+#: simCompare/options/openData.title
 #: simStudy/options/openData.title
 msgid "Open dataset"
 msgstr "Abrir datos"
@@ -533,6 +612,7 @@ msgid "ordinal"
 msgstr "ordinal"
 
 #: R/simstudy.b.R
+#: simCompare/options/outcome.title
 #: simDerive/options/outcome.title
 #: simDerive/ui[0][0].label
 #: simLibrary/results/effects.columns.title
@@ -552,6 +632,7 @@ msgstr "Tipo de respuesta"
 msgid "Outcomes"
 msgstr "Variables respuesta"
 
+#: simCompare/ui[5].label
 #: simStudy/ui[5].label
 msgid "Output"
 msgstr "Salida"
@@ -563,6 +644,10 @@ msgstr "camino"
 #: simStudy/options/period.title
 msgid "Period effect"
 msgstr "Efecto periodo"
+
+#: simCompare/options/showPlot.title
+msgid "Plot"
+msgstr "Gráfico"
 
 #: R/simstudy.b.R
 msgid "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them."
@@ -578,19 +663,23 @@ msgid "Problem"
 msgstr "Problema"
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/prognosis.title
 #: simStudy/options/design/prognosis.title
 msgid "Prognosis (patient cohort)"
 msgstr "Pronóstico (cohorte de pacientes)"
 
+#: simCompare/options/measured.template/form/quartiles.title
 #: simStudy/options/measured.template/form/quartiles.title
 msgid "quartiles"
 msgstr "cuartiles"
 
+#: simCompare/options/measured.template/form/quintiles.title
 #: simStudy/options/measured.template/form/quintiles.title
 msgid "quintiles"
 msgstr "quintiles"
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/rct.title
 #: simStudy/options/design/rct.title
 msgid "Randomised trial"
 msgstr "Ensayo aleatorizado"
@@ -632,11 +721,17 @@ msgstr "Referencias"
 msgid "risk {r} at {t} years"
 msgstr "riesgo {r} a {t} años"
 
+#: simCompare/results/studies.columns.title
+msgid "Rows"
+msgstr "Filas"
+
+#: simCompare/options/n.title
 #: simStudy/options/n.title
 msgid "Sample size"
 msgstr "Tamaño muestral"
 
 #: R/simstudy.b.R
+#: simCompare/options/scenario.title
 #: simDerive/results/summary.title
 #: simLibrary/options/scenario.title
 #: simLibrary/results/scenarios.columns.title
@@ -663,6 +758,7 @@ msgstr "Escenario, diseño, datos y clave de respuestas"
 msgid "Scenarios"
 msgstr "Escenarios"
 
+#: simCompare/options/seed.title
 #: simStudy/options/seed.title
 msgid "Seed"
 msgstr "Semilla"
@@ -680,6 +776,7 @@ msgstr "semilla {seed} con clave de estudiante \"{key}\""
 msgid "Selected scenario"
 msgstr "Escenario seleccionado"
 
+#: R/simcompare.b.R
 #: R/simstudy.b.R
 msgid "sequences: {a} and {b} participants"
 msgstr "secuencias: {a} y {b} participantes"
@@ -689,8 +786,10 @@ msgid "Show"
 msgstr "Mostrar"
 
 #: package/analyses/simStudy.menuGroup
+#: package/analyses/simCompare.menuGroup
 #: package/analyses/simLibrary.menuGroup
 #: package/analyses/simDerive.menuGroup
+#: simCompare/options.menuGroup
 #: simDerive/options.menuGroup
 #: simLibrary/options.menuGroup
 #: simStudy/options.menuGroup
@@ -711,9 +810,18 @@ msgstr "Estudio simulado"
 msgid "Simulates a plausible medical study for teaching: a clinical scenario from the library, a study design compatible with its outcome, a sample size and some realism. The dataset opens in a new window; the answer key holds the true parameters and what the design is expected to estimate."
 msgstr "Simula un estudio médico plausible para la docencia: un escenario clínico de la biblioteca, un diseño compatible con su variable respuesta, un tamaño muestral y algo de realismo. Los datos se abren en una ventana nueva; la clave de respuestas contiene los parámetros verdaderos y lo que el diseño debería estimar."
 
+#: package/analyses/simCompare.description
+#: simCompare/options.description.main
+msgid "Simulates one scenario under several study designs from the same superpopulation (same seed and student key) and compares what each design estimates, with its 95% confidence interval, against the true values. The studies can be opened as one dataset with a design column."
+msgstr "Simula un escenario con varios diseños de estudio a partir de la misma superpoblación (misma semilla y clave de estudiante) y compara lo que estima cada diseño, con su intervalo de confianza del 95%, con los valores verdaderos. Los estudios se pueden abrir como un único conjunto de datos con una columna de diseño."
+
 #: package.description
 msgid "Simulates plausible medical study datasets for teaching"
 msgstr "Simula datos plausibles de estudios médicos para la docencia"
+
+#: R/simcompare.b.R
+msgid "Skipped (they do not fit this outcome): {list}."
+msgstr "Omitidos (no encajan con esta respuesta): {list}."
 
 #: R/simstudy.b.R
 msgid "Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome."
@@ -739,9 +847,14 @@ msgstr "Estructura entre variables"
 msgid "Structure among variables (latent paths)"
 msgstr "Estructura entre variables (caminos latentes)"
 
+#: simCompare/options/studentKey.title
 #: simStudy/options/studentKey.title
 msgid "Student key"
 msgstr "Clave de estudiante"
+
+#: simCompare/results/studies.title
+msgid "Studies"
+msgstr "Estudios"
 
 #: simStudy/results/summary.title
 msgid "Study"
@@ -764,6 +877,7 @@ msgstr "Resumen"
 msgid "Teaching note"
 msgstr "Nota docente"
 
+#: simCompare/options/measured.template/form/tertiles.title
 #: simStudy/options/measured.template/form/tertiles.title
 msgid "tertiles"
 msgstr "terciles"
@@ -784,6 +898,10 @@ msgstr "La biblioteca no tiene escenarios. Pulse Browse… para leer una bibliot
 msgid "There is no scenario '{id}' in this library; choose one listed under Scenarios."
 msgstr "No hay ningún escenario '{id}' en esta biblioteca; elija uno de los listados en Escenarios."
 
+#: R/simcompare.b.R
+msgid "Tick at least one design that fits this outcome: {list}."
+msgstr "Marque al menos un diseño que encaje con esta respuesta: {list}."
+
 #: simDerive/options/scenarioLabel.title
 #: simLibrary/results/scenarios.columns.title
 msgid "Title"
@@ -793,6 +911,7 @@ msgstr "Título"
 msgid "To"
 msgstr "Hacia"
 
+#: simCompare/results/estimates.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "True"
 msgstr "Verdadero"
@@ -801,6 +920,7 @@ msgstr "Verdadero"
 msgid "True value"
 msgstr "Valor verdadero"
 
+#: R/simcompare.b.R
 #: R/simstudy.b.R
 msgid "True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."
 msgstr "Los valores verdaderos son {true}, la medida con que se generaron los datos (una cohorte seguida en el tiempo); este diseño estima {est}, que se le acercan cuando la respuesta es rara."
@@ -811,10 +931,12 @@ msgstr "Los valores verdaderos son {true}, la medida con que se generaron los da
 msgid "Type"
 msgstr "Tipo"
 
+#: simCompare/ui/measured.columns.label
 #: simStudy/ui/measured.columns.label
 msgid "Units or categories"
 msgstr "Unidades o categorías"
 
+#: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 msgid "Upper"
 msgstr "Superior"
@@ -827,6 +949,8 @@ msgstr "Valor"
 msgid "Values"
 msgstr "Valores"
 
+#: simCompare/ui/measured.columns.label
+#: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 #: simDerive/results/correlations.columns.title
 #: simLibrary/results/variables.columns.title
@@ -839,6 +963,7 @@ msgstr "Valores"
 msgid "Variable"
 msgstr "Variable"
 
+#: simCompare/options/measured.title
 #: simDerive/options/covs.title
 #: simDerive/ui[0][2].label
 #: simDerive/results/variables.title
