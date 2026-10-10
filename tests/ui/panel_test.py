@@ -38,9 +38,11 @@ with sync_playwright() as p:
     check(sels.count() == 2, "two injected pickers")
     scen = sels.nth(0).locator("option").all_inner_texts()
     check(len(scen) >= 6, "scenario picker lists the built-in library (%d)" % len(scen))
-    design = fr.locator("select.silky-option-combo-input").first
+    combos = fr.locator("select.silky-option-combo-input")
+    check("Any design" in combos.first.locator("option").all_inner_texts(), "design filter first")
+    design = combos.nth(1)
     vis = design.evaluate("s => Array.from(s.options).filter(o => !o.hidden).map(o => o.text)")
-    check(vis == ["Case-control", "Matched case-control", "Cohort"], "breast cancer designs: %s" % vis)
+    check(vis == ["Case-control", "Matched case-control", "Cohort", "Nested case-control", "Case-cohort", "Ecological (regions)"], "breast cancer designs: %s" % vis)
     page.screenshot(path=os.path.join(OUT, "01-default.png"))
     for i in range(20):   # the first run after a restart loads R and calibrates
         txt = results_text(page)
@@ -58,12 +60,11 @@ with sync_playwright() as p:
     check("coffee" in names and "age" in names, "checklist lists the variables: %s" % names[:6])
     boxes = fr.locator(".list-item-cell input[type=checkbox]")
     check(boxes.count() >= 12, "one checkbox per variable (%d)" % boxes.count())
-    check(all(not boxes.nth(i).is_checked() for i in range(boxes.count())), "none measured at start")
+    check(all(boxes.nth(i).is_checked() for i in range(boxes.count())), "all measured at start")
     ids = ["age", "sex", "education", "physical_activity", "bmi", "smoking", "cigarettes", "sbp", "total_chol", "hdl", "diabetes", "coffee"]
-    for v in ["age", "sex", "smoking", "coffee"]:
-        boxes.nth(ids.index(v)).check(force=True)
+    for v in ["education", "physical_activity", "cigarettes", "total_chol", "hdl", "diabetes", "coffee"]:
+        boxes.nth(ids.index(v)).uncheck(force=True)
         page.wait_for_timeout(700)
-    boxes.nth(ids.index("coffee")).uncheck(force=True)
     page.wait_for_timeout(1500)
     labels = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()]
     check("years" in labels and "female/male" in labels and "never/former/current" in labels, "units/categories column")
@@ -87,7 +88,6 @@ with sync_playwright() as p:
     boxes.nth(ids.index("coffee")).uncheck(force=True); page.wait_for_timeout(1500)
     page.screenshot(path=os.path.join(OUT, "09-categorised.png"))
     jc.expand_section(fr, "Output")
-    jc.check_option(fr, "Causal diagram (DAG)")
     page.wait_for_timeout(8000)
     def dag_url():
         for f in page.frames:
