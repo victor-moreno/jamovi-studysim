@@ -41,6 +41,8 @@ outcomes:
       treatment: {beta: [0, -1.0]}
   controlled:
     type: binary
+    # the same patients: control below 7% goes with a lower HbA1c
+    link: {outcome: hba1c, rho: -0.85}
     label: {en: HbA1c below 7% at 6 months, es: HbA1c inferior al 7% a los 6 meses, ca: HbA1c inferior al 7% als 6 mesos}
     levels: [no, yes]
     prevalence: 0.30

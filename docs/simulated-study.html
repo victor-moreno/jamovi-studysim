@@ -338,6 +338,8 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#scenario-outcome-and-design" id="toc-scenario-outcome-and-design" class="nav-link active" data-scroll-target="#scenario-outcome-and-design">Scenario, outcome and design</a>
   <ul class="collapse">
   <li><a href="#design-options-realism-and-output" id="toc-design-options-realism-and-output" class="nav-link" data-scroll-target="#design-options-realism-and-output">Design options, realism and output</a></li>
+  <li><a href="#several-outcomes-in-one-study" id="toc-several-outcomes-in-one-study" class="nav-link" data-scroll-target="#several-outcomes-in-one-study">Several outcomes in one study</a></li>
+  <li><a href="#two-more-designs" id="toc-two-more-designs" class="nav-link" data-scroll-target="#two-more-designs">Two more designs</a></li>
   </ul></li>
   <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The data</a></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
@@ -395,9 +397,26 @@ ul.task-list li input[type="checkbox"] {
 </figure>
 </div>
 <ul>
-<li><em>Design options</em>: controls per case; follow-up, loss to follow-up and recruitment period for cohorts and trials; period and carryover effects for a crossover. A 0 keeps the scenario’s default.</li>
-<li><em>Realism</em>: a percentage of missing values in the measured variables, completely at random or depending on the outcome.</li>
-<li><em>Output</em>: seed and <strong>student key</strong> (any text, e.g.&nbsp;a student ID: each key gives a different dataset from the same options), and which tables to show.</li>
+<li><em>Design options</em>: controls per case; follow-up, loss to follow-up and recruitment period for cohorts and trials; subcohort, clusters and ICC, interaction, interim looks, visits and dropout, regions; period and carryover for a crossover; entry threshold for a before-after study; bias, slope and errors of two methods. A 0 keeps the scenario’s default.</li>
+<li><em>Realism</em>:
+<ul>
+<li><strong>missing values</strong> in the measured variables: completely at random, depending on the outcome, or depending on the missing value itself (MNAR);</li>
+<li><strong>measurement error</strong>: the reliability of numeric measures and a share of misclassified categories, non-differential. The answer key uses the same error, so it shows how much the estimates are diluted and how much confounding remains;</li>
+<li><strong>data-entry errors</strong> (decimal slips, swapped digits, 999 codes) to find and clean, and <strong>extra variables</strong> with no effect (<code>extra_01</code>, …) for multiple testing and variable selection;</li>
+<li><strong>laboratory</strong>: values below a marker’s or a biomarker’s detection limit reported as missing, as LOD/2 or as the LOD; diagnostic markers run in <strong>batches</strong>, optionally with cases and controls in separate batches.</li>
+</ul></li>
+<li><em>Output</em>: seed and <strong>student key</strong> (any text, e.g.&nbsp;a student ID: each key gives a different dataset from the same options), which tables to show, and <strong>Answer key report</strong>, which saves the whole key (true model, what the design should estimate, markers, diagram, notes) as one HTML page for the teacher.</li>
+</ul>
+</section>
+<section id="several-outcomes-in-one-study" class="level3">
+<h3 class="anchored" data-anchor-id="several-outcomes-in-one-study">Several outcomes in one study</h3>
+<p>Most trials record several outcomes. <em>Other outcomes of the scenario (same people)</em> adds every other outcome of the scenario as columns for the same people (cross-sectional, cohort, prognosis and trial designs), and the answer key gets a block per outcome. Outcomes can be linked (correlated beyond their common causes, e.g.&nbsp;HbA1c and control below 7%), and overall survival can be built from a first event (an illness-death model: in the colon cancer trial, death after recurrence). The SPRINT scenario has a primary outcome, death and three harms, to weigh benefits against harms and to see what testing many outcomes does.</p>
+</section>
+<section id="two-more-designs" class="level3">
+<h3 class="anchored" data-anchor-id="two-more-designs">Two more designs</h3>
+<ul>
+<li><strong>Before-after (single group)</strong>: everybody is treated and measured before and after, with no control group. The mean change mixes the effect, the natural trend and, if only people with high values are enrolled (<em>Enrol only above percentile</em>), <strong>regression to the mean</strong>.</li>
+<li><strong>Method comparison</strong>: the outcome measured twice in each person, by methods A and B (B with a bias, a proportional bias and its own error), for a Bland-Altman analysis; the key gives the mean difference, the limits of agreement and the regression slope of B on A, attenuated by A’s own error.</li>
 </ul>
 <p>The same seed always gives the same study, and the people of the superpopulation do not depend on the design: the same seed under another design samples the same people. Showing the key, the diagram or a table does not draw the study again; only options that change the data do.</p>
 </section>

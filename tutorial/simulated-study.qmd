@@ -36,12 +36,50 @@ title: "Simulated study"
 ![Design options: only those of the chosen design are enabled.](screenshots/s09-design-options.png){.screenshot width=70%}
 
 - *Design options*: controls per case; follow-up, loss to follow-up and
-  recruitment period for cohorts and trials; period and carryover effects for a
-  crossover. A 0 keeps the scenario's default.
-- *Realism*: a percentage of missing values in the measured variables, completely
-  at random or depending on the outcome.
+  recruitment period for cohorts and trials; subcohort, clusters and ICC,
+  interaction, interim looks, visits and dropout, regions; period and carryover
+  for a crossover; entry threshold for a before-after study; bias, slope and
+  errors of two methods. A 0 keeps the scenario's default.
+- *Realism*:
+  - **missing values** in the measured variables: completely at random,
+    depending on the outcome, or depending on the missing value itself (MNAR);
+  - **measurement error**: the reliability of numeric measures and a share of
+    misclassified categories, non-differential. The answer key uses the same
+    error, so it shows how much the estimates are diluted and how much
+    confounding remains;
+  - **data-entry errors** (decimal slips, swapped digits, 999 codes) to find and
+    clean, and **extra variables** with no effect (`extra_01`, …) for multiple
+    testing and variable selection;
+  - **laboratory**: values below a marker's or a biomarker's detection limit
+    reported as missing, as LOD/2 or as the LOD; diagnostic markers run in
+    **batches**, optionally with cases and controls in separate batches.
 - *Output*: seed and **student key** (any text, e.g. a student ID: each key gives
-  a different dataset from the same options), and which tables to show.
+  a different dataset from the same options), which tables to show, and
+  **Answer key report**, which saves the whole key (true model, what the design
+  should estimate, markers, diagram, notes) as one HTML page for the teacher.
+
+### Several outcomes in one study
+
+Most trials record several outcomes. *Other outcomes of the scenario (same
+people)* adds every other outcome of the scenario as columns for the same people
+(cross-sectional, cohort, prognosis and trial designs), and the answer key gets a
+block per outcome. Outcomes can be linked (correlated beyond their common
+causes, e.g. HbA1c and control below 7%), and overall survival can be built
+from a first event (an illness-death model: in the colon cancer trial, death
+after recurrence). The SPRINT scenario has a primary outcome, death and three
+harms, to weigh benefits against harms and to see what testing many outcomes
+does.
+
+### Two more designs
+
+- **Before-after (single group)**: everybody is treated and measured before and
+  after, with no control group. The mean change mixes the effect, the natural
+  trend and, if only people with high values are enrolled (*Enrol only above
+  percentile*), **regression to the mean**.
+- **Method comparison**: the outcome measured twice in each person, by methods
+  A and B (B with a bias, a proportional bias and its own error), for a
+  Bland-Altman analysis; the key gives the mean difference, the limits of
+  agreement and the regression slope of B on A, attenuated by A's own error.
 
 The same seed always gives the same study, and the people of the superpopulation
 do not depend on the design: the same seed under another design samples the same

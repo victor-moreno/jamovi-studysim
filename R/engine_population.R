@@ -75,12 +75,35 @@ gen_covariates <- function(sc, n, shift = NULL) {
 # scenario only) plus the outcome's own noise (seeded by the outcome as well).
 pop_chunk <- function(sc, outcome, seed, k) {
     cov <- with_seed(derive_seed(seed, sc$id, "cov", k), gen_covariates(sc, CHUNK))
-    noise <- with_seed(derive_seed(seed, sc$id, outcome, "noise", k),
-                       data.frame(u = stats::runif(CHUNK), z = stats::rnorm(CHUNK),
-                                  u2 = stats::runif(CHUNK), u3 = stats::runif(CHUNK),
-                                  u4 = stats::runif(CHUNK)))   # u4 (competing event) drawn last: earlier draws unchanged
     cov$.pid <- (k - 1L) * CHUNK + seq_len(CHUNK)
-    list(cov = cov, noise = noise)
+    list(cov = cov, noise = chunk_noise(sc, outcome, seed, k))
+}
+
+# an outcome's own noise for chunk k
+raw_noise <- function(sc, outcome, seed, k)
+    with_seed(derive_seed(seed, sc$id, outcome, "noise", k),
+              data.frame(u = stats::runif(CHUNK), z = stats::rnorm(CHUNK),
+                         u2 = stats::runif(CHUNK), u3 = stats::runif(CHUNK),
+                         u4 = stats::runif(CHUNK)))   # u4 (competing event) drawn last: earlier draws unchanged
+
+# the noise as a latent normal where higher means more of the outcome: a
+# higher value, an event (binary), an earlier event, more counts
+outcome_latent <- function(type, nz) switch(type, continuous = nz$z, binary = -stats::qnorm(nz$u), stats::qnorm(nz$u))
+set_latent <- function(type, nz, L) {
+    if (type == "continuous") nz$z <- L else if (type == "binary") nz$u <- stats::pnorm(-L) else nz$u <- stats::pnorm(L)
+    nz
+}
+
+# An outcome linked to another (`link: {outcome, rho}`) shares part of its
+# noise: the two outcomes of a person are correlated (rho on the latent
+# scale) beyond what their common causes explain
+chunk_noise <- function(sc, outcome, seed, k) {
+    nz <- raw_noise(sc, outcome, seed, k)
+    lk <- sc$outcomes[[outcome]]$link
+    if (is.null(lk)) return(nz)
+    oc <- sc$outcomes[[outcome]]; other <- sc$outcomes[[lk$outcome]]
+    L <- lk$rho * outcome_latent(other$type, raw_noise(sc, other$id, seed, k)) + sqrt(1 - lk$rho^2) * outcome_latent(oc$type, nz)
+    set_latent(oc$type, nz, L)
 }
 
 # the first n people of the superpopulation
@@ -91,4 +114,13 @@ population <- function(sc, outcome, seed, n) {
     noise <- do.call(rbind, lapply(ch, `[[`, "noise"))[seq_len(n), , drop = FALSE]
     rownames(cov) <- rownames(noise) <- NULL
     list(cov = cov, noise = noise)
+}
+
+# the noise of an outcome for given people (.pid)
+noise_for <- function(sc, outcome, seed, pid) {
+    ks <- unique((pid - 1L) %/% CHUNK + 1L)
+    nz <- do.call(rbind, lapply(ks, function(k) { x <- chunk_noise(sc, outcome, seed, k); x$.pid <- (k - 1L) * CHUNK + seq_len(CHUNK); x }))
+    nz <- nz[match(pid, nz$.pid), , drop = FALSE]
+    rownames(nz) <- NULL
+    nz
 }

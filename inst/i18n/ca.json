@@ -7,6 +7,9 @@
                 "lang": "ca",
                 "plural_forms": "nplurals=2; plural=(n!=1);"
             },
+            ", cases and controls in separate batches": [
+                ", casos i controls en lots diferents"
+            ],
             "{cases} cases and {controls} controls": [
                 "{cases} casos i {controls} controls"
             ],
@@ -15,6 +18,9 @@
             ],
             "{k} clusters randomised ({by} by arm), intraclass correlation {icc}": [
                 "{k} conglomerats aleatoritzats ({by} per grup), correlació intraclasse {icc}"
+            ],
+            "{k} extra variables (extra_01, …) with no effect": [
+                "{k} variables addicionals (extra_01, …) sense efecte"
             ],
             "{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}": [
                 "{k} anàlisis intermèdies després de {ns} participants; límits d'O'Brien-Fleming |z| ≥ {b}"
@@ -30,6 +36,9 @@
             ],
             "{n} competing events ({label}), status 2": [
                 "{n} esdeveniments competitius ({label}), estat 2"
+            ],
+            "{n} data-entry errors to find and correct": [
+                "{n} errors d'entrada de dades per trobar i corregir"
             ],
             "{n} of {total} scenarios fit the {design} design.": [
                 "{n} de {total} escenaris encaixen amb el disseny {design}."
@@ -64,11 +73,17 @@
             "Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate.": [
                 "Ajustat per totes les variables mesurades (i la intervenció); interval de confiança del 95% de l'estimació ajustada."
             ],
+            "Adjusted: {method} on {n} rows with the outcome; Complete cases: the same model on the {c} complete rows.": [
+                "Ajustat: {method} en {n} files amb la resposta; Casos complets: el mateix model en les {c} files completes."
+            ],
             "All designs sample the same superpopulation (same seed and student key); each study has its own participants.": [
                 "Tots els dissenys mostregen la mateixa superpoblació (mateixa llavor i clau d'estudiant); cada estudi té els seus propis participants."
             ],
             "Answer key": [
                 "Clau de respostes"
+            ],
+            "Answer key report": [
+                "Informe de la clau de respostes"
             ],
             "Answer key: markers": [
                 "Clau de respostes: marcadors"
@@ -85,6 +100,9 @@
             "Any design": [
                 "Qualsevol disseny"
             ],
+            "Assay batches (markers)": [
+                "Lots d'anàlisi (marcadors)"
+            ],
             "AUC of each marker alone (a block: the mean over its columns). Values are higher in the diseased unless the scenario says lower; the large study has 20,000 people.": [
                 "AUC de cada marcador per separat (un bloc: la mitjana de les seves columnes). Els valors són més alts en els malalts tret que l'escenari digui el contrari; l'estudi gran té 20.000 persones."
             ],
@@ -93,6 +111,12 @@
             ],
             "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
                 "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
+            ],
+            "Before-after (single group)": [
+                "Abans-després (un sol grup)"
+            ],
+            "Bias of method B": [
+                "Biaix del mètode B"
             ],
             "Binary": [
                 "Binària"
@@ -121,6 +145,9 @@
             "Case-control": [
                 "Casos i controls"
             ],
+            "Cases and controls in separate batches": [
+                "Casos i controls en lots diferents"
+            ],
             "cases found among {n} people of the source population (risk {risk}%)": [
                 "casos trobats entre {n} persones de la població d'origen (risc {risk}%)"
             ],
@@ -135,6 +162,9 @@
             ],
             "Check": [
                 "Comprovació"
+            ],
+            "Check before using this scenario": [
+                "Reviseu abans de fer servir aquest escenari"
             ],
             "Check by simulating from the scenario": [
                 "Comprovar simulant des de l'escenari"
@@ -159,6 +189,9 @@
             ],
             "Compare designs": [
                 "Comparar dissenys"
+            ],
+            "Complete cases": [
+                "Casos complets"
             ],
             "Completely at random": [
                 "Completament a l'atzar"
@@ -226,6 +259,12 @@
             "Data source": [
                 "Origen de les dades"
             ],
+            "Data-entry errors (%)": [
+                "Errors d'entrada de dades (%)"
+            ],
+            "Depending on the missing value itself": [
+                "Segons el mateix valor que falta"
+            ],
             "Depending on the outcome": [
                 "Segons la variable resposta"
             ],
@@ -289,6 +328,15 @@
             "Effects on the outcomes": [
                 "Efectes sobre les variables resposta"
             ],
+            "Enrol only above percentile": [
+                "Incloure només per sobre del percentil"
+            ],
+            "Error of method A (% of SD)": [
+                "Error del mètode A (% de la DE)"
+            ],
+            "Error of method B (% of SD)": [
+                "Error del mètode B (% de la DE)"
+            ],
             "Estimate": [
                 "Estimació"
             ],
@@ -306,6 +354,12 @@
             ],
             "Event (with follow-up time)": [
                 "Esdeveniment (amb temps de seguiment)"
+            ],
+            "everybody treated, measured before and after; no control group": [
+                "tots tractats, mesurats abans i després; sense grup control"
+            ],
+            "everybody treated; only people above the {p}th percentile before were enrolled ({n} screened)": [
+                "tots tractats; només es va incloure els qui superaven el percentil {p} abans ({n} cribrats)"
             ],
             "Excel template": [
                 "Plantilla Excel"
@@ -330,6 +384,9 @@
             ],
             "Export scenario": [
                 "Exportar escenari"
+            ],
+            "Extra variables with no effect": [
+                "Variables addicionals sense efecte"
             ],
             "Filled dot and bar: adjusted estimate and 95% CI; open red circle: crude estimate; cross: large study; dashed line: true value.": [
                 "Punt ple i barra: estimació ajustada i IC del 95%; cercle vermell buit: estimació crua; creu: estudi gran; línia discontínua: valor veritable."
@@ -358,6 +415,9 @@
             "Import, check, explore and export scenarios": [
                 "Importar, comprovar, explorar i exportar escenaris"
             ],
+            "Imputations": [
+                "Imputacions"
+            ],
             "In scenario": [
                 "A l'escenari"
             ],
@@ -384,6 +444,9 @@
             ],
             "JSON (for the Simulated study pickers)": [
                 "JSON (per als selectors d'Estudi simulat)"
+            ],
+            "Kept (no limit)": [
+                "Es mantenen (sense límit)"
             ],
             "Kind": [
                 "Tipus"
@@ -433,6 +496,9 @@
             "Marker": [
                 "Marcador"
             ],
+            "markers assayed in {k} batches ({cv}% variation between batches){conf}": [
+                "marcadors analitzats en {k} lots ({cv}% de variació entre lots){conf}"
+            ],
             "Matched case-control": [
                 "Casos i controls aparellats"
             ],
@@ -445,11 +511,20 @@
             "mean {m}, residual SD {s}": [
                 "mitjana {m}, DE residual {s}"
             ],
+            "Mean / most frequent value": [
+                "Mitjana / valor més freqüent"
+            ],
+            "mean / most frequent value imputation": [
+                "imputació per la mitjana / valor més freqüent"
+            ],
             "Measure": [
                 "Mesura"
             ],
             "Measured": [
                 "Mesurada"
+            ],
+            "measurement error: reliability {r} for numeric variables, {m}% of categories misclassified": [
+                "error de mesura: fiabilitat {r} en les variables numèriques, {m}% de categories mal classificades"
             ],
             "median {m} years": [
                 "mediana {m} anys"
@@ -457,14 +532,29 @@
             "median split": [
                 "mediana"
             ],
+            "Method comparison": [
+                "Comparació de mètodes"
+            ],
+            "Misclassified categories (%)": [
+                "Categories mal classificades (%)"
+            ],
             "Missing": [
                 "Perduts"
             ],
             "Missing values (%)": [
                 "Valors perduts (%)"
             ],
+            "Missing values in the variables": [
+                "Valors que falten a les variables"
+            ],
             "Missingness": [
                 "Mecanisme de pèrdua"
+            ],
+            "Multiple imputation": [
+                "Imputació múltiple"
+            ],
+            "multiple imputation ({m} imputations, Rubin's rules)": [
+                "imputació múltiple ({m} imputacions, regles de Rubin)"
             ],
             "Nested case-control": [
                 "Casos i controls niat"
@@ -498,6 +588,12 @@
             ],
             "ordinal": [
                 "ordinal"
+            ],
+            "other outcomes of the same people: {list}": [
+                "altres respostes de les mateixes persones: {list}"
+            ],
+            "Other outcomes of the scenario (same people)": [
+                "Altres respostes de l'escenari (mateixes persones)"
             ],
             "Outcome": [
                 "Variable resposta"
@@ -538,6 +634,9 @@
             "Prognosis (patient cohort)": [
                 "Pronòstic (cohort de pacients)"
             ],
+            "Proportional bias of method B (slope)": [
+                "Biaix proporcional del mètode B (pendent)"
+            ],
             "quartiles": [
                 "quartils"
             ],
@@ -573,6 +672,18 @@
             ],
             "Regions": [
                 "Regions"
+            ],
+            "Reliability of numeric measures": [
+                "Fiabilitat de les mesures numèriques"
+            ],
+            "Replaced by LOD/2": [
+                "Substituïts per LOD/2"
+            ],
+            "Replaced by the LOD": [
+                "Substituïts pel LOD"
+            ],
+            "Reported as missing": [
+                "S'informen com a faltants"
             ],
             "risk {r} at {t} years": [
                 "risc {r} a {t} anys"
@@ -637,6 +748,12 @@
             "Simulates plausible medical study datasets for teaching": [
                 "Simula dades plausibles d'estudis mèdics per a la docència"
             ],
+            "Single imputation (chained equations)": [
+                "Imputació única (equacions encadenades)"
+            ],
+            "single imputation by chained equations": [
+                "imputació única per equacions encadenades"
+            ],
             "Skipped (they do not fit this outcome): {list}.": [
                 "Omesos (no encaixen amb aquesta resposta): {list}."
             ],
@@ -700,6 +817,12 @@
             "The library has no scenarios. Press Browse… to read a custom library.": [
                 "La biblioteca no té escenaris. Premeu Browse… per llegir una biblioteca pròpia."
             ],
+            "The measured variables have measurement error, also in this large study: the estimates are diluted towards no effect, and confounding is only partly removed.": [
+                "Les variables mesurades tenen error de mesura, també en aquest estudi gran: les estimacions es dilueixen cap a l'absència d'efecte i la confusió només s'elimina en part."
+            ],
+            "the outcome measured twice in each person, by methods A and B": [
+                "la resposta mesurada dues vegades en cada persona, amb els mètodes A i B"
+            ],
             "There is no scenario '{id}' in this library; choose one listed under Scenarios.": [
                 "No hi ha cap escenari '{id}' en aquesta biblioteca; trieu-ne un dels llistats a Escenaris."
             ],
@@ -742,11 +865,17 @@
             "Values": [
                 "Valors"
             ],
+            "Values below the detection limit": [
+                "Valors per sota del límit de detecció"
+            ],
             "Variable": [
                 "Variable"
             ],
             "Variables": [
                 "Variables"
+            ],
+            "Variation between batches (%)": [
+                "Variació entre lots (%)"
             ],
             "Where": [
                 "On"

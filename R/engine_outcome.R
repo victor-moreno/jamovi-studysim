@@ -55,7 +55,7 @@ calibrate <- function(sc, oc) {
         },
         continuous = list(a = (if (isTRUE(oc$log)) log(oc$mean) else oc$mean) - mean(lp), achieved = oc$mean),
         count = list(a = log(oc$mean) - log(mean(exp(lp))), achieved = oc$mean),
-        event = {
+        event = if (is.null(oc$target)) list(achieved = list()) else {
             g <- oc$shape; elp <- exp(lp); t <- oc$target
             if (t$kind == "rate" && g == 1) {
                 lam <- t$value / mean(elp)
@@ -73,6 +73,7 @@ calibrate <- function(sc, oc) {
         })
     # a competing event has its own baseline, calibrated the same way
     if (oc$type == "event" && !is.null(oc$competing)) out$competing <- calibrate(sc, oc$competing)
+    if (oc$type == "event" && !is.null(oc$after_event)) out$after <- calibrate(sc, oc$after_event)
     .calib_cache[[key]] <- out
     out
 }
@@ -83,6 +84,23 @@ competing_time <- function(oc, cal, noise, cov, trt = NULL) {
     if (is.null(cc)) return(rep(Inf, nrow(noise)))
     lp <- linear_predictor(cc, cov, trt)
     (-log(noise$u4) / (cal$competing$lambda * exp(lp)))^(1 / cal$competing$shape)
+}
+
+# Illness-death: time to death for an outcome `after: X`. X happens at t1
+# (its own model and noise); death without X at t0 (this outcome's own model,
+# or X's competing event); after X, death comes after a further time from
+# after_event. nz: this outcome's noise, nzx: X's.
+after_event_times <- function(sc, oc, cal, cov, nz, nzx, trt = NULL) {
+    ox <- sc$outcomes[[oc$after]]; calx <- calibrate(sc, ox)
+    t1 <- draw_outcome(ox, calx, linear_predictor(ox, cov, trt), nzx)
+    if (!is.null(oc$target)) {
+        t0 <- draw_outcome(oc, cal, linear_predictor(oc, cov, trt), nz); upost <- nz$u4
+    } else {
+        t0 <- competing_time(ox, calx, nzx, cov, trt); upost <- nz$u
+    }
+    ae <- oc$after_event
+    tp <- (-log(upost) / (cal$after$lambda * exp(linear_predictor(ae, cov, trt))))^(1 / cal$after$shape)
+    ifelse(t1 < t0, t1 + tp, t0)
 }
 
 # Draw the outcome from the linear predictor and the person's noise

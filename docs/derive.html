@@ -335,7 +335,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#what-it-estimates" id="toc-what-it-estimates" class="nav-link active" data-scroll-target="#what-it-estimates">What it estimates</a></li>
+  <li><a href="#what-it-estimates" id="toc-what-it-estimates" class="nav-link active" data-scroll-target="#what-it-estimates">What it estimates</a>
+  <ul class="collapse">
+  <li><a href="#missing-values" id="toc-missing-values" class="nav-link" data-scroll-target="#missing-values">Missing values</a></li>
+  </ul></li>
   <li><a href="#finishing-it-with-an-ai" id="toc-finishing-it-with-an-ai" class="nav-link" data-scroll-target="#finishing-it-with-an-ai">Finishing it with an AI</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/victor-moreno/jamovi-studysim/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -384,7 +387,48 @@ ul.task-list li input[type="checkbox"] {
 <figcaption>The round-trip check.</figcaption>
 </figure>
 </div>
+<section id="missing-values" class="level3">
+<h3 class="anchored" data-anchor-id="missing-values">Missing values</h3>
+<p><em>Missing values in the variables</em> chooses how the outcome model deals with rows that miss a covariate (the distributions and correlations always use every observed value, and the outcome targets every row with the outcome):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>method</th>
+<th>cost</th>
+<th>what it gives</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Complete cases</td>
+<td>none</td>
+<td>unbiased when missingness does not depend on the outcome; loses rows</td>
+</tr>
+<tr class="even">
+<td>Mean / most frequent value</td>
+<td>none</td>
+<td>keeps every row, but dilutes the associations and understates the uncertainty</td>
+</tr>
+<tr class="odd">
+<td>Single imputation</td>
+<td>low</td>
+<td>chained equations (each variable from the others and the outcome, with its noise): unbiased under missing at random, intervals too narrow</td>
+</tr>
+<tr class="even">
+<td>Multiple imputation</td>
+<td>m times higher</td>
+<td>m sets, each model on a bootstrap sample, pooled by Rubin’s rules: the reference method</td>
+</tr>
+</tbody>
+</table>
+<p>With an imputation method the table also shows the complete-case estimate. <em>Derive</em> also warns when few rows are complete, when a variable is missing mostly in one outcome group (probably recorded after the outcome), when there are fewer than 10 events per coefficient (with a shrinkage factor), when an effect is not estimable, and when times look like days or months.</p>
 <p>Columns that jamovi read as nominal but hold numbers (integers from a CSV) are read as numbers. Try it with <a href="screenshots/chd_sim.csv">chd_sim.csv</a>, a simulated cohort.</p>
+</section>
 </section>
 <section id="finishing-it-with-an-ai" class="level2">
 <h2 class="anchored" data-anchor-id="finishing-it-with-an-ai">Finishing it with an AI</h2>

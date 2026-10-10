@@ -55,6 +55,23 @@ outcomes:
       drug: {beta: [0, -9]}
       diet: {beta: [0, -4]}
 
+  dbp:
+    type: continuous
+    label: {en: Diastolic blood pressure at 8 weeks, es: Presión diastólica a las 8 semanas, ca: Pressió diastòlica a les 8 setmanes}
+    units: mmHg
+    mean: 88
+    sd: 7
+    round: 0
+    within_cor: 0.6
+    link: {outcome: sbp, rho: 0.7}
+    designs: [rct, crossover, cluster_rct, factorial, longitudinal]
+    effects:
+      sbp0: {beta: 0.25, per: 1}
+      age: {beta: -0.1, per: 1}
+      bmi: {beta: 0.2, per: 1}
+      drug: {beta: [0, -5]}
+      diet: {beta: [0, -2]}
+
 designs:
   pre_post: {threshold: 70, trend: -2}
   # automated oscillometric (B) vs auscultatory (A) readings

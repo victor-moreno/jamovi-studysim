@@ -17,6 +17,7 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     seed_eff <- if (nzchar(student_key)) derive_seed(seed, trimws(student_key)) else seed
     cal <- calibrate(sc, oc)
     res <- run_design(design, sc, oc, cal, seed_eff, n, opt)
+    if (isTRUE(opt$secondary)) res <- secondary_outcomes(sc, oc, design, res, seed_eff, opt)
     df <- format_study(sc, oc, design, res, factors, lang)
     # measurement error before grouping (misclassification follows), as in the key
     df <- measurement_error(df, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed(seed_eff, "measurement"))
@@ -34,6 +35,7 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     raw <- df   # engine names and the library's levels, for the tables keyed by them
     df <- localise_data(df, lang)
     out <- list(data = df, data_raw = raw, dictionary = data_dictionary(sc, df, factors, ids), facts = res$facts,
+                secondary = res$secondary,
                 design = design, outcome = outcome, options = opt, seed = seed_eff, calibration = cal)
     if (key) out$key <- answer_key(sc, oc, design, opt, factors, lang, categorize)
     out

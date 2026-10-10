@@ -8,7 +8,7 @@ items:
       title: ''
       type: Html
       visible: false
-      clearWith: &gen [libContent, scenario, outcome, design, measured, n, ccRatio, followup, loss,
+      clearWith: &gen [libContent, scenario, outcome, design, secondary, measured, n, ccRatio, followup, loss,
                        accrual, subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd, threshold, mcBias, mcSlope, mcErrorA, mcErrorB,
                        period, carryover, missing, missingMech, reliability, misclass, entryErrors, noiseVars, lodHandling,
                        batches, batchCv, batchConfounded, seed,
@@ -68,8 +68,13 @@ items:
       type: Table
       visible: (showKey)
       rows: 0
-      clearWith: [libContent, scenario, outcome]
+      clearWith: [libContent, scenario, outcome, design, secondary]
       columns:
+          - name: outcome
+            title: Outcome
+            type: text
+            combineBelow: true
+            visible: (secondary)
           - name: variable
             title: Variable
             type: text
@@ -91,10 +96,15 @@ items:
       type: Table
       visible: (showKey)
       rows: 0
-      clearWith: [libContent, scenario, outcome, design, measured, ccRatio, followup, loss, accrual,
+      clearWith: [libContent, scenario, outcome, design, secondary, measured, ccRatio, followup, loss, accrual,
                   subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd,
                   period, carryover, reliability, misclass, threshold, mcBias, mcSlope, mcErrorA, mcErrorB]
       columns:
+          - name: outcome
+            title: Outcome
+            type: text
+            combineBelow: true
+            visible: (secondary)
           - name: variable
             title: Variable
             type: text

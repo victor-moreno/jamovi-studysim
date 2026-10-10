@@ -187,3 +187,20 @@ test_that("assays: values below the limit of detection and batches", {
   tb <- table(r2$data_raw$batch, r2$data_raw$ami)
   expect_true(sum(apply(tb, 1, min) == 0) >= 3)
 })
+
+test_that("several outcomes: links, secondary columns and illness-death", {
+  lib <- builtin_library()
+  sc <- load_scenario(lib, "colon_adjuvant")
+  r <- simulate_study(sc, "recurrence", "rct", 2000, c("age", "nodes"), options = list(secondary = TRUE), key = FALSE)
+  d <- r$data_raw
+  expect_true(all(c("time_death", "death") %in% names(d)))
+  expect_true(all(d$time_death >= d$time - 1e-9))
+  expect_true(all(d$death[d$recurrence == 2] == 1))
+  expect_identical(names(d), planned_columns(sc, sc$outcomes$recurrence, "rct", c("age", "nodes"), list(secondary = TRUE)))
+  os <- simulate_study(sc, "death", "rct", 4000, sc$order, key = FALSE)$data_raw
+  hr <- exp(coef(survival::coxph(survival::Surv(time, death) ~ treatment, os)))[["treatmentlev_5fu"]]
+  expect_equal(hr, 0.69, tolerance = 0.15)
+  sm <- load_scenario(lib, "metformin_hba1c")
+  m <- simulate_study(sm, "hba1c", "rct", 3000, sm$order, options = list(secondary = TRUE), key = FALSE)$data_raw
+  expect_lt(cor(m$hba1c, as.integer(m$controlled == "yes")), -0.4)
+})

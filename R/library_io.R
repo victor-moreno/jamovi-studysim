@@ -146,6 +146,7 @@ library_to_tables <- function(lib) {
         for (o in names(s$outcomes)) {
             out[[o]] <- s$outcomes[[o]]
             if (!is.null(s$outcomes[[o]]$competing)) out[[paste0(o, ":competing")]] <- s$outcomes[[o]]$competing
+            if (!is.null(s$outcomes[[o]]$after_event)) out[[paste0(o, ":after_event")]] <- s$outcomes[[o]]$after_event
         }
         out
     }
@@ -156,6 +157,9 @@ library_to_tables <- function(lib) {
         r$risk <- if (is.null(x$risk)) NA else as.character(x$risk$value)
         r$risk_at <- if (is.null(x$risk)) NA else as.character(x$risk$at)
         r$levels <- csv1(x$levels); r$range <- csv1(x$range); r$designs <- csv1(x$designs)
+        r$link <- if (is.null(x$link)) NA else x$link$outcome
+        r$link_rho <- if (is.null(x$link)) NA else as.character(x$link$rho)
+        r$after <- x$after %||% NA
         c(r, ml_cols(x$units, "units"), ml_cols(x$label, "label"), ml_cols(x$description, "description"))
     }) }), recursive = FALSE))
     edge_rows <- function(s, key, kind) lapply(s[[key]], function(e) {
@@ -265,6 +269,8 @@ tables_to_library <- function(t) {
             if (!is.null(cell(r, "risk"))) o$risk <- list(value = cell(r, "risk"), at = cell(r, "risk_at"))
             for (f in c("levels", "range", "designs")) if (!is.null(uncsv(cell(r, f)))) o[[f]] <- uncsv(cell(r, f))
             for (f in c("units", "label", "description")) if (!is.null(ml_from(r, f))) o[[f]] <- ml_from(r, f)
+            if (!is.null(cell(r, "link"))) o$link <- list(outcome = cell(r, "link"), rho = cell(r, "link_rho"))
+            if (!is.null(cell(r, "after"))) o$after <- cell(r, "after")
             o$effects <- list()
             for (e in Filter(function(e) e$outcome == r$outcome, rows_of(t$effects, id))) {
                 x <- list(); x[[e$measure]] <- uncsv(cell(e, "value"))
@@ -286,8 +292,8 @@ tables_to_library <- function(t) {
             }
             s$outcomes[[r$outcome]] <- o
         }
-        for (nm in grep(":competing$", names(s$outcomes), value = TRUE)) {
-            s$outcomes[[sub(":competing$", "", nm)]]$competing <- s$outcomes[[nm]]
+        for (part in c("competing", "after_event")) for (nm in grep(sprintf(":%s$", part), names(s$outcomes), value = TRUE)) {
+            s$outcomes[[sub(sprintf(":%s$", part), "", nm)]][[part]] <- s$outcomes[[nm]]
             s$outcomes[[nm]] <- NULL
         }
         if (!is.null(uncsv(cell(r0, "null_variables")))) s$null_variables <- uncsv(cell(r0, "null_variables"))

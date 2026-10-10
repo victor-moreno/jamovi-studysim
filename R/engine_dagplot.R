@@ -29,6 +29,8 @@ pava <- function(t, w = rep(1, length(t))) {
 
 dag_layout <- function(sc, oc, factors, lang = "en") {
     vars <- sc$order
+    # an illness-death outcome has no effects of its own: show its after-event ones
+    if (length(oc$effects) == 0 && !is.null(oc$after_event)) oc$effects <- oc$after_event$effects
     ivs <- intersect(names(oc$effects), names(sc$interventions))
     eff <- names(oc$effects)
     depth <- stats::setNames(integer(length(vars)), vars)

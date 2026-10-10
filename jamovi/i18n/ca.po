@@ -7,6 +7,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "Language: ca\n"
 
+#: R/simstudy.b.R
+msgid ", cases and controls in separate batches"
+msgstr ", casos i controls en lots diferents"
+
 #: R/simcompare.b.R
 #: R/simstudy.b.R
 msgid "{cases} cases and {controls} controls"
@@ -20,6 +24,10 @@ msgstr "{events} esdeveniments en {pt} persones-any"
 #: R/simstudy.b.R
 msgid "{k} clusters randomised ({by} by arm), intraclass correlation {icc}"
 msgstr "{k} conglomerats aleatoritzats ({by} per grup), correlació intraclasse {icc}"
+
+#: R/simstudy.b.R
+msgid "{k} extra variables (extra_01, …) with no effect"
+msgstr "{k} variables addicionals (extra_01, …) sense efecte"
 
 #: R/simstudy.b.R
 msgid "{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}"
@@ -40,6 +48,10 @@ msgstr "{n} casos tenen menys controls dels demanats"
 #: R/simstudy.b.R
 msgid "{n} competing events ({label}), status 2"
 msgstr "{n} esdeveniments competitius ({label}), estat 2"
+
+#: R/simstudy.b.R
+msgid "{n} data-entry errors to find and correct"
+msgstr "{n} errors d'entrada de dades per trobar i corregir"
 
 #: R/simlibrary.b.R
 msgid "{n} of {total} scenarios fit the {design} design."
@@ -86,6 +98,7 @@ msgstr "una subcohort aleatòria de {sub} persones d'una cohort de {n}, més tot
 msgid "About the scenario"
 msgstr "Sobre l'escenari"
 
+#: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 #: simStudy/results/keyExpected.columns.title
@@ -96,14 +109,24 @@ msgstr "Ajustat"
 msgid "Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate."
 msgstr "Ajustat per totes les variables mesurades (i la intervenció); interval de confiança del 95% de l'estimació ajustada."
 
+#: R/simderive.b.R
+msgid "Adjusted: {method} on {n} rows with the outcome; Complete cases: the same model on the {c} complete rows."
+msgstr "Ajustat: {method} en {n} files amb la resposta; Casos complets: el mateix model en les {c} files completes."
+
 #: R/simcompare.b.R
 msgid "All designs sample the same superpopulation (same seed and student key); each study has its own participants."
 msgstr "Tots els dissenys mostregen la mateixa superpoblació (mateixa llavor i clau d'estudiant); cada estudi té els seus propis participants."
 
+#: R/simstudy.b.R
 #: simStudy/options/showKey.title
 msgid "Answer key"
 msgstr "Clau de respostes"
 
+#: simStudy/options/exportKey.title
+msgid "Answer key report"
+msgstr "Informe de la clau de respostes"
+
+#: R/simstudy.b.R
 #: simStudy/results/keyMarkers.title
 msgid "Answer key: markers"
 msgstr "Clau de respostes: marcadors"
@@ -112,10 +135,12 @@ msgstr "Clau de respostes: marcadors"
 msgid "Answer key: notes"
 msgstr "Clau de respostes: notes"
 
+#: R/simstudy.b.R
 #: simStudy/results/keyEffects.title
 msgid "Answer key: true model"
 msgstr "Clau de respostes: model veritable"
 
+#: R/simstudy.b.R
 #: simStudy/results/keyExpected.title
 msgid "Answer key: what this design should estimate"
 msgstr "Clau de respostes: què hauria d'estimar aquest disseny"
@@ -124,6 +149,10 @@ msgstr "Clau de respostes: què hauria d'estimar aquest disseny"
 #: simStudy/options/designFilter/any.title
 msgid "Any design"
 msgstr "Qualsevol disseny"
+
+#: simStudy/options/batches.title
+msgid "Assay batches (markers)"
+msgstr "Lots d'anàlisi (marcadors)"
 
 #: R/simstudy.b.R
 msgid "AUC of each marker alone (a block: the mean over its columns). Values are higher in the diseased unless the scenario says lower; the large study has 20,000 people."
@@ -136,6 +165,18 @@ msgstr "visita basal i {k} visites de seguiment; participants vistos a cada visi
 #: R/simstudy.b.R
 msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"
 msgstr "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
+
+#: R/simstudy.b.R
+#: simCompare/options/designs/pre_post.title
+#: simLibrary/options/designFilter/pre_post.title
+#: simStudy/options/designFilter/pre_post.title
+#: simStudy/options/design/pre_post.title
+msgid "Before-after (single group)"
+msgstr "Abans-després (un sol grup)"
+
+#: simStudy/options/mcBias.title
+msgid "Bias of method B"
+msgstr "Biaix del mètode B"
 
 #: simDerive/options/outcomeType/binary.title
 msgid "Binary"
@@ -183,10 +224,15 @@ msgstr "Cas-cohort"
 msgid "Case-control"
 msgstr "Casos i controls"
 
+#: simStudy/options/batchConfounded.title
+msgid "Cases and controls in separate batches"
+msgstr "Casos i controls en lots diferents"
+
 #: R/simstudy.b.R
 msgid "cases found among {n} people of the source population (risk {risk}%)"
 msgstr "casos trobats entre {n} persones de la població d'origen (risc {risk}%)"
 
+#: R/simstudy.b.R
 #: simStudy/results/dag.title
 msgid "Causal diagram"
 msgstr "Diagrama causal"
@@ -204,6 +250,10 @@ msgstr "Diagrama causal (el mateix per a tots els dissenys)"
 #: simLibrary/results/problems.title
 msgid "Check"
 msgstr "Comprovació"
+
+#: R/simderive.b.R
+msgid "Check before using this scenario"
+msgstr "Reviseu abans de fer servir aquest escenari"
 
 #: simDerive/options/validate.title
 msgid "Check by simulating from the scenario"
@@ -237,6 +287,7 @@ msgstr "Cohort"
 msgid "Column"
 msgstr "Columna"
 
+#: R/simstudy.b.R
 #: simStudy/results/keyMarkers.columns.title
 msgid "Columns"
 msgstr "Columnes"
@@ -250,6 +301,11 @@ msgstr "Columnes"
 #: simCompare/results.title
 msgid "Compare designs"
 msgstr "Comparar dissenys"
+
+#: simDerive/options/missingMethod/complete.title
+#: simDerive/results/effects.columns.title
+msgid "Complete cases"
+msgstr "Casos complets"
 
 #: simStudy/options/missingMech/mcar.title
 msgid "Completely at random"
@@ -273,6 +329,7 @@ msgstr "Contínua"
 msgid "Continuous outcome on the log scale"
 msgstr "Resposta contínua en escala logarítmica"
 
+#: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 #: simLibrary/results/effects.columns.title
@@ -306,6 +363,7 @@ msgstr "Recompte"
 msgid "Cross-sectional"
 msgstr "Transversal"
 
+#: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
 #: simStudy/results/keyExpected.columns.title
@@ -361,6 +419,14 @@ msgstr "Diccionari de dades"
 #: simDerive/options/sourceName.title
 msgid "Data source"
 msgstr "Origen de les dades"
+
+#: simStudy/options/entryErrors.title
+msgid "Data-entry errors (%)"
+msgstr "Errors d'entrada de dades (%)"
+
+#: simStudy/options/missingMech/mnar.title
+msgid "Depending on the missing value itself"
+msgstr "Segons el mateix valor que falta"
 
 #: simStudy/options/missingMech/mar.title
 msgid "Depending on the outcome"
@@ -467,6 +533,19 @@ msgstr "Els efectes són valors plausibles per a la docència, basats en la lite
 msgid "Effects on the outcomes"
 msgstr "Efectes sobre les variables resposta"
 
+#: simStudy/options/threshold.title
+msgid "Enrol only above percentile"
+msgstr "Incloure només per sobre del percentil"
+
+#: simStudy/options/mcErrorA.title
+msgid "Error of method A (% of SD)"
+msgstr "Error del mètode A (% de la DE)"
+
+#: simStudy/options/mcErrorB.title
+msgid "Error of method B (% of SD)"
+msgstr "Error del mètode B (% de la DE)"
+
+#: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "Estimate"
@@ -494,6 +573,14 @@ msgstr "Gràfic d'estimacions"
 #: simDerive/options/outcomeType/event.title
 msgid "Event (with follow-up time)"
 msgstr "Esdeveniment (amb temps de seguiment)"
+
+#: R/simstudy.b.R
+msgid "everybody treated, measured before and after; no control group"
+msgstr "tots tractats, mesurats abans i després; sense grup control"
+
+#: R/simstudy.b.R
+msgid "everybody treated; only people above the {p}th percentile before were enrolled ({n} screened)"
+msgstr "tots tractats; només es va incloure els qui superaven el percentil {p} abans ({n} cribrats)"
 
 #: simLibrary/options/exportTemplate.title
 msgid "Excel template"
@@ -530,6 +617,10 @@ msgstr "Exportar biblioteca"
 #: simDerive/options/exportScenario.title
 msgid "Export scenario"
 msgstr "Exportar escenari"
+
+#: simStudy/options/noiseVars.title
+msgid "Extra variables with no effect"
+msgstr "Variables addicionals sense efecte"
 
 #: R/simcompare.b.R
 msgid "Filled dot and bar: adjusted estimate and 95% CI; open red circle: crude estimate; cross: large study; dashed line: true value."
@@ -572,6 +663,10 @@ msgstr "Id"
 msgid "Import, check, explore and export scenarios"
 msgstr "Importar, comprovar, explorar i exportar escenaris"
 
+#: simDerive/options/imputations.title
+msgid "Imputations"
+msgstr "Imputacions"
+
 #: simDerive/results/correlations.columns.title
 msgid "In scenario"
 msgstr "A l'escenari"
@@ -609,6 +704,10 @@ msgstr "Correlació intraclasse"
 msgid "JSON (for the Simulated study pickers)"
 msgstr "JSON (per als selectors d'Estudi simulat)"
 
+#: simStudy/options/lodHandling/none.title
+msgid "Kept (no limit)"
+msgstr "Es mantenen (sense límit)"
+
 #: simLibrary/results/structure.columns.title
 msgid "Kind"
 msgstr "Tipus"
@@ -617,6 +716,7 @@ msgstr "Tipus"
 msgid "Label"
 msgstr "Etiqueta"
 
+#: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
 #: simStudy/results/keyMarkers.columns.title
 msgid "Large study"
@@ -685,9 +785,14 @@ msgstr "Inferior"
 msgid "Manages the scenario library of the Study Simulator: reads a custom library (YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and exports the library or one scenario as Excel, JSON or YAML, or an Excel template to start a new one."
 msgstr "Gestiona la biblioteca d'escenaris del Simulador d'estudis: llegeix una biblioteca pròpia (YAML, Excel, JSON o un zip d'aquests), la comprova, mostra els seus escenaris i exporta la biblioteca o un escenari en Excel, JSON o YAML, o una plantilla Excel per començar-ne una de nova."
 
+#: R/simstudy.b.R
 #: simStudy/results/keyMarkers.columns.title
 msgid "Marker"
 msgstr "Marcador"
+
+#: R/simstudy.b.R
+msgid "markers assayed in {k} batches ({cv}% variation between batches){conf}"
+msgstr "marcadors analitzats en {k} lots ({cv}% de variació entre lots){conf}"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/matched_cc.title
@@ -712,6 +817,15 @@ msgstr "mitjana {m}"
 msgid "mean {m}, residual SD {s}"
 msgstr "mitjana {m}, DE residual {s}"
 
+#: simDerive/options/missingMethod/mean.title
+msgid "Mean / most frequent value"
+msgstr "Mitjana / valor més freqüent"
+
+#: R/simderive.b.R
+msgid "mean / most frequent value imputation"
+msgstr "imputació per la mitjana / valor més freqüent"
+
+#: R/simstudy.b.R
 #: simDerive/results/effects.columns.title
 #: simLibrary/results/effects.columns.title
 #: simStudy/results/keyEffects.columns.title
@@ -723,6 +837,10 @@ msgstr "Mesura"
 msgid "Measured"
 msgstr "Mesurada"
 
+#: R/simstudy.b.R
+msgid "measurement error: reliability {r} for numeric variables, {m}% of categories misclassified"
+msgstr "error de mesura: fiabilitat {r} en les variables numèriques, {m}% de categories mal classificades"
+
 #: R/simlibrary.b.R
 msgid "median {m} years"
 msgstr "mediana {m} anys"
@@ -731,6 +849,18 @@ msgstr "mediana {m} anys"
 #: simStudy/options/measured.template/form/median.title
 msgid "median split"
 msgstr "mediana"
+
+#: R/simstudy.b.R
+#: simCompare/options/designs/method_comparison.title
+#: simLibrary/options/designFilter/method_comparison.title
+#: simStudy/options/designFilter/method_comparison.title
+#: simStudy/options/design/method_comparison.title
+msgid "Method comparison"
+msgstr "Comparació de mètodes"
+
+#: simStudy/options/misclass.title
+msgid "Misclassified categories (%)"
+msgstr "Categories mal classificades (%)"
 
 #: simDerive/results/variables.columns.title
 #: simStudy/results/dictionary.columns.title
@@ -742,9 +872,21 @@ msgstr "Perduts"
 msgid "Missing values (%)"
 msgstr "Valors perduts (%)"
 
+#: simDerive/options/missingMethod.title
+msgid "Missing values in the variables"
+msgstr "Valors que falten a les variables"
+
 #: simStudy/options/missingMech.title
 msgid "Missingness"
 msgstr "Mecanisme de pèrdua"
+
+#: simDerive/options/missingMethod/multiple.title
+msgid "Multiple imputation"
+msgstr "Imputació múltiple"
+
+#: R/simderive.b.R
+msgid "multiple imputation ({m} imputations, Rubin's rules)"
+msgstr "imputació múltiple ({m} imputacions, regles de Rubin)"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/nested_cc.title
@@ -775,6 +917,7 @@ msgstr "nominal"
 msgid "not measured (they still act): {vars}"
 msgstr "no mesurades (però actuen): {vars}"
 
+#: R/simstudy.b.R
 #: simLibrary/results/effects.columns.title
 #: simStudy/results/keyEffects.columns.title
 #: simStudy/results/keyExpected.columns.title
@@ -800,11 +943,21 @@ msgid "ordinal"
 msgstr "ordinal"
 
 #: R/simstudy.b.R
+msgid "other outcomes of the same people: {list}"
+msgstr "altres respostes de les mateixes persones: {list}"
+
+#: simStudy/options/secondary.title
+msgid "Other outcomes of the scenario (same people)"
+msgstr "Altres respostes de l'escenari (mateixes persones)"
+
+#: R/simstudy.b.R
 #: simCompare/options/outcome.title
 #: simDerive/options/outcome.title
 #: simDerive/ui[0][0].label
 #: simLibrary/results/effects.columns.title
 #: simStudy/options/outcome.title
+#: simStudy/results/keyEffects.columns.title
+#: simStudy/results/keyExpected.columns.title
 msgid "Outcome"
 msgstr "Variable resposta"
 
@@ -862,6 +1015,10 @@ msgstr "Problema"
 msgid "Prognosis (patient cohort)"
 msgstr "Pronòstic (cohort de pacients)"
 
+#: simStudy/options/mcSlope.title
+msgid "Proportional bias of method B (slope)"
+msgstr "Biaix proporcional del mètode B (pendent)"
+
 #: simCompare/options/measured.template/form/quartiles.title
 #: simStudy/options/measured.template/form/quartiles.title
 msgid "quartiles"
@@ -916,6 +1073,22 @@ msgstr "Referències"
 msgid "Regions"
 msgstr "Regions"
 
+#: simStudy/options/reliability.title
+msgid "Reliability of numeric measures"
+msgstr "Fiabilitat de les mesures numèriques"
+
+#: simStudy/options/lodHandling/half.title
+msgid "Replaced by LOD/2"
+msgstr "Substituïts per LOD/2"
+
+#: simStudy/options/lodHandling/lod.title
+msgid "Replaced by the LOD"
+msgstr "Substituïts pel LOD"
+
+#: simStudy/options/lodHandling/missing.title
+msgid "Reported as missing"
+msgstr "S'informen com a faltants"
+
 #: R/simderive.b.R
 #: R/simlibrary.b.R
 msgid "risk {r} at {t} years"
@@ -925,6 +1098,7 @@ msgstr "risc {r} a {t} anys"
 msgid "Rows"
 msgstr "Files"
 
+#: R/simstudy.b.R
 #: simCompare/options/n.title
 #: simStudy/options/n.title
 msgid "Sample size"
@@ -968,6 +1142,7 @@ msgstr "Escenaris"
 msgid "Scenarios for design"
 msgstr "Escenaris per al disseny"
 
+#: R/simstudy.b.R
 #: simCompare/options/seed.title
 #: simStudy/options/seed.title
 msgid "Seed"
@@ -1028,6 +1203,14 @@ msgstr "Simula un escenari amb diversos dissenys d'estudi a partir de la mateixa
 #: package.description
 msgid "Simulates plausible medical study datasets for teaching"
 msgstr "Simula dades plausibles d'estudis mèdics per a la docència"
+
+#: simDerive/options/missingMethod/single.title
+msgid "Single imputation (chained equations)"
+msgstr "Imputació única (equacions encadenades)"
+
+#: R/simderive.b.R
+msgid "single imputation by chained equations"
+msgstr "imputació única per equacions encadenades"
 
 #: R/simcompare.b.R
 msgid "Skipped (they do not fit this outcome): {list}."
@@ -1116,6 +1299,14 @@ msgstr "Les correlacions no tenen direcció: abans d'usar aquest escenari en doc
 msgid "The library has no scenarios. Press Browse… to read a custom library."
 msgstr "La biblioteca no té escenaris. Premeu Browse… per llegir una biblioteca pròpia."
 
+#: R/simstudy.b.R
+msgid "The measured variables have measurement error, also in this large study: the estimates are diluted towards no effect, and confounding is only partly removed."
+msgstr "Les variables mesurades tenen error de mesura, també en aquest estudi gran: les estimacions es dilueixen cap a l'absència d'efecte i la confusió només s'elimina en part."
+
+#: R/simstudy.b.R
+msgid "the outcome measured twice in each person, by methods A and B"
+msgstr "la resposta mesurada dues vegades en cada persona, amb els mètodes A i B"
+
 #: R/simlibrary.b.R
 msgid "There is no scenario '{id}' in this library; choose one listed under Scenarios."
 msgstr "No hi ha cap escenari '{id}' en aquesta biblioteca; trieu-ne un dels llistats a Escenaris."
@@ -1133,15 +1324,18 @@ msgstr "Títol"
 msgid "To"
 msgstr "Cap a"
 
+#: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
 #: simStudy/results/keyExpected.columns.title
 msgid "True"
 msgstr "Veritable"
 
+#: R/simstudy.b.R
 #: simStudy/results/keyMarkers.columns.title
 msgid "True AUC"
 msgstr "AUC veritable"
 
+#: R/simstudy.b.R
 #: simStudy/results/keyEffects.columns.title
 msgid "True value"
 msgstr "Valor veritable"
@@ -1179,6 +1373,11 @@ msgstr "Valor"
 msgid "Values"
 msgstr "Valors"
 
+#: simStudy/options/lodHandling.title
+msgid "Values below the detection limit"
+msgstr "Valors per sota del límit de detecció"
+
+#: R/simstudy.b.R
 #: simCompare/ui/measured.columns.label
 #: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
@@ -1193,6 +1392,7 @@ msgstr "Valors"
 msgid "Variable"
 msgstr "Variable"
 
+#: R/simstudy.b.R
 #: simCompare/options/measured.title
 #: simDerive/options/covs.title
 #: simDerive/ui[0][2].label
@@ -1202,6 +1402,10 @@ msgstr "Variable"
 #: simStudy/options/measured.title
 msgid "Variables"
 msgstr "Variables"
+
+#: simStudy/options/batchCv.title
+msgid "Variation between batches (%)"
+msgstr "Variació entre lots (%)"
 
 #: simLibrary/results/problems.columns.title
 msgid "Where"

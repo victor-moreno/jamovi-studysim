@@ -23,6 +23,25 @@ estimates.
 
 ![The round-trip check.](screenshots/s13-derive-effects.png){.screenshot width=85%}
 
+### Missing values
+
+*Missing values in the variables* chooses how the outcome model deals with rows
+that miss a covariate (the distributions and correlations always use every
+observed value, and the outcome targets every row with the outcome):
+
+| method | cost | what it gives |
+|---|---|---|
+| Complete cases | none | unbiased when missingness does not depend on the outcome; loses rows |
+| Mean / most frequent value | none | keeps every row, but dilutes the associations and understates the uncertainty |
+| Single imputation | low | chained equations (each variable from the others and the outcome, with its noise): unbiased under missing at random, intervals too narrow |
+| Multiple imputation | m times higher | m sets, each model on a bootstrap sample, pooled by Rubin's rules: the reference method |
+
+With an imputation method the table also shows the complete-case estimate.
+*Derive* also warns when few rows are complete, when a variable is missing
+mostly in one outcome group (probably recorded after the outcome), when there are
+fewer than 10 events per coefficient (with a shrinkage factor), when an effect is
+not estimable, and when times look like days or months.
+
 Columns that jamovi read as nominal but hold numbers (integers from a CSV) are
 read as numbers. Try it with
 [chd_sim.csv](screenshots/chd_sim.csv), a simulated cohort.

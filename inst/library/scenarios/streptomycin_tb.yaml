@@ -51,6 +51,7 @@ outcomes:
       fever: {OR: 0.7}
   death:
     type: binary
+    link: {outcome: improved, rho: -0.6}
     label: {en: Death within 6 months, es: Muerte en 6 meses, ca: Mort en 6 mesos}
     levels: [no, yes]
     prevalence: 0.27

@@ -61,6 +61,7 @@ names:
   salt: salt
   sbp: sbp
   sbp0: sbp0
+  dbp: dbp
   sex: sex
   smoking: smoking
   total_chol: total_chol

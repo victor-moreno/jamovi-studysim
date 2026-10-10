@@ -12,6 +12,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             scenario = "breast_cancer_risk",
             outcome = "",
             design = "case_control",
+            secondary = FALSE,
             measured = list(),
             n = 500,
             ccRatio = 1,
@@ -123,6 +124,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "pre_post",
                     "method_comparison"),
                 default="case_control")
+            private$..secondary <- jmvcore::OptionBool$new(
+                "secondary",
+                secondary,
+                default=FALSE)
             private$..measured <- jmvcore::OptionArray$new(
                 "measured",
                 measured,
@@ -402,6 +407,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..scenario)
             self$.addOption(private$..outcome)
             self$.addOption(private$..design)
+            self$.addOption(private$..secondary)
             self$.addOption(private$..measured)
             self$.addOption(private$..n)
             self$.addOption(private$..ccRatio)
@@ -454,6 +460,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         scenario = function() private$..scenario$value,
         outcome = function() private$..outcome$value,
         design = function() private$..design$value,
+        secondary = function() private$..secondary$value,
         measured = function() private$..measured$value,
         n = function() private$..n$value,
         ccRatio = function() private$..ccRatio$value,
@@ -505,6 +512,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..scenario = NA,
         ..outcome = NA,
         ..design = NA,
+        ..secondary = NA,
         ..measured = NA,
         ..n = NA,
         ..ccRatio = NA,
@@ -584,6 +592,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "n",
                     "ccRatio",
@@ -629,6 +638,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "n",
                     "ccRatio",
@@ -676,6 +686,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "n",
                     "ccRatio",
@@ -744,6 +755,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "n",
                     "ccRatio",
@@ -822,8 +834,16 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "libContent",
                     "scenario",
-                    "outcome"),
+                    "outcome",
+                    "design",
+                    "secondary"),
                 columns=list(
+                    list(
+                        `name`="outcome", 
+                        `title`="Outcome", 
+                        `type`="text", 
+                        `combineBelow`=TRUE, 
+                        `visible`="(secondary)"),
                     list(
                         `name`="variable", 
                         `title`="Variable", 
@@ -855,6 +875,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "ccRatio",
                     "followup",
@@ -881,6 +902,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mcErrorA",
                     "mcErrorB"),
                 columns=list(
+                    list(
+                        `name`="outcome", 
+                        `title`="Outcome", 
+                        `type`="text", 
+                        `combineBelow`=TRUE, 
+                        `visible`="(secondary)"),
                     list(
                         `name`="variable", 
                         `title`="Variable", 
@@ -951,6 +978,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "n",
                     "ccRatio",
@@ -998,6 +1026,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "n",
                     "ccRatio",
@@ -1050,6 +1079,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "n",
                     "ccRatio",
@@ -1102,6 +1132,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
+                    "secondary",
                     "measured",
                     "n",
                     "ccRatio",
@@ -1152,7 +1183,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "studysim",
                 name = "simStudy",
-                version = c(0,3,0),
+                version = c(0,4,0),
                 options = options,
                 results = simStudyResults$new(options=options),
                 data = data,
@@ -1189,6 +1220,8 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param scenario scenario id
 #' @param outcome outcome id; empty means the scenario's first outcome
 #' @param design study design; must fit the outcome
+#' @param secondary adds the scenario's other outcomes as columns, for the
+#'   same people (cross-sectional, cohort, prognosis and trial designs)
 #' @param measured one entry per scenario variable, list(var = name, include =
 #'   TRUE/FALSE, form =
 #'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10"/"scale",
@@ -1288,6 +1321,7 @@ simStudy <- function(
     scenario = "breast_cancer_risk",
     outcome = "",
     design = "case_control",
+    secondary = FALSE,
     measured = list(),
     n = 500,
     ccRatio = 1,
@@ -1348,6 +1382,7 @@ simStudy <- function(
         scenario = scenario,
         outcome = outcome,
         design = design,
+        secondary = secondary,
         measured = measured,
         n = n,
         ccRatio = ccRatio,

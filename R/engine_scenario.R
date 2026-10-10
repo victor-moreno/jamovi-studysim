@@ -295,7 +295,18 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
             out$target <- list(kind = "risk", value = g(o$risk$value), at = g(o$risk$at))
         } else if (!is.null(o$median)) {
             out$target <- list(kind = "median", value = g(o$median))
-        } else add_problem(pr, where, "an event outcome needs rate, risk {value, at} or median")
+        } else if (is.null(o$after)) add_problem(pr, where, "an event outcome needs rate, risk {value, at} or median")
+        # illness-death: death (this outcome) after a first event X; its own
+        # target, if any, is the hazard without X (else X's competing event),
+        # after_event the hazard once X has happened
+        if (!is.null(o$after)) {
+            out$after <- as.character(o$after)[1]
+            if (is.null(o$after_event)) add_problem(pr, where, "after needs after_event: {median, risk or rate; shape; effects}")
+            else {
+                ae <- o$after_event; ae$type <- "event"; ae$followup <- ae$followup %||% o$followup %||% o$window
+                out$after_event <- normalize_outcome(paste0(id, "_after"), ae, vars, interventions, pr)
+            }
+        }
         out$time_units <- o$time_units %||% "years"
         # a competing event: an event outcome of its own (target, shape,
         # effects) whose occurrence first ends the follow-up for this one
@@ -343,6 +354,8 @@ DESIGNS <- c("cross_sectional", "cohort", "case_control", "matched_cc", "rct", "
 
 compatible_designs <- function(sc, outcome) {
     oc <- sc$outcomes[[outcome]]
+    # an illness-death outcome needs people followed from the start
+    if (!is.null(oc$after)) return(intersect(oc$designs %||% c("cohort", "prognosis", "rct"), c("cohort", "prognosis", "rct")))
     if (length(oc$designs)) return(intersect(oc$designs, DESIGNS))
     has_iv <- length(sc$interventions) > 0 && any(names(oc$effects) %in% names(sc$interventions))
     d <- switch(oc$type,
@@ -445,6 +458,24 @@ normalize_scenario <- function(raw, dictionary = list(), strict = TRUE) {
         if (!is.null(no)) outcomes[[o]] <- no
     }
     if (length(outcomes) == 0) add_problem(pr, sprintf("scenario '%s'", id), "has no usable outcome")
+    for (o in names(outcomes)) if (!is.null(outcomes[[o]]$after)) {
+        x <- outcomes[[outcomes[[o]]$after]]
+        where <- sprintf("outcome '%s', after", o)
+        if (is.null(x) || x$type != "event" || x$id == o) add_problem(pr, where, "after must name another event outcome of the scenario")
+        else if (is.null(outcomes[[o]]$target) && is.null(x$competing))
+            add_problem(pr, where, sprintf("give '%s' a target (death without %s) or give '%s' a competing event", o, x$id, x$id))
+    }
+    # links between outcomes (correlated noise): to an outcome without a link of its own
+    for (o in names(outcomes)) {
+        lk <- raw$outcomes[[o]]$link
+        if (is.null(lk)) next
+        where <- sprintf("outcome '%s', link", o)
+        rho <- tryCatch(num_expr(lk$rho), error = function(e) NA)
+        if (is.null(lk$outcome) || !lk$outcome %in% setdiff(names(outcomes), o)) add_problem(pr, where, "outcome must be another outcome of the scenario")
+        else if (!is.null(raw$outcomes[[lk$outcome]]$link)) add_problem(pr, where, sprintf("'%s' is linked itself; link both to the same outcome", lk$outcome))
+        else if (is.na(rho) || abs(rho) >= 1) add_problem(pr, where, "rho must be between -1 and 1")
+        else outcomes[[o]]$link <- list(outcome = lk$outcome, rho = rho)
+    }
     # a translated text whose keys are not language codes was split at a comma
     # inside {...} (the YAML trap in schema.md)
     check_text <- function(x, where) {

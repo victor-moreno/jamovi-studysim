@@ -24,6 +24,8 @@ children:
         width: large
       - type: ComboBox
         name: design
+      - type: CheckBox
+        name: secondary
   - type: ListBox
     name: measured
     showColumnHeaders: true

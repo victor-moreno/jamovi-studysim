@@ -59,6 +59,8 @@ outcomes:
       smoking: {beta: 0.08}
   preterm:
     type: binary
+    # shorter gestations weigh less beyond the shared risk factors
+    link: {outcome: birth_weight, rho: -0.6}
     label: {en: Birth before 37 weeks, es: Parto antes de las 37 semanas, ca: Part abans de les 37 setmanes}
     levels: [no, yes]
     prevalence: 0.13

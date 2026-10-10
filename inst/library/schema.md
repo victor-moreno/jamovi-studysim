@@ -121,7 +121,8 @@ Default designs by outcome type (used when an outcome has no `designs:` list):
 | binary | cross_sectional, cohort, case_control, matched_cc, ecological; diagnostic when it has `markers:` |
 | event | cohort, case_control, matched_cc, nested_cc, case_cohort, ecological |
 | continuous, count | cross_sectional, cohort, ecological |
-| any, with an intervention effect | + rct, cluster_rct; continuous: + crossover, longitudinal; two 2-level interventions: + factorial |
+| any, with an intervention effect | + rct, cluster_rct; continuous: + crossover, longitudinal, pre_post; two 2-level interventions: + factorial |
+| continuous | + method_comparison (two methods measuring the outcome) |
 
 `prognosis` (patient cohort with staggered entry) must be listed in `designs:`.
 
@@ -144,6 +145,36 @@ Cohort, prognosis and trial data then code the status 0 = censored, 1 = event,
 2 = competing event; the key gives cause-specific hazard ratios (Cox censoring
 status 2). Case-control style designs count only events before a competing one.
 
+### Several outcomes for the same people
+
+A scenario can have several outcomes; *Simulated study* can put them all in one
+dataset (option *Other outcomes of the scenario*), for cross-sectional, cohort,
+prognosis and trial designs. Two refinements:
+
+```yaml
+  controlled:
+    type: binary
+    link: {outcome: hba1c, rho: -0.85}   # correlated with another outcome
+  death:
+    type: event
+    after: recurrence                    # illness-death: death after a first event
+    after_event:                         # hazard of death once it has happened
+      median: 1.0
+      effects: {treatment: {HR: [1, 1.13, 1.41]}}
+```
+
+`link` correlates an outcome's noise with another's on a latent scale where
+higher means more of the outcome (a higher value, an event, an earlier event):
+`rho` > 0 when they go together, < 0 when one goes with less of the other. Link
+to an outcome that has no link of its own.
+
+`after: X` builds overall survival from a first event X (e.g. recurrence):
+death without X is the outcome's own target (rate, risk or median, with its
+effects) or, without one, X's competing event; after X, death follows
+`after_event`. The time to death is then never shorter than the time to X, and
+there is no single true hazard ratio (the key gives the transitions). Such
+outcomes fit cohort, prognosis and randomised trial designs.
+
 ### Markers (binary outcomes, diagnostic design)
 
 ```yaml
@@ -160,6 +191,10 @@ status 2). Case-control style designs count only events before a competing one.
         informative: 4               # the first 4 have the AUC, the others 0.5
         auc: 0.62
         rho: 0.2                     # correlation among the block's markers
+      troponin:
+        dist: lognormal(0.012, 0.012)
+        auc: 0.90
+        lod: 0.01                    # limit of detection (also for variables)
 ```
 
 A marker is binormal: a latent N(0, 1) in the non-diseased, shifted by
@@ -196,6 +231,8 @@ factors with no effect), `designs` (default options per design, below),
 | `longitudinal` | `visits` 4, `dropout` 0.2 (fraction missing the last visit), `trend` 0 (change in the reference arm from baseline to the last visit; the outcome's `mean` is the last visit's), `profile` (the treatment effect at equally spaced visits as multiples of its last-visit value, e.g. `[4.7, 3.6, 1]` for an effect that fades; default linear) |
 | `ecological` | `regions` 30, `region_size` 2000, `region_sd` 0.5, `context_sd` 0.2, `between` (triples `[a, b, r, ...]`: correlations of the regions' shifts of exogenous variables, when regions differ more coherently than people) |
 | `crossover` | `period` 0, `carryover` 0 |
+| `pre_post` | `threshold` 0 (enrol only above this percentile of the value before: regression to the mean), `trend` 0 |
+| `method_comparison` | `bias` 0, `slope` 1 (method B = bias + slope x true + error), `error_a` 0.10, `error_b` 0.15 (as shares of the outcome's SD) |
 
 For example `matched_cc: {match: [age, sex], caliper: 2}`, `prognosis: {accrual: 4,
 followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`.

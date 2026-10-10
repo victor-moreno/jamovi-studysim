@@ -60,6 +60,7 @@ names:
   salt: sal
   sbp: pas
   sbp0: pas_basal
+  dbp: pad
   sex: sexo
   smoking: tabaco
   total_chol: colesterol

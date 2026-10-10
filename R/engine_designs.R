@@ -76,7 +76,13 @@ sim_cohort <- function(sc, oc, cal, seed, n, opt, trt = NULL, lp_add = 0, noise_
     lp <- linear_predictor(oc, pop$cov, trt) + lp_add
     d <- pop$cov
     if (!is.null(trt)) for (v in names(trt)) d[[paste0(".", v)]] <- trt[[v]]
-    if (oc$type == "event") {
+    if (oc$type == "event" && !is.null(oc$after)) {
+        # illness-death: death after a first event, followed with this outcome's censoring
+        t <- after_event_times(sc, oc, cal, pop$cov, pop$noise, noise_for(sc, oc$after, seed, pop$cov$.pid), trt)
+        fu <- follow_up(t, pop$noise, opt$followup, opt$loss, opt$accrual %||% 0)
+        d$.time <- fu$time; d$.status <- fu$status
+        facts <- list(events = sum(fu$status == 1L), person_time = sum(fu$time))
+    } else if (oc$type == "event") {
         fu <- event_follow_up(oc, cal, lp, pop$noise, pop$cov, opt, trt)
         d$.time <- fu$time; d$.status <- fu$status
         facts <- list(events = sum(fu$status == 1L), person_time = sum(fu$time))
@@ -249,7 +255,9 @@ sim_case_cohort <- function(sc, oc, cal, seed, n, opt) {
 }
 
 trial_iv <- function(sc, oc) {
-    iv <- intersect(names(oc$effects), names(sc$interventions))
+    # an illness-death outcome is treated through its transitions
+    effs <- c(names(oc$effects), names(oc$after_event$effects), if (!is.null(oc$after)) names(sc$outcomes[[oc$after]]$effects))
+    iv <- intersect(unique(effs), names(sc$interventions))
     if (length(iv) == 0) stop(sprintf("outcome '%s' has no intervention effect, so it cannot be a trial", oc$id), call. = FALSE)
     sc$interventions[[iv[1]]]
 }
@@ -594,6 +602,54 @@ sim_method_comparison <- function(sc, oc, cal, seed, n, opt) {
     rd <- function(x) if (!is.null(oc$round)) round(x, oc$round + 1) else x
     d <- pop$cov; d$.ma <- rd(a); d$.mb <- rd(b)
     list(data = d, facts = list(method_bias = opt$bias, method_slope = opt$slope))
+}
+
+# designs whose people can carry the scenario's other outcomes as extra columns
+SECONDARY_DESIGNS <- c("cross_sectional", "cohort", "prognosis", "rct", "cluster_rct", "factorial", "diagnostic")
+
+# the other outcomes of the scenario for the people of a study (same people,
+# same treatment, each outcome its own noise; event outcomes share the primary
+# outcome's censoring). Stored as .sec_<id> (and .sec_time_<id>).
+secondary_outcomes <- function(sc, oc, design, res, seed, opt) {
+    others <- setdiff(names(sc$outcomes), oc$id)
+    if (!design %in% SECONDARY_DESIGNS || length(others) == 0) return(res)
+    d <- res$data
+    trt <- list()
+    for (iv in names(sc$interventions)) if (!is.null(d[[paste0(".", iv)]])) trt[[iv]] <- d[[paste0(".", iv)]]
+    if (length(trt) == 0) trt <- NULL
+    prim <- noise_for(sc, oc$id, seed, d$.pid)
+    followed <- design %in% c("cohort", "prognosis", "rct", "cluster_rct", "factorial")
+    for (o in others) {
+        o2 <- sc$outcomes[[o]]; cal2 <- calibrate(sc, o2)
+        nz <- noise_for(sc, o, seed, d$.pid)
+        lp <- linear_predictor(o2, d, trt)
+        if (o2$type == "event" && followed) {
+            nz$u2 <- prim$u2; nz$u3 <- prim$u3
+            if (!is.null(o2$after)) {
+                nzx <- if (o2$after == oc$id) prim else noise_for(sc, o2$after, seed, d$.pid)
+                fu <- follow_up(after_event_times(sc, o2, cal2, d, nz, nzx, trt), nz, opt$followup %||% o2$followup, opt$loss %||% 0, opt$accrual %||% 0)
+                fu$status <- as.integer(fu$status)
+            } else fu <- event_follow_up(o2, cal2, lp, nz, d, utils::modifyList(list(followup = o2$followup, loss = 0), opt), trt)
+            d[[paste0(".sec_time_", o)]] <- fu$time; d[[paste0(".sec_", o)]] <- fu$status
+        } else if (o2$type == "event") {
+            if (!is.null(o2$after)) next
+            d[[paste0(".sec_", o)]] <- status_of(o2, cal2, lp, nz, d)
+        } else d[[paste0(".sec_", o)]] <- draw_outcome(o2, cal2, lp, nz)
+    }
+    res$data <- d
+    res$secondary <- others[vapply(others, function(o) !is.null(d[[paste0(".sec_", o)]]), TRUE)]
+    res
+}
+
+# the outcome columns of the secondary outcomes
+secondary_columns <- function(sc, oc, design) {
+    if (!design %in% SECONDARY_DESIGNS) return(character())
+    followed <- design %in% c("cohort", "prognosis", "rct", "cluster_rct", "factorial")
+    unlist(lapply(setdiff(names(sc$outcomes), oc$id), function(o) {
+        o2 <- sc$outcomes[[o]]
+        if (o2$type == "event" && followed) c(paste0("time_", o), o)
+        else if (o2$type == "event" && !is.null(o2$after)) character() else o
+    }))
 }
 
 run_design <- function(design, sc, oc, cal, seed, n, opt) {

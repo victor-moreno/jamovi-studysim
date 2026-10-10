@@ -45,6 +45,15 @@ null_measure <- function(oc) switch(oc$type, binary = "OR", event = "HR", count 
 null_value <- function(oc) if (null_measure(oc) == "beta") 0 else 1
 
 true_effects <- function(sc, oc, lang = "en") {
+    # illness-death: the effects of the two transitions (death without the
+    # first event, and after it); there is no single hazard ratio
+    if (!is.null(oc$after)) {
+        ox <- sc$outcomes[[oc$after]]
+        base <- if (!is.null(oc$target)) oc else ox$competing
+        a <- true_effects(sc, base, lang); a$note <- sprintf(gtext("without_x", lang), tr_text(ox$label, lang))
+        b <- true_effects(sc, oc$after_event, lang); b$note <- sprintf(gtext("after_x", lang), tr_text(ox$label, lang))
+        return(rbind(a[a$variable %in% names(base$effects), ], b[b$variable %in% names(oc$after_event$effects), ]))
+    }
     vars <- unique(c(names(oc$effects), intersect(sc$null_variables, names(sc$variables))))
     rows <- lapply(vars, function(v) {
         cr <- contrast_rows(sc, oc, v, lang)
@@ -71,7 +80,7 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
     rhs <- paste(terms, collapse = " + ")
     model <- if (design %in% c("matched_cc", "nested_cc")) "clogit" else if (design %in% c("case_control")) "logistic"
              else if (design == "case_cohort") "prentice"
-             else if (!is.null(fd$time)) "cox" else if (oc$type %in% c("binary", "event")) "logistic"
+             else if (!is.null(fd[["time"]])) "cox" else if (oc$type %in% c("binary", "event")) "logistic"
              else if (oc$type == "count") "poisson" else "linear"
     if (design %in% CASE_DESIGNS) fd$.s <- as.integer(fd$case) - 1L
     else if (model == "logistic") fd$.s <- as.integer(fd[[oc$id]]) - 1L
@@ -196,7 +205,7 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
                     crossover = 4000, 40000)
     # a rare outcome needs a larger study for a stable expectation: about 5000
     # events (cases in a case-cohort), at most 300,000 people
-    p_ev <- if (oc$type == "event") cal$achieved$risk_followup else if (oc$type == "binary") min(oc$prevalence, 1 - oc$prevalence) else NA
+    p_ev <- (if (oc$type == "event") cal$achieved$risk_followup else if (oc$type == "binary") min(oc$prevalence, 1 - oc$prevalence)) %||% NA
     if (!is.na(p_ev) && design %in% c("cohort", "prognosis", "rct", "cluster_rct", "factorial", "cross_sectional"))
         n_big <- min(300000, max(n_big, ceiling(5000 / p_ev)))
     if (!is.na(p_ev) && design == "case_cohort")
@@ -315,6 +324,7 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
     nul <- !out$variable %in% names(oc$effects)
     out$true[nul] <- if (adj$log) 1 else 0
     out$note[nul] <- ""
+    if (!is.null(oc$after)) { out$true <- NA_real_; out$note <- gtext("illness_death", lang) }
     attr(out, "n") <- nrow(fd)
     attr(out, "adjusted_for") <- adj_terms
     out
@@ -324,6 +334,27 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
 expected_markers <- function(sc, oc, opt) {
     big <- run_design("diagnostic", sc, oc, calibrate(sc, oc), derive_seed("truth", sc$id, oc$id), 20000, opt)
     marker_table(oc, format_study(sc, oc, "diagnostic", big, character(), "en"))
+}
+
+# The expectations of every outcome from one large study of this design with
+# the scenario's other outcomes (Simulated study option): list by outcome id
+expected_all <- function(sc, oc, design, opt, factors, lang = "en", categorize = list()) {
+    out <- list()
+    out[[oc$id]] <- expected_estimates(sc, oc, design, opt, factors, lang, categorize)
+    if (!isTRUE(opt$secondary) || !design %in% SECONDARY_DESIGNS) return(out)
+    cal <- calibrate(sc, oc)
+    big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), 60000, opt)
+    big <- secondary_outcomes(sc, oc, design, big, derive_seed("truth", sc$id, oc$id), opt)
+    fd <- format_study(sc, oc, design, big, sc$order, "en")
+    fd <- measurement_error(fd, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed("truth", "measurement"))
+    fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
+    for (o in big$secondary) {
+        fd2 <- fd
+        # the secondary outcome's own follow-up, or none
+        fd2$time <- fd[[paste0("time_", o)]]
+        out[[o]] <- estimate_table(sc, sc$outcomes[[o]], design, fd2, factors, lang, categorize, opt = opt)
+    }
+    out
 }
 
 answer_key <- function(sc, oc, design, opt, factors, lang = "en", categorize = list()) {

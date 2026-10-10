@@ -44,6 +44,7 @@ simStudyClass <- R6::R6Class(
             d <- ctx$design
             opt <- list()
             if (d %in% CASE_DESIGNS) opt$ratio <- o$ccRatio
+            opt$secondary <- isTRUE(o$secondary)
             if (d %in% c("cohort", "prognosis", "rct", "nested_cc", "case_cohort", "cluster_rct", "factorial")) {
                 if (o$followup > 0) opt$followup <- o$followup
                 opt$loss <- o$loss / 100
@@ -100,11 +101,16 @@ simStudyClass <- R6::R6Class(
             }
             if (self$options$showDag) private$.initDag(ctx)
             if (self$options$showKey) {
-                te <- true_effects(ctx$sc, ctx$oc, ctx$lang)
-                for (i in seq_len(nrow(te))) self$results$keyEffects$addRow(rowKey = i, values = list(
-                    variable = dname(te$variable[i], ctx$lang), contrast = te$contrast[i]))
-                for (r in private$.expectedRows(ctx))
-                    self$results$keyExpected$addRow(rowKey = r$key, values = list(variable = dname(r$variable, ctx$lang), contrast = r$contrast))
+                # one block of rows per outcome (the primary's keys have no prefix)
+                for (o in private$.keyOutcomes(ctx)) {
+                    oc2 <- ctx$sc$outcomes[[o]]; pre <- if (o == ctx$oc$id) "" else paste0(o, "|")
+                    olab <- tr_text(oc2$label, ctx$lang)
+                    te <- true_effects(ctx$sc, oc2, ctx$lang)
+                    for (i in seq_len(nrow(te))) self$results$keyEffects$addRow(rowKey = paste0(pre, i), values = list(
+                        outcome = olab, variable = dname(te$variable[i], ctx$lang), contrast = te$contrast[i]))
+                    for (r in private$.expectedRows(ctx, oc2, pre))
+                        self$results$keyExpected$addRow(rowKey = r$key, values = list(outcome = olab, variable = dname(r$variable, ctx$lang), contrast = r$contrast))
+                }
                 if (ctx$design == "diagnostic") {
                     for (m in ctx$oc$markers) {
                         cols <- marker_cols(m)
@@ -119,7 +125,24 @@ simStudyClass <- R6::R6Class(
             }
         },
 
-        .expectedRows = function(ctx) {
+        # the primary outcome, and the others when the study carries them
+        .keyOutcomes = function(ctx) {
+            if (!isTRUE(self$options$secondary)) return(ctx$oc$id)
+            cols <- secondary_columns(ctx$sc, ctx$oc, ctx$design)
+            c(ctx$oc$id, intersect(setdiff(names(ctx$sc$outcomes), ctx$oc$id), cols))
+        },
+
+        .expectedRows = function(ctx, oc = ctx$oc, pre = "") {
+            if (pre != "") {
+                # a secondary outcome: its contrasts for the intervention or the factors
+                iv <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors))
+                rows <- list()
+                for (v in if (length(iv)) iv else ctx$factors) {
+                    cr <- if (!is.null(ctx$cats[[v]])) cat_rows(v, ctx$cats[[v]], ctx$lang, ctx$sc) else contrast_rows(ctx$sc, oc, v, ctx$lang)
+                    for (i in seq_len(nrow(cr))) rows[[length(rows) + 1]] <- list(key = paste0(pre, paste(v, cr$contrast[i])), variable = v, contrast = cr$contrast[i])
+                }
+                return(rows)
+            }
             sp <- special_rows(ctx$design, ctx$sc, ctx$oc, ctx$lang)
             if (!is.null(sp)) return(lapply(seq_len(nrow(sp)), function(i)
                 list(key = paste(sp$variable[i], sp$contrast[i]), variable = sp$variable[i], contrast = sp$contrast[i])))
@@ -189,7 +212,9 @@ simStudyClass <- R6::R6Class(
             tab <- function(head, rows) paste0("<table><tr>", paste0("<th>", esc(head), "</th>", collapse = ""), "</tr>",
                 paste0(apply(rows, 1, function(r) paste0("<tr>", paste0("<td>", esc(r), "</td>", collapse = ""), "</tr>")), collapse = ""), "</table>")
             te <- true_effects(sc, oc, l)
-            ex <- self$results$keyExpected$state %||% expected_estimates(sc, oc, ctx$design, opt, ctx$factors, l, ctx$cats)
+            ex <- self$results$keyExpected$state %||% expected_all(sc, oc, ctx$design, opt, ctx$factors, l, ctx$cats)
+            if (!is.data.frame(ex)) ex <- do.call(rbind, lapply(names(ex), function(o) { e <- ex[[o]]
+                if (length(ex) > 1) e$contrast <- sprintf("%s: %s", tr_text(sc$outcomes[[o]]$label, l), e$contrast); e }))
             g <- dag_layout(sc, oc, ctx$factors, l)
             sz <- dag_size(g, "")
             png_file <- tempfile(fileext = ".png")
@@ -271,6 +296,8 @@ simStudyClass <- R6::R6Class(
                 jmvcore::format(.("everybody treated; only people above the {p}th percentile before were enrolled ({n} screened)"), p = f$threshold, n = num(f$screened))
                 else .("everybody treated, measured before and after; no control group"))
             if (ctx$design == "method_comparison") li <- c(li, .("the outcome measured twice in each person, by methods A and B"))
+            if (isTRUE(self$options$secondary) && length(res$secondary))
+                li <- c(li, jmvcore::format(.("other outcomes of the same people: {list}"), list = paste(vapply(res$secondary, function(x) tr_text(sc$outcomes[[x]]$label, l), ""), collapse = "; ")))
             if (!is.null(f$attending)) li <- c(li, jmvcore::format(.("baseline and {k} follow-up visits; participants seen at each visit: {n}"),
                                                           k = f$visits, n = paste(f$attending, collapse = ", ")))
             if (!is.null(f$looks)) li <- c(li, jmvcore::format(.("{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}"),
@@ -311,25 +338,33 @@ simStudyClass <- R6::R6Class(
         },
 
         .fillKey = function(ctx, cal, opt) {
-            te <- true_effects(ctx$sc, ctx$oc, ctx$lang)
-            for (i in seq_len(nrow(te))) self$results$keyEffects$setRow(rowKey = i, values = list(
-                measure = te$measure[i], value = te$value[i], note = te$note[i]))
-            tbl <- self$results$keyExpected
-            ex <- tbl$state
-            if (is.null(ex)) {
-                ex <- expected_estimates(ctx$sc, ctx$oc, ctx$design, opt, ctx$factors, ctx$lang, ctx$cats)
-                tbl$setState(ex)
+            for (o in private$.keyOutcomes(ctx)) {
+                pre <- if (o == ctx$oc$id) "" else paste0(o, "|")
+                te <- true_effects(ctx$sc, ctx$sc$outcomes[[o]], ctx$lang)
+                for (i in seq_len(nrow(te))) if (paste0(pre, i) %in% self$results$keyEffects$rowKeys)
+                    self$results$keyEffects$setRow(rowKey = paste0(pre, i), values = list(measure = te$measure[i], value = te$value[i], note = te$note[i]))
             }
-            if (!is.null(ex)) {
-                for (i in seq_len(nrow(ex))) {
-                    k <- paste(ex$variable[i], ex$contrast[i])
+            tbl <- self$results$keyExpected
+            exl <- tbl$state
+            if (is.data.frame(exl)) exl <- stats::setNames(list(exl), ctx$oc$id)   # a state saved by v0.3
+            if (is.null(exl)) {
+                exl <- expected_all(ctx$sc, ctx$oc, ctx$design, opt, ctx$factors, ctx$lang, ctx$cats)
+                tbl$setState(exl)
+            }
+            ex <- exl[[ctx$oc$id]]
+            blank <- function(x) if (is.na(x)) "" else x
+            for (o in names(exl)) {
+                e <- exl[[o]]; pre <- if (o == ctx$oc$id) "" else paste0(o, "|")
+                for (i in seq_len(NROW(e))) {
+                    k <- paste0(pre, paste(e$variable[i], e$contrast[i]))
                     if (!k %in% tbl$rowKeys) next
                     # no single true value (categorised or modified effect), or a
                     # coefficient the model dropped: an empty cell, not NaN
-                    blank <- function(x) if (is.na(x)) "" else x
-                    tbl$setRow(rowKey = k, values = list(truth = blank(ex$true[i]), crude = blank(ex$crude[i]), adjusted = blank(ex$adjusted[i]),
-                                                         measure = ex$measure[i], note = ex$note[i]))
+                    tbl$setRow(rowKey = k, values = list(truth = blank(e$true[i]), crude = blank(e$crude[i]), adjusted = blank(e$adjusted[i]),
+                                                         measure = e$measure[i], note = e$note[i]))
                 }
+            }
+            if (!is.null(ex)) {
                 tbl$setNote("n", jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
                 if (ctx$design == "factorial" && opt$interaction != 0)

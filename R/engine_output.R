@@ -55,6 +55,11 @@ GENERIC <- list(
                    ca = "el pendent de regressió s'atenua per l'error del mateix A; el pendent veritable és per unitat del valor veritable"),
     batch = list(en = "Assay batch", es = "Lote de análisis", ca = "Lot d'anàlisi"),
     lod_missing = list(en = "missing", es = "falta", ca = "falta"),
+    after_x = list(en = "after %s", es = "tras %s", ca = "després de %s"),
+    without_x = list(en = "without %s", es = "sin %s", ca = "sense %s"),
+    illness_death = list(en = "death after a first event (illness-death): no single true hazard ratio; see the transitions in the true model",
+                         es = "muerte tras un primer evento (enfermedad-muerte): no hay un único hazard ratio verdadero; vea las transiciones en el modelo verdadero",
+                         ca = "mort després d'un primer esdeveniment (malaltia-mort): no hi ha un únic hazard ratio veritable; vegeu les transicions al model veritable"),
     extra = list(en = "Extra variable", es = "Variable adicional", ca = "Variable addicional"),
     cat_log2 = list(en = "log2", es = "log2", ca = "log2"),
     cat_log10 = list(en = "log10", es = "log10", ca = "log10"),
@@ -169,6 +174,18 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
     } else {
         out[[oc$id]] <- with_desc(as.numeric(d$.y), olab)
     }
+    # the scenario's other outcomes for the same people (Simulated study option)
+    for (o in res$secondary) {
+        o2 <- sc$outcomes[[o]]
+        st <- d[[paste0(".sec_", o)]]
+        if (!is.null(d[[paste0(".sec_time_", o)]])) {
+            out[[paste0("time_", o)]] <- with_desc(round(d[[paste0(".sec_time_", o)]], 3), sprintf("%s (%s): %s", gtext("time", lang), o2$time_units, tr_text(o2$label, lang)))
+            ev <- if (is.null(o2$competing)) gtext("event", lang) else sub("{c}", tr_text(o2$competing$label, lang), gtext("event2", lang), fixed = TRUE)
+            out[[o]] <- with_desc(as.integer(st), sprintf("%s: %s", tr_text(o2$label, lang), ev))
+        } else if (o2$type %in% c("binary", "event")) out[[o]] <- with_desc(factor(o2$levels[st + 1L], levels = o2$levels), var_desc(o2, lang))
+        else if (o2$type == "count") out[[o]] <- with_desc(as.integer(st), var_desc(o2, lang))
+        else out[[o]] <- with_desc(as.numeric(st), var_desc(o2, lang))
+    }
     for (m in oc$markers) if (!is.null(res$markers)) for (nm in marker_cols(m))
         out[[nm]] <- with_desc(res$markers[[nm]], var_desc(m, lang))
     for (v in factors) {
@@ -247,6 +264,7 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
                   else if (design %in% CASE_DESIGNS) c("case", if (design == "nested_cc") "time")
                   else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct", "case_cohort", "cluster_rct", "factorial")) c("time", oc$id)
                   else oc$id)
+    if (isTRUE(opt$secondary)) out <- c(out, secondary_columns(sc, oc, design))
     if (design == "diagnostic") out <- c(out, unname(unlist(lapply(oc$markers, marker_cols))), if ((opt$batches %||% 0) >= 2) "batch")
     c(out, intersect(sc$order, factors), noise_names(opt$noise %||% 0))
 }
@@ -274,6 +292,12 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         else if (nm %in% names(sc$interventions)) sc$interventions[[nm]]$levels
         else if (nm == "case") c("control", "case")
         else if (nm == "subcohort") c("no", "yes")
+        else if (grepl("^time_", nm) && sub("^time_", "", nm) %in% names(sc$outcomes)) "cont"
+        else if (nm %in% setdiff(names(sc$outcomes), oc$id)) {
+            o2 <- sc$outcomes[[nm]]
+            if (paste0("time_", nm) %in% cols) { if (is.null(o2$competing)) c("0", "1") else c("0", "1", "2") }
+            else if (o2$type %in% c("binary", "event")) o2$levels else "cont"
+        }
         else if (grepl("^extra_[0-9]+$", nm)) { if (as.integer(sub("extra_", "", nm)) %% 2 == 1) "cont" else c("no", "yes") }
         else if (nm == "time" || nm %in% unlist(lapply(oc$markers, marker_cols)) || nm %in% paste0(oc$id, c("_before", "_a", "_b"))) "cont"
         else if (nm == oc$id) {

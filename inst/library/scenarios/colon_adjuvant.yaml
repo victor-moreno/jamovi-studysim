@@ -75,6 +75,23 @@ outcomes:
       effects:
         age: {HR: 1.09, per: 1}
         sex: {HR: 1.5}
+  death:
+    type: event
+    label: {en: Death from any cause, es: Muerte por cualquier causa, ca: Mort per qualsevol causa}
+    # overall survival: death without recurrence is recurrence's competing
+    # event; after a recurrence, death follows its own hazard (from the 468
+    # patients who recurred: median 1.0 year)
+    after: recurrence
+    followup: 8
+    designs: [rct, prognosis]
+    after_event:
+      median: 1.0
+      shape: 1.0
+      effects:
+        treatment: {HR: [1, 1.13, 1.41]}
+        nodes: {HR: 1.06, per: 1}
+        age: {HR: 1.01, per: 1}
+        sex: {HR: 1.2}
 
 
 designs:
@@ -87,11 +104,11 @@ references:
   - "Data: R dataset colon (survival package), 929 patients, 468 recurrences."
 
 i18n:
-  en: {names: {age: age, sex: sex, nodes: nodes, extent: extent, differentiation: differentiation, obstruction: obstruction, adherence: adherence, late_start: late_start, treatment: treatment, recurrence: recurrence},
+  en: {names: {age: age, sex: sex, nodes: nodes, extent: extent, differentiation: differentiation, obstruction: obstruction, adherence: adherence, late_start: late_start, treatment: treatment, recurrence: recurrence, death: death},
        levels: {submucosa: submucosa, muscle: muscle, serosa: serosa, contiguous: contiguous, well: well, moderate: moderate, poor: poor, observation: observation, levamisole: levamisole, lev_5fu: lev_5fu}}
-  es: {names: {age: edad, sex: sexo, nodes: ganglios, extent: extension, differentiation: diferenciacion, obstruction: obstruccion, adherence: adherencia, late_start: inicio_tardio, treatment: tratamiento, recurrence: recidiva},
+  es: {names: {age: edad, sex: sexo, nodes: ganglios, extent: extension, differentiation: diferenciacion, obstruction: obstruccion, adherence: adherencia, late_start: inicio_tardio, treatment: tratamiento, recurrence: recidiva, death: muerte},
        levels: {submucosa: submucosa, muscle: muscular, serosa: serosa, contiguous: contigua, well: buena, moderate: moderada, poor: mala, observation: observacion, levamisole: levamisol, lev_5fu: lev_5fu}}
-  ca: {names: {age: edat, sex: sexe, nodes: ganglis, extent: extensio, differentiation: diferenciacio, obstruction: obstruccio, adherence: adherencia, late_start: inici_tarda, treatment: tractament, recurrence: recidiva},
+  ca: {names: {age: edat, sex: sexe, nodes: ganglis, extent: extensio, differentiation: diferenciacio, obstruction: obstruccio, adherence: adherencia, late_start: inici_tarda, treatment: tractament, recurrence: recidiva, death: mort},
        levels: {submucosa: submucosa, muscle: muscular, serosa: serosa, contiguous: contigua, well: bona, moderate: moderada, poor: dolenta, observation: observacio, levamisole: levamisol, lev_5fu: lev_5fu}}
 
 teaching:
@@ -101,7 +118,12 @@ teaching:
     adjuvant therapy. The number of positive nodes and the local spread are the
     strongest prognostic factors. A few patients die before any recurrence
     (status 2): censoring them is right for the hazard ratio of recurrence, but
-    1 - Kaplan-Meier then overstates the probability of recurring.
+    1 - Kaplan-Meier then overstates the probability of recurring. Overall
+    survival comes from the same people: after a recurrence, death follows
+    quickly, so the treatment's benefit on recurrence carries over to survival
+    (an illness-death model). Patients on the combination who still recur do
+    worse afterwards: comparing arms after a post-randomisation event breaks
+    the randomisation.
   es: >
     Un ensayo de tres grupos: el levamisol solo no hizo nada, el levamisol con
     fluorouracilo redujo la recidiva un 40% y la combinación se convirtió en el
@@ -109,7 +131,12 @@ teaching:
     extensión local son los factores pronósticos más fuertes. Algunos pacientes
     mueren antes de recidivar (estado 2): censurarlos es correcto para el hazard
     ratio de la recidiva, pero 1 - Kaplan-Meier sobrestima entonces la
-    probabilidad de recidivar.
+    probabilidad de recidivar. La supervivencia global sale de las mismas
+    personas: tras una recidiva la muerte llega pronto, así que el beneficio
+    sobre la recidiva se traslada a la supervivencia (un modelo enfermedad-
+    muerte). Los pacientes con la combinación que aun así recidivan evolucionan
+    peor después: comparar grupos tras un evento posterior a la aleatorización
+    rompe la aleatorización.
   ca: >
     Un assaig de tres grups: el levamisol sol no va fer res, el levamisol amb
     fluorouracil va reduir la recidiva un 40% i la combinació es va convertir en
@@ -117,4 +144,9 @@ teaching:
     l'extensió local són els factors pronòstics més forts. Alguns pacients moren
     abans de recidivar (estat 2): censurar-los és correcte per al hazard ratio de
     la recidiva, però 1 - Kaplan-Meier sobreestima llavors la probabilitat de
-    recidivar.
+    recidivar. La supervivència global surt de les mateixes persones: després
+    d'una recidiva la mort arriba aviat, així que el benefici sobre la recidiva
+    es trasllada a la supervivència (un model malaltia-mort). Els pacients amb
+    la combinació que tot i així recidiven evolucionen pitjor després: comparar
+    grups després d'un esdeveniment posterior a l'aleatorització trenca
+    l'aleatorització.

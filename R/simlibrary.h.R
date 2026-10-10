@@ -370,7 +370,7 @@ simLibraryBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "studysim",
                 name = "simLibrary",
-                version = c(0,3,0),
+                version = c(0,4,0),
                 options = options,
                 results = simLibraryResults$new(options=options),
                 data = data,
