@@ -404,13 +404,25 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>measurement error</strong>: the reliability of numeric measures and a share of misclassified categories, non-differential. The answer key uses the same error, so it shows how much the estimates are diluted and how much confounding remains;</li>
 <li><strong>data-entry errors</strong> (decimal slips, swapped digits, 999 codes) to find and clean, and <strong>extra variables</strong> with no effect (<code>extra_01</code>, …) for multiple testing and variable selection;</li>
 <li><strong>laboratory</strong>: values below a marker’s or a biomarker’s detection limit reported as missing, as LOD/2 or as the LOD; diagnostic markers run in <strong>batches</strong>, optionally with cases and controls in separate batches.</li>
-</ul></li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="screenshots/s14-realism.png" class="screenshot img-fluid figure-img" style="width:60.0%"></p>
+<figcaption>Realism options.</figcaption>
+</figure>
+</div></li>
 <li><em>Output</em>: seed and <strong>student key</strong> (any text, e.g.&nbsp;a student ID: each key gives a different dataset from the same options), which tables to show, and <strong>Answer key report</strong>, which saves the whole key (true model, what the design should estimate, markers, diagram, notes) as one HTML page for the teacher.</li>
 </ul>
 </section>
 <section id="several-outcomes-in-one-study" class="level3">
 <h3 class="anchored" data-anchor-id="several-outcomes-in-one-study">Several outcomes in one study</h3>
 <p>Most trials record several outcomes. <em>Other outcomes of the scenario (same people)</em> adds every other outcome of the scenario as columns for the same people (cross-sectional, cohort, prognosis and trial designs), and the answer key gets a block per outcome. Outcomes can be linked (correlated beyond their common causes, e.g.&nbsp;HbA1c and control below 7%), and overall survival can be built from a first event (an illness-death model: in the colon cancer trial, death after recurrence). The SPRINT scenario has a primary outcome, death and three harms, to weigh benefits against harms and to see what testing many outcomes does.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="screenshots/s16-several-outcomes.png" class="screenshot img-fluid figure-img"></p>
+<figcaption>SPRINT with the other outcomes: the answer key has the intervention effect on each outcome.</figcaption>
+</figure>
+</div>
 </section>
 <section id="two-more-designs" class="level3">
 <h3 class="anchored" data-anchor-id="two-more-designs">Two more designs</h3>
@@ -478,12 +490,24 @@ ul.task-list li input[type="checkbox"] {
 <section id="compare-designs" class="level2">
 <h2 class="anchored" data-anchor-id="compare-designs">Compare designs</h2>
 <p><em>Simulate ▸ Compare designs</em> takes one scenario and outcome, the measured variables and a sample size, and simulates every ticked design from the <strong>same population</strong> (same seed and student key); designs that do not fit the outcome are hidden. It shows:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="screenshots/s15-compare.png" class="screenshot img-fluid figure-img"></p>
+<figcaption>Compare designs: breast cancer with four measured variables, three designs from the same population.</figcaption>
+</figure>
+</div>
 <ul>
 <li><strong>Studies</strong>: rows, cases and controls, events, clusters or regions of each one;</li>
 <li><strong>Estimates by design</strong>: crude and adjusted estimates with their 95% CI next to the true values, and optionally what each design gives in a large study;</li>
 <li>a <strong>forest plot</strong> of the same estimates, one panel per contrast;</li>
 <li>the <strong>causal diagram</strong> with the effect sizes, once, because it is the same for every design: what changes between designs is how the population is sampled, not how it works.</li>
 </ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="screenshots/s17-compare-plot.png" class="screenshot img-fluid figure-img"></p>
+<figcaption>Estimates plot: the cohort of 500 women has 10 cases, so its intervals are far wider than the case-control studies’.</figcaption>
+</figure>
+</div>
 <p><em>Open dataset</em> stacks all the studies in one dataset with a <code>design</code> column, to analyse them with jamovi’s filters. Typical exercises: a case-control vs a cohort study of a rare cancer (same estimates, very different precision for the same number of people), a parallel vs a crossover trial, an ecological vs an individual-level analysis.</p>
 
 

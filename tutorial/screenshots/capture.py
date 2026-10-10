@@ -50,12 +50,15 @@ with sync_playwright() as p:
     fr = jc.run_analysis(page, "Simulate", "Simulated study", exact=False)
     wait_text(page, "cases and")
     fr.locator("select.studysim-pick").nth(0).select_option("chd_incidence"); page.wait_for_timeout(3000)
-    fr.locator("select.silky-option-combo-input").first.select_option(label="Cohort"); page.wait_for_timeout(3000)
+    # the first combo is the design filter, the second the design
+    design = fr.locator("select.silky-option-combo-input").nth(1)
+    design.select_option(label="Cohort"); page.wait_for_timeout(3000)
     ids = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()][0::2]
     boxes = fr.locator(".list-item-cell input[type=checkbox]")
     forms = fr.locator(".list-item-cell select")
-    for v in ["age", "sex", "smoking", "sbp", "coffee"]:
-        boxes.nth(ids.index(v)).check(force=True); page.wait_for_timeout(500)
+    # every variable is measured by default: untick those left out
+    for v in ["education", "physical_activity", "bmi", "cigarettes", "total_chol", "hdl", "diabetes"]:
+        boxes.nth(ids.index(v)).uncheck(force=True); page.wait_for_timeout(500)
     forms.nth(ids.index("sbp")).select_option(label="quartiles"); page.wait_for_timeout(3000)
     wait_text(page, "Q4: >")          # results of this scenario, not the previous one
     page.wait_for_timeout(3000)
@@ -68,9 +71,7 @@ with sync_playwright() as p:
     shot_item(page, "Descriptives", "s04-descriptives.png")
 
     jc.expand_section(fr, "Output")
-    jc.check_option(fr, "Causal diagram (DAG)")
-    jc.check_option(fr, "Effect sizes on the diagram")
-    jc.check_option(fr, "Answer key")
+    jc.check_option(fr, "Answer key")     # the diagram with effects is on by default
     wait_text(page, "should be close") or wait_text(page, "Expected values")
     page.wait_for_timeout(4000)
     shot_item(page, "Causal diagram", "s05-dag.png")
@@ -79,7 +80,10 @@ with sync_playwright() as p:
 
     jc.expand_section(fr, "Design options")
     page.wait_for_timeout(800)
-    jc.screenshot_section(page, fr, "Design options", out("s09-design-options.png"), stop_label="Output")
+    jc.screenshot_section(page, fr, "Design options", out("s09-design-options.png"), stop_label="Realism")
+    jc.expand_section(fr, "Realism")
+    page.wait_for_timeout(800)
+    jc.screenshot_section(page, fr, "Realism", out("s14-realism.png"), stop_label="Output")
 
     n = len(ctx.pages)
     fr.get_by_text("Open dataset", exact=True).click()
@@ -90,7 +94,45 @@ with sync_playwright() as p:
         dp = ctx.pages[-1]; dp.set_viewport_size({"width": 1440, "height": 700}); dp.wait_for_timeout(12000)
         dp.screenshot(path=out("s10-dataset.png")); dp.close()
 
+    # Several outcomes: SPRINT, with the other outcomes of the same people
+    # (a fresh instance, so the results hold only this analysis)
+    page.goto(jc.JAMOVI_URL); page.wait_for_timeout(6000)
+    fr = jc.run_analysis(page, "Simulate", "Simulated study", exact=False)
+    wait_text(page, "cases and")
+    fr.locator("select.studysim-pick").nth(0).select_option("sprint_blood_pressure"); page.wait_for_timeout(4000)
+    jc.check_option(fr, "Other outcomes of the scenario (same people)")
+    jc.expand_section(fr, "Output")
+    jc.check_option(fr, "Answer key")
+    wait_text(page, "Answer key: what this design should estimate", 60)
+    page.wait_for_timeout(6000)
+    # the table is wide: a wider window for this one
+    page.set_viewport_size({"width": 2300, "height": 1000}); page.wait_for_timeout(3000)
+    shot_item(page, "Answer key: what this design should estimate", "s16-several-outcomes.png")
+    page.set_viewport_size({"width": 1440, "height": 1000})
+
+    # Compare designs: breast cancer, its default designs
+    page.goto(jc.JAMOVI_URL); page.wait_for_timeout(6000)
+    fr = jc.run_analysis(page, "Simulate", "Compare designs", exact=False)
+    wait_text(page, "Estimates by design", 60)
+    # four variables keep the table and the plot short
+    page.wait_for_timeout(3000)
+    ids = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()][0::2]
+    boxes = fr.locator(".list-item-cell input[type=checkbox]")
+    for v in ids:
+        if v not in ("age", "menopause", "hrt", "family_hist"):
+            boxes.nth(ids.index(v)).uncheck(force=True); page.wait_for_timeout(400)
+    wait_text(page, "All designs sample the same superpopulation", 90)
+    page.wait_for_timeout(8000)
+    page.screenshot(path=out("s15-compare.png"))
+    for f in page.frames:
+        if jc.HOST_C not in f.url: continue
+        imgs = f.locator(".jmv-results-image-image")
+        if imgs.count():
+            imgs.last.scroll_into_view_if_needed(); page.wait_for_timeout(1500)
+            imgs.last.screenshot(path=out("s17-compare-plot.png"))
+
     # Library
+    page.goto(jc.JAMOVI_URL); page.wait_for_timeout(6000)
     fr = jc.run_analysis(page, "Simulate", "Library", exact=False)
     wait_text(page, "No problems found")
     fr.locator("select.studysim-pick").first.select_option("breast_cancer_risk"); page.wait_for_timeout(4000)

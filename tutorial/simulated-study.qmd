@@ -53,6 +53,9 @@ title: "Simulated study"
   - **laboratory**: values below a marker's or a biomarker's detection limit
     reported as missing, as LOD/2 or as the LOD; diagnostic markers run in
     **batches**, optionally with cases and controls in separate batches.
+
+  ![Realism options.](screenshots/s14-realism.png){.screenshot width=60%}
+
 - *Output*: seed and **student key** (any text, e.g. a student ID: each key gives
   a different dataset from the same options), which tables to show, and
   **Answer key report**, which saves the whole key (true model, what the design
@@ -69,6 +72,8 @@ from a first event (an illness-death model: in the colon cancer trial, death
 after recurrence). The SPRINT scenario has a primary outcome, death and three
 harms, to weigh benefits against harms and to see what testing many outcomes
 does.
+
+![SPRINT with the other outcomes: the answer key has the intervention effect on each outcome.](screenshots/s16-several-outcomes.png){.screenshot}
 
 ### Two more designs
 
@@ -138,6 +143,8 @@ variables and a sample size, and simulates every ticked design from the **same
 population** (same seed and student key); designs that do not fit the outcome
 are hidden. It shows:
 
+![Compare designs: breast cancer with four measured variables, three designs from the same population.](screenshots/s15-compare.png){.screenshot}
+
 - **Studies**: rows, cases and controls, events, clusters or regions of each one;
 - **Estimates by design**: crude and adjusted estimates with their 95% CI
   next to the true values, and optionally what each design gives in a large study;
@@ -145,6 +152,8 @@ are hidden. It shows:
 - the **causal diagram** with the effect sizes, once, because it is the same for
   every design: what changes between designs is how the population is sampled,
   not how it works.
+
+![Estimates plot: the cohort of 500 women has 10 cases, so its intervals are far wider than the case-control studies'.](screenshots/s17-compare-plot.png){.screenshot}
 
 *Open dataset* stacks all the studies in one dataset with a `design` column, to
 analyse them with jamovi's filters. Typical exercises: a case-control vs a cohort
