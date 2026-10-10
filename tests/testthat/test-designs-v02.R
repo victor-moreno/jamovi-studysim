@@ -132,3 +132,13 @@ test_that("the PSA scenario runs a diagnostic study through simStudy", {
   expect_true(all(!is.na(k$expected)))
   expect_match(r$summary$content, "markers measured")
 })
+
+test_that("a two-arm intervention effect can depend on a modifier", {
+  raw <- toy_raw()
+  raw$outcomes$dis$effects$drug <- list(OR = c(1, 0.8), by = list(smoke = list(never = 1.3, former = 0.8, current = 0.5)))
+  sc <- normalize_scenario(raw)
+  r <- simulate_study(sc, "dis", "rct", 60000, sc$order, key = FALSE)$data_raw
+  ors <- vapply(c("never", "former", "current"), function(l) {
+    f <- glm(dis ~ drug + age + sex + bmi + snp, binomial, r[r$smoke == l, ]); exp(coef(f)[["drugdrug"]]) }, 0)
+  expect_equal(unname(ors), c(1.3, 0.8, 0.5), tolerance = 0.12)
+})

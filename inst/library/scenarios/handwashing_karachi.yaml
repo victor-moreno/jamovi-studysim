@@ -1,0 +1,92 @@
+id: handwashing_karachi
+label: {en: "Handwashing and childhood pneumonia", es: "Lavado de manos y neumonía infantil", ca: "Rentat de mans i pneumònia infantil"}
+domain: infectious
+population: {en: "Children under 5 in squatter settlements of Karachi, Pakistan, 2002-03", es: "Niños menores de 5 años de asentamientos informales de Karachi, Pakistán, 2002-03", ca: "Infants menors de 5 anys d'assentaments informals de Karachi, Pakistan, 2002-03"}
+
+# From the published results: neighbourhoods randomised to handwashing
+# promotion with soap or to control; children in intervention households had
+# a 50% lower incidence of pneumonia (incidence ratio 0.50). Counts of
+# episodes over one year, with clustering by neighbourhood.
+variables:
+  age_years:
+    type: continuous
+    dist: uniform(0, 5)
+    round: 1
+    units: {en: years, es: años, ca: anys}
+    label: {en: Age, es: Edad, ca: Edat}
+  sex:
+    type: binary
+    p: 0.5
+    levels: [girl, boy]
+    label: {en: Sex, es: Sexo, ca: Sexe}
+  crowding:
+    type: continuous
+    dist: gamma(3.5, 1.5)
+    range: [1, 12]
+    round: 1
+    units: {en: people per room, es: personas por habitación, ca: persones per habitació}
+    label: {en: Household crowding, es: Hacinamiento, ca: Amuntegament}
+  mother_school:
+    type: binary
+    p: 0.40
+    levels: [no, yes]
+    label: {en: Mother attended school, es: La madre fue a la escuela, ca: La mare va anar a l'escola}
+
+structure:
+  - [mother_school, crowding, -0.30]
+
+interventions:
+  soap:
+    levels: [control, handwashing]
+    label: {en: Neighbourhood programme, es: Programa del barrio, ca: Programa del barri}
+
+outcomes:
+  pneumonia:
+    type: count
+    label: {en: Pneumonia episodes in one year, es: Episodios de neumonía en un año, ca: Episodis de pneumònia en un any}
+    mean: 0.40
+    size: 1.5
+    designs: [cluster_rct, rct]
+    effects:
+      soap: {RR: [1, 0.50]}
+      age_years: {RR: 0.75, per: 1}
+      crowding: {RR: 1.08, per: 1}
+      mother_school: {RR: 0.85}
+
+null_variables: [sex]
+
+designs:
+  cluster_rct: {clusters: 36, icc: 0.05}
+
+references:
+  - "Luby SP, Agboatwalla M, Feikin DR et al. Effect of handwashing on child health: a randomised controlled trial. Lancet 2005;366:225-33."
+
+i18n:
+  en: {names: {age_years: age_years, sex: sex, crowding: crowding, mother_school: mother_school, soap: soap, pneumonia: pneumonia},
+       levels: {girl: girl, boy: boy, control: control, handwashing: handwashing}}
+  es: {names: {age_years: edad, sex: sexo, crowding: hacinamiento, mother_school: madre_escolarizada, soap: jabon, pneumonia: neumonia},
+       levels: {girl: niña, boy: niño, control: control, handwashing: lavado_manos}}
+  ca: {names: {age_years: edat, sex: sexe, crowding: amuntegament, mother_school: mare_escolaritzada, soap: saba, pneumonia: pneumonia},
+       levels: {girl: nena, boy: nen, control: control, handwashing: rentat_mans}}
+
+teaching:
+  en: >
+    A count outcome in a cluster trial: whole neighbourhoods received the
+    handwashing programme. Episodes cluster within children (some get many) and
+    within neighbourhoods, so a Poisson model with independent children
+    understates the uncertainty twice: use a negative binomial or robust
+    variance, and cluster-robust intervals. Promoting soap halved pneumonia.
+  es: >
+    Una variable de recuento en un ensayo por conglomerados: barrios enteros
+    recibieron el programa de lavado de manos. Los episodios se agrupan en los
+    niños (algunos tienen muchos) y en los barrios, así que un modelo de Poisson
+    con niños independientes subestima la incertidumbre dos veces: use una
+    binomial negativa o una varianza robusta, e intervalos robustos por
+    conglomerado. Promover el jabón redujo la neumonía a la mitad.
+  ca: >
+    Una variable de recompte en un assaig per conglomerats: barris sencers van
+    rebre el programa de rentat de mans. Els episodis s'agrupen en els infants
+    (alguns en tenen molts) i en els barris, així que un model de Poisson amb
+    infants independents subestima la incertesa dues vegades: feu servir una
+    binomial negativa o una variància robusta, i intervals robustos per
+    conglomerat. Promoure el sabó va reduir la pneumònia a la meitat.

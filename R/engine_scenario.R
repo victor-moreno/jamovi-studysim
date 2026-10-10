@@ -218,11 +218,12 @@ normalize_effect <- function(oc_id, var_id, e, vars, interventions, pr) {
         mv <- vars[[mod]]
         if (is.null(mv) || is.null(mv$levels)) {
             add_problem(pr, where, sprintf("modifier '%s' must be a categorical variable of the scenario", mod))
-        } else if (!type %in% c("continuous", "count", "binary", "genotype")) {
-            add_problem(pr, where, "effect modification (by:) is supported for numeric, binary and genotype effects")
+        } else if (!type %in% c("continuous", "count", "binary", "genotype") && !(type == "intervention" && length(levels) == 2)) {
+            add_problem(pr, where, "effect modification (by:) is supported for numeric, binary, genotype and two-arm intervention effects")
         } else {
             bv <- e$by[[mod]]
-            co <- rep(out$coef, length(mv$levels)); names(co) <- mv$levels
+            # a two-arm intervention: the effect of its second arm, per level of the modifier
+            co <- rep(out$coef[length(out$coef)], length(mv$levels)); names(co) <- mv$levels
             for (lv in names(bv)) {
                 if (!lv %in% mv$levels) { add_problem(pr, where, sprintf("'%s' is not a level of '%s'", lv, mod)); next }
                 x <- num_expr(bv[[lv]])

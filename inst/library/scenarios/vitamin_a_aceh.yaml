@@ -1,0 +1,95 @@
+id: vitamin_a_aceh
+label: {en: "Vitamin A and child mortality", es: "Vitamina A y mortalidad infantil", ca: "Vitamina A i mortalitat infantil"}
+domain: child health
+population: {en: "Preschool children (1-5 years) in rural villages of Aceh, Indonesia, 1982-84", es: "Niños en edad preescolar (1-5 años) de aldeas rurales de Aceh, Indonesia, 1982-84", ca: "Infants en edat preescolar (1-5 anys) de pobles rurals d'Aceh, Indonèsia, 1982-84"}
+
+# From the published results: 450 villages randomised (229 to a vitamin A
+# capsule programme); one-year mortality 75 per 10,000 in control villages
+# and 53 per 10,000 in programme villages (34% lower after adjustment).
+# Mild xerophthalmia (night blindness, Bitot's spots) marked children at
+# higher risk.
+variables:
+  age_months:
+    type: continuous
+    dist: uniform(12, 71)
+    round: 0
+    units: {en: months, es: meses, ca: mesos}
+    label: {en: Age, es: Edad, ca: Edat}
+  sex:
+    type: binary
+    p: 0.5
+    levels: [girl, boy]
+    label: {en: Sex, es: Sexo, ca: Sexe}
+  xerophthalmia:
+    type: binary
+    p: 0.06
+    levels: [no, yes]
+    label: {en: Mild xerophthalmia at baseline, es: Xeroftalmía leve al inicio, ca: Xeroftàlmia lleu a l'inici}
+  underweight:
+    type: binary
+    p: 0.30
+    levels: [no, yes]
+    label: {en: Underweight for age, es: Bajo peso para la edad, ca: Pes baix per a l'edat}
+
+structure:
+  - [underweight, xerophthalmia, 0.30]
+
+interventions:
+  vitamin_a:
+    levels: [control, vitamin_a]
+    label: {en: Village programme, es: Programa en la aldea, ca: Programa al poble}
+
+outcomes:
+  death:
+    type: binary
+    label: {en: Death within one year, es: Muerte en un año, ca: Mort en un any}
+    levels: [no, yes]
+    prevalence: 0.0075
+    designs: [cluster_rct, rct]
+    effects:
+      vitamin_a: {OR: [1, 0.66]}
+      age_months: {OR: 0.75, per: 12}
+      xerophthalmia: {OR: 3.0}
+      underweight: {OR: 2.0}
+
+null_variables: [sex]
+
+designs:
+  # the trial had 450 villages and 25,939 children: raise the sample size
+  cluster_rct: {clusters: 100, icc: 0.02}
+
+references:
+  - "Sommer A, Tarwotjo I, Djunaedi E et al. Impact of vitamin A supplementation on childhood mortality: a randomised controlled community trial. Lancet 1986;1:1169-73."
+  - "Sommer A, Zeger SL. On estimating efficacy from clinical trials. Stat Med 1991;10:45-52."
+
+i18n:
+  en: {names: {age_months: age_months, sex: sex, xerophthalmia: xerophthalmia, underweight: underweight, vitamin_a: vitamin_a, death: death},
+       levels: {girl: girl, boy: boy, control: control, vitamin_a: vitamin_a}}
+  es: {names: {age_months: edad_meses, sex: sexo, xerophthalmia: xeroftalmia, underweight: bajo_peso, vitamin_a: vitamina_a, death: muerte},
+       levels: {girl: niña, boy: niño, control: control, vitamin_a: vitamina_a}}
+  ca: {names: {age_months: edat_mesos, sex: sexe, xerophthalmia: xeroftalmia, underweight: pes_baix, vitamin_a: vitamina_a, death: mort},
+       levels: {girl: nena, boy: nen, control: control, vitamin_a: vitamina_a}}
+
+teaching:
+  en: >
+    Villages, not children, were randomised: capsules were distributed through
+    a village programme. Deaths are rare (under 1% a year), so even 25,000
+    children give a wide interval, and analysing children as if they were
+    randomised one by one gives an interval that is too narrow (unit-of-analysis
+    error); use cluster-robust intervals or village-level analyses. Children
+    with signs of deficiency were at the highest risk.
+  es: >
+    Se aleatorizaron aldeas, no niños: las cápsulas se repartían con un programa
+    en cada aldea. Las muertes son raras (menos del 1% al año), así que incluso
+    25.000 niños dan un intervalo amplio, y analizar a los niños como si se
+    hubieran aleatorizado uno a uno da un intervalo demasiado estrecho (error de
+    la unidad de análisis); use intervalos robustos por conglomerado o análisis
+    por aldea. Los niños con signos de déficit tenían el mayor riesgo.
+  ca: >
+    Es van aleatoritzar pobles, no infants: les càpsules es repartien amb un
+    programa a cada poble. Les morts són rares (menys de l'1% l'any), així que
+    fins i tot 25.000 infants donen un interval ampli, i analitzar els infants
+    com si s'haguessin aleatoritzat un per un dona un interval massa estret
+    (error de la unitat d'anàlisi); feu servir intervals robustos per
+    conglomerat o anàlisis per poble. Els infants amb signes de dèficit tenien el
+    risc més alt.

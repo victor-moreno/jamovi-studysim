@@ -1,0 +1,105 @@
+id: streptomycin_tb
+label: {en: "Streptomycin for pulmonary tuberculosis", es: "Estreptomicina para la tuberculosis pulmonar", ca: "Estreptomicina per a la tuberculosi pulmonar"}
+domain: infectious
+population: {en: "Young adults with acute progressive bilateral pulmonary tuberculosis, UK, 1947", es: "Adultos jóvenes con tuberculosis pulmonar bilateral aguda y progresiva, Reino Unido, 1947", ca: "Adults joves amb tuberculosi pulmonar bilateral aguda i progressiva, Regne Unit, 1947"}
+
+# From the 107 patients of the MRC trial (R dataset strep_tb, medicaldata):
+# 6-month radiological improvement 69% with streptomycin vs 33% with bed
+# rest, deaths 7% vs 27%. The adjusted model of the data separates (poor
+# baseline condition), so the covariate effects are rounded teaching values.
+variables:
+  sex:
+    type: binary
+    p: 0.45
+    levels: [female, male]
+    label: {en: Sex, es: Sexo, ca: Sexe}
+  condition:
+    type: ordinal
+    levels: [good, fair, poor]
+    probs: [0.15, 0.35, 0.50]
+    label: {en: General condition at entry, es: Estado general al inicio, ca: Estat general a l'inici}
+  fever:
+    type: binary
+    p: 0.70
+    levels: [no, yes]
+    label: {en: "Evening temperature >= 100 F", es: "Temperatura vespertina >= 37,8 °C", ca: "Temperatura vespertina >= 37,8 °C"}
+  cavitation:
+    type: binary
+    p: 0.58
+    levels: [no, yes]
+    label: {en: Cavitation on the chest film, es: Cavitación en la radiografía, ca: Cavitació a la radiografia}
+
+structure:
+  - [condition, fever, 0.40]
+  - [condition, cavitation, 0.20]
+
+interventions:
+  treatment:
+    levels: [bed_rest, streptomycin]
+    label: {en: Treatment, es: Tratamiento, ca: Tractament}
+
+outcomes:
+  improved:
+    type: binary
+    label: {en: Radiological improvement at 6 months, es: Mejoría radiológica a los 6 meses, ca: Millora radiològica als 6 mesos}
+    levels: [no, yes]
+    prevalence: 0.33
+    designs: [rct]
+    effects:
+      treatment: {OR: [1, 5.0]}
+      condition: {OR: [1, 0.5, 0.2]}
+      fever: {OR: 0.7}
+  death:
+    type: binary
+    label: {en: Death within 6 months, es: Muerte en 6 meses, ca: Mort en 6 mesos}
+    levels: [no, yes]
+    prevalence: 0.27
+    designs: [rct]
+    effects:
+      treatment: {OR: [1, 0.20]}
+      condition: {OR: [1, 2, 6]}
+      fever: {OR: 1.5}
+
+null_variables: [sex, cavitation]
+
+designs:
+  rct: {block: 2}
+
+references:
+  - "Medical Research Council. Streptomycin treatment of pulmonary tuberculosis. BMJ 1948;2:769-82."
+  - "Hill AB. Memories of the British streptomycin trial in tuberculosis: the first randomized clinical trial. Control Clin Trials 1990;11:77-9."
+  - "Data: strep_tb (R package medicaldata), 107 patients."
+
+i18n:
+  en: {names: {sex: sex, condition: condition, fever: fever, cavitation: cavitation, treatment: treatment, improved: improved, death: death},
+       levels: {good: good, fair: fair, poor: poor, bed_rest: bed_rest, streptomycin: streptomycin}}
+  es: {names: {sex: sexo, condition: estado, fever: fiebre, cavitation: cavitacion, treatment: tratamiento, improved: mejoria, death: muerte},
+       levels: {good: bueno, fair: regular, poor: malo, bed_rest: reposo, streptomycin: estreptomicina}}
+  ca: {names: {sex: sexe, condition: estat, fever: febre, cavitation: cavitacio, treatment: tractament, improved: millora, death: mort},
+       levels: {good: bo, fair: regular, poor: dolent, bed_rest: repos, streptomycin: estreptomicina}}
+
+teaching:
+  en: >
+    The first trial randomised with sealed envelopes (1947): with only 107
+    patients, randomisation balanced the general condition at entry, the
+    strongest prognostic factor, so a simple comparison of proportions is
+    unbiased. Adjusting for condition sharpens the estimate. The odds ratio of
+    improvement exaggerates the risk ratio because improvement is common. In
+    the real trial most survivors on streptomycin developed resistance, which
+    led to combination therapy.
+  es: >
+    El primer ensayo aleatorizado con sobres cerrados (1947): con solo 107
+    pacientes, la aleatorización equilibró el estado general al inicio, el
+    factor pronóstico más fuerte, así que una simple comparación de proporciones
+    no está sesgada. Ajustar por el estado afina la estimación. La odds ratio de
+    mejoría exagera la razón de riesgos porque la mejoría es frecuente. En el
+    ensayo real la mayoría de los supervivientes con estreptomicina
+    desarrollaron resistencias, lo que llevó al tratamiento combinado.
+  ca: >
+    El primer assaig aleatoritzat amb sobres tancats (1947): amb només 107
+    pacients, l'aleatorització va equilibrar l'estat general a l'inici, el
+    factor pronòstic més fort, així que una simple comparació de proporcions no
+    està esbiaixada. Ajustar per l'estat afina l'estimació. L'odds ratio de
+    millora exagera la raó de riscos perquè la millora és freqüent. A l'assaig
+    real la majoria dels supervivents amb estreptomicina van desenvolupar
+    resistències, cosa que va portar al tractament combinat.

@@ -1,0 +1,83 @@
+id: polio_vaccine
+label: {en: "Salk polio vaccine field trial", es: "Ensayo de campo de la vacuna antipoliomielítica de Salk", ca: "Assaig de camp de la vacuna antipoliomielítica de Salk"}
+domain: infectious
+population: {en: "Schoolchildren in grades 1-3 in the placebo-controlled areas of the 1954 US field trial", es: "Escolares de 1.º a 3.º curso de las zonas con placebo del ensayo de campo de EE. UU. de 1954", ca: "Escolars de 1r a 3r curs de les zones amb placebo de l'assaig de camp dels EUA de 1954"}
+
+# From the Francis report (1955), placebo-controlled areas: paralytic polio in
+# 33 of 200,745 vaccinated children (16 per 100,000) and 115 of 201,229 given
+# placebo (57 per 100,000). Children of better-off families had more
+# paralytic polio (less infection in infancy) and consented more often.
+variables:
+  grade:
+    type: ordinal
+    levels: ["1", "2", "3"]
+    probs: [0.34, 0.33, 0.33]
+    label: {en: School grade, es: Curso escolar, ca: Curs escolar}
+  income:
+    type: ordinal
+    levels: [low, middle, high]
+    probs: [0.35, 0.45, 0.20]
+    label: {en: Family income, es: Ingresos familiares, ca: Ingressos familiars}
+  consent:
+    type: binary
+    levels: [no, yes]
+    p: plogis(0.3 + 0.6 * (income == "middle") + 1.1 * (income == "high"))
+    label: {en: Parents consented to vaccination, es: Los padres consintieron la vacunación, ca: Els pares van consentir la vacunació}
+
+interventions:
+  vaccine:
+    levels: [placebo, salk_vaccine]
+    label: {en: Injection, es: Inyección, ca: Injecció}
+
+outcomes:
+  paralytic_polio:
+    type: binary
+    label: {en: Paralytic poliomyelitis in the 1954 season, es: Poliomielitis paralítica en la temporada de 1954, ca: Poliomielitis paralítica a la temporada de 1954}
+    levels: [no, yes]
+    prevalence: 0.00057
+    designs: [rct, cluster_rct]
+    effects:
+      vaccine: {OR: [1, 0.28]}
+      income: {OR: [1, 1.3, 1.7]}
+
+null_variables: [grade, consent]
+
+designs:
+  cluster_rct: {clusters: 200, icc: 0.01}
+
+references:
+  - "Francis T Jr et al. An evaluation of the 1954 poliomyelitis vaccine trials: summary report. Am J Public Health 1955;45(5 Pt 2):1-63."
+  - "Meier P. The biggest public health experiment ever: the 1954 field trial of the Salk poliomyelitis vaccine. In: Tanur JM et al., eds. Statistics: A Guide to the Unknown. Holden-Day; 1972."
+
+i18n:
+  en: {names: {grade: grade, income: income, consent: consent, vaccine: vaccine, paralytic_polio: paralytic_polio},
+       levels: {low: low, middle: middle, high: high, placebo: placebo, salk_vaccine: salk_vaccine}}
+  es: {names: {grade: curso, income: ingresos, consent: consentimiento, vaccine: vacuna, paralytic_polio: polio_paralitica},
+       levels: {low: bajos, middle: medios, high: altos, placebo: placebo, salk_vaccine: vacuna_salk}}
+  ca: {names: {grade: curs, income: ingressos, consent: consentiment, vaccine: vacuna, paralytic_polio: polio_paralitica},
+       levels: {low: baixos, middle: mitjans, high: alts, placebo: placebo, salk_vaccine: vacuna_salk}}
+
+teaching:
+  en: >
+    Paralytic polio struck about 6 children in 10,000 a season, so the trial
+    needed some 400,000 children for a clear answer: try it with a few thousand.
+    The vaccine cut the risk by about 70%. Families who consented were better
+    off, and better-off children had more paralytic polio, so comparing
+    vaccinated children with those who refused (as in the observed-control
+    areas) is confounded; randomising among those who consented is not.
+  es: >
+    La polio paralítica afectaba a unos 6 de cada 10.000 niños por temporada,
+    así que el ensayo necesitó unos 400.000 niños para dar una respuesta clara:
+    pruébelo con unos pocos miles. La vacuna redujo el riesgo un 70%. Las
+    familias que consintieron estaban en mejor situación, y sus hijos tenían más
+    polio paralítica, de modo que comparar a los vacunados con quienes se negaron
+    (como en las zonas de control observado) está confundido; aleatorizar entre
+    quienes consintieron no lo está.
+  ca: >
+    La pòlio paralítica afectava uns 6 de cada 10.000 infants per temporada,
+    així que l'assaig va necessitar uns 400.000 infants per donar una resposta
+    clara: proveu-ho amb uns quants milers. La vacuna va reduir el risc un 70%.
+    Les famílies que van consentir estaven en millor situació, i els seus fills
+    tenien més pòlio paralítica, de manera que comparar els vacunats amb els qui
+    s'hi van negar (com a les zones de control observat) està confós; aleatoritzar
+    entre els qui van consentir no ho està.

@@ -10,7 +10,9 @@ effect_contrib <- function(eff, cov, trt = NULL) {
     if (eff$type == "intervention") {
         x <- trt[[eff$var]]
         if (is.null(x)) return(0)
-        return(eff$coef[x])
+        if (is.null(eff$by)) return(eff$coef[x])
+        m <- cov[[eff$by$var]]
+        return(eff$by$coef[if (eff$by$binary) m + 1L else m] * (x == 2L))
     }
     x <- cov[[eff$var]]
     if (eff$type %in% c("nominal", "ordinal")) return(eff$coef[x])

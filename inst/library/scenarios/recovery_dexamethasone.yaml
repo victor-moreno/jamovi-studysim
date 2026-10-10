@@ -1,0 +1,84 @@
+id: recovery_dexamethasone
+label: {en: "Dexamethasone in hospitalised COVID-19", es: "Dexametasona en la COVID-19 hospitalizada", ca: "Dexametasona en la COVID-19 hospitalitzada"}
+domain: infectious
+population: {en: "Patients hospitalised with COVID-19 in the UK, March-June 2020 (RECOVERY)", es: "Pacientes hospitalizados con COVID-19 en el Reino Unido, marzo-junio de 2020 (RECOVERY)", ca: "Pacients hospitalitzats amb COVID-19 al Regne Unit, març-juny de 2020 (RECOVERY)"}
+
+# From the published tables: 28-day mortality 22.9% with dexamethasone vs
+# 25.7% with usual care (2:1 allocation to usual care); by respiratory
+# support at randomisation 29.3% vs 41.4% (invasive ventilation), 23.3% vs
+# 26.2% (oxygen only), 17.8% vs 14.0% (no oxygen).
+variables:
+  age: {from: dictionary, dist: "normal(66, 15.5)", range: [18, 100]}
+  sex: {from: dictionary, p: 0.64}
+  diabetes: {from: dictionary, p: 0.24}
+  support:
+    type: ordinal
+    levels: [none, oxygen, ventilation]
+    probs: [0.24, 0.60, 0.16]
+    label: {en: Respiratory support at randomisation, es: Soporte respiratorio al aleatorizar, ca: Suport respiratori en aleatoritzar}
+  days_symptoms:
+    type: count
+    dist: negbin(9, 6)
+    range: [0, 30]
+    units: {en: days, es: días, ca: dies}
+    label: {en: Days since symptom onset, es: Días desde el inicio de los síntomas, ca: Dies des de l'inici dels símptomes}
+
+structure:
+  - [age, support, -0.15]
+  - [days_symptoms, support, 0.25]
+
+interventions:
+  treatment:
+    levels: [usual_care, dexamethasone]
+    ratio: [2, 1]
+    label: {en: Treatment, es: Tratamiento, ca: Tractament}
+
+outcomes:
+  death_28d:
+    type: binary
+    label: {en: Death within 28 days, es: Muerte en 28 días, ca: Mort en 28 dies}
+    levels: [no, yes]
+    prevalence: 0.257
+    designs: [rct]
+    effects:
+      age: {OR: 1.07, per: 1}
+      sex: {OR: 1.3}
+      diabetes: {OR: 1.3}
+      support: {OR: [1, 2.6, 6.0]}
+      treatment: {OR: [1, 0.85], by: {support: {none: 1.38, oxygen: 0.80, ventilation: 0.55}}}
+
+null_variables: [days_symptoms]
+
+references:
+  - "RECOVERY Collaborative Group. Dexamethasone in hospitalized patients with Covid-19. N Engl J Med 2021;384:693-704."
+
+i18n:
+  en: {names: {age: age, sex: sex, diabetes: diabetes, support: respiratory_support, days_symptoms: days_symptoms, treatment: treatment, death_28d: death_28d},
+       levels: {none: none, oxygen: oxygen, ventilation: ventilation, usual_care: usual_care, dexamethasone: dexamethasone}}
+  es: {names: {age: edad, sex: sexo, diabetes: diabetes, support: soporte_respiratorio, days_symptoms: dias_sintomas, treatment: tratamiento, death_28d: muerte_28d},
+       levels: {none: ninguno, oxygen: oxigeno, ventilation: ventilacion, usual_care: tratamiento_habitual, dexamethasone: dexametasona}}
+  ca: {names: {age: edat, sex: sexe, diabetes: diabetis, support: suport_respiratori, days_symptoms: dies_simptomes, treatment: tractament, death_28d: mort_28d},
+       levels: {none: cap, oxygen: oxigen, ventilation: ventilacio, usual_care: tractament_habitual, dexamethasone: dexametasona}}
+
+teaching:
+  en: >
+    A large pragmatic trial that changed practice within weeks. Overall
+    dexamethasone lowered 28-day mortality modestly, but the effect depends on
+    respiratory support: a large benefit in ventilated patients, a smaller one
+    with oxygen, and possible harm without oxygen. Estimate the effect within
+    each level and test the interaction; an overall odds ratio averages over a
+    mix of patients. Allocation was 2:1 to usual care.
+  es: >
+    Un gran ensayo pragmático que cambió la práctica en semanas. En conjunto la
+    dexametasona redujo algo la mortalidad a 28 días, pero el efecto depende del
+    soporte respiratorio: un gran beneficio en los ventilados, menor con
+    oxígeno y un posible perjuicio sin oxígeno. Estime el efecto en cada nivel y
+    contraste la interacción; una odds ratio global promedia sobre una mezcla de
+    pacientes. La asignación fue 2:1 al tratamiento habitual.
+  ca: >
+    Un gran assaig pragmàtic que va canviar la pràctica en setmanes. En conjunt
+    la dexametasona va reduir una mica la mortalitat a 28 dies, però l'efecte
+    depèn del suport respiratori: un gran benefici en els ventilats, menor amb
+    oxigen i un possible perjudici sense oxigen. Estimeu l'efecte en cada nivell
+    i contrasteu la interacció; una odds ratio global fa la mitjana sobre una
+    barreja de pacients. L'assignació va ser 2:1 al tractament habitual.

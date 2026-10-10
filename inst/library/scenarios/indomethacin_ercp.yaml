@@ -1,0 +1,104 @@
+id: indomethacin_ercp
+label: {en: "Rectal indomethacin to prevent post-ERCP pancreatitis", es: "Indometacina rectal para prevenir la pancreatitis post-CPRE", ca: "Indometacina rectal per prevenir la pancreatitis post-CPRE"}
+domain: gastroenterology
+population: {en: "Patients at high risk of pancreatitis undergoing ERCP at four US centres, 2009-11", es: "Pacientes con alto riesgo de pancreatitis sometidos a CPRE en cuatro centros de EE. UU., 2009-11", ca: "Pacients amb risc alt de pancreatitis sotmesos a CPRE a quatre centres dels EUA, 2009-11"}
+
+# Estimated from the 602 patients of the trial (R dataset indo_rct,
+# medicaldata): pancreatitis 16.9% with placebo and 9.2% with indomethacin;
+# logistic model on treatment and the risk factors used for eligibility.
+variables:
+  age:
+    from: dictionary
+    dist: "normal(45.3, 13.3)"
+    range: [19, 90]
+  sex: {from: dictionary, p: 0.21}
+  sod:
+    type: binary
+    p: 0.82
+    levels: [no, yes]
+    label: {en: Suspected sphincter of Oddi dysfunction, es: Sospecha de disfunción del esfínter de Oddi, ca: Sospita de disfunció de l'esfínter d'Oddi}
+  previous_pep:
+    type: binary
+    p: 0.16
+    levels: [no, yes]
+    label: {en: Previous post-ERCP pancreatitis, es: Pancreatitis post-CPRE previa, ca: Pancreatitis post-CPRE prèvia}
+  difficult:
+    type: binary
+    p: 0.26
+    levels: [no, yes]
+    label: {en: Difficult cannulation, es: Canulación difícil, ca: Canulació difícil}
+  precut:
+    type: binary
+    p: 0.05
+    levels: [no, yes]
+    label: {en: Precut sphincterotomy, es: Esfinterotomía de precorte, ca: Esfinterotomia de precorte}
+  pancreatic_stent:
+    type: binary
+    p: 0.82
+    levels: [no, yes]
+    label: {en: Pancreatic stent placed, es: Prótesis pancreática colocada, ca: Pròtesi pancreàtica col·locada}
+
+structure:
+  - [sod, difficult, -0.27]
+  - [difficult, precut, 0.30]
+  - [sod, pancreatic_stent, 0.29]
+
+interventions:
+  treatment:
+    levels: [placebo, indomethacin]
+    label: {en: Treatment, es: Tratamiento, ca: Tractament}
+
+outcomes:
+  pancreatitis:
+    type: binary
+    label: {en: Post-ERCP pancreatitis, es: Pancreatitis post-CPRE, ca: Pancreatitis post-CPRE}
+    levels: [no, yes]
+    prevalence: 0.17
+    designs: [rct, cluster_rct]
+    effects:
+      treatment: {OR: [1, 0.47]}
+      previous_pep: {OR: 2.72}
+      difficult: {OR: 1.57}
+
+null_variables: [age, sex, sod, precut, pancreatic_stent]
+
+designs:
+  cluster_rct: {clusters: 20, icc: 0.03}
+
+references:
+  - "Elmunzer BJ, Scheiman JM, Lehman GA et al. A randomized trial of rectal indomethacin to prevent post-ERCP pancreatitis. N Engl J Med 2012;366:1414-22."
+  - "Data: indo_rct (R package medicaldata), 602 patients."
+
+i18n:
+  en: {names: {age: age, sex: sex, sod: sod, previous_pep: previous_pep, difficult: difficult_cannulation, precut: precut, pancreatic_stent: pancreatic_stent, treatment: treatment, pancreatitis: pancreatitis},
+       levels: {placebo: placebo, indomethacin: indomethacin}}
+  es: {names: {age: edad, sex: sexo, sod: deo, previous_pep: pancreatitis_previa, difficult: canulacion_dificil, precut: precorte, pancreatic_stent: protesis_pancreatica, treatment: tratamiento, pancreatitis: pancreatitis},
+       levels: {placebo: placebo, indomethacin: indometacina}}
+  ca: {names: {age: edat, sex: sexe, sod: deo, previous_pep: pancreatitis_previa, difficult: canulacio_dificil, precut: precorte, pancreatic_stent: protesi_pancreatica, treatment: tractament, pancreatitis: pancreatitis},
+       levels: {placebo: placebo, indomethacin: indometacina}}
+
+teaching:
+  en: >
+    A cheap drug halved the risk of a common complication: 17% with placebo, 9%
+    with indomethacin, so about 13 patients need treatment to prevent one
+    pancreatitis. The trial was stopped early for benefit. A previous episode
+    and a difficult cannulation are the strongest risk factors; most of the
+    eligibility criteria add nothing once the others are known. Randomising
+    whole centres instead of patients would need many more patients for the
+    same precision.
+  es: >
+    Un fármaco barato redujo a la mitad el riesgo de una complicación frecuente:
+    17% con placebo y 9% con indometacina, así que hay que tratar a unos 13
+    pacientes para evitar una pancreatitis. El ensayo se detuvo antes por
+    beneficio. Un episodio previo y una canulación difícil son los factores de
+    riesgo más fuertes; la mayoría de los criterios de inclusión no añaden nada
+    si se conocen los demás. Aleatorizar centros enteros en lugar de pacientes
+    necesitaría muchos más pacientes para la misma precisión.
+  ca: >
+    Un fàrmac barat va reduir a la meitat el risc d'una complicació freqüent:
+    17% amb placebo i 9% amb indometacina, així que cal tractar uns 13 pacients
+    per evitar una pancreatitis. L'assaig es va aturar abans per benefici. Un
+    episodi previ i una canulació difícil són els factors de risc més forts; la
+    majoria dels criteris d'inclusió no hi afegeixen res si es coneixen els
+    altres. Aleatoritzar centres sencers en lloc de pacients necessitaria molts
+    més pacients per a la mateixa precisió.

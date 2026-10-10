@@ -298,8 +298,9 @@ sim_rct <- function(sc, oc, cal, seed, n, opt) {
 # outcomes). The true effects are conditional on the cluster.
 sim_cluster_rct <- function(sc, oc, cal, seed, n, opt) {
     iv <- trial_iv(sc, oc)
-    K <- as.integer(opt$clusters)
-    if (K < 4 || K > n / 2) stop("a cluster trial needs at least 4 clusters and 2 people per cluster", call. = FALSE)
+    # a small study has fewer clusters (at least 2 people each); the summary reports them
+    K <- min(as.integer(opt$clusters), n %/% 2L)
+    if (K < 4) stop("a cluster trial needs at least 4 clusters and 2 people per cluster", call. = FALSE)
     if (opt$icc < 0 || opt$icc >= 1) stop("the intraclass correlation must be between 0 and 1", call. = FALSE)
     cl <- sort(rep(seq_len(K), length.out = n))
     carm <- randomise(iv, K, length(iv$levels) * 2, derive_seed(seed, sc$id, "cluster randomisation", n, K))

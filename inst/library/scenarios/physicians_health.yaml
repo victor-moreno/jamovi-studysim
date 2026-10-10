@@ -1,0 +1,87 @@
+id: physicians_health
+label: {en: "Aspirin and beta-carotene in male physicians", es: "Aspirina y betacaroteno en médicos varones", ca: "Aspirina i betacarotè en metges homes"}
+domain: cardiovascular
+population: {en: "US male physicians aged 40-84 without cardiovascular disease, 1982 (Physicians' Health Study)", es: "Médicos varones de EE. UU. de 40 a 84 años sin enfermedad cardiovascular, 1982 (Physicians' Health Study)", ca: "Metges homes dels EUA de 40 a 84 anys sense malaltia cardiovascular, 1982 (Physicians' Health Study)"}
+
+# From the published results: myocardial infarction in 139 of 11,037 on
+# aspirin and 239 of 11,034 on placebo after about 5 years (RR 0.56);
+# beta-carotene had no effect on cardiovascular disease or cancer over 12
+# years (RR about 1.0).
+variables:
+  age: {from: dictionary, dist: "normal(53, 9.5)", range: [40, 84]}
+  smoking:
+    type: nominal
+    levels: [never, former, current]
+    probs: [0.50, 0.39, 0.11]
+    label: {en: Smoking, es: Tabaquismo, ca: Tabaquisme}
+  hypertension:
+    type: binary
+    p: 0.15
+    levels: [no, yes]
+    label: {en: Treated hypertension, es: Hipertensión tratada, ca: Hipertensió tractada}
+  total_chol: {from: dictionary}
+
+structure:
+  - [age, hypertension, 0.25]
+
+interventions:
+  aspirin:
+    levels: [placebo, aspirin]
+    label: {en: Aspirin 325 mg every other day, es: Aspirina 325 mg cada dos días, ca: Aspirina 325 mg cada dos dies}
+  beta_carotene:
+    levels: [placebo, beta_carotene]
+    label: {en: Beta-carotene 50 mg every other day, es: Betacaroteno 50 mg cada dos días, ca: Betacarotè 50 mg cada dos dies}
+
+outcomes:
+  mi:
+    type: event
+    label: {en: Myocardial infarction, es: Infarto de miocardio, ca: Infart de miocardi}
+    rate: 0.0043
+    window: 5
+    followup: 5
+    designs: [factorial, rct]
+    effects:
+      aspirin: {HR: [1, 0.56]}
+      beta_carotene: {HR: [1, 1.0]}
+      age: {HR: 1.06, per: 1}
+      smoking: {HR: [1, 1.2, 2.0]}
+      hypertension: {HR: 1.8}
+      total_chol: {HR: 1.25, per: 1}
+
+designs:
+  factorial: {loss: 0.005}
+  rct: {loss: 0.005}
+
+references:
+  - "Steering Committee of the Physicians' Health Study Research Group. Final report on the aspirin component of the ongoing Physicians' Health Study. N Engl J Med 1989;321:129-35."
+  - "Hennekens CH, Buring JE, Manson JE et al. Lack of effect of long-term supplementation with beta carotene on the incidence of malignant neoplasms and cardiovascular disease. N Engl J Med 1996;334:1145-9."
+
+i18n:
+  en: {names: {age: age, smoking: smoking, hypertension: hypertension, total_chol: total_chol, aspirin: aspirin, beta_carotene: beta_carotene, mi: mi},
+       levels: {placebo: placebo, aspirin: aspirin, beta_carotene: beta_carotene}}
+  es: {names: {age: edad, smoking: tabaco, hypertension: hipertension, total_chol: colesterol, aspirin: aspirina, beta_carotene: betacaroteno, mi: infarto},
+       levels: {placebo: placebo, aspirin: aspirina, beta_carotene: betacaroteno}}
+  ca: {names: {age: edat, smoking: tabac, hypertension: hipertensio, total_chol: colesterol, aspirin: aspirina, beta_carotene: betacarote, mi: infart},
+       levels: {placebo: placebo, aspirin: aspirina, beta_carotene: betacarote}}
+
+teaching:
+  en: >
+    A 2x2 factorial trial run by mail among 22,071 doctors. The aspirin arm was
+    stopped early: myocardial infarction fell by 44%. Beta-carotene, tested in
+    the same men, had no effect. Healthy volunteers had far fewer events than
+    expected, so the trial needed long follow-up; compare the number of events,
+    not of participants, behind each estimate.
+  es: >
+    Un ensayo factorial 2x2 realizado por correo entre 22.071 médicos. El brazo
+    de la aspirina se detuvo antes: el infarto de miocardio bajó un 44%. El
+    betacaroteno, probado en los mismos hombres, no tuvo efecto. Los voluntarios
+    sanos tuvieron muchos menos eventos de lo esperado, así que el ensayo
+    necesitó un seguimiento largo; compare el número de eventos, no de
+    participantes, detrás de cada estimación.
+  ca: >
+    Un assaig factorial 2x2 fet per correu entre 22.071 metges. El braç de
+    l'aspirina es va aturar abans: l'infart de miocardi va baixar un 44%. El
+    betacarotè, provat en els mateixos homes, no va tenir efecte. Els voluntaris
+    sans van tenir molts menys esdeveniments dels esperats, així que l'assaig va
+    necessitar un seguiment llarg; compareu el nombre d'esdeveniments, no de
+    participants, darrere de cada estimació.

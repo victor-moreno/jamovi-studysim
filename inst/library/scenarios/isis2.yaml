@@ -1,0 +1,82 @@
+id: isis2
+label: {en: "Streptokinase and aspirin after myocardial infarction", es: "Estreptoquinasa y aspirina tras un infarto de miocardio", ca: "Estreptoquinasa i aspirina després d'un infart de miocardi"}
+domain: cardiovascular
+population: {en: "Patients within 24 hours of suspected acute myocardial infarction, 16 countries, 1985-87 (ISIS-2)", es: "Pacientes en las 24 horas siguientes a un posible infarto agudo de miocardio, 16 países, 1985-87 (ISIS-2)", ca: "Pacients en les 24 hores següents a un possible infart agut de miocardi, 16 països, 1985-87 (ISIS-2)"}
+
+# From the published 2x2 factorial results (17,187 patients): 5-week vascular
+# mortality 13.2% with neither drug, 10.4% streptokinase alone, 10.7% aspirin
+# alone, 8.0% both; odds reductions 25% (streptokinase) and 23% (aspirin),
+# larger for streptokinase given early.
+variables:
+  age: {from: dictionary, dist: "normal(62, 10)", range: [25, 90]}
+  sex: {from: dictionary, p: 0.77}
+  hours:
+    type: ordinal
+    levels: ["0-4", "5-12", "13-24"]
+    probs: [0.35, 0.45, 0.20]
+    units: {en: hours since onset, es: horas desde el inicio, ca: hores des de l'inici}
+    label: {en: Time from symptom onset to randomisation, es: Tiempo desde los síntomas hasta la aleatorización, ca: Temps des dels símptomes fins a l'aleatorització}
+  prior_mi:
+    type: binary
+    p: 0.13
+    levels: [no, yes]
+    label: {en: Previous myocardial infarction, es: Infarto previo, ca: Infart previ}
+
+interventions:
+  streptokinase:
+    levels: [placebo, streptokinase]
+    label: {en: Streptokinase infusion, es: Infusión de estreptoquinasa, ca: Infusió d'estreptoquinasa}
+  aspirin:
+    levels: [placebo, aspirin]
+    label: {en: Oral aspirin, es: Aspirina oral, ca: Aspirina oral}
+
+outcomes:
+  vascular_death:
+    type: binary
+    label: {en: Vascular death within 5 weeks, es: Muerte vascular en 5 semanas, ca: Mort vascular en 5 setmanes}
+    levels: [no, yes]
+    prevalence: 0.132
+    designs: [factorial, rct]
+    effects:
+      streptokinase: {OR: [1, 0.75], by: {hours: {"0-4": 0.65, "5-12": 0.78, "13-24": 0.90}}}
+      aspirin: {OR: [1, 0.77]}
+      age: {OR: 1.06, per: 1}
+      sex: {OR: 0.8}
+      prior_mi: {OR: 1.6}
+      hours: {OR: [1, 1.1, 1.2]}
+
+references:
+  - "ISIS-2 (Second International Study of Infarct Survival) Collaborative Group. Randomised trial of intravenous streptokinase, oral aspirin, both, or neither among 17,187 cases of suspected acute myocardial infarction: ISIS-2. Lancet 1988;2:349-60."
+
+i18n:
+  en: {names: {age: age, sex: sex, hours: hours, prior_mi: prior_mi, streptokinase: streptokinase, aspirin: aspirin, vascular_death: vascular_death},
+       levels: {placebo: placebo, streptokinase: streptokinase, aspirin: aspirin}}
+  es: {names: {age: edad, sex: sexo, hours: horas, prior_mi: infarto_previo, streptokinase: estreptoquinasa, aspirin: aspirina, vascular_death: muerte_vascular},
+       levels: {placebo: placebo, streptokinase: estreptoquinasa, aspirin: aspirina}}
+  ca: {names: {age: edat, sex: sexe, hours: hores, prior_mi: infart_previ, streptokinase: estreptoquinasa, aspirin: aspirina, vascular_death: mort_vascular},
+       levels: {placebo: placebo, streptokinase: estreptoquinasa, aspirin: aspirina}}
+
+teaching:
+  en: >
+    Two questions in one trial: each patient was randomised to streptokinase or
+    placebo and, independently, to aspirin or placebo. With no interaction the
+    two effects multiply, and each is estimated with all patients, so a 2x2
+    factorial trial costs little more than one two-arm trial. Streptokinase
+    works best when given early: its effect depends on the time from symptom
+    onset. Aspirin, cheap and simple, saves about as many lives.
+  es: >
+    Dos preguntas en un ensayo: cada paciente se aleatorizó a estreptoquinasa o
+    placebo y, de forma independiente, a aspirina o placebo. Sin interacción los
+    dos efectos se multiplican y cada uno se estima con todos los pacientes, así
+    que un ensayo factorial 2x2 cuesta poco más que uno de dos grupos. La
+    estreptoquinasa funciona mejor si se da pronto: su efecto depende del tiempo
+    desde el inicio de los síntomas. La aspirina, barata y sencilla, salva casi
+    tantas vidas.
+  ca: >
+    Dues preguntes en un assaig: cada pacient es va aleatoritzar a
+    estreptoquinasa o placebo i, de manera independent, a aspirina o placebo.
+    Sense interacció els dos efectes es multipliquen i cadascun s'estima amb tots
+    els pacients, així que un assaig factorial 2x2 costa poc més que un de dos
+    grups. L'estreptoquinasa funciona millor si es dona aviat: el seu efecte
+    depèn del temps des de l'inici dels símptomes. L'aspirina, barata i senzilla,
+    salva gairebé tantes vides.
