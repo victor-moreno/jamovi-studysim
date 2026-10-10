@@ -13,6 +13,8 @@ write their own in **YAML** or **Excel**. The full format is in
 
 - *Browse…* reads a custom library (`.yaml`, `.xlsx`, `.json` or a `.zip` of them);
   *Library shown* chooses built-in, custom or both.
+- *Scenarios for design* lists only the scenarios with an outcome that fits a
+  design.
 - *Check* lists problems in plain language, located by scenario and field.
 - *Export library* writes the library or one scenario as Excel, JSON or zipped
   YAML; *Excel template* gives a workbook with a worked example and the format.

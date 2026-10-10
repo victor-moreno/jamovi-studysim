@@ -8,6 +8,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         initialize = function(
             libName = "",
             libContent = "",
+            designFilter = "any",
             scenario = "breast_cancer_risk",
             outcome = "",
             design = "case_control",
@@ -36,8 +37,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             studentKey = "",
             showDictionary = TRUE,
             showDescriptives = TRUE,
-            showDag = FALSE,
-            dagValues = FALSE,
+            showDag = TRUE,
+            dagValues = TRUE,
             showKey = FALSE,
             openData = FALSE,
             exportCsv = FALSE, ...) {
@@ -57,6 +58,26 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 libContent,
                 default="",
                 hidden=TRUE)
+            private$..designFilter <- jmvcore::OptionList$new(
+                "designFilter",
+                designFilter,
+                options=list(
+                    "any",
+                    "case_control",
+                    "matched_cc",
+                    "cohort",
+                    "cross_sectional",
+                    "rct",
+                    "crossover",
+                    "prognosis",
+                    "nested_cc",
+                    "case_cohort",
+                    "cluster_rct",
+                    "factorial",
+                    "longitudinal",
+                    "ecological",
+                    "diagnostic"),
+                default="any")
             private$..scenario <- jmvcore::OptionString$new(
                 "scenario",
                 scenario,
@@ -112,7 +133,9 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                                 "tertiles",
                                 "quartiles",
                                 "quintiles",
-                                "cuts"),
+                                "cuts",
+                                "log2",
+                                "log10"),
                             default="continuous"),
                         jmvcore::OptionString$new(
                             "cuts",
@@ -254,11 +277,11 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..showDag <- jmvcore::OptionBool$new(
                 "showDag",
                 showDag,
-                default=FALSE)
+                default=TRUE)
             private$..dagValues <- jmvcore::OptionBool$new(
                 "dagValues",
                 dagValues,
-                default=FALSE)
+                default=TRUE)
             private$..showKey <- jmvcore::OptionBool$new(
                 "showKey",
                 showKey,
@@ -274,6 +297,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 
             self$.addOption(private$..libName)
             self$.addOption(private$..libContent)
+            self$.addOption(private$..designFilter)
             self$.addOption(private$..scenario)
             self$.addOption(private$..outcome)
             self$.addOption(private$..design)
@@ -311,6 +335,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         libName = function() private$..libName$value,
         libContent = function() private$..libContent$value,
+        designFilter = function() private$..designFilter$value,
         scenario = function() private$..scenario$value,
         outcome = function() private$..outcome$value,
         design = function() private$..design$value,
@@ -347,6 +372,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     private = list(
         ..libName = NA,
         ..libContent = NA,
+        ..designFilter = NA,
         ..scenario = NA,
         ..outcome = NA,
         ..design = NA,
@@ -864,15 +890,17 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   (display only)
 #' @param libContent base64 of the custom library file (JSON, YAML, Excel or
 #'   zip)
+#' @param designFilter shows in the pickers only the scenarios (and outcomes)
+#'   that fit this design
 #' @param scenario scenario id
 #' @param outcome outcome id; empty means the scenario's first outcome
 #' @param design study design; must fit the outcome
 #' @param measured one entry per scenario variable, list(var = name, include =
 #'   TRUE/FALSE, form =
-#'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts", cuts =
-#'   "18.5, 25, 30" or "10\%, 90\%"); included variables are in the dataset, the
-#'   others are unmeasured (they still act); form groups a continuous variable
-#'   (quantiles from the sample)
+#'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10",
+#'   cuts = "18.5, 25, 30" or "10\%, 90\%"); included variables are in the
+#'   dataset, the others are unmeasured (they still act); form groups a
+#'   continuous variable (quantiles from the sample)
 #' @param n number of participants (cases plus controls in case-control
 #'   designs)
 #' @param ccRatio .
@@ -939,6 +967,7 @@ simStudy <- function(
     data,
     libName = "",
     libContent = "",
+    designFilter = "any",
     scenario = "breast_cancer_risk",
     outcome = "",
     design = "case_control",
@@ -967,8 +996,8 @@ simStudy <- function(
     studentKey = "",
     showDictionary = TRUE,
     showDescriptives = TRUE,
-    showDag = FALSE,
-    dagValues = FALSE,
+    showDag = TRUE,
+    dagValues = TRUE,
     showKey = FALSE,
     openData = FALSE,
     exportCsv = FALSE) {
@@ -984,6 +1013,7 @@ simStudy <- function(
     options <- simStudyOptions$new(
         libName = libName,
         libContent = libContent,
+        designFilter = designFilter,
         scenario = scenario,
         outcome = outcome,
         design = design,

@@ -72,8 +72,11 @@ test_that("measured variables may come by their Spanish or Catalan names", {
                 measured = list(list(var = "edad", include = TRUE), list(var = "tabac", include = TRUE),
                                 list(var = "sexo", include = FALSE)))
   expect_identical(r$dictionary$asDF$name, c("id", "time", "chd", "age", "smoking"))
-  r0 <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100)
+  r0 <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100,
+                 measured = list(list(var = "age", include = FALSE)))
   expect_match(r0$summary$content, "No variables measured yet")
+  rall <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100)
+  expect_true(all(c("age", "sex", "coffee") %in% rall$dictionary$asDF$name))
 })
 
 test_that("the panel's form and cut points reach the data, descriptives and key", {
@@ -91,4 +94,20 @@ test_that("the panel's form and cut points reach the data, descriptives and key"
   bad <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 100,
                   measured = list(list(var = "bmi", include = TRUE, form = "cuts", cuts = "25, x")))
   expect_match(bad$notice$content, "Cut points of bmi")
+})
+
+test_that("log2 and log10 forms transform a measured variable and the key reports per doubling", {
+  r <- simStudy(data = data.frame(), scenario = "chd_incidence", outcome = "chd", design = "cohort", n = 400, showKey = TRUE,
+                measured = list(list(var = "age", include = TRUE, form = "continuous"),
+                                list(var = "total_chol", include = TRUE, form = "log2", cuts = "")))
+  d <- r$dictionary$asDF
+  expect_match(d$description[d$name == "total_chol"], "log2")
+  k <- r$keyExpected$asDF
+  expect_identical(k$contrast[k$variable == "total_chol"], "per doubling")
+  expect_true(is.finite(k$adjusted[k$variable == "total_chol"]))
+})
+
+test_that("the Library lists only the scenarios that fit a design filter", {
+  r <- simLibrary(data = data.frame(), source = "builtin", scenario = "isis2", designFilter = "factorial")
+  expect_setequal(r$scenarios$asDF$id, c("antihypertensive_trial", "physicians_health", "isis2"))
 })

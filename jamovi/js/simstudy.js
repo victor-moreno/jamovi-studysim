@@ -28,25 +28,33 @@ module.exports = {
             return;
         }
         var lib = S.library(ui);
-        var ids = Object.keys(lib.scenarios);
+        // the design filter (Simulated study only) narrows the scenarios and outcomes
+        var flt = 'any';
+        try { flt = S.getOpt(ui, 'designFilter') || 'any'; } catch (e) { flt = 'any'; }   // Compare designs has no filter
+        var entries = S.scenarioEntries(lib, l, flt);
+        var ids = entries.map(function(e) { return e[0]; });
         var scId = S.getOpt(ui, 'scenario');
-        if (!lib.scenarios[scId]) { scId = ids[0]; S.setOpt(ui, 'scenario', scId); reset = true; }
+        if (ids.indexOf(scId) < 0) { scId = ids[0]; S.setOpt(ui, 'scenario', scId); reset = true; }
         var sc = lib.scenarios[scId];
-        var ocs = Object.keys(sc.outcomes || {});
+        var ocs = Object.keys(sc.outcomes || {}).filter(function(o) { return S.fitsDesign(sc, flt, o); });
+        if (ocs.length === 0) ocs = Object.keys(sc.outcomes || {});
         var ocId = S.getOpt(ui, 'outcome');
         if (ocs.indexOf(ocId) < 0) { ocId = ocs[0]; S.setOpt(ui, 'outcome', ocId); reset = true; }
         var oc = sc.outcomes[ocId];
 
-        S.syncSelect(ui, 'scenario', S.scenarioEntries(lib, l),
+        S.syncSelect(ui, 'scenario', entries,
             function(v) { S.setOpt(ui, 'scenario', v); S.setOpt(ui, 'outcome', ''); self.refresh(ui, true); });
         S.syncSelect(ui, 'outcome', ocs.map(function(k) { return [k, S.tr(sc.outcomes[k].label, l) || k]; }),
             function(v) { S.setOpt(ui, 'outcome', v); self.refresh(ui, true); });
 
-        this.syncDesigns(ui, S.designsFor(sc, oc));
+        var ok = S.designsFor(sc, oc);
+        this.syncDesigns(ui, ok);
+        if (flt !== 'any' && ok.indexOf(flt) >= 0 && ui.design) S.setOpt(ui, 'design', flt);
 
         // one row per scenario variable, by the name the student will see;
-        // a new scenario or outcome starts with none measured, a restore keeps
-        // the ticks (even if the names were saved in another language)
+        // a new scenario or outcome starts with all of them measured (untick
+        // to leave one unmeasured), a restore keeps the ticks (even if the
+        // names were saved in another language)
         var vars = variablesOf(sc, l, lib);
         var ids = Object.keys(sc.variables || {});
         var cur = S.getOpt(ui, 'measured') || [];
@@ -60,7 +68,8 @@ module.exports = {
         var defs = ids.map(function(id) { return S.varDef(lib, sc, id); });
         var rows = ids.map(function(id, i) {
             var m = (!reset && prev[id]) || {};
-            return { 'var': vars[i], units: S.unitsText(defs[i], l, lib, sc), include: !!m.include,
+            var inc = (!reset && prev[id]) ? !!m.include : true;
+            return { 'var': vars[i], units: S.unitsText(defs[i], l, lib, sc), include: inc,
                      form: S.isNumeric(defs[i]) ? (m.form || 'continuous') : 'continuous', cuts: S.isNumeric(defs[i]) ? (m.cuts || '') : '' };
         });
         S.setOpt(ui, 'measured', rows);
@@ -104,6 +113,7 @@ module.exports = {
     },
 
     measured_changed: function(ui) { this.lockForms(); },
+    designFilter_changed: function(ui) { this.refresh(ui, false); },
 
     view_loaded: function(ui) { this.refresh(ui, false); },
     view_updated: function(ui) { this.refresh(ui, false); }

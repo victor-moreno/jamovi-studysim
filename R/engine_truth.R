@@ -223,7 +223,10 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
     adj <- fit_design_model(design, sc, oc, fd, adj_terms)
     rows <- lapply(main, function(v) {
         cr <- contrast_rows(sc, oc, v, lang)
-        catd <- is.ordered(fd[[v]]) && !is.null(categorize[[v]]) && categorize[[v]]$form != "continuous"
+        catd <- is.ordered(fd[[v]]) && is_grouping(categorize[[v]])
+        logd <- !is.null(categorize[[v]]) && categorize[[v]]$form %in% LOG_FORMS && is.numeric(fd[[v]])
+        if (logd) cr <- data.frame(variable = v, contrast = cat_rows(v, categorize[[v]], lang)$contrast, coefname = v,
+                                   per = 1, level = NA_integer_, stringsAsFactors = FALSE)
         if (catd) {
             # categorised: groups against the first, named by position (the big
             # study's cut points differ slightly from the student's)
@@ -232,7 +235,7 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
             cr <- data.frame(variable = v, contrast = cr0$contrast, coefname = paste0(v, levels(fd[[v]])[cr0$idx]),
                              per = 1, level = NA_integer_, stringsAsFactors = FALSE)
         }
-        if (design == "ecological" && !catd && !is.null(sc$variables[[v]]) && !sc$variables[[v]]$type %in% c("continuous", "count")) {
+        if (design == "ecological" && !catd && !logd && !is.null(sc$variables[[v]]) && !sc$variables[[v]]$type %in% c("continuous", "count")) {
             # all versus none of the region in the level (100 percentage points)
             x <- sc$variables[[v]]
             cr$coefname <- if (x$type == "binary") v else eco_col(v, x$levels[cr$level])
@@ -247,6 +250,7 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
         tv <- vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0)
         note <- ""
         if (catd) { tv[] <- NA_real_; note <- gtext("categorised", lang) }
+        if (logd) { tv[] <- NA_real_; note <- gtext("transformed", lang) }
         if (!is.null(eff$by)) {
             # a modified effect has no single true value: give it per level
             back <- function(b) if (eff$log) exp(b) else b

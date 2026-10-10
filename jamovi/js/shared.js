@@ -190,9 +190,19 @@ function syncSelect(ui, name, entries, onChange) {
     }
 }
 
-// scenario picker entries grouped by domain, then sorted by label
-function scenarioEntries(lib, l) {
-    var out = Object.keys(lib.scenarios).map(function(k) {
+// does a scenario (or one outcome of it) fit a design? 'any' fits all
+function fitsDesign(sc, design, ocId) {
+    if (!design || design === 'any') return true;
+    var ocs = ocId ? [ocId] : Object.keys(sc.outcomes || {});
+    return ocs.some(function(o) { return designsFor(sc, sc.outcomes[o]).indexOf(design) >= 0; });
+}
+
+// scenario picker entries grouped by domain, then sorted by label; with a
+// design filter, only the scenarios that fit it
+function scenarioEntries(lib, l, design) {
+    var keys = Object.keys(lib.scenarios).filter(function(k) { return fitsDesign(lib.scenarios[k], design); });
+    if (keys.length === 0) keys = Object.keys(lib.scenarios);
+    var out = keys.map(function(k) {
         var sc = lib.scenarios[k];
         var dom = String(sc.domain || '');
         return [k, tr(sc.label, l) || k, dom ? dom.charAt(0).toUpperCase() + dom.slice(1) : ''];
@@ -261,5 +271,5 @@ module.exports = {
     BUILTIN: BUILTIN, DESIGNS: DESIGNS, getOpt: getOpt, setOpt: setOpt, lang: lang, tr: tr, dname: dname, dlevel: dlevel,
     varDef: varDef, isNumeric: isNumeric, unitsText: unitsText,
     library: library, customLibrary: customLibrary, designsFor: designsFor,
-    syncSelect: syncSelect, browseButton: browseButton, scenarioEntries: scenarioEntries
+    syncSelect: syncSelect, browseButton: browseButton, scenarioEntries: scenarioEntries, fitsDesign: fitsDesign
 };

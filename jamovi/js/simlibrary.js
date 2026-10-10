@@ -18,11 +18,13 @@ module.exports = {
             return;
         }
         var lib = S.library(ui);
-        var ids = Object.keys(lib.scenarios);
-        if (!lib.scenarios[S.getOpt(ui, 'scenario')]) S.setOpt(ui, 'scenario', ids[0]);
-        S.syncSelect(ui, 'scenario', S.scenarioEntries(lib, l),
+        var entries = S.scenarioEntries(lib, l, S.getOpt(ui, 'designFilter') || 'any');
+        var ids = entries.map(function(e) { return e[0]; });
+        if (ids.indexOf(S.getOpt(ui, 'scenario')) < 0) S.setOpt(ui, 'scenario', ids[0]);
+        S.syncSelect(ui, 'scenario', entries,
             function(v) { S.setOpt(ui, 'scenario', v); });
     },
+    designFilter_changed: function(ui) { this.refresh(ui); },
     view_loaded: function(ui) { this.refresh(ui); },
     view_updated: function(ui) { this.refresh(ui); }
 };

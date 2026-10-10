@@ -119,6 +119,10 @@ options:
                       title: quintiles
                     - name: cuts
                       title: cuts
+                    - name: log2
+                      title: log2
+                    - name: log10
+                      title: log10
                 default: continuous
               - name: cuts
                 type: String
@@ -126,7 +130,7 @@ options:
       description:
           R: >
               one entry per scenario variable, list(var = name, include = TRUE/FALSE,
-              form = "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts",
+              form = "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10",
               cuts = "18.5, 25, 30" or "10%, 90%"); included variables are in the
               dataset, the others are unmeasured (they still act); form groups a
               continuous variable (quantiles from the sample)

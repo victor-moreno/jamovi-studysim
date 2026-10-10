@@ -393,6 +393,13 @@ V02.update({
 "True values are conditional on the cluster; a model that ignores the clusters estimates a population-average effect (closer to the null for OR and HR) and needs cluster-robust standard errors.": ("Los valores verdaderos son condicionales al conglomerado; un modelo que ignora los conglomerados estima un efecto promedio poblacional (más cercano al nulo para OR y HR) y necesita errores estándar robustos por conglomerado.", "Els valors veritables són condicionals al conglomerat; un model que ignora els conglomerats estima un efecte mitjà poblacional (més proper al nul per a OR i HR) i necessita errors estàndard robustos per conglomerat."),
 "With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level.": ("Con una interacción, un modelo con los dos efectos principales estima el efecto de cada intervención promediado sobre la otra; los valores verdaderos valen cuando la otra intervención está en su nivel de referencia.", "Amb una interacció, un model amb els dos efectes principals estima l'efecte de cada intervenció mitjanat sobre l'altra; els valors veritables valen quan l'altra intervenció és al seu nivell de referència."),
 })
+V02.update({
+"{n} of {total} scenarios fit the {design} design.": ("{n} de {total} escenarios encajan con el diseño {design}.", "{n} de {total} escenaris encaixen amb el disseny {design}."),
+"Any design": ("Cualquier diseño", "Qualsevol disseny"),
+"log10": ("log10", "log10"),
+"log2": ("log2", "log2"),
+"Scenarios for design": ("Escenarios para el diseño", "Escenaris per al disseny"),
+})
 NEW.update(V02)
 for k, v in NEW.items():
     ES[k], CA[k] = v

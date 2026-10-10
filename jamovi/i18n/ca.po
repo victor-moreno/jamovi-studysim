@@ -41,6 +41,10 @@ msgstr "{n} casos tenen menys controls dels demanats"
 msgid "{n} competing events ({label}), status 2"
 msgstr "{n} esdeveniments competitius ({label}), estat 2"
 
+#: R/simlibrary.b.R
+msgid "{n} of {total} scenarios fit the {design} design."
+msgstr "{n} de {total} escenaris encaixen amb el disseny {design}."
+
 #: R/simstudy.b.R
 msgid "{n} rows"
 msgstr "{n} files"
@@ -51,12 +55,16 @@ msgstr "{n} files, {c} completes per al model"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/crossover.title
+#: simLibrary/options/designFilter/crossover.title
+#: simStudy/options/designFilter/crossover.title
 #: simStudy/options/design/crossover.title
 msgid "2x2 crossover trial"
 msgstr "Assaig creuat 2x2"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/factorial.title
+#: simLibrary/options/designFilter/factorial.title
+#: simStudy/options/designFilter/factorial.title
 #: simStudy/options/design/factorial.title
 msgid "2x2 factorial trial"
 msgstr "Assaig factorial 2x2"
@@ -112,6 +120,11 @@ msgstr "Clau de respostes: model veritable"
 msgid "Answer key: what this design should estimate"
 msgstr "Clau de respostes: què hauria d'estimar aquest disseny"
 
+#: simLibrary/options/designFilter/any.title
+#: simStudy/options/designFilter/any.title
+msgid "Any design"
+msgstr "Qualsevol disseny"
+
 #: R/simstudy.b.R
 msgid "AUC of each marker alone (a block: the mean over its columns). Values are higher in the diseased unless the scenario says lower; the large study has 20,000 people."
 msgstr "AUC de cada marcador per separat (un bloc: la mitjana de les seves columnes). Els valors són més alts en els malalts tret que l'escenari digui el contrari; l'estudi gran té 20.000 persones."
@@ -156,12 +169,16 @@ msgstr "Efecte residual (carryover)"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/case_cohort.title
+#: simLibrary/options/designFilter/case_cohort.title
+#: simStudy/options/designFilter/case_cohort.title
 #: simStudy/options/design/case_cohort.title
 msgid "Case-cohort"
 msgstr "Cas-cohort"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/case_control.title
+#: simLibrary/options/designFilter/case_control.title
+#: simStudy/options/designFilter/case_control.title
 #: simStudy/options/design/case_control.title
 msgid "Case-control"
 msgstr "Casos i controls"
@@ -193,6 +210,8 @@ msgstr "Trieu la resposta i les variables de l'escenari (i el temps de seguiment
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/cluster_rct.title
+#: simLibrary/options/designFilter/cluster_rct.title
+#: simStudy/options/designFilter/cluster_rct.title
 #: simStudy/options/design/cluster_rct.title
 msgid "Cluster randomised trial"
 msgstr "Assaig aleatoritzat per conglomerats"
@@ -203,6 +222,8 @@ msgstr "Conglomerats"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/cohort.title
+#: simLibrary/options/designFilter/cohort.title
+#: simStudy/options/designFilter/cohort.title
 #: simStudy/options/design/cohort.title
 msgid "Cohort"
 msgstr "Cohort"
@@ -274,6 +295,8 @@ msgstr "Recompte"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/cross_sectional.title
+#: simLibrary/options/designFilter/cross_sectional.title
+#: simStudy/options/designFilter/cross_sectional.title
 #: simStudy/options/design/cross_sectional.title
 msgid "Cross-sectional"
 msgstr "Transversal"
@@ -391,6 +414,8 @@ msgstr "Detectar"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/diagnostic.title
+#: simLibrary/options/designFilter/diagnostic.title
+#: simStudy/options/designFilter/diagnostic.title
 #: simStudy/options/design/diagnostic.title
 msgid "Diagnostic accuracy"
 msgstr "Exactitud diagnòstica"
@@ -414,6 +439,8 @@ msgstr "Abandonaments a l'última visita (%)"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/ecological.title
+#: simLibrary/options/designFilter/ecological.title
+#: simStudy/options/designFilter/ecological.title
 #: simStudy/options/design/ecological.title
 msgid "Ecological (regions)"
 msgstr "Ecològic (regions)"
@@ -615,8 +642,20 @@ msgstr "Biblioteca mostrada"
 msgid "log intercept {a}"
 msgstr "constant logarítmica {a}"
 
+#: simCompare/options/measured.template/form/log10.title
+#: simStudy/options/measured.template/form/log10.title
+msgid "log10"
+msgstr "log10"
+
+#: simCompare/options/measured.template/form/log2.title
+#: simStudy/options/measured.template/form/log2.title
+msgid "log2"
+msgstr "log2"
+
 #: R/simstudy.b.R
 #: simCompare/options/designs/longitudinal.title
+#: simLibrary/options/designFilter/longitudinal.title
+#: simStudy/options/designFilter/longitudinal.title
 #: simStudy/options/design/longitudinal.title
 msgid "Longitudinal trial (repeated visits)"
 msgstr "Assaig longitudinal (visites repetides)"
@@ -642,6 +681,8 @@ msgstr "Marcador"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/matched_cc.title
+#: simLibrary/options/designFilter/matched_cc.title
+#: simStudy/options/designFilter/matched_cc.title
 #: simStudy/options/design/matched_cc.title
 msgid "Matched case-control"
 msgstr "Casos i controls aparellats"
@@ -697,6 +738,8 @@ msgstr "Mecanisme de pèrdua"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/nested_cc.title
+#: simLibrary/options/designFilter/nested_cc.title
+#: simStudy/options/designFilter/nested_cc.title
 #: simStudy/options/design/nested_cc.title
 msgid "Nested case-control"
 msgstr "Casos i controls niat"
@@ -807,6 +850,8 @@ msgstr "Problema"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/prognosis.title
+#: simLibrary/options/designFilter/prognosis.title
+#: simStudy/options/designFilter/prognosis.title
 #: simStudy/options/design/prognosis.title
 msgid "Prognosis (patient cohort)"
 msgstr "Pronòstic (cohort de pacients)"
@@ -823,6 +868,8 @@ msgstr "quintils"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/rct.title
+#: simLibrary/options/designFilter/rct.title
+#: simStudy/options/designFilter/rct.title
 #: simStudy/options/design/rct.title
 msgid "Randomised trial"
 msgstr "Assaig aleatoritzat"
@@ -904,6 +951,11 @@ msgstr "Escenari, disseny, dades i clau de respostes"
 #: simLibrary/results/scenarios.title
 msgid "Scenarios"
 msgstr "Escenaris"
+
+#: simLibrary/options/designFilter.title
+#: simStudy/options/designFilter.title
+msgid "Scenarios for design"
+msgstr "Escenaris per al disseny"
 
 #: simCompare/options/seed.title
 #: simStudy/options/seed.title

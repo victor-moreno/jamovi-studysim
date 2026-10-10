@@ -31,6 +31,9 @@
             "{n} competing events ({label}), status 2": [
                 "{n} eventos competitivos ({label}), estado 2"
             ],
+            "{n} of {total} scenarios fit the {design} design.": [
+                "{n} de {total} escenarios encajan con el diseño {design}."
+            ],
             "{n} rows": [
                 "{n} filas"
             ],
@@ -78,6 +81,9 @@
             ],
             "Answer key: what this design should estimate": [
                 "Clave de respuestas: qué debería estimar este diseño"
+            ],
+            "Any design": [
+                "Cualquier diseño"
             ],
             "AUC of each marker alone (a block: the mean over its columns). Values are higher in the diseased unless the scenario says lower; the large study has 20,000 people.": [
                 "AUC de cada marcador por separado (un bloque: la media de sus columnas). Los valores son más altos en los enfermos salvo que el escenario diga lo contrario; el estudio grande tiene 20.000 personas."
@@ -400,6 +406,12 @@
             "log intercept {a}": [
                 "constante logarítmica {a}"
             ],
+            "log10": [
+                "log10"
+            ],
+            "log2": [
+                "log2"
+            ],
             "Longitudinal trial (repeated visits)": [
                 "Ensayo longitudinal (visitas repetidas)"
             ],
@@ -582,6 +594,9 @@
             ],
             "Scenarios": [
                 "Escenarios"
+            ],
+            "Scenarios for design": [
+                "Escenarios para el diseño"
             ],
             "Seed": [
                 "Semilla"

@@ -35,6 +35,13 @@ GENERIC <- list(
     cat_quartiles = list(en = "quartiles", es = "cuartiles", ca = "quartils"),
     cat_quintiles = list(en = "quintiles", es = "quintiles", ca = "quintils"),
     cat_cuts = list(en = "grouped by cut points", es = "agrupada por puntos de corte", ca = "agrupada per punts de tall"),
+    cat_log2 = list(en = "log2", es = "log2", ca = "log2"),
+    cat_log10 = list(en = "log10", es = "log10", ca = "log10"),
+    per_log2 = list(en = "per doubling", es = "por cada duplicación", ca = "per cada duplicació"),
+    per_log10 = list(en = "per 10-fold increase", es = "por cada aumento de 10 veces", ca = "per cada augment de 10 vegades"),
+    transformed = list(en = "log-transformed; the true effect is per unit (see true model)",
+                       es = "transformada a logaritmo; el efecto verdadero es por unidad (ver modelo verdadero)",
+                       ca = "transformada a logaritme; l'efecte veritable és per unitat (vegeu model veritable)"),
     categorised = list(en = "categorised; the true effect is per unit (see true model)",
                        es = "categorizada; el efecto verdadero es por unidad (ver modelo verdadero)",
                        ca = "categoritzada; l'efecte veritable és per unitat (vegeu model veritable)"),
@@ -216,7 +223,7 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         if (design == "ecological") {
             # region totals, means and percentages; a categorised mean has groups
             spec <- categorize[[nm]]
-            out[[nm]] <- if (!is.null(spec) && spec$form != "continuous" && !is.null(sc$variables[[nm]]) &&
+            out[[nm]] <- if (is_grouping(spec) && !is.null(sc$variables[[nm]]) &&
                              sc$variables[[nm]]$type %in% c("continuous", "count"))
                 structure(paste0(cat_prefix(spec), seq_len(cat_groups(spec))), dynamic = TRUE) else "cont"
             next
@@ -235,7 +242,7 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         } else {
             v <- sc$variables[[nm]]
             spec <- categorize[[nm]]
-            if (!is.null(spec) && spec$form != "continuous" && v$type %in% c("continuous", "count"))
+            if (is_grouping(spec) && v$type %in% c("continuous", "count"))
                 structure(paste0(cat_prefix(spec), seq_len(cat_groups(spec))), dynamic = TRUE)
             else if (v$type %in% c("continuous", "count")) "cont" else v$levels
         }
@@ -288,7 +295,11 @@ describe_plan <- function(kinds, lang = "en") {
 
 # ---- categorising continuous variables -----------------------------------------
 
-CAT_FORMS <- c("continuous", "median", "tertiles", "quartiles", "quintiles", "cuts")
+CAT_FORMS <- c("continuous", "median", "tertiles", "quartiles", "quintiles", "cuts", "log2", "log10")
+LOG_FORMS <- c("log2", "log10")
+
+# a spec that groups the variable (not continuous, not a log transform)
+is_grouping <- function(spec) !is.null(spec) && !spec$form %in% c("continuous", LOG_FORMS)
 
 # "18.5, 25, 30" -> values; "10%, 90%" -> percentiles; with a decimal comma,
 # separate by ";" ("18,5; 25")
@@ -346,6 +357,14 @@ categorize_study <- function(df, sc, categorize, lang = "en") {
         spec <- categorize[[v]]
         if (spec$form == "continuous" || !sc$variables[[v]]$type %in% c("continuous", "count")) next
         desc <- attr(df[[v]], "jmv-desc")
+        if (spec$form %in% LOG_FORMS) {
+            # log2 or log10; with zeros or negatives, of x + 1
+            x <- df[[v]]
+            shift <- if (any(x <= 0, na.rm = TRUE)) 1 else 0
+            df[[v]] <- round(if (spec$form == "log2") log2(x + shift) else log10(x + shift), 4)
+            attr(df[[v]], "jmv-desc") <- sprintf("%s, %s%s", desc, gtext(paste0("cat_", spec$form), lang), if (shift) "(x + 1)" else "")
+            next
+        }
         df[[v]] <- categorize_column(df[[v]], spec, sc$variables[[v]]$round, sc$variables[[v]]$type == "count")
         attr(df[[v]], "jmv-desc") <- sprintf("%s, %s", desc, gtext(paste0("cat_", spec$form), lang))
     }
@@ -354,6 +373,9 @@ categorize_study <- function(df, sc, categorize, lang = "en") {
 
 # answer-key rows of a categorised variable: each group against the first
 cat_rows <- function(v, spec, lang = "en") {
+    # a log transform keeps one row: per doubling or per 10-fold increase
+    if (spec$form %in% LOG_FORMS)
+        return(data.frame(variable = v, contrast = gtext(paste0("per_", spec$form), lang), idx = NA_integer_, stringsAsFactors = FALSE))
     k <- cat_groups(spec); p <- cat_prefix(spec)
     data.frame(variable = v, contrast = sprintf("%s%d %s %s1", p, 2:k, gtext("vs", lang), p), idx = 2:k,
                stringsAsFactors = FALSE)

@@ -375,6 +375,8 @@ design_title <- function(d, self) {
 # measured continuous ones (form other than continuous); names may be shown
 # names in any language
 parse_measured <- function(measured, sc, self) {
+    # no list at all (e.g. called from R): every variable is measured
+    if (length(measured) == 0) return(list(factors = sc$order, cats = list()))
     inc <- Filter(function(m) isTRUE(m$include), measured)
     fac <- ids_from_names(vapply(inc, function(m) as.character(m$var), ""), sc$order)
     cats <- list()

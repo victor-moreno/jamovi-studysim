@@ -51,16 +51,23 @@ simLibraryClass <- R6::R6Class(
 
         .fillScenarios = function(lib, custom, l) {
             tbl <- self$results$scenarios
+            flt <- self$options$designFilter
             for (id in names(lib$scenarios)) {
                 s <- lib$scenarios[[id]]
                 sc <- tryCatch(load_scenario(lib, id, strict = FALSE), error = function(e) NULL)
-                des <- if (is.null(sc)) "" else paste(unique(unlist(lapply(names(sc$outcomes), function(o)
-                    tryCatch(compatible_designs(sc, o), error = function(e) character())))), collapse = ", ")
+                dl <- if (is.null(sc)) character() else unique(unlist(lapply(names(sc$outcomes), function(o)
+                    tryCatch(compatible_designs(sc, o), error = function(e) character()))))
+                # only the scenarios with an outcome that fits the chosen design
+                if (flt != "any" && !flt %in% dl) next
+                des <- paste(dl, collapse = ", ")
                 tbl$addRow(rowKey = id, values = list(
                     id = id, label = tr_text(s$label, l),
                     outcomes = paste(names(s$outcomes), collapse = ", "), designs = des,
                     nvars = length(s$variables), origin = if (id %in% custom) .("custom") else .("built-in")))
             }
+            if (flt != "any")
+                tbl$setNote("filter", jmvcore::format(.("{n} of {total} scenarios fit the {design} design."), n = tbl$rowCount,
+                                                      total = length(lib$scenarios), design = design_title(flt, self)))
         },
 
         .fillProblems = function(lib) {

@@ -8,19 +8,23 @@ title: "Simulated study"
 
 ![The options panel.](screenshots/s02-panel.png){.screenshot width=70%}
 
+- **Scenarios for design** narrows the pickers to the scenarios (and outcomes)
+  that fit one design, e.g. every scenario that can be run as a case-cohort study.
 - **Scenario** and **Outcome** come from the library (built-in, or a custom one
-  read with *Browse…*).
+  read with *Browse…*), grouped by clinical domain.
 - **Design** lists only the designs that fit the outcome: an event in a population
   can be studied with a cohort or a case-control study (unmatched or matched), a
   patient outcome with a prognosis cohort, a treatment effect with a randomised
   trial or, for continuous outcomes, a 2×2 crossover.
-- **Variables**: tick the variables to *measure*. None is ticked at start. The
-  others are not in the dataset but still act on the outcome, which is how you
-  teach residual confounding. The second column shows units or categories.
+- **Variables**: every variable is *measured* at start; untick one to leave it
+  out of the dataset. It still acts on the outcome, which is how you teach
+  residual confounding. The second column shows units or categories.
 - **Form** groups a numeric variable: median split, tertiles, quartiles, quintiles
   (cut points from the sample, as a study would compute them) or **cuts** typed
   as values (`18.5, 25, 30`; with a decimal comma `18,5; 25`) or percentiles
-  (`10%, 90%`). Labels read `Q2: 120–131` or `G1: ≤25`.
+  (`10%, 90%`). Labels read `Q2: 120–131` or `G1: ≤25`. **log2** and **log10**
+  transform it instead (of x + 1 when there are zeros); the answer key then
+  gives the effect per doubling or per 10-fold increase.
 - **Sample size**: people in the study (cases plus controls in a case-control
   study).
 
@@ -60,8 +64,9 @@ Column names and category labels follow jamovi's language (`age` → `edad`/`eda
 
 The **causal diagram** shows the scenario's structure: measured variables in solid
 boxes, unmeasured ones dashed, null variables in italics, grey arrows for paths
-among variables, dark arrows for effects on the outcome. *Effect sizes on the
-diagram* adds the values (red raises the outcome, blue lowers it).
+among variables, dark arrows for effects on the outcome. It is shown by
+default with the effect sizes (red raises the outcome, blue lowers it); untick
+*Effect sizes on the diagram* to hide them from students.
 
 ![Causal diagram with effect sizes.](screenshots/s05-dag.png){.screenshot}
 

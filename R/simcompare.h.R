@@ -99,7 +99,9 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                                 "tertiles",
                                 "quartiles",
                                 "quintiles",
-                                "cuts"),
+                                "cuts",
+                                "log2",
+                                "log10"),
                             default="continuous"),
                         jmvcore::OptionString$new(
                             "cuts",
@@ -451,10 +453,10 @@ simCompareBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   skipped
 #' @param measured one entry per scenario variable, list(var = name, include =
 #'   TRUE/FALSE, form =
-#'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts", cuts =
-#'   "18.5, 25, 30" or "10\%, 90\%"); included variables are in the dataset, the
-#'   others are unmeasured (they still act); form groups a continuous variable
-#'   (quantiles from the sample)
+#'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10",
+#'   cuts = "18.5, 25, 30" or "10\%, 90\%"); included variables are in the
+#'   dataset, the others are unmeasured (they still act); form groups a
+#'   continuous variable (quantiles from the sample)
 #' @param n number of participants (cases plus controls in case-control
 #'   designs)
 #' @param ccRatio .

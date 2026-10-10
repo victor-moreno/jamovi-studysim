@@ -9,6 +9,7 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             libName = "",
             libContent = "",
             source = "merged",
+            designFilter = "any",
             scenario = "breast_cancer_risk",
             showScenarios = TRUE,
             showProblems = TRUE,
@@ -41,6 +42,26 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "builtin",
                     "custom"),
                 default="merged")
+            private$..designFilter <- jmvcore::OptionList$new(
+                "designFilter",
+                designFilter,
+                options=list(
+                    "any",
+                    "case_control",
+                    "matched_cc",
+                    "cohort",
+                    "cross_sectional",
+                    "rct",
+                    "crossover",
+                    "prognosis",
+                    "nested_cc",
+                    "case_cohort",
+                    "cluster_rct",
+                    "factorial",
+                    "longitudinal",
+                    "ecological",
+                    "diagnostic"),
+                default="any")
             private$..scenario <- jmvcore::OptionString$new(
                 "scenario",
                 scenario,
@@ -84,6 +105,7 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..libName)
             self$.addOption(private$..libContent)
             self$.addOption(private$..source)
+            self$.addOption(private$..designFilter)
             self$.addOption(private$..scenario)
             self$.addOption(private$..showScenarios)
             self$.addOption(private$..showProblems)
@@ -97,6 +119,7 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         libName = function() private$..libName$value,
         libContent = function() private$..libContent$value,
         source = function() private$..source$value,
+        designFilter = function() private$..designFilter$value,
         scenario = function() private$..scenario$value,
         showScenarios = function() private$..showScenarios$value,
         showProblems = function() private$..showProblems$value,
@@ -109,6 +132,7 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..libName = NA,
         ..libContent = NA,
         ..source = NA,
+        ..designFilter = NA,
         ..scenario = NA,
         ..showScenarios = NA,
         ..showProblems = NA,
@@ -156,7 +180,8 @@ simLibraryResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 rows=0,
                 clearWith=list(
                     "libContent",
-                    "source"),
+                    "source",
+                    "designFilter"),
                 columns=list(
                     list(
                         `name`="id", 
@@ -372,6 +397,8 @@ simLibraryBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param libName .
 #' @param libContent .
 #' @param source .
+#' @param designFilter lists only the scenarios with an outcome that fits this
+#'   design
 #' @param scenario .
 #' @param showScenarios .
 #' @param showProblems .
@@ -405,6 +432,7 @@ simLibrary <- function(
     libName = "",
     libContent = "",
     source = "merged",
+    designFilter = "any",
     scenario = "breast_cancer_risk",
     showScenarios = TRUE,
     showProblems = TRUE,
@@ -426,6 +454,7 @@ simLibrary <- function(
         libName = libName,
         libContent = libContent,
         source = source,
+        designFilter = designFilter,
         scenario = scenario,
         showScenarios = showScenarios,
         showProblems = showProblems,

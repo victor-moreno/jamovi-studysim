@@ -15,7 +15,7 @@ items:
       type: Table
       visible: (showScenarios)
       rows: 0
-      clearWith: [libContent, source]
+      clearWith: [libContent, source, designFilter]
       columns:
           - {name: id, title: Scenario, type: text}
           - {name: label, title: Title, type: text}

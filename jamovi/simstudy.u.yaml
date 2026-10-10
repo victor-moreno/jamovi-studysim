@@ -12,6 +12,8 @@ children:
         label: Custom library
         format: string
         width: large
+      - type: ComboBox
+        name: designFilter
       - type: TextBox
         name: scenario
         format: string

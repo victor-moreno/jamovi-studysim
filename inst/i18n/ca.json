@@ -31,6 +31,9 @@
             "{n} competing events ({label}), status 2": [
                 "{n} esdeveniments competitius ({label}), estat 2"
             ],
+            "{n} of {total} scenarios fit the {design} design.": [
+                "{n} de {total} escenaris encaixen amb el disseny {design}."
+            ],
             "{n} rows": [
                 "{n} files"
             ],
@@ -78,6 +81,9 @@
             ],
             "Answer key: what this design should estimate": [
                 "Clau de respostes: què hauria d'estimar aquest disseny"
+            ],
+            "Any design": [
+                "Qualsevol disseny"
             ],
             "AUC of each marker alone (a block: the mean over its columns). Values are higher in the diseased unless the scenario says lower; the large study has 20,000 people.": [
                 "AUC de cada marcador per separat (un bloc: la mitjana de les seves columnes). Els valors són més alts en els malalts tret que l'escenari digui el contrari; l'estudi gran té 20.000 persones."
@@ -400,6 +406,12 @@
             "log intercept {a}": [
                 "constant logarítmica {a}"
             ],
+            "log10": [
+                "log10"
+            ],
+            "log2": [
+                "log2"
+            ],
             "Longitudinal trial (repeated visits)": [
                 "Assaig longitudinal (visites repetides)"
             ],
@@ -582,6 +594,9 @@
             ],
             "Scenarios": [
                 "Escenaris"
+            ],
+            "Scenarios for design": [
+                "Escenaris per al disseny"
             ],
             "Seed": [
                 "Llavor"
