@@ -9,6 +9,7 @@ GENERIC <- list(
     caselevel = list(en = "case", es = "caso", ca = "cas"),
     time = list(en = "Follow-up time", es = "Tiempo de seguimiento", ca = "Temps de seguiment"),
     event = list(en = "1 = event, 0 = censored", es = "1 = evento, 0 = censurado", ca = "1 = esdeveniment, 0 = censurat"),
+    event2 = list(en = "1 = event, 2 = {c}, 0 = censored", es = "1 = evento, 2 = {c}, 0 = censurado", ca = "1 = esdeveniment, 2 = {c}, 0 = censurat"),
     set = list(en = "Matched set", es = "Grupo emparejado", ca = "Grup aparellat"),
     riskset = list(en = "Risk set (one case and its controls)", es = "Conjunto de riesgo (un caso y sus controles)",
                    ca = "Conjunt de risc (un cas i els seus controls)"),
@@ -122,7 +123,9 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
         if (design == "nested_cc") out$time <- with_desc(round(d$.at, 3), sprintf("%s (%s)", gtext("settime", lang), oc$time_units))
     } else if (!is.null(d$.time)) {
         out$time <- with_desc(round(d$.time, 3), sprintf("%s (%s)", gtext("time", lang), oc$time_units))
-        out[[oc$id]] <- with_desc(as.integer(d$.status), sprintf("%s: %s", tr_text(oc$label, lang), gtext("event", lang)))
+        ev <- if (is.null(oc$competing) || design %in% c("case_cohort")) gtext("event", lang)
+              else sub("{c}", tr_text(oc$competing$label, lang), gtext("event2", lang), fixed = TRUE)
+        out[[oc$id]] <- with_desc(as.integer(d$.status), sprintf("%s: %s", tr_text(oc$label, lang), ev))
     } else if (oc$type %in% c("binary", "event")) {
         out[[oc$id]] <- with_desc(factor(oc$levels[d$.y + 1L], levels = oc$levels), olab)
     } else if (oc$type == "count") {
@@ -224,7 +227,8 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         else if (nm == "subcohort") c("no", "yes")
         else if (nm == "time") "cont"
         else if (nm == oc$id) {
-            if ("time" %in% cols) c("0", "1") else if (oc$type %in% c("binary", "event")) oc$levels else "cont"
+            if ("time" %in% cols) { if (!is.null(oc$competing) && design != "case_cohort") c("0", "1", "2") else c("0", "1") }
+            else if (oc$type %in% c("binary", "event")) oc$levels else "cont"
         } else {
             v <- sc$variables[[nm]]
             spec <- categorize[[nm]]

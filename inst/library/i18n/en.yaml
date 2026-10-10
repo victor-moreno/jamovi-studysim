@@ -18,6 +18,7 @@ names:
   region: region
   population: population
   diet: diet
+  bc_death: bc_death
   age: age
   alcohol: alcohol
   auc: auc

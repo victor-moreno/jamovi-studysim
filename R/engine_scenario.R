@@ -256,6 +256,13 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
             out$target <- list(kind = "median", value = g(o$median))
         } else add_problem(pr, where, "an event outcome needs rate, risk {value, at} or median")
         out$time_units <- o$time_units %||% "years"
+        # a competing event: an event outcome of its own (target, shape,
+        # effects) whose occurrence first ends the follow-up for this one
+        if (!is.null(o$competing)) {
+            cc <- o$competing
+            cc$type <- "event"; cc$followup <- cc$followup %||% o$followup %||% o$window
+            out$competing <- normalize_outcome(paste0(id, "_competing"), cc, vars, interventions, pr)
+        }
     } else if (o$type == "continuous") {
         out$mean <- g(o$mean %||% NA); out$sd <- g(o$sd %||% NA)
         if (is.null(out$sd) || out$sd <= 0) add_problem(pr, where, "a continuous outcome needs mean and sd (residual sd > 0)")

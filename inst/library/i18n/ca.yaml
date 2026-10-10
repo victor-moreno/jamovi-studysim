@@ -17,6 +17,7 @@ names:
   region: regio
   population: poblacio
   diet: consell
+  bc_death: mort_cancer
   age: edat
   alcohol: alcohol
   auc: auc

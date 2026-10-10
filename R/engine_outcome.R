@@ -69,8 +69,18 @@ calibrate <- function(sc, oc) {
                  achieved = list(rate = lam * mean(elp),
                                  risk_followup = mean(1 - exp(-lam * oc$followup^g * elp))))
         })
+    # a competing event has its own baseline, calibrated the same way
+    if (oc$type == "event" && !is.null(oc$competing)) out$competing <- calibrate(sc, oc$competing)
     .calib_cache[[key]] <- out
     out
+}
+
+# time to the competing event of an event outcome (Inf when it has none)
+competing_time <- function(oc, cal, noise, cov, trt = NULL) {
+    cc <- oc$competing
+    if (is.null(cc)) return(rep(Inf, nrow(noise)))
+    lp <- linear_predictor(cc, cov, trt)
+    (-log(noise$u4) / (cal$competing$lambda * exp(lp)))^(1 / cal$competing$shape)
 }
 
 # Draw the outcome from the linear predictor and the person's noise

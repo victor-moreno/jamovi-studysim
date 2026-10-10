@@ -138,21 +138,30 @@ library_to_tables <- function(lib) {
         x <- s$interventions[[i]]
         c(list(scenario = s$id, intervention = i, levels = csv1(x$levels), ratio = csv1(x$ratio)), ml_cols(x$label, "label"))
     })), recursive = FALSE))
-    t$outcomes <- rbind_rows(unlist(lapply(sc, function(s) lapply(names(s$outcomes), function(o) {
-        x <- s$outcomes[[o]]
+    # a competing event is a row of its own, named <outcome>:competing
+    with_competing <- function(s) {
+        out <- list()
+        for (o in names(s$outcomes)) {
+            out[[o]] <- s$outcomes[[o]]
+            if (!is.null(s$outcomes[[o]]$competing)) out[[paste0(o, ":competing")]] <- s$outcomes[[o]]$competing
+        }
+        out
+    }
+    t$outcomes <- rbind_rows(unlist(lapply(sc, function(s) { oo <- with_competing(s); lapply(names(oo), function(o) {
+        x <- oo[[o]]
         r <- list(scenario = s$id, outcome = o)
         for (f in OUTCOME_FIELDS) r[[f]] <- if (is.null(x[[f]])) NA else as.character(na1(x[[f]]))
         r$risk <- if (is.null(x$risk)) NA else as.character(x$risk$value)
         r$risk_at <- if (is.null(x$risk)) NA else as.character(x$risk$at)
         r$levels <- csv1(x$levels); r$range <- csv1(x$range); r$designs <- csv1(x$designs)
         c(r, ml_cols(x$units, "units"), ml_cols(x$label, "label"), ml_cols(x$description, "description"))
-    })), recursive = FALSE))
+    }) }), recursive = FALSE))
     edge_rows <- function(s, key, kind) lapply(s[[key]], function(e) {
         e <- unlist(e); list(scenario = s$id, from = e[1], to = e[2], strength = e[3], kind = kind) })
     t$structure <- rbind_rows(unlist(lapply(sc, function(s) c(edge_rows(s, "structure", "path"),
                                                              edge_rows(s, "correlations", "correlation"))), recursive = FALSE))
-    t$effects <- rbind_rows(unlist(lapply(sc, function(s) unlist(lapply(names(s$outcomes), function(o) {
-        eff <- s$outcomes[[o]]$effects
+    t$effects <- rbind_rows(unlist(lapply(sc, function(s) { oo <- with_competing(s); unlist(lapply(names(oo), function(o) {
+        eff <- oo[[o]]$effects
         lapply(names(eff), function(v) {
             e <- eff[[v]]; m <- intersect(names(e), names(MEASURES))[1]
             mod <- if (is.null(e$by)) NA else names(e$by)[1]
@@ -161,7 +170,7 @@ library_to_tables <- function(lib) {
                  modifier = mod,
                  modifier_values = if (is.na(mod)) NA else paste(sprintf("%s: %s", names(e$by[[mod]]), unlist(e$by[[mod]])), collapse = LIST_SEP))
         })
-    }), recursive = FALSE)), recursive = FALSE))
+    }), recursive = FALSE) }), recursive = FALSE))
     t$designs <- rbind_rows(unlist(lapply(sc, function(s) unlist(lapply(names(s$designs), function(d)
         lapply(names(s$designs[[d]]), function(k) list(scenario = s$id, design = d, option = k, value = csv1(s$designs[[d]][[k]])))),
         recursive = FALSE)), recursive = FALSE))
@@ -257,6 +266,10 @@ tables_to_library <- function(t) {
                 o$effects[[e$variable]] <- x
             }
             s$outcomes[[r$outcome]] <- o
+        }
+        for (nm in grep(":competing$", names(s$outcomes), value = TRUE)) {
+            s$outcomes[[sub(":competing$", "", nm)]]$competing <- s$outcomes[[nm]]
+            s$outcomes[[nm]] <- NULL
         }
         if (!is.null(uncsv(cell(r0, "null_variables")))) s$null_variables <- uncsv(cell(r0, "null_variables"))
         for (r in rows_of(t$designs, id)) {

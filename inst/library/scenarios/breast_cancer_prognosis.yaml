@@ -73,6 +73,30 @@ outcomes:
       ki67: {HR: 1.10, per: 10}
       chemo: {HR: 0.75}
 
+  bc_death:
+    type: event
+    label: {en: Death from breast cancer, es: Muerte por cáncer de mama, ca: Mort per càncer de mama}
+    risk: {value: 0.14, at: 10}
+    shape: 1.2
+    followup: 10
+    designs: [prognosis, cohort]
+    effects:
+      age: {HR: 1.00, per: 1}
+      tumour_size: {HR: 1.18, per: 10}
+      nodes: {HR: 1.10, per: 1}
+      grade: {HR: [1, 1.7, 2.6]}
+      er: {HR: 0.65}
+      her2: {HR: 1.35}
+      ki67: {HR: 1.12, per: 10}
+      chemo: {HR: 0.70}
+    competing:
+      label: {en: Death from other causes, es: Muerte por otras causas, ca: Mort per altres causes}
+      risk: {value: 0.08, at: 10}
+      shape: 1.5
+      effects:
+        age: {HR: 1.10, per: 1}
+        chemo: {HR: 1.05}
+
 designs:
   prognosis: {accrual: 4, followup: 8, loss: 0.02}
 
@@ -80,6 +104,7 @@ references:
   - "Galea MH et al. The Nottingham Prognostic Index in primary breast cancer. Breast Cancer Res Treat 1992;22:207-19."
   - "Wishart GC et al. PREDICT: a new UK prognostic model that predicts survival following surgery for invasive breast cancer. Breast Cancer Res 2010;12:R1."
   - "Early Breast Cancer Trialists' Collaborative Group. Comparisons between different polychemotherapy regimens for early breast cancer. Lancet 2012;379:432-44."
+  - "Putter H, Fiocco M, Geskus RB. Tutorial in biostatistics: competing risks and multi-state models. Stat Med 2007;26:2389-430."
 
 teaching:
   en: >
@@ -87,15 +112,24 @@ teaching:
     women with more nodes and higher grade (confounding by indication): its
     crude hazard ratio points the wrong way. Grade acts partly through Ki-67 and
     ER status. Censoring comes from staggered entry and loss to follow-up.
+    For death from breast cancer, older women more often die first of other
+    causes (a competing event): Kaplan-Meier overstates the cumulative
+    incidence, and age has no effect on the cause-specific hazard.
   es: >
     La quimioterapia reduce de verdad el riesgo (HR 0,75), pero se da a mujeres
     más jóvenes, con más ganglios y mayor grado (confusión por indicación): su
     hazard ratio crudo apunta en la dirección equivocada. El grado actúa en parte
     a través del Ki-67 y de los receptores de estrógenos. La censura procede de
-    la entrada escalonada y de las pérdidas de seguimiento.
+    la entrada escalonada y de las pérdidas de seguimiento. En la muerte por
+    cáncer de mama, las mujeres mayores mueren antes con más frecuencia por
+    otras causas (un evento competitivo): Kaplan-Meier sobrestima la incidencia
+    acumulada, y la edad no afecta al riesgo específico de la causa.
   ca: >
     La quimioteràpia redueix de veritat el risc (HR 0,75), però es dona a dones
     més joves, amb més ganglis i més grau (confusió per indicació): el seu hazard
     ratio cru apunta en la direcció equivocada. El grau actua en part a través
     del Ki-67 i dels receptors d'estrògens. La censura ve de l'entrada esglaonada
-    i de les pèrdues de seguiment.
+    i de les pèrdues de seguiment. En la mort per càncer de mama, les dones
+    grans moren abans més sovint per altres causes (un esdeveniment competitiu):
+    Kaplan-Meier sobreestima la incidència acumulada, i l'edat no afecta el risc
+    específic de la causa.

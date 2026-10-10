@@ -103,9 +103,10 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
     f <- switch(model,
         logistic = stats::glm(stats::as.formula(paste(".s ~", rhs)), stats::binomial(), fd),
         clogit = survival::clogit(stats::as.formula(paste(".s ~", rhs, "+ strata(set)")), data = fd),
+        # status 2 (a competing event) counts as censored: cause-specific hazards
         cox = if (design == "cluster_rct")
-                  survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, ") ~", rhs)), data = fd, cluster = cluster)
-              else survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, ") ~", rhs)), data = fd),
+                  survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, "== 1) ~", rhs)), data = fd, cluster = cluster)
+              else survival::coxph(stats::as.formula(paste("Surv(time,", oc$id, "== 1) ~", rhs)), data = fd),
         prentice = survival::coxph(stats::as.formula(paste("Surv(.start, time,", oc$id, ") ~", rhs)), data = fd,
                                    robust = TRUE, id = id, control = survival::coxph.control(timefix = FALSE)),
         poisson = stats::glm(stats::as.formula(paste(oc$id, "~", rhs)), stats::poisson(), fd),

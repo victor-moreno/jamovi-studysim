@@ -88,3 +88,19 @@ test_that("an ecological study keeps region totals and percentages", {
   expect_true(all(is.finite(e$adjusted)))
   expect_identical(names(r$data)[6], "smoke_former")
 })
+
+test_that("a competing event gives status 2 and cause-specific Cox recovers the HRs", {
+  raw <- toy_raw()
+  raw$outcomes$ev$competing <- list(label = "Other death", risk = list(value = 0.3, at = 10), shape = 1.2,
+                                    effects = list(age = list(HR = 1.08)))
+  sc <- normalize_scenario(raw)
+  r <- simulate_study(sc, "ev", "cohort", 8000, c("age", "smoke"), key = FALSE)
+  expect_setequal(unique(r$data$ev), 0:2)
+  expect_equal(r$facts$competing, sum(r$data$ev == 2))
+  e <- estimate_table(sc, sc$outcomes$ev, "cohort", r$data_raw, c("age", "smoke"), ci = TRUE)
+  expect_true(all(e$lower < e$true & e$true < e$upper))
+  cc <- simulate_study(sc, "ev", "case_cohort", 600, "age", key = FALSE)
+  expect_setequal(unique(cc$data$ev), 0:1)
+  base <- simulate_study(toy(), "ev", "cohort", 500, "age", key = FALSE)$data
+  expect_lt(sum(r$data$ev[1:500] == 1), sum(base$ev == 1) + 1)
+})

@@ -77,7 +77,8 @@ pop_chunk <- function(sc, outcome, seed, k) {
     cov <- with_seed(derive_seed(seed, sc$id, "cov", k), gen_covariates(sc, CHUNK))
     noise <- with_seed(derive_seed(seed, sc$id, outcome, "noise", k),
                        data.frame(u = stats::runif(CHUNK), z = stats::rnorm(CHUNK),
-                                  u2 = stats::runif(CHUNK), u3 = stats::runif(CHUNK)))
+                                  u2 = stats::runif(CHUNK), u3 = stats::runif(CHUNK),
+                                  u4 = stats::runif(CHUNK)))   # u4 (competing event) drawn last: earlier draws unchanged
     cov$.pid <- (k - 1L) * CHUNK + seq_len(CHUNK)
     list(cov = cov, noise = noise)
 }

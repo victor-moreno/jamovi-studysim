@@ -178,6 +178,8 @@ simStudyClass <- R6::R6Class(
             if (!is.null(f$matched_on)) li <- c(li, jmvcore::format(.("matched on {vars}"), vars = paste(dname(f$matched_on, l), collapse = ", ")))
             if (isTRUE(f$incomplete_sets > 0)) li <- c(li, jmvcore::format(.("{n} cases have fewer controls than asked"), n = f$incomplete_sets))
             if (!is.null(f$events)) li <- c(li, jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)))
+            if (!is.null(f$competing)) li <- c(li, jmvcore::format(.("{n} competing events ({label}), status 2"), n = num(f$competing),
+                                                          label = htmlEscape(tr_text(ctx$oc$competing$label, l))))
             if (!is.null(f$arms)) li <- c(li, paste(sprintf("%s: %s", dlevel(names(f$arms), l), unlist(f$arms)), collapse = ", "))
             if (!is.null(f$clusters)) li <- c(li, jmvcore::format(.("{k} clusters randomised ({by} by arm), intraclass correlation {icc}"),
                                                          k = f$clusters[1], by = paste(f$clusters[-1], collapse = "/"), icc = f$icc))
@@ -239,6 +241,8 @@ simStudyClass <- R6::R6Class(
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
                 if (ctx$design == "factorial" && opt$interaction != 0)
                     tbl$setNote("interaction", .("With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level."))
+                if (!is.null(ctx$oc$competing) && ctx$design %in% c("cohort", "prognosis", "rct", "cluster_rct", "factorial"))
+                    tbl$setNote("competing", .("Status 2 is a competing event: a Cox model that censors it estimates the true cause-specific hazard ratios; 1 - Kaplan-Meier then overstates the cumulative incidence of the event (use the cumulative incidence function)."))
                 if (ctx$design == "ecological")
                     tbl$setNote("ecological", .("Ecological regression on the regions: a percentage is compared all versus none of the region, a mean per unit. The true values are effects on individuals; the gap is the ecological bias."))
                 if (ctx$design == "longitudinal")

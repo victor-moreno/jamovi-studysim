@@ -27,14 +27,25 @@ design_defaults <- function(design, oc, sc) {
 }
 
 # event outcome read as a status: an event within the outcome's risk window
-event_status <- function(oc, cal, lp, noise) {
+# (and before a competing event, if the outcome has one)
+event_status <- function(oc, cal, lp, noise, cov) {
     t <- draw_outcome(oc, cal, lp, noise)
-    as.integer(t <= oc$window)
+    as.integer(t <= oc$window & t < competing_time(oc, cal, noise, cov))
 }
 
 # binary status for any outcome a status-based design can use
-status_of <- function(oc, cal, lp, noise) {
-    if (oc$type == "event") event_status(oc, cal, lp, noise) else draw_outcome(oc, cal, lp, noise)
+status_of <- function(oc, cal, lp, noise, cov) {
+    if (oc$type == "event") event_status(oc, cal, lp, noise, cov) else draw_outcome(oc, cal, lp, noise)
+}
+
+# follow-up of an event outcome: time to the first of the event, the competing
+# event and censoring; status 1 = event, 2 = competing event, 0 = censored
+event_follow_up <- function(oc, cal, lp, noise, cov, opt, trt = NULL) {
+    t1 <- draw_outcome(oc, cal, lp, noise)
+    t2 <- competing_time(oc, cal, noise, cov, trt)
+    fu <- follow_up(pmin(t1, t2), noise, opt$followup, opt$loss, opt$accrual %||% 0)
+    fu$status <- ifelse(fu$status == 1L, ifelse(t1 <= t2, 1L, 2L), 0L)
+    fu
 }
 
 # follow-up with administrative censoring (staggered entry over `accrual`)
@@ -50,7 +61,7 @@ sim_cross_sectional <- function(sc, oc, cal, seed, n, opt) {
     pop <- population(sc, oc$id, seed, n)
     lp <- linear_predictor(oc, pop$cov)
     d <- pop$cov
-    d$.y <- if (oc$type %in% c("binary", "event")) status_of(oc, cal, lp, pop$noise) else draw_outcome(oc, cal, lp, pop$noise)
+    d$.y <- if (oc$type %in% c("binary", "event")) status_of(oc, cal, lp, pop$noise, pop$cov) else draw_outcome(oc, cal, lp, pop$noise)
     list(data = d, facts = list())
 }
 
@@ -63,9 +74,10 @@ sim_cohort <- function(sc, oc, cal, seed, n, opt, trt = NULL, lp_add = 0, noise_
     d <- pop$cov
     if (!is.null(trt)) for (v in names(trt)) d[[paste0(".", v)]] <- trt[[v]]
     if (oc$type == "event") {
-        fu <- follow_up(draw_outcome(oc, cal, lp, pop$noise), pop$noise, opt$followup, opt$loss, opt$accrual %||% 0)
+        fu <- event_follow_up(oc, cal, lp, pop$noise, pop$cov, opt, trt)
         d$.time <- fu$time; d$.status <- fu$status
-        facts <- list(events = sum(fu$status), person_time = sum(fu$time))
+        facts <- list(events = sum(fu$status == 1L), person_time = sum(fu$time))
+        if (!is.null(oc$competing)) facts$competing <- sum(fu$status == 2L)
     } else {
         d$.y <- draw_outcome(oc, cal, lp, pop$noise)
         facts <- list()
@@ -82,7 +94,7 @@ scan_cases <- function(sc, oc, cal, seed, n_cases) {
             stop(sprintf("the outcome is too rare: %d cases in %s people. Ask for fewer cases, or raise its frequency.",
                          have, base::format(MAX_SCAN * CHUNK, big.mark = ",")), call. = FALSE)
         ch <- pop_chunk(sc, oc$id, seed, k)
-        s <- status_of(oc, cal, linear_predictor(oc, ch$cov), ch$noise)
+        s <- status_of(oc, cal, linear_predictor(oc, ch$cov), ch$noise, ch$cov)
         cov[[k]] <- ch$cov; st[[k]] <- s; have <- have + sum(s)
     }
     d <- do.call(rbind, cov); d$.y <- unlist(st)
@@ -119,7 +131,7 @@ sim_matched_cc <- function(sc, oc, cal, seed, n, opt) {
     while (nrow(pool) < max(cases) * 4L && nrow(pool) < MAX_SCAN * CHUNK) {
         k <- nrow(pool) %/% CHUNK + 1L
         ch <- pop_chunk(sc, oc$id, seed, k)
-        ch$cov$.y <- status_of(oc, cal, linear_predictor(oc, ch$cov), ch$noise)
+        ch$cov$.y <- status_of(oc, cal, linear_predictor(oc, ch$cov), ch$noise, ch$cov)
         pool <- rbind(pool, ch$cov)
     }
     rownames(pool) <- NULL
@@ -170,10 +182,10 @@ scan_cohort <- function(sc, oc, cal, seed, opt, enough) {
             stop(sprintf("the outcome is too rare: too few events among %s people. Ask for a smaller study, or raise its frequency.",
                          base::format(MAX_SCAN * CHUNK, big.mark = ",")), call. = FALSE)
         ch <- pop_chunk(sc, oc$id, seed, k)
-        fu <- follow_up(draw_outcome(oc, cal, linear_predictor(oc, ch$cov), ch$noise), ch$noise,
-                        opt$followup, opt$loss, opt$accrual %||% 0)
+        fu <- event_follow_up(oc, cal, linear_predictor(oc, ch$cov), ch$noise, ch$cov, opt)
         d <- ch$cov
-        d$.time <- fu$time; d$.status <- fu$status
+        # a competing event ends follow-up like censoring here
+        d$.time <- fu$time; d$.status <- as.integer(fu$status == 1L)
         d$.u <- with_seed(derive_seed(seed, sc$id, "sampling", k), stats::runif(CHUNK))
         parts[[k]] <- d
         all <- do.call(rbind, parts)
@@ -421,9 +433,10 @@ sim_ecological <- function(sc, oc, cal, seed, n, opt) {
         ctx <- with_seed(derive_seed(seed, sc$id, oc$id, "context", g), stats::rnorm(1)) * opt$context_sd
         cov <- with_seed(derive_seed(seed, sc$id, "region people", g), gen_covariates(sc, m, shift))
         noise <- with_seed(derive_seed(seed, sc$id, oc$id, "region noise", g),
-                           data.frame(u = stats::runif(m), z = stats::rnorm(m), u2 = stats::runif(m), u3 = stats::runif(m)))
+                           data.frame(u = stats::runif(m), z = stats::rnorm(m), u2 = stats::runif(m), u3 = stats::runif(m),
+                                      u4 = stats::runif(m)))
         lp <- linear_predictor(oc, cov) + ctx
-        y <- if (oc$type %in% c("binary", "event")) status_of(oc, cal, lp, noise) else draw_outcome(oc, cal, lp, noise)
+        y <- if (oc$type %in% c("binary", "event")) status_of(oc, cal, lp, noise, cov) else draw_outcome(oc, cal, lp, noise)
         out <- list(.region = g, .pop = m, .y = if (oc$type %in% c("binary", "event")) sum(y) else mean(y))
         for (v in sc$order) {
             x <- sc$variables[[v]]
