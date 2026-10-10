@@ -299,37 +299,10 @@ simStudyClass <- R6::R6Class(
             self$results$keyNotes$setContent(html)
         },
 
-        .dagCaption = function() {
-            cap <- .("Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.")
-            if (isTRUE(self$options$dagValues)) cap <- paste(cap, .("Red: raises the outcome, blue: lowers it; * the effect depends on another variable."))
-            cap
-        },
-
-        # image sized to the layout (pixels) and its caption
-        .initDag = function(ctx) {
-            g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
-            sz <- dag_size(g, private$.dagCaption())
-            self$results$dag$setSize(sz[["w"]], sz[["h"]])
-        },
-
-        # the state is set in .run(): jamovi restores the previous (empty)
-        # state after .init(), which would wipe one set there
-        .fillDag = function(ctx) {
-            img <- self$results$dag
-            # a state saved by v0.1 has no routed points: draw it again
-            if (is.null(img$state) || is.null(img$state$g$points)) {
-                g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
-                img$setState(list(g = g, w = img$width, h = img$height, key = isTRUE(self$options$dagValues),
-                                  caption = private$.dagCaption()))
-            }
-        },
-
-        .plotDag = function(image, ggtheme, theme, ...) {
-            st <- image$state
-            if (is.null(st)) return(FALSE)
-            print(dag_plot(st$g, st$w, st$h, st$key, st$caption))
-            TRUE
-        },
+        # causal diagram: shared with Compare designs (dag_init / dag_fill below)
+        .initDag = function(ctx) dag_init(self, ctx),
+        .fillDag = function(ctx) dag_fill(self, ctx),
+        .plotDag = function(image, ggtheme, theme, ...) dag_render(image),
 
         # Action buttons: each fires once per click (hidden-cell guard)
         .once = function(stateName, optName, fun) {
@@ -356,6 +329,40 @@ simStudyClass <- R6::R6Class(
         }
     )
 )
+
+# The causal diagram of an analysis with options showDag/dagValues and an
+# Image result `dag` (Simulated study, Compare designs). `self` is the
+# analysis: .() translates through it.
+dag_caption <- function(self) {
+    cap <- .("Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.")
+    if (isTRUE(self$options$dagValues)) cap <- paste(cap, .("Red: raises the outcome, blue: lowers it; * the effect depends on another variable."))
+    cap
+}
+
+# in .init(): the image sized to the layout (pixels) and its caption
+dag_init <- function(self, ctx) {
+    g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
+    sz <- dag_size(g, dag_caption(self))
+    self$results$dag$setSize(sz[["w"]], sz[["h"]])
+}
+
+# in .run(): jamovi restores the previous (empty) state after .init(), which
+# would wipe one set there; a state saved by v0.1 has no routed points
+dag_fill <- function(self, ctx) {
+    img <- self$results$dag
+    if (is.null(img$state) || is.null(img$state$g$points)) {
+        g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
+        img$setState(list(g = g, w = img$width, h = img$height, key = isTRUE(self$options$dagValues),
+                          caption = dag_caption(self)))
+    }
+}
+
+dag_render <- function(image) {
+    st <- image$state
+    if (is.null(st)) return(FALSE)
+    print(dag_plot(st$g, st$w, st$h, st$key, st$caption))
+    TRUE
+}
 
 # `self` is the calling analysis: .() translates through it
 design_title <- function(d, self) {

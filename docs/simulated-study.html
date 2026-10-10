@@ -342,6 +342,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#the-data" id="toc-the-data" class="nav-link" data-scroll-target="#the-data">The data</a></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
   <li><a href="#the-answer-key" id="toc-the-answer-key" class="nav-link" data-scroll-target="#the-answer-key">The answer key</a></li>
+  <li><a href="#compare-designs" id="toc-compare-designs" class="nav-link" data-scroll-target="#compare-designs">Compare designs</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/victor-moreno/jamovi-studysim/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -454,6 +455,17 @@ ul.task-list li input[type="checkbox"] {
 </div></li>
 <li><p><strong>Notes</strong>: teaching note of the scenario, calibration of the outcome, latent structure and the sources of the parameters.</p></li>
 </ol>
+</section>
+<section id="compare-designs" class="level2">
+<h2 class="anchored" data-anchor-id="compare-designs">Compare designs</h2>
+<p><em>Simulate ▸ Compare designs</em> takes one scenario and outcome, the measured variables and a sample size, and simulates every ticked design from the <strong>same population</strong> (same seed and student key); designs that do not fit the outcome are hidden. It shows:</p>
+<ul>
+<li><strong>Studies</strong>: rows, cases and controls, events, clusters or regions of each one;</li>
+<li><strong>Estimates by design</strong>: crude and adjusted estimates with their 95% CI next to the true values, and optionally what each design gives in a large study;</li>
+<li>a <strong>forest plot</strong> of the same estimates, one panel per contrast;</li>
+<li>the <strong>causal diagram</strong> with the effect sizes, once, because it is the same for every design: what changes between designs is how the population is sampled, not how it works.</li>
+</ul>
+<p><em>Open dataset</em> stacks all the studies in one dataset with a <code>design</code> column, to analyse them with jamovi’s filters. Typical exercises: a case-control vs a cohort study of a rare cancer (same estimates, very different precision for the same number of people), a parallel vs a crossover trial, an ecological vs an individual-level analysis.</p>
 
 
 </section>

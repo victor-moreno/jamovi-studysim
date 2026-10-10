@@ -23,6 +23,8 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             studentKey = "",
             showExpected = FALSE,
             showPlot = TRUE,
+            showDag = TRUE,
+            dagValues = TRUE,
             openData = FALSE,
             exportCsv = FALSE, ...) {
 
@@ -149,6 +151,14 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "showPlot",
                 showPlot,
                 default=TRUE)
+            private$..showDag <- jmvcore::OptionBool$new(
+                "showDag",
+                showDag,
+                default=TRUE)
+            private$..dagValues <- jmvcore::OptionBool$new(
+                "dagValues",
+                dagValues,
+                default=TRUE)
             private$..openData <- jmvcore::OptionAction$new(
                 "openData",
                 openData,
@@ -172,6 +182,8 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..studentKey)
             self$.addOption(private$..showExpected)
             self$.addOption(private$..showPlot)
+            self$.addOption(private$..showDag)
+            self$.addOption(private$..dagValues)
             self$.addOption(private$..openData)
             self$.addOption(private$..exportCsv)
         }),
@@ -190,6 +202,8 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         studentKey = function() private$..studentKey$value,
         showExpected = function() private$..showExpected$value,
         showPlot = function() private$..showPlot$value,
+        showDag = function() private$..showDag$value,
+        dagValues = function() private$..dagValues$value,
         openData = function() private$..openData$value,
         exportCsv = function() private$..exportCsv$value),
     private = list(
@@ -207,6 +221,8 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..studentKey = NA,
         ..showExpected = NA,
         ..showPlot = NA,
+        ..showDag = NA,
+        ..dagValues = NA,
         ..openData = NA,
         ..exportCsv = NA)
 )
@@ -218,6 +234,7 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         notice = function() private$.items[["notice"]],
         studies = function() private$.items[["studies"]],
         estimates = function() private$.items[["estimates"]],
+        dag = function() private$.items[["dag"]],
         plot = function() private$.items[["plot"]],
         openState = function() private$.items[["openState"]],
         csvState = function() private$.items[["csvState"]]),
@@ -339,6 +356,20 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="Large study", 
                         `type`="number", 
                         `visible`="(showExpected)"))))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="dag",
+                title="Causal diagram (the same for every design)",
+                visible="(showDag)",
+                width=600,
+                height=420,
+                renderFun=".plotDag",
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "measured",
+                    "dagValues")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",
@@ -468,6 +499,8 @@ simCompareBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param showExpected also simulate one large study per design and show its
 #'   estimates
 #' @param showPlot .
+#' @param showDag .
+#' @param dagValues .
 #' @param openData .
 #' @param exportCsv .
 #' @return A results object containing:
@@ -475,6 +508,7 @@ simCompareBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$notice} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$studies} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$estimates} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$dag} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$plot} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$openState} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$csvState} \tab \tab \tab \tab \tab a table \cr
@@ -506,6 +540,8 @@ simCompare <- function(
     studentKey = "",
     showExpected = FALSE,
     showPlot = TRUE,
+    showDag = TRUE,
+    dagValues = TRUE,
     openData = FALSE,
     exportCsv = FALSE) {
 
@@ -532,6 +568,8 @@ simCompare <- function(
         studentKey = studentKey,
         showExpected = showExpected,
         showPlot = showPlot,
+        showDag = showDag,
+        dagValues = dagValues,
         openData = openData,
         exportCsv = exportCsv)
 

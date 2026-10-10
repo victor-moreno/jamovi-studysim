@@ -60,11 +60,12 @@ simCompareClass <- R6::R6Class(
             ctx <- private$.context()
             if (!is.null(ctx$error)) {
                 private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(ctx$error)))
-                for (nm in c("studies", "estimates", "plot")) self$results[[nm]]$setVisible(FALSE)
+                for (nm in c("studies", "estimates", "plot", "dag")) self$results[[nm]]$setVisible(FALSE)
                 return()
             }
             if (length(ctx$factors) == 0 && length(ctx$sc$interventions) == 0)
                 private$.notice(sprintf("<p>%s</p>", .("No variables measured yet: tick them under Measured.")))
+            if (self$options$showDag) dag_init(self, ctx)
             for (d in ctx$designs) self$results$studies$addRow(rowKey = d, values = list(design = design_title(d, self)))
             rows <- private$.rows(ctx)
             for (r in rows) self$results$estimates$addRow(rowKey = r$key, values = list(
@@ -78,6 +79,8 @@ simCompareClass <- R6::R6Class(
             ctx <- private$.context()
             if (!is.null(ctx$error)) return()
             o <- self$options
+            # the diagram does not depend on the design, so it is drawn even if a study fails
+            if (o$showDag) dag_fill(self, ctx)
             if (length(ctx$skipped))
                 private$.notice(sprintf("<p>%s</p>", htmlEscape(jmvcore::format(.("Skipped (they do not fit this outcome): {list}."),
                     list = paste(vapply(ctx$skipped, design_title, "", self), collapse = ", ")))))
@@ -136,6 +139,8 @@ simCompareClass <- R6::R6Class(
                 tbl$setNote("measure", jmvcore::format(.("True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."),
                                                       true = paste(mm, collapse = "/"), est = paste(unique(e$measure), collapse = "/")))
         },
+
+        .plotDag = function(image, ggtheme, theme, ...) dag_render(image),
 
         .plot = function(image, ggtheme, theme, ...) {
             st <- image$state

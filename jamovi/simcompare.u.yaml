@@ -164,3 +164,9 @@ children:
             name: showExpected
           - type: CheckBox
             name: showPlot
+          - type: CheckBox
+            name: showDag
+            children:
+              - type: CheckBox
+                name: dagValues
+                enable: (showDag)

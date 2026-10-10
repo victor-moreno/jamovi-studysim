@@ -193,6 +193,16 @@ options:
       type: Bool
       default: true
 
+    - name: showDag
+      title: Causal diagram (DAG)
+      type: Bool
+      default: true
+
+    - name: dagValues
+      title: Effect sizes on the diagram
+      type: Bool
+      default: true
+
     - name: openData
       title: Open dataset
       type: Action

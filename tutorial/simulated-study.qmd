@@ -89,3 +89,24 @@ default with the effect sizes (red raises the outcome, blue lowers it); untick
 
 3. **Notes**: teaching note of the scenario, calibration of the outcome, latent
    structure and the sources of the parameters.
+
+## Compare designs
+
+*Simulate ▸ Compare designs* takes one scenario and outcome, the measured
+variables and a sample size, and simulates every ticked design from the **same
+population** (same seed and student key); designs that do not fit the outcome
+are hidden. It shows:
+
+- **Studies**: rows, cases and controls, events, clusters or regions of each one;
+- **Estimates by design**: crude and adjusted estimates with their 95% CI
+  next to the true values, and optionally what each design gives in a large study;
+- a **forest plot** of the same estimates, one panel per contrast;
+- the **causal diagram** with the effect sizes, once, because it is the same for
+  every design: what changes between designs is how the population is sampled,
+  not how it works.
+
+*Open dataset* stacks all the studies in one dataset with a `design` column, to
+analyse them with jamovi's filters. Typical exercises: a case-control vs a cohort
+study of a rare cancer (same estimates, very different precision for the same
+number of people), a parallel vs a crossover trial, an ecological vs an
+individual-level analysis.

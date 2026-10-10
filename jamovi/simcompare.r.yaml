@@ -70,6 +70,15 @@ items:
             type: number
             visible: (showExpected)
 
+    - name: dag
+      title: Causal diagram (the same for every design)
+      type: Image
+      visible: (showDag)
+      width: 600
+      height: 420
+      renderFun: .plotDag
+      clearWith: [libContent, scenario, outcome, measured, dagValues]
+
     - name: plot
       title: Estimates by design
       type: Image

@@ -30,3 +30,12 @@ test_that("simCompare runs headlessly", {
   expect_equal(nrow(e), 2 * 3)
   expect_true(all(!is.na(e$adjusted)))
 })
+
+test_that("Compare designs draws one causal diagram with effect sizes", {
+  r <- simCompare(data = data.frame(), scenario = "isis2", outcome = "vascular_death", designs = c("factorial", "rct"), n = 300)
+  st <- r$dag$state
+  expect_true(r$dag$visible)
+  expect_true(st$key)
+  expect_true(all(c("streptokinase", "aspirin", "vascular_death") %in% st$g$nodes$id))
+  expect_gt(r$dag$width, 200)
+})

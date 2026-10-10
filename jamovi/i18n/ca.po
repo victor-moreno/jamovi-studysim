@@ -191,9 +191,14 @@ msgstr "casos trobats entre {n} persones de la població d'origen (risc {risk}%)
 msgid "Causal diagram"
 msgstr "Diagrama causal"
 
+#: simCompare/options/showDag.title
 #: simStudy/options/showDag.title
 msgid "Causal diagram (DAG)"
 msgstr "Diagrama causal (DAG)"
+
+#: simCompare/results/dag.title
+msgid "Causal diagram (the same for every design)"
+msgstr "Diagrama causal (el mateix per a tots els dissenys)"
 
 #: simLibrary/options/showProblems.title
 #: simLibrary/results/problems.title
@@ -449,6 +454,7 @@ msgstr "Ecològic (regions)"
 msgid "Ecological regression on the regions: a percentage is compared all versus none of the region, a mean per unit. The true values are effects on individuals; the gap is the ecological bias."
 msgstr "Regressió ecològica sobre les regions: un percentatge es compara tota la regió enfront de ningú, una mitjana per unitat. Els valors veritables són efectes sobre individus; la diferència és el biaix ecològic."
 
+#: simCompare/options/dagValues.title
 #: simStudy/options/dagValues.title
 msgid "Effect sizes on the diagram"
 msgstr "Mides de l'efecte al diagrama"

@@ -90,6 +90,16 @@
     ]
   },
   {
+    "objectID": "simulated-study.html#compare-designs",
+    "href": "simulated-study.html#compare-designs",
+    "title": "Simulated study",
+    "section": "Compare designs",
+    "text": "Compare designs\nSimulate ▸ Compare designs takes one scenario and outcome, the measured variables and a sample size, and simulates every ticked design from the same population (same seed and student key); designs that do not fit the outcome are hidden. It shows:\n\nStudies: rows, cases and controls, events, clusters or regions of each one;\nEstimates by design: crude and adjusted estimates with their 95% CI next to the true values, and optionally what each design gives in a large study;\na forest plot of the same estimates, one panel per contrast;\nthe causal diagram with the effect sizes, once, because it is the same for every design: what changes between designs is how the population is sampled, not how it works.\n\nOpen dataset stacks all the studies in one dataset with a design column, to analyse them with jamovi’s filters. Typical exercises: a case-control vs a cohort study of a rare cancer (same estimates, very different precision for the same number of people), a parallel vs a crossover trial, an ecological vs an individual-level analysis.",
+    "crumbs": [
+      "Simulated study"
+    ]
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "studysim: simulated medical studies for teaching",
