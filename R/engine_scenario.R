@@ -278,6 +278,9 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
             add_problem(pr, where, "a binary outcome needs prevalence (0 to 1)")
         out$levels <- as.character(unlist(o$levels %||% c("no", "yes")))
         if (length(o$markers)) {
+            # correlation of the single markers within disease groups (a shared factor)
+            out$marker_cor <- g(o$marker_cor %||% 0)
+            if (out$marker_cor < 0 || out$marker_cor >= 1) add_problem(pr, where, "marker_cor must be between 0 and 1")
             out$markers <- Filter(Negate(is.null), lapply(names(o$markers), function(m) normalize_marker(id, m, o$markers[[m]], pr)))
             names(out$markers) <- vapply(out$markers, `[[`, "", "id")
         }

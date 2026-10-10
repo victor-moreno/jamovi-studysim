@@ -124,7 +124,7 @@ var_row <- function(scenario, id, v) {
 MARKER_FIELDS <- c("dist", "round", "auc", "direction", "block", "informative", "rho")
 
 OUTCOME_FIELDS <- c("type", "scale", "prevalence", "rate", "median", "shape", "mean", "sd", "within_cor",
-                    "size", "window", "followup", "round", "time_units")
+                    "size", "window", "followup", "round", "time_units", "marker_cor")
 
 library_to_tables <- function(lib) {
     sc <- lib$scenarios

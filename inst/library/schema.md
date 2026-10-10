@@ -165,7 +165,9 @@ status 2). Case-control style designs count only events before a competing one.
 A marker is binormal: a latent N(0, 1) in the non-diseased, shifted by
 √2·Φ⁻¹(AUC) in the diseased, mapped to `dist` by its quantiles (which keeps the
 AUC). Markers depend on the disease only (conditionally independent of the
-other variables). A block has standard-normal values.
+other variables). A block has standard-normal values. The outcome's
+`marker_cor` (default 0) correlates its single markers within disease groups
+(markers that measure related things).
 
 ## Interventions (trials)
 

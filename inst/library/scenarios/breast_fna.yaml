@@ -1,0 +1,66 @@
+id: breast_fna
+label: {en: "Breast fine-needle aspirates", es: "Punción aspirativa de mama", ca: "Punció aspirativa de mama"}
+domain: oncology / pathology
+population: {en: "Women with a breast lump sampled by fine-needle aspiration, University of Wisconsin hospitals, 1989-91", es: "Mujeres con un nódulo de mama estudiado por punción aspirativa, hospitales de la Universidad de Wisconsin, 1989-91", ca: "Dones amb un nòdul de mama estudiat per punció aspirativa, hospitals de la Universitat de Wisconsin, 1989-91"}
+
+# Estimated from the 683 complete aspirates of the R dataset biopsy (MASS):
+# nine cytological features scored 1-10, AUC 0.71-0.98 for malignancy; scores
+# in benign lumps from their mean and SD; correlation within benign lumps
+# about 0.2.
+variables:
+  age: {from: dictionary, dist: "normal(52, 12)", range: [25, 85]}
+  family_hist: {from: dictionary}
+
+outcomes:
+  malignant:
+    type: binary
+    label: {en: Malignant tumour, es: Tumor maligno, ca: Tumor maligne}
+    levels: [no, yes]
+    prevalence: 0.35
+    designs: [diagnostic]
+    effects:
+      age: {OR: 1.05, per: 1}
+      family_hist: {OR: 1.6}
+    marker_cor: 0.2
+    markers:
+      clump_thickness: {label: {en: Clump thickness, es: Grosor de los grupos, ca: Gruix dels grups}, dist: "gamma(2.96, 1.67)", range: [1, 10], round: 0, auc: 0.91}
+      cell_size: {label: {en: Uniformity of cell size, es: Uniformidad del tamaño celular, ca: Uniformitat de la mida cel·lular}, dist: "gamma(1.31, 0.86)", range: [1, 10], round: 0, auc: 0.976}
+      cell_shape: {label: {en: Uniformity of cell shape, es: Uniformidad de la forma celular, ca: Uniformitat de la forma cel·lular}, dist: "gamma(1.41, 0.96)", range: [1, 10], round: 0, auc: 0.975}
+      adhesion: {label: {en: Marginal adhesion, es: Adhesión marginal, ca: Adhesió marginal}, dist: "gamma(1.35, 0.92)", range: [1, 10], round: 0, auc: 0.90}
+      epithelial_size: {label: {en: Single epithelial cell size, es: Tamaño de la célula epitelial, ca: Mida de la cèl·lula epitelial}, dist: "gamma(2.11, 0.88)", range: [1, 10], round: 0, auc: 0.93}
+      bare_nuclei: {label: {en: Bare nuclei, es: Núcleos desnudos, ca: Nuclis nus}, dist: "gamma(1.35, 1.18)", range: [1, 10], round: 0, auc: 0.95}
+      chromatin: {label: {en: Bland chromatin, es: Cromatina blanda, ca: Cromatina blana}, dist: "gamma(2.08, 1.06)", range: [1, 10], round: 0, auc: 0.94}
+      nucleoli: {label: {en: Normal nucleoli, es: Nucléolos normales, ca: Nuclèols normals}, dist: "gamma(1.26, 0.95)", range: [1, 10], round: 0, auc: 0.89}
+      mitoses: {label: {en: Mitoses, es: Mitosis, ca: Mitosis}, dist: "gamma(1.07, 0.51)", range: [1, 10], round: 0, auc: 0.71}
+
+references:
+  - "Wolberg WH, Mangasarian OL. Multisurface method of pattern separation for medical diagnosis applied to breast cytology. Proc Natl Acad Sci USA 1990;87:9193-6."
+  - "Data: R dataset biopsy (MASS package), 683 complete aspirates."
+
+i18n:
+  en: {names: {age: age, family_hist: family_hist, malignant: malignant, clump_thickness: clump_thickness, cell_size: cell_size, cell_shape: cell_shape, adhesion: adhesion, epithelial_size: epithelial_size, bare_nuclei: bare_nuclei, chromatin: chromatin, nucleoli: nucleoli, mitoses: mitoses}}
+  es: {names: {age: edad, family_hist: antecedentes_familiares, malignant: maligno, clump_thickness: grosor_grupos, cell_size: tamano_celular, cell_shape: forma_celular, adhesion: adhesion, epithelial_size: tamano_epitelial, bare_nuclei: nucleos_desnudos, chromatin: cromatina, nucleoli: nucleolos, mitoses: mitosis}}
+  ca: {names: {age: edat, family_hist: antecedents_familiars, malignant: maligne, clump_thickness: gruix_grups, cell_size: mida_cellular, cell_shape: forma_cellular, adhesion: adhesio, epithelial_size: mida_epitelial, bare_nuclei: nuclis_nus, chromatin: cromatina, nucleoli: nucleols, mitoses: mitosis}}
+
+teaching:
+  en: >
+    Nine scores, each from 1 to 10, describe what the pathologist sees under
+    the microscope. Several discriminate almost perfectly on their own, so a
+    combined score gains little and many scores tie at 1 in benign lumps (an
+    ROC curve with steps). Choose a threshold for a positive aspirate and
+    report sensitivity and specificity: missing a cancer costs more than an
+    unnecessary biopsy.
+  es: >
+    Nueve puntuaciones, cada una de 1 a 10, describen lo que el patólogo ve al
+    microscopio. Varias discriminan casi perfectamente por sí solas, así que una
+    puntuación combinada gana poco, y muchas empatan en 1 en los nódulos
+    benignos (una curva ROC escalonada). Elija un umbral para una punción
+    positiva e informe la sensibilidad y la especificidad: no detectar un cáncer
+    cuesta más que una biopsia innecesaria.
+  ca: >
+    Nou puntuacions, cadascuna de 1 a 10, descriuen el que el patòleg veu al
+    microscopi. Diverses discriminen gairebé perfectament per si soles, així que
+    una puntuació combinada hi guanya poc, i moltes empaten a 1 en els nòduls
+    benignes (una corba ROC esglaonada). Trieu un llindar per a una punció
+    positiva i informeu la sensibilitat i l'especificitat: no detectar un càncer
+    costa més que una biòpsia innecessària.

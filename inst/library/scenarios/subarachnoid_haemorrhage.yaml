@@ -1,0 +1,73 @@
+id: subarachnoid_haemorrhage
+label: {en: "Biomarkers after subarachnoid haemorrhage", es: "Biomarcadores tras una hemorragia subaracnoidea", ca: "Biomarcadors després d'una hemorràgia subaracnoïdal"}
+domain: neurology
+population: {en: "Patients admitted with aneurysmal subarachnoid haemorrhage, Geneva, 2000s", es: "Pacientes ingresados por hemorragia subaracnoidea aneurismática, Ginebra, años 2000", ca: "Pacients ingressats per hemorràgia subaracnoïdal aneurismàtica, Ginebra, anys 2000"}
+
+# Estimated from the 113 patients of the R dataset aSAH (pROC): poor outcome
+# at 6 months (Glasgow outcome scale 1-3) in 41; AUC 0.73 for S100b and 0.61
+# for NDKA; logistic model on WFNS grade (0.80 per grade), age and sex.
+variables:
+  age: {from: dictionary, dist: "normal(51, 13.5)", range: [18, 85]}
+  sex: {from: dictionary, p: 0.37}
+  wfns:
+    type: ordinal
+    levels: ["1", "2", "3", "4", "5"]
+    probs: [0.345, 0.283, 0.035, 0.142, 0.195]
+    label: {en: WFNS grade at admission, es: Grado WFNS al ingreso, ca: Grau WFNS a l'ingrés}
+
+outcomes:
+  poor_outcome:
+    type: binary
+    label: {en: Poor outcome at 6 months, es: Mala evolución a los 6 meses, ca: Mala evolució als 6 mesos}
+    levels: [no, yes]
+    prevalence: 0.36
+    designs: [diagnostic, cohort]
+    effects:
+      wfns: {OR: [1, 2.23, 4.95, 11, 24.6]}
+      age: {OR: 1.04, per: 1}
+      sex: {OR: 1.8}
+    markers:
+      s100b:
+        label: {en: Serum S100b, es: S100b sérica, ca: S100b sèrica}
+        units: ug/L
+        dist: lognormal(0.16, 0.13)
+        range: [0.03, 2.1]
+        round: 2
+        auc: 0.73
+      ndka:
+        label: {en: Nucleoside diphosphate kinase A (NDKA), es: Nucleósido difosfato quinasa A (NDKA), ca: Nucleòsid difosfat cinasa A (NDKA)}
+        units: ng/mL
+        dist: lognormal(14.9, 12.8)
+        range: [3, 100]
+        round: 1
+        auc: 0.61
+
+references:
+  - "Turck N, Vutskits L, Sanchez-Pena P et al. A multiparameter panel method for outcome prediction following aneurysmal subarachnoid hemorrhage. Intensive Care Med 2010;36:107-15."
+  - "Robin X, Turck N, Hainard A et al. pROC: an open-source package for R and S+ to analyze and compare ROC curves. BMC Bioinformatics 2011;12:77."
+  - "Data: R dataset aSAH (pROC package), 113 patients."
+
+i18n:
+  en: {names: {age: age, sex: sex, wfns: wfns, poor_outcome: poor_outcome, s100b: s100b, ndka: ndka}}
+  es: {names: {age: edad, sex: sexo, wfns: wfns, poor_outcome: mala_evolucion, s100b: s100b, ndka: ndka}}
+  ca: {names: {age: edat, sex: sexe, wfns: wfns, poor_outcome: mala_evolucio, s100b: s100b, ndka: ndka}}
+
+teaching:
+  en: >
+    Do new blood markers add to the clinical grade? The WFNS grade alone
+    predicts poor outcome well; S100b discriminates moderately and NDKA little.
+    Compare the AUC of the clinical model with and without the markers on the
+    same patients (paired ROC curves), and remember that 113 patients give wide
+    intervals around any AUC.
+  es: >
+    ¿Añaden algo los nuevos marcadores en sangre al grado clínico? El grado WFNS
+    solo predice bien la mala evolución; la S100b discrimina moderadamente y la
+    NDKA poco. Compare el AUC del modelo clínico con y sin los marcadores en los
+    mismos pacientes (curvas ROC apareadas), y recuerde que 113 pacientes dan
+    intervalos amplios alrededor de cualquier AUC.
+  ca: >
+    Hi afegeixen alguna cosa els nous marcadors en sang al grau clínic? El grau
+    WFNS sol prediu bé la mala evolució; la S100b discrimina moderadament i la
+    NDKA poc. Compareu l'AUC del model clínic amb i sense els marcadors en els
+    mateixos pacients (corbes ROC aparellades), i recordeu que 113 pacients donen
+    intervals amplis al voltant de qualsevol AUC.

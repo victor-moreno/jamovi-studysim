@@ -1,0 +1,61 @@
+id: glaucoma_hrt
+label: {en: "Glaucoma by laser scanning tomography", es: "Glaucoma por tomografía láser", ca: "Glaucoma per tomografia làser"}
+domain: ophthalmology
+population: {en: "Patients with glaucoma and matched controls, Erlangen, Germany", es: "Pacientes con glaucoma y controles emparejados, Erlangen, Alemania", ca: "Pacients amb glaucoma i controls aparellats, Erlangen, Alemanya"}
+
+# From the 196 eyes of the R dataset GlaucomaM (TH.data): 62 measurements of
+# the optic nerve head by the Heidelberg Retina Tomograph; median AUC 0.73,
+# 25 above 0.75; mean absolute correlation 0.42 among normal eyes. Here a
+# block of 62 standardised measurements, 30 informative (AUC 0.75).
+variables:
+  age: {from: dictionary, dist: "normal(60, 10)", range: [30, 90]}
+
+outcomes:
+  glaucoma:
+    type: binary
+    label: {en: Glaucoma, es: Glaucoma, ca: Glaucoma}
+    levels: [no, yes]
+    prevalence: 0.5
+    designs: [diagnostic]
+    effects:
+      age: {OR: 1.04, per: 1}
+    markers:
+      hrt:
+        label: {en: Optic nerve head measurement (standardised), es: Medida de la cabeza del nervio óptico (estandarizada), ca: Mesura del cap del nervi òptic (estandarditzada)}
+        block: 62
+        informative: 30
+        auc: 0.75
+        rho: 0.42
+
+references:
+  - "Mardin CY, Hothorn T, Peters A et al. New glaucoma classification method based on standard Heidelberg Retina Tomograph parameters by bagging classification trees. J Glaucoma 2003;12:340-6."
+  - "Data: R dataset GlaucomaM (TH.data package), 196 eyes."
+
+i18n:
+  en: {names: {age: age, glaucoma: glaucoma}}
+  es: {names: {age: edad, glaucoma: glaucoma}}
+  ca: {names: {age: edat, glaucoma: glaucoma}}
+
+teaching:
+  en: >
+    Sixty-two correlated measurements on fewer than two hundred eyes: a model
+    with all of them fits the data it was built on almost perfectly and does
+    much worse on new eyes. Split the data, or cross-validate, or simulate a
+    second study with another seed and measure the AUC there. Selecting the
+    best markers on the same data is optimistic too; penalised regression or
+    trees (as in the original paper) help.
+  es: >
+    Sesenta y dos medidas correlacionadas en menos de doscientos ojos: un modelo
+    con todas ajusta casi perfectamente los datos con los que se construyó y
+    funciona mucho peor en ojos nuevos. Divida los datos, haga validación
+    cruzada o simule un segundo estudio con otra semilla y mida allí el AUC.
+    Seleccionar los mejores marcadores con los mismos datos también es
+    optimista; la regresión penalizada o los árboles (como en el artículo
+    original) ayudan.
+  ca: >
+    Seixanta-dues mesures correlacionades en menys de dos-cents ulls: un model
+    amb totes ajusta gairebé perfectament les dades amb què es va construir i
+    funciona molt pitjor en ulls nous. Dividiu les dades, feu validació creuada
+    o simuleu un segon estudi amb una altra llavor i mesureu-hi l'AUC.
+    Seleccionar els millors marcadors amb les mateixes dades també és optimista;
+    la regressió penalitzada o els arbres (com a l'article original) ajuden.

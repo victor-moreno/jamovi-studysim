@@ -1,0 +1,90 @@
+id: troponin_mi
+label: {en: "High-sensitivity troponin for myocardial infarction", es: "Troponina de alta sensibilidad para el infarto de miocardio", ca: "Troponina d'alta sensibilitat per a l'infart de miocardi"}
+domain: cardiovascular
+population: {en: "Patients presenting to the emergency department with acute chest pain (APACE), 2006-08", es: "Pacientes que acuden a urgencias por dolor torácico agudo (APACE), 2006-08", ca: "Pacients que arriben a urgències per dolor toràcic agut (APACE), 2006-08"}
+
+# From the published results: acute myocardial infarction in 17% of 718
+# patients; AUC 0.95-0.96 for the high-sensitivity assays and 0.90 for the
+# standard assay at presentation. Risk factors with teaching-grade odds
+# ratios.
+variables:
+  age: {from: dictionary, dist: "normal(64, 13)", range: [25, 95]}
+  sex: {from: dictionary, p: 0.70}
+  diabetes: {from: dictionary, p: 0.18}
+  prior_cad:
+    type: binary
+    p: 0.32
+    levels: [no, yes]
+    label: {en: Known coronary artery disease, es: Cardiopatía isquémica conocida, ca: Cardiopatia isquèmica coneguda}
+  early:
+    type: binary
+    p: 0.35
+    levels: [no, yes]
+    label: {en: Pain began less than 3 hours ago, es: Dolor de menos de 3 horas, ca: Dolor de menys de 3 hores}
+
+structure:
+  - [age, prior_cad, 0.30]
+
+outcomes:
+  ami:
+    type: binary
+    label: {en: Acute myocardial infarction, es: Infarto agudo de miocardio, ca: Infart agut de miocardi}
+    levels: [no, yes]
+    prevalence: 0.17
+    designs: [diagnostic, cross_sectional]
+    effects:
+      age: {OR: 1.04, per: 1}
+      sex: {OR: 1.6}
+      diabetes: {OR: 1.4}
+      prior_cad: {OR: 1.5}
+    marker_cor: 0.7
+    markers:
+      hs_troponin:
+        label: {en: High-sensitivity troponin T, es: Troponina T de alta sensibilidad, ca: Troponina T d'alta sensibilitat}
+        units: ng/L
+        dist: lognormal(8, 7)
+        range: [3, 10000]
+        round: 0
+        auc: 0.96
+      troponin:
+        label: {en: Standard troponin T, es: Troponina T convencional, ca: Troponina T convencional}
+        units: ug/L
+        dist: lognormal(0.012, 0.012)
+        range: [0.001, 25]
+        round: 3
+        auc: 0.90
+
+null_variables: [early]
+
+references:
+  - "Reichlin T, Hochholzer W, Bassetti S et al. Early diagnosis of myocardial infarction with sensitive cardiac troponin assays. N Engl J Med 2009;361:858-67."
+  - "Thygesen K, Alpert JS, Jaffe AS et al. Fourth universal definition of myocardial infarction. Circulation 2018;138:e618-51."
+
+i18n:
+  en: {names: {age: age, sex: sex, diabetes: diabetes, prior_cad: prior_cad, early: early_presenter, ami: ami, hs_troponin: hs_troponin, troponin: troponin}}
+  es: {names: {age: edad, sex: sexo, diabetes: diabetes, prior_cad: cardiopatia_previa, early: llegada_precoz, ami: iam, hs_troponin: troponina_as, troponin: troponina}}
+  ca: {names: {age: edat, sex: sexe, diabetes: diabetis, prior_cad: cardiopatia_previa, early: arribada_precoc, ami: iam, hs_troponin: troponina_as, troponin: troponina}}
+
+teaching:
+  en: >
+    Two assays of the same protein: the high-sensitivity test separates
+    infarction from other chest pain better (AUC 0.96 vs 0.90), mainly by
+    detecting the small rises of early infarctions. Because both measure the
+    same thing they are strongly correlated, so compare them on the same
+    patients with paired ROC methods, and choose rule-out and rule-in
+    thresholds: a very high sensitivity to send people home safely.
+  es: >
+    Dos ensayos de la misma proteína: la prueba de alta sensibilidad separa
+    mejor el infarto de otros dolores torácicos (AUC 0,96 frente a 0,90), sobre
+    todo porque detecta las pequeñas elevaciones de los infartos precoces. Como
+    miden lo mismo están muy correlacionadas, así que compárelas en los mismos
+    pacientes con métodos ROC apareados, y elija umbrales para descartar y
+    confirmar: una sensibilidad muy alta para enviar a casa con seguridad.
+  ca: >
+    Dos assajos de la mateixa proteïna: la prova d'alta sensibilitat separa
+    millor l'infart d'altres dolors toràcics (AUC 0,96 enfront de 0,90),
+    sobretot perquè detecta les petites elevacions dels infarts precoços. Com
+    que mesuren el mateix estan molt correlacionades, així que compareu-les en
+    els mateixos pacients amb mètodes ROC aparellats, i trieu llindars per
+    descartar i confirmar: una sensibilitat molt alta per enviar a casa amb
+    seguretat.

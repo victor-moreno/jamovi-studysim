@@ -489,6 +489,8 @@ sim_diagnostic <- function(sc, oc, cal, seed, n, opt) {
     y <- r$data$.y
     mk <- with_seed(derive_seed(seed, sc$id, oc$id, "markers", n), {
         cols <- list()
+        rc <- oc$marker_cor %||% 0
+        shared <- if (rc > 0) stats::rnorm(n) else 0
         for (m in oc$markers) {
             if (!is.null(m$block)) {
                 f <- stats::rnorm(n)
@@ -498,7 +500,7 @@ sim_diagnostic <- function(sc, oc, cal, seed, n, opt) {
                 nm <- marker_cols(m)
                 for (j in seq_len(m$block)) cols[[nm[j]]] <- round(E[, j], 3)
             } else {
-                z <- stats::rnorm(n) + m$dir * m$delta * y
+                z <- sqrt(rc) * shared + sqrt(1 - rc) * stats::rnorm(n) + m$dir * m$delta * y
                 x <- if (is.null(m$dist)) z else qdist(stats::pnorm(z), m$dist, m$range)
                 cols[[m$id]] <- if (!is.null(m$round)) round(x, m$round) else round(x, 3)
             }
