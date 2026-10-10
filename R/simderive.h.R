@@ -11,6 +11,8 @@ simDeriveOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             covs = NULL,
             outcomeType = "auto",
             logOutcome = FALSE,
+            missingMethod = "complete",
+            imputations = 20,
             scenarioId = "derived_scenario",
             scenarioLabel = "",
             sourceName = "",
@@ -66,6 +68,21 @@ simDeriveOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "logOutcome",
                 logOutcome,
                 default=FALSE)
+            private$..missingMethod <- jmvcore::OptionList$new(
+                "missingMethod",
+                missingMethod,
+                options=list(
+                    "complete",
+                    "mean",
+                    "single",
+                    "multiple"),
+                default="complete")
+            private$..imputations <- jmvcore::OptionInteger$new(
+                "imputations",
+                imputations,
+                default=20,
+                min=2,
+                max=100)
             private$..scenarioId <- jmvcore::OptionString$new(
                 "scenarioId",
                 scenarioId,
@@ -100,6 +117,8 @@ simDeriveOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..covs)
             self$.addOption(private$..outcomeType)
             self$.addOption(private$..logOutcome)
+            self$.addOption(private$..missingMethod)
+            self$.addOption(private$..imputations)
             self$.addOption(private$..scenarioId)
             self$.addOption(private$..scenarioLabel)
             self$.addOption(private$..sourceName)
@@ -113,6 +132,8 @@ simDeriveOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         covs = function() private$..covs$value,
         outcomeType = function() private$..outcomeType$value,
         logOutcome = function() private$..logOutcome$value,
+        missingMethod = function() private$..missingMethod$value,
+        imputations = function() private$..imputations$value,
         scenarioId = function() private$..scenarioId$value,
         scenarioLabel = function() private$..scenarioLabel$value,
         sourceName = function() private$..sourceName$value,
@@ -125,6 +146,8 @@ simDeriveOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..covs = NA,
         ..outcomeType = NA,
         ..logOutcome = NA,
+        ..missingMethod = NA,
+        ..imputations = NA,
         ..scenarioId = NA,
         ..scenarioLabel = NA,
         ..sourceName = NA,
@@ -164,7 +187,9 @@ simDeriveResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "logOutcome",
                     "scenarioId",
                     "scenarioLabel",
-                    "sourceName")))
+                    "sourceName",
+                    "missingMethod",
+                    "imputations")))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="summary",
@@ -177,7 +202,9 @@ simDeriveResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "logOutcome",
                     "scenarioId",
                     "scenarioLabel",
-                    "sourceName")))
+                    "sourceName",
+                    "missingMethod",
+                    "imputations")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="variables",
@@ -191,7 +218,9 @@ simDeriveResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "logOutcome",
                     "scenarioId",
                     "scenarioLabel",
-                    "sourceName"),
+                    "sourceName",
+                    "missingMethod",
+                    "imputations"),
                 columns=list(
                     list(
                         `name`="name", 
@@ -227,7 +256,9 @@ simDeriveResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "logOutcome",
                     "scenarioId",
                     "scenarioLabel",
-                    "sourceName"),
+                    "sourceName",
+                    "missingMethod",
+                    "imputations"),
                 columns=list(
                     list(
                         `name`="variable", 
@@ -260,6 +291,11 @@ simDeriveResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="Crude", 
                         `type`="number"),
                     list(
+                        `name`="complete_case", 
+                        `title`="Complete cases", 
+                        `type`="number", 
+                        `visible`="(missingMethod:mean || missingMethod:single || missingMethod:multiple)"),
+                    list(
                         `name`="simulated", 
                         `title`="Re-estimated", 
                         `type`="number", 
@@ -277,7 +313,9 @@ simDeriveResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "logOutcome",
                     "scenarioId",
                     "scenarioLabel",
-                    "sourceName"),
+                    "sourceName",
+                    "missingMethod",
+                    "imputations"),
                 columns=list(
                     list(
                         `name`="a", 
@@ -311,7 +349,9 @@ simDeriveResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "logOutcome",
                     "scenarioId",
                     "scenarioLabel",
-                    "sourceName")))
+                    "sourceName",
+                    "missingMethod",
+                    "imputations")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="exportState",
@@ -327,6 +367,8 @@ simDeriveResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenarioId",
                     "scenarioLabel",
                     "sourceName",
+                    "missingMethod",
+                    "imputations",
                     "exportFormat"),
                 columns=list(
                     list(
@@ -375,6 +417,9 @@ simDeriveBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param covs .
 #' @param outcomeType .
 #' @param logOutcome .
+#' @param missingMethod how the outcome model handles missing covariates;
+#'   multiple imputation is the most accurate and the slowest
+#' @param imputations .
 #' @param scenarioId .
 #' @param scenarioLabel .
 #' @param sourceName .
@@ -406,6 +451,8 @@ simDerive <- function(
     covs,
     outcomeType = "auto",
     logOutcome = FALSE,
+    missingMethod = "complete",
+    imputations = 20,
     scenarioId = "derived_scenario",
     scenarioLabel = "",
     sourceName = "",
@@ -433,6 +480,8 @@ simDerive <- function(
         covs = covs,
         outcomeType = outcomeType,
         logOutcome = logOutcome,
+        missingMethod = missingMethod,
+        imputations = imputations,
         scenarioId = scenarioId,
         scenarioLabel = scenarioLabel,
         sourceName = sourceName,

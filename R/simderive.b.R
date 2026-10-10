@@ -43,7 +43,8 @@ simDeriveClass <- R6::R6Class(
                                               time = o$time, id = id,
                                               label = if (nzchar(trimws(o$scenarioLabel))) trimws(o$scenarioLabel) else NULL,
                                               log_outcome = o$logOutcome,
-                                              source = if (nzchar(trimws(o$sourceName))) trimws(o$sourceName) else "a jamovi dataset"),
+                                              source = if (nzchar(trimws(o$sourceName))) trimws(o$sourceName) else "a jamovi dataset",
+                                              missing = o$missingMethod, m = o$imputations),
                               error = function(e) e)
                 if (inherits(d, "error")) {
                     private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(conditionMessage(d))))
@@ -87,7 +88,17 @@ simDeriveClass <- R6::R6Class(
             for (i in seq_len(nrow(e)))
                 et$addRow(rowKey = paste(e$variable[i], e$contrast[i]), values = list(
                     variable = e$variable[i], contrast = e$contrast[i], measure = e$measure[i],
-                    estimate = e$estimate[i], lower = e$lower[i], upper = e$upper[i], crude = e$crude[i]))
+                    estimate = e$estimate[i], lower = e$lower[i], upper = e$upper[i], crude = e$crude[i],
+                    complete_case = e$complete_case[i]))
+            if (d$missing != "complete")
+                et$setNote("missing", jmvcore::format(.("Adjusted: {method} on {n} rows with the outcome; Complete cases: the same model on the {c} complete rows."),
+                                                      method = switch(d$missing, mean = .("mean / most frequent value imputation"),
+                                                                      single = .("single imputation by chained equations"),
+                                                                      multiple = jmvcore::format(.("multiple imputation ({m} imputations, Rubin's rules)"), m = self$options$imputations)),
+                                                      n = d$rows_model, c = d$complete))
+            if (length(d$warnings))
+                private$.notice(paste0("<p><b>", .("Check before using this scenario"), "</b></p><ul>",
+                                       paste0("<li>", htmlEscape(d$warnings), "</li>", collapse = ""), "</ul>"))
             ct <- self$results$correlations
             cr <- d$correlations
             for (i in seq_len(nrow(cr)))

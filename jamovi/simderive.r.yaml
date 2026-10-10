@@ -8,7 +8,7 @@ items:
       title: ''
       type: Html
       visible: false
-      clearWith: &der [outcome, time, covs, outcomeType, logOutcome, scenarioId, scenarioLabel, sourceName]
+      clearWith: &der [outcome, time, covs, outcomeType, logOutcome, scenarioId, scenarioLabel, sourceName, missingMethod, imputations]
 
     - name: summary
       title: Scenario
@@ -40,6 +40,7 @@ items:
           - {name: lower, title: Lower, type: number, superTitle: 95% CI}
           - {name: upper, title: Upper, type: number, superTitle: 95% CI}
           - {name: crude, title: Crude, type: number}
+          - {name: complete_case, title: Complete cases, type: number, visible: (missingMethod:mean || missingMethod:single || missingMethod:multiple)}
           - {name: simulated, title: Re-estimated, type: number, visible: (validate)}
 
     - name: correlations
@@ -64,7 +65,7 @@ items:
       type: Table
       visible: false
       rows: 0
-      clearWith: [outcome, time, covs, outcomeType, logOutcome, scenarioId, scenarioLabel, sourceName, exportFormat]
+      clearWith: [outcome, time, covs, outcomeType, logOutcome, scenarioId, scenarioLabel, sourceName, missingMethod, imputations, exportFormat]
       columns:
           - {name: fired, title: '', type: text}
 ...

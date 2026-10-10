@@ -64,6 +64,29 @@ options:
       type: Bool
       default: false
 
+    - name: missingMethod
+      title: Missing values in the variables
+      type: List
+      options:
+          - name: complete
+            title: Complete cases
+          - name: mean
+            title: Mean / most frequent value
+          - name: single
+            title: Single imputation (chained equations)
+          - name: multiple
+            title: Multiple imputation
+      default: complete
+      description:
+          R: how the outcome model handles missing covariates; multiple imputation is the most accurate and the slowest
+
+    - name: imputations
+      title: Imputations
+      type: Integer
+      default: 20
+      min: 2
+      max: 100
+
     - name: scenarioId
       title: Scenario id
       type: String

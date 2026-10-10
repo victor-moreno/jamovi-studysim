@@ -406,6 +406,10 @@ check_library <- function(lib) {
         bad <- names(lib$scenarios[[id]]$variables)[!grepl("^[A-Za-z][A-Za-z0-9_]*$", names(lib$scenarios[[id]]$variables))]
         for (b in bad) p[nrow(p) + 1, ] <- list(sprintf("variable '%s'", b), "error",
                                                  "names must start with a letter and use only letters, digits and _")
+        # i18n is by language first: i18n: {es: {names: ..., levels: ...}}
+        for (k in setdiff(names(lib$scenarios[[id]]$i18n), names(lib$scenarios[[id]]$i18n)[grepl("^[a-z]{2}$", names(lib$scenarios[[id]]$i18n))]))
+            p[nrow(p) + 1, ] <- list("i18n", "warning", sprintf(
+                "'%s' is not a language code: write i18n: {es: {names: {...}, levels: {...}}}", k))
         if (!is.null(sc$order) && length(sc$rule_order) && !any(p$level == "error")) {
             # rules are only fully checked by running them
             err <- tryCatch({ with_seed(1, gen_covariates(sc, 200)); NULL }, error = function(e) conditionMessage(e))

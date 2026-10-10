@@ -35,6 +35,12 @@ children:
         name: outcomeType
       - type: CheckBox
         name: logOutcome
+      - type: ComboBox
+        name: missingMethod
+      - type: TextBox
+        name: imputations
+        format: number
+        enable: (missingMethod:multiple)
       - type: TextBox
         name: scenarioId
         format: string

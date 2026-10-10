@@ -59,3 +59,29 @@ test_that("simDerive runs headlessly on a dataset", {
   expect_match(a$summary$content, "binary")
   expect_identical(a$variables$asDF$type[a$variables$asDF$name == "education"], "ordinal")
 })
+
+test_that("Derive handles missing covariates by complete cases, mean, single or multiple imputation", {
+  sc <- load_scenario(builtin_library(), "chd_incidence")
+  f <- c("age", "sex", "smoking", "sbp")
+  full <- simulate_study(sc, "chd", "cohort", 4000, f, seed = 3, key = FALSE)$data
+  r <- simulate_study(sc, "chd", "cohort", 4000, f, seed = 3, key = FALSE, missing = 0.25, missing_mech = "mar")$data
+  ref <- suppressWarnings(derive_scenario(full, "chd", "event", f, time = "time"))$estimates$estimate
+  mi <- suppressWarnings(derive_scenario(r, "chd", "event", f, time = "time", missing = "multiple", m = 5))
+  mn <- suppressWarnings(derive_scenario(r, "chd", "event", f, time = "time", missing = "mean"))
+  expect_lt(max(abs(log(mi$estimates$estimate / ref))), 0.15)
+  expect_gt(max(abs(log(mn$estimates$estimate / ref))), 0.3)
+  expect_true(all(is.finite(mi$estimates$complete_case)))
+  expect_identical(mi$scenario$derivation$missing_method, "multiple")
+  expect_true(any(grepl("complete for the model", mi$warnings)))
+  a <- simDerive(data = r, outcome = "chd", time = "time", covs = c("age", "sex", "smoking", "sbp"), missingMethod = "single", validate = FALSE)
+  expect_true(all(!is.na(a$effects$asDF$complete_case)))
+  expect_match(a$notice$content, "Check before")
+})
+
+test_that("Derive warns about a variable recorded only after the outcome", {
+  set.seed(1)
+  d <- data.frame(y = rbinom(500, 1, 0.3), x = rnorm(500))
+  d$after <- ifelse(d$y == 1, rnorm(500), NA)
+  w <- suppressWarnings(derive_scenario(d, "y", "binary", c("x", "after")))$warnings
+  expect_true(any(grepl("recorded after the outcome", w)))
+})
