@@ -191,7 +191,7 @@ options:
           R: also simulate one large study per design and show its estimates
 
     - name: showPlot
-      title: Plot
+      title: Estimates plot
       type: Bool
       default: true
 

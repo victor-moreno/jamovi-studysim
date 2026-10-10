@@ -301,6 +301,9 @@
             "Estimates by design": [
                 "Estimacions per disseny"
             ],
+            "Estimates plot": [
+                "Gràfic d'estimacions"
+            ],
             "Event (with follow-up time)": [
                 "Esdeveniment (amb temps de seguiment)"
             ],
@@ -519,9 +522,6 @@
             ],
             "Period effect": [
                 "Efecte període"
-            ],
-            "Plot": [
-                "Gràfic"
             ],
             "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them.": [
                 "Premeu <b>Obrir dades</b> per obrir les dades en una finestra nova, o <b>Exportar CSV</b> per desar-les."

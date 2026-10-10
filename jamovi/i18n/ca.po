@@ -487,6 +487,10 @@ msgstr "Estima un escenari de la biblioteca a partir de les dades obertes: la di
 msgid "Estimates by design"
 msgstr "Estimacions per disseny"
 
+#: simCompare/options/showPlot.title
+msgid "Estimates plot"
+msgstr "Gràfic d'estimacions"
+
 #: simDerive/options/outcomeType/event.title
 msgid "Event (with follow-up time)"
 msgstr "Esdeveniment (amb temps de seguiment)"
@@ -832,10 +836,6 @@ msgstr "Persones per regió"
 #: simStudy/options/period.title
 msgid "Period effect"
 msgstr "Efecte període"
-
-#: simCompare/options/showPlot.title
-msgid "Plot"
-msgstr "Gràfic"
 
 #: R/simstudy.b.R
 msgid "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them."
