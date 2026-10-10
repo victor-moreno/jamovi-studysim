@@ -68,7 +68,9 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factorial",
                     "longitudinal",
                     "ecological",
-                    "diagnostic"),
+                    "diagnostic",
+                    "pre_post",
+                    "method_comparison"),
                 default=list(
                     "case_control",
                     "matched_cc",

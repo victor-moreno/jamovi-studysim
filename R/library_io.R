@@ -527,10 +527,14 @@ localise_data <- function(df, lang = "en") {
         attr(df[[nm]], "jmv-desc") <- d
     }
     # an ecological per-level column: translated variable name and level
-    eco <- lapply(df, attr, "eco")
+    # ... and a measurement of the outcome (before, method A): outcome name and suffix
+    eco <- lapply(df, function(x) attr(x, "eco") %||% attr(x, "rename"))
     nms <- dname(names(df), lang)
-    for (j in which(!vapply(eco, is.null, TRUE)))
-        nms[j] <- paste0(dname(eco[[j]][1], lang), "_", gsub("[^[:alnum:]]+", "_", dlevel(eco[[j]][2], lang)))
+    for (j in which(!vapply(eco, is.null, TRUE))) {
+        suf <- eco[[j]][2]
+        suf <- if (suf %in% c("a", "b")) suf else gtext(suf, lang) %||% dlevel(suf, lang)
+        nms[j] <- paste0(dname(eco[[j]][1], lang), "_", gsub("[^[:alnum:]]+", "_", if (nzchar(suf)) suf else dlevel(eco[[j]][2], lang)))
+    }
     names(df) <- nms
     df
 }

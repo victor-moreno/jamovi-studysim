@@ -36,6 +36,23 @@ GENERIC <- list(
     cat_quintiles = list(en = "quintiles", es = "quintiles", ca = "quintils"),
     cat_cuts = list(en = "grouped by cut points", es = "agrupada por puntos de corte", ca = "agrupada per punts de tall"),
     cat_scale = list(en = "divided by", es = "dividida por", ca = "dividida per"),
+    before = list(en = "before", es = "antes", ca = "abans"),
+    method_a = list(en = "method_a", es = "metodo_a", ca = "metode_a"),
+    method_b = list(en = "method_b", es = "metodo_b", ca = "metode_b"),
+    meas_before = list(en = "before the intervention", es = "antes de la intervención", ca = "abans de la intervenció"),
+    meas_after = list(en = "after the intervention", es = "después de la intervención", ca = "després de la intervenció"),
+    by_method = list(en = "measured by method", es = "medida con el método", ca = "mesurada amb el mètode"),
+    change = list(en = "after - before", es = "después - antes", ca = "després - abans"),
+    prepost_note = list(en = "mean change: the effect plus the natural trend and regression to the mean",
+                        es = "cambio medio: el efecto más la tendencia natural y la regresión a la media",
+                        ca = "canvi mitjà: l'efecte més la tendència natural i la regressió a la mitjana"),
+    mc_diff = list(en = "mean difference (B - A)", es = "diferencia media (B - A)", ca = "diferència mitjana (B - A)"),
+    mc_low = list(en = "lower limit of agreement", es = "límite de acuerdo inferior", ca = "límit d'acord inferior"),
+    mc_high = list(en = "upper limit of agreement", es = "límite de acuerdo superior", ca = "límit d'acord superior"),
+    mc_slope = list(en = "B per unit of A (regression)", es = "B por unidad de A (regresión)", ca = "B per unitat d'A (regressió)"),
+    mc_note = list(en = "the regression slope is attenuated by A's own error; the true slope is per unit of the true value",
+                   es = "la pendiente de regresión se atenúa por el error del propio A; la pendiente verdadera es por unidad del valor verdadero",
+                   ca = "el pendent de regressió s'atenua per l'error del mateix A; el pendent veritable és per unitat del valor veritable"),
     extra = list(en = "Extra variable", es = "Variable adicional", ca = "Variable addicional"),
     cat_log2 = list(en = "log2", es = "log2", ca = "log2"),
     cat_log10 = list(en = "log10", es = "log10", ca = "log10"),
@@ -126,6 +143,14 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
     if (!is.null(d$.look)) out$look <- with_desc(as.integer(d$.look), gtext("look", lang))
     if (!is.null(d$.visit)) out$visit <- with_desc(as.integer(d$.visit), gtext("visit", lang))
     olab <- var_desc(oc, lang)
+    # before-after and method comparison: two measurements of the outcome's quantity
+    if (design == "pre_post") {
+        out[[paste0(oc$id, "_before")]] <- structure(with_desc(as.numeric(d$.y0), sprintf("%s, %s", olab, gtext("meas_before", lang))), rename = c(oc$id, "before"))
+        out[[oc$id]] <- with_desc(as.numeric(d$.y), sprintf("%s, %s", olab, gtext("meas_after", lang)))
+    } else if (design == "method_comparison") {
+        for (m in c("a", "b")) out[[paste0(oc$id, "_", m)]] <- structure(with_desc(as.numeric(d[[paste0(".m", m)]]),
+            sprintf("%s, %s %s", olab, gtext("by_method", lang), toupper(m))), rename = c(oc$id, m))
+    } else
     if (design %in% CASE_DESIGNS) {
         lv <- c("control", "case")   # shown in the student's language by localise_data()
         out$case <- with_desc(factor(lv[d$.y + 1L], levels = lv), sprintf("%s: %s", gtext("case", lang), tr_text(oc$label, lang)))
@@ -149,7 +174,7 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
         out[[v]] <- with_desc(code_to_column(d[[v]], vv), var_desc(vv, lang))
     }
     df <- as.data.frame(out, stringsAsFactors = FALSE, check.names = FALSE)
-    for (nm in names(out)) attr(df[[nm]], "jmv-desc") <- attr(out[[nm]], "jmv-desc")
+    for (nm in names(out)) for (a in c("jmv-desc", "rename")) attr(df[[nm]], a) <- attr(out[[nm]], a)
     df
 }
 
@@ -215,7 +240,9 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
     out <- c("id", if (design %in% c("matched_cc", "nested_cc")) "set", if (design == "case_cohort") "subcohort",
              if (design == "cluster_rct") "cluster", if (design == "crossover") c("sequence", "period"), iv,
              if (looks) "look", if (design == "longitudinal") "visit")
-    out <- c(out, if (design %in% CASE_DESIGNS) c("case", if (design == "nested_cc") "time")
+    out <- c(out, if (design == "pre_post") c(paste0(oc$id, "_before"), oc$id)
+                  else if (design == "method_comparison") paste0(oc$id, c("_a", "_b"))
+                  else if (design %in% CASE_DESIGNS) c("case", if (design == "nested_cc") "time")
                   else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct", "case_cohort", "cluster_rct", "factorial")) c("time", oc$id)
                   else oc$id)
     if (design == "diagnostic") out <- c(out, unlist(lapply(oc$markers, marker_cols)))
@@ -228,7 +255,8 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
 planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = list(), opt = list()) {
     cols <- planned_columns(sc, oc, design, factors, opt)
     out <- list()
-    for (nm in setdiff(cols, c("id", "set", "cluster", "look", "visit", "region", "population"))) {
+    iv_pp <- if (design == "pre_post") trial_iv(sc, oc)$id else character()   # everybody treated: not described
+    for (nm in setdiff(cols, c("id", "set", "cluster", "look", "visit", "region", "population", iv_pp))) {
         if (design == "ecological") {
             # region totals, means and percentages; a categorised mean has groups
             spec <- categorize[[nm]]
@@ -245,7 +273,7 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         else if (nm == "case") c("control", "case")
         else if (nm == "subcohort") c("no", "yes")
         else if (grepl("^extra_[0-9]+$", nm)) { if (as.integer(sub("extra_", "", nm)) %% 2 == 1) "cont" else c("no", "yes") }
-        else if (nm == "time" || nm %in% unlist(lapply(oc$markers, marker_cols))) "cont"
+        else if (nm == "time" || nm %in% unlist(lapply(oc$markers, marker_cols)) || nm %in% paste0(oc$id, c("_before", "_a", "_b"))) "cont"
         else if (nm == oc$id) {
             if ("time" %in% cols) { if (!is.null(oc$competing) && design != "case_cohort") c("0", "1", "2") else c("0", "1") }
             else if (oc$type %in% c("binary", "event")) oc$levels else "cont"

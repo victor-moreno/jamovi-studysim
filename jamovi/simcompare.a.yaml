@@ -85,6 +85,10 @@ options:
             title: Ecological (regions)
           - name: diagnostic
             title: Diagnostic accuracy
+          - name: pre_post
+            title: Before-after (single group)
+          - name: method_comparison
+            title: Method comparison
       default: [case_control, matched_cc, cohort]
       description:
           R: designs to compare; those that do not fit the outcome are skipped

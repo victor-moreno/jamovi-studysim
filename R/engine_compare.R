@@ -18,7 +18,7 @@ compare_designs <- function(sc, outcome, designs, n, factors = NULL, seed = 1, s
         r <- simulate_study(sc, outcome, d, n, factors, seed = seed, student_key = student_key, options = options,
                             lang = lang, key = FALSE, categorize = categorize)
         runs[[d]] <- r
-        e <- estimate_table(sc, oc, d, r$data_raw, factors, lang, categorize, ci = TRUE)
+        e <- estimate_table(sc, oc, d, r$data_raw, factors, lang, categorize, ci = TRUE, opt = r$options)
         if (!is.null(e)) { e$design <- d; est[[d]] <- e }
         if (expected) {
             x <- expected_estimates(sc, oc, d, r$options, factors, lang, categorize)

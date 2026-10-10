@@ -56,6 +56,14 @@ simStudyClass <- R6::R6Class(
             if (d == "cluster_rct") { opt$clusters <- o$clusters; opt$icc <- o$icc }
             if (d == "factorial") opt$interaction <- o$interaction
             if (d == "longitudinal") { opt$visits <- o$visits; opt$dropout <- o$dropout / 100 }
+            if (d == "pre_post" && o$threshold > 0) opt$threshold <- o$threshold
+            # method comparison: the panel's neutral values keep the scenario's own
+            if (d == "method_comparison") {
+                if (o$mcBias != 0) opt$bias <- o$mcBias
+                if (o$mcSlope != 1) opt$slope <- o$mcSlope
+                if (o$mcErrorA > 0) opt$error_a <- o$mcErrorA / 100
+                if (o$mcErrorB > 0) opt$error_b <- o$mcErrorB / 100
+            }
             if (d == "ecological") { opt$regions <- o$regions; opt$region_size <- o$regionSize
                                      opt$region_sd <- o$regionSd; opt$context_sd <- o$contextSd }
             if (d == "crossover") {
@@ -110,6 +118,9 @@ simStudyClass <- R6::R6Class(
         },
 
         .expectedRows = function(ctx) {
+            sp <- special_rows(ctx$design, ctx$sc, ctx$oc, ctx$lang)
+            if (!is.null(sp)) return(lapply(seq_len(nrow(sp)), function(i)
+                list(key = paste(sp$variable[i], sp$contrast[i]), variable = sp$variable[i], contrast = sp$contrast[i])))
             iv <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors))
             main <- if (length(iv)) iv else ctx$factors
             rows <- list()
@@ -203,6 +214,10 @@ simStudyClass <- R6::R6Class(
                                                             cc <- marker_cols(m); if (length(cc) > 1) sprintf("%s-%s", cc[1], cc[length(cc)]) else cc }, ""), collapse = ", "))))
             if (!is.null(f$regions)) li <- c(li, jmvcore::format(.("{k} regions of {m} people (the sample size is not used): only totals, means and percentages per region are kept"),
                                                         k = num(f$regions), m = num(f$region_size)))
+            if (ctx$design == "pre_post") li <- c(li, if (!is.null(f$threshold))
+                jmvcore::format(.("everybody treated; only people above the {p}th percentile before were enrolled ({n} screened)"), p = f$threshold, n = num(f$screened))
+                else .("everybody treated, measured before and after; no control group"))
+            if (ctx$design == "method_comparison") li <- c(li, .("the outcome measured twice in each person, by methods A and B"))
             if (!is.null(f$attending)) li <- c(li, jmvcore::format(.("baseline and {k} follow-up visits; participants seen at each visit: {n}"),
                                                           k = f$visits, n = paste(f$attending, collapse = ", ")))
             if (!is.null(f$looks)) li <- c(li, jmvcore::format(.("{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}"),
@@ -385,7 +400,9 @@ design_title <- function(d, self) {
            factorial = .("2x2 factorial trial"),
            longitudinal = .("Longitudinal trial (repeated visits)"),
            ecological = .("Ecological (regions)"),
-           diagnostic = .("Diagnostic accuracy"), d)
+           diagnostic = .("Diagnostic accuracy"),
+           pre_post = .("Before-after (single group)"),
+           method_comparison = .("Method comparison"), d)
 }
 
 # the panel's Variables list -> measured factor ids and the grouping of the

@@ -210,13 +210,52 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     # the measured variables with the same measurement error as the student's data
     fd <- measurement_error(fd, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed("truth", "measurement"))
     fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
-    estimate_table(sc, oc, design, fd, factors, lang, categorize)
+    estimate_table(sc, oc, design, fd, factors, lang, categorize, opt = opt)
 }
 
 # Crude and adjusted estimates of the main contrasts (the intervention, or
 # every measured factor) in one formatted study `fd` (engine names). With
 # ci = TRUE, also the 95% confidence interval of the adjusted estimate.
-estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize = list(), ci = FALSE) {
+# rows of the designs whose key is not a set of contrasts of the factors
+special_rows <- function(design, sc, oc, lang = "en") {
+    if (design == "pre_post")
+        return(data.frame(variable = trial_iv(sc, oc)$id, contrast = gtext("change", lang), stringsAsFactors = FALSE))
+    if (design == "method_comparison")
+        return(data.frame(variable = "method", contrast = vapply(c("mc_diff", "mc_low", "mc_high", "mc_slope"), gtext, "", lang),
+                          stringsAsFactors = FALSE))
+    NULL
+}
+
+# before-after: the mean change, which is what such a study can estimate
+# method comparison: Bland-Altman quantities and the slope of B on A
+special_table <- function(design, sc, oc, fd, lang, opt) {
+    rows <- special_rows(design, sc, oc, lang)
+    z <- stats::qnorm(0.975)
+    if (design == "pre_post") {
+        ch <- fd[[oc$id]] - fd[[paste0(oc$id, "_before")]]
+        ch <- ch[!is.na(ch)]
+        m <- mean(ch); se <- stats::sd(ch) / sqrt(length(ch))
+        eff <- oc$effects[[rows$variable]]
+        out <- data.frame(rows, true = eff$coef[length(eff$coef)], true_measure = "beta", crude = m, adjusted = NA_real_,
+                          lower = m - z * se, upper = m + z * se, measure = "beta", note = gtext("prepost_note", lang),
+                          stringsAsFactors = FALSE)
+    } else {
+        a <- fd[[paste0(oc$id, "_a")]]; b <- fd[[paste0(oc$id, "_b")]]
+        ok <- !is.na(a) & !is.na(b); a <- a[ok]; b <- b[ok]
+        d <- b - a; md <- mean(d); sdd <- stats::sd(d); n <- length(d)
+        f <- stats::lm(b ~ a); sl <- stats::coef(f)[[2]]; sse <- sqrt(stats::vcov(f)[2, 2])
+        out <- data.frame(rows,
+            true = c(opt$bias + (opt$slope - 1) * mean(a), NA, NA, opt$slope), true_measure = "beta",
+            crude = c(md, md - z * sdd, md + z * sdd, sl), adjusted = NA_real_,
+            lower = c(md - z * sdd / sqrt(n), NA, NA, sl - z * sse), upper = c(md + z * sdd / sqrt(n), NA, NA, sl + z * sse),
+            measure = "", note = c("", "", "", gtext("mc_note", lang)), stringsAsFactors = FALSE)
+    }
+    attr(out, "n") <- nrow(fd); attr(out, "adjusted_for") <- character()
+    out
+}
+
+estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize = list(), ci = FALSE, opt = list()) {
+    if (design %in% c("pre_post", "method_comparison")) return(special_table(design, sc, oc, fd, lang, opt))
     iv <- intersect(names(sc$interventions), names(fd))
     main <- if (length(iv)) iv else factors
     if (length(main) == 0) return(NULL)

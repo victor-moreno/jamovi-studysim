@@ -23,6 +23,8 @@ design_defaults <- function(design, oc, sc) {
         longitudinal = list(block = 4, visits = 4, dropout = 0.2, trend = 0),
         ecological = list(regions = 30, region_size = 2000, region_sd = 0.5, context_sd = 0.2),
         diagnostic = list(),
+        pre_post = list(threshold = 0, trend = 0),
+        method_comparison = list(bias = 0, slope = 1, error_a = 0.10, error_b = 0.15),
         case_cohort = list(subcohort = 0.1, followup = oc$followup, loss = 0.02, accrual = 0))
     utils::modifyList(d, sc$design_defaults[[design]] %||% list())
 }
@@ -544,13 +546,64 @@ marker_table <- function(oc, fd) {
     do.call(rbind, rows)
 }
 
+# Before-after study without a control group: everybody gets the
+# intervention; the outcome is measured before (without it) and after.
+# `threshold` (percentile, 0-99) enrols only people whose value before is
+# above it, as when patients are recruited for being high: their values fall
+# on remeasurement anyway (regression to the mean). `trend`: change that would
+# happen without treatment.
+sim_pre_post <- function(sc, oc, cal, seed, n, opt) {
+    if (oc$type != "continuous") stop("a before-after study needs a continuous outcome", call. = FALSE)
+    iv <- trial_iv(sc, oc)
+    rho <- oc$within_cor
+    draw <- function(k) {
+        ch <- pop_chunk(sc, oc$id, seed, k)
+        lp0 <- linear_predictor(oc, ch$cov)
+        tr <- linear_predictor(oc, ch$cov, stats::setNames(list(rep(length(iv$levels), CHUNK)), iv$id)) - lp0
+        e <- with_seed(derive_seed(seed, sc$id, oc$id, "prepost", k), matrix(stats::rnorm(2 * CHUNK), CHUNK))
+        y0 <- cal$a + lp0 + oc$sd * (sqrt(rho) * ch$noise$z + sqrt(1 - rho) * e[, 1])
+        y1 <- cal$a + lp0 + tr + (opt$trend %||% 0) + oc$sd * (sqrt(rho) * ch$noise$z + sqrt(1 - rho) * e[, 2])
+        d <- ch$cov; d$.y0 <- y0; d$.y <- y1; d
+    }
+    th <- opt$threshold %||% 0
+    cut <- if (th > 0) stats::quantile(draw(1)$.y0, th / 100, names = FALSE) else -Inf
+    parts <- list(); have <- 0L; k <- 0L
+    while (have < n) {
+        k <- k + 1L
+        if (k > MAX_SCAN) stop("too few people above the entry threshold; lower it", call. = FALSE)
+        d <- draw(k); d <- d[d$.y0 > cut, , drop = FALSE]
+        parts[[k]] <- d; have <- have + nrow(d)
+    }
+    d <- do.call(rbind, parts)[seq_len(n), , drop = FALSE]
+    d$.y0 <- finish_continuous(d$.y0, oc); d$.y <- finish_continuous(d$.y, oc)
+    rownames(d) <- NULL   # everybody treated: no treatment column
+    list(data = d, facts = list(screened = if (th > 0) k * CHUNK else NULL, threshold = if (th > 0) th else NULL))
+}
+
+# Method comparison: the outcome's quantity measured by two methods in the
+# same people: A = true + error, B = bias + slope x true + error (errors as a
+# share of the outcome's SD).
+sim_method_comparison <- function(sc, oc, cal, seed, n, opt) {
+    if (oc$type != "continuous") stop("a method comparison needs a continuous outcome", call. = FALSE)
+    pop <- population(sc, oc$id, seed, n)
+    true <- draw_outcome(oc, cal, linear_predictor(oc, pop$cov), pop$noise)
+    e <- with_seed(derive_seed(seed, sc$id, oc$id, "methods", n), matrix(stats::rnorm(2 * n), n))
+    s <- stats::sd(true)
+    a <- true + opt$error_a * s * e[, 1]
+    b <- opt$bias + opt$slope * true + opt$error_b * s * e[, 2]
+    rd <- function(x) if (!is.null(oc$round)) round(x, oc$round + 1) else x
+    d <- pop$cov; d$.ma <- rd(a); d$.mb <- rd(b)
+    list(data = d, facts = list(method_bias = opt$bias, method_slope = opt$slope))
+}
+
 run_design <- function(design, sc, oc, cal, seed, n, opt) {
     f <- switch(design,
         cross_sectional = sim_cross_sectional, cohort = sim_cohort, prognosis = sim_cohort,
         case_control = sim_case_control, matched_cc = sim_matched_cc,
         rct = sim_rct, crossover = sim_crossover, nested_cc = sim_nested_cc, case_cohort = sim_case_cohort,
         cluster_rct = sim_cluster_rct, factorial = sim_factorial, longitudinal = sim_longitudinal,
-        ecological = sim_ecological, diagnostic = sim_diagnostic,
+        ecological = sim_ecological, diagnostic = sim_diagnostic, pre_post = sim_pre_post,
+        method_comparison = sim_method_comparison,
         stop(sprintf("unknown design '%s'", design), call. = FALSE))
     f(sc, oc, cal, seed, n, opt)
 }

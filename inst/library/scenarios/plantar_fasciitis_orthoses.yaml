@@ -42,7 +42,7 @@ outcomes:
     round: 0
     range: [0, 100]
     within_cor: 0.5
-    designs: [rct]
+    designs: [rct, pre_post]
     effects:
       orthosis: {beta: [0, 7.0, 7.5]}
       bmi: {beta: -0.5, per: 1}
@@ -51,6 +51,9 @@ outcomes:
 
 null_variables: [age, sex]
 
+
+designs:
+  pre_post: {trend: 15}
 references:
   - "Landorf KB, Keenan AM, Herbert RD. Effectiveness of foot orthoses to treat plantar fasciitis: a randomized trial. Arch Intern Med 2006;166:1305-10."
 

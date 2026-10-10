@@ -9,7 +9,7 @@
 
 var BUILTIN = require('./builtin');
 
-var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis', 'nested_cc', 'case_cohort', 'cluster_rct', 'factorial', 'longitudinal', 'ecological', 'diagnostic'];
+var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis', 'nested_cc', 'case_cohort', 'cluster_rct', 'factorial', 'longitudinal', 'ecological', 'diagnostic', 'pre_post', 'method_comparison'];
 var LIB_MAX = 700000;   // base64 characters; the options hop to the engine is 1 MiB
 
 function getOpt(ui, name) {
@@ -151,13 +151,13 @@ function designsFor(sc, oc) {
     var hasIv = effects.some(function(v) { return ivs.hasOwnProperty(v); });
     var d = ({ binary: ['cross_sectional', 'cohort', 'case_control', 'matched_cc', 'ecological'],
                event: ['cohort', 'case_control', 'matched_cc', 'nested_cc', 'case_cohort', 'ecological'],
-               continuous: ['cross_sectional', 'cohort', 'ecological'],
+               continuous: ['cross_sectional', 'cohort', 'ecological', 'method_comparison'],
                count: ['cross_sectional', 'cohort', 'ecological'] })[oc.type] || [];
     d = d.slice();
     if (oc.markers && Object.keys(oc.markers).length) d.push('diagnostic');
     if (hasIv) {
         d.push('rct', 'cluster_rct');
-        if (oc.type === 'continuous') d.push('crossover', 'longitudinal');
+        if (oc.type === 'continuous') d.push('crossover', 'longitudinal', 'pre_post');
         var two = effects.filter(function(v) { return ivs.hasOwnProperty(v) && (ivs[v].levels || ['a', 'b']).length === 2; });
         if (two.length >= 2) d.push('factorial');
     }

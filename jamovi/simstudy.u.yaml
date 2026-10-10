@@ -141,6 +141,26 @@ children:
             format: number
             enable: (design:ecological)
           - type: TextBox
+            name: threshold
+            format: number
+            enable: (design:pre_post)
+          - type: TextBox
+            name: mcBias
+            format: number
+            enable: (design:method_comparison)
+          - type: TextBox
+            name: mcSlope
+            format: number
+            enable: (design:method_comparison)
+          - type: TextBox
+            name: mcErrorA
+            format: number
+            enable: (design:method_comparison)
+          - type: TextBox
+            name: mcErrorB
+            format: number
+            enable: (design:method_comparison)
+          - type: TextBox
             name: period
             format: number
             enable: (design:crossover)

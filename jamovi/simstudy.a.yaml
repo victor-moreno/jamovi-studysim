@@ -73,6 +73,10 @@ options:
             title: Ecological (regions)
           - name: diagnostic
             title: Diagnostic accuracy
+          - name: pre_post
+            title: Before-after (single group)
+          - name: method_comparison
+            title: Method comparison
       default: any
       description:
           R: shows in the pickers only the scenarios (and outcomes) that fit this design
@@ -308,6 +312,47 @@ options:
       max: 2
       description:
           R: ecological study, SD of an unexplained region effect on the outcome (linear predictor scale)
+
+    - name: threshold
+      title: Enrol only above percentile
+      type: Number
+      default: 0
+      min: 0
+      max: 95
+      description:
+          R: before-after study, enrol only people whose value before is above this percentile (0 = everybody)
+
+    - name: mcBias
+      title: Bias of method B
+      type: Number
+      default: 0
+      description:
+          R: method comparison, constant difference B - A in the outcome's units (0 = scenario's value)
+
+    - name: mcSlope
+      title: Proportional bias of method B (slope)
+      type: Number
+      default: 1
+      min: 0.5
+      max: 2
+      description:
+          R: method comparison, B per unit of the true value (1 = scenario's value)
+
+    - name: mcErrorA
+      title: Error of method A (% of SD)
+      type: Number
+      default: 0
+      min: 0
+      max: 100
+      description:
+          R: method comparison, random error of A as a percentage of the outcome's SD (0 = scenario's value)
+
+    - name: mcErrorB
+      title: Error of method B (% of SD)
+      type: Number
+      default: 0
+      min: 0
+      max: 100
 
     - name: period
       title: Period effect

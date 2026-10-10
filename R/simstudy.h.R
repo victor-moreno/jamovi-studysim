@@ -29,6 +29,11 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             regionSize = 2000,
             regionSd = 0.5,
             contextSd = 0.2,
+            threshold = 0,
+            mcBias = 0,
+            mcSlope = 1,
+            mcErrorA = 0,
+            mcErrorB = 0,
             period = 0,
             carryover = 0,
             missing = 0,
@@ -80,7 +85,9 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factorial",
                     "longitudinal",
                     "ecological",
-                    "diagnostic"),
+                    "diagnostic",
+                    "pre_post",
+                    "method_comparison"),
                 default="any")
             private$..scenario <- jmvcore::OptionString$new(
                 "scenario",
@@ -240,6 +247,34 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=0.2,
                 min=0,
                 max=2)
+            private$..threshold <- jmvcore::OptionNumber$new(
+                "threshold",
+                threshold,
+                default=0,
+                min=0,
+                max=95)
+            private$..mcBias <- jmvcore::OptionNumber$new(
+                "mcBias",
+                mcBias,
+                default=0)
+            private$..mcSlope <- jmvcore::OptionNumber$new(
+                "mcSlope",
+                mcSlope,
+                default=1,
+                min=0.5,
+                max=2)
+            private$..mcErrorA <- jmvcore::OptionNumber$new(
+                "mcErrorA",
+                mcErrorA,
+                default=0,
+                min=0,
+                max=100)
+            private$..mcErrorB <- jmvcore::OptionNumber$new(
+                "mcErrorB",
+                mcErrorB,
+                default=0,
+                min=0,
+                max=100)
             private$..period <- jmvcore::OptionNumber$new(
                 "period",
                 period,
@@ -348,6 +383,11 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..regionSize)
             self$.addOption(private$..regionSd)
             self$.addOption(private$..contextSd)
+            self$.addOption(private$..threshold)
+            self$.addOption(private$..mcBias)
+            self$.addOption(private$..mcSlope)
+            self$.addOption(private$..mcErrorA)
+            self$.addOption(private$..mcErrorB)
             self$.addOption(private$..period)
             self$.addOption(private$..carryover)
             self$.addOption(private$..missing)
@@ -390,6 +430,11 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         regionSize = function() private$..regionSize$value,
         regionSd = function() private$..regionSd$value,
         contextSd = function() private$..contextSd$value,
+        threshold = function() private$..threshold$value,
+        mcBias = function() private$..mcBias$value,
+        mcSlope = function() private$..mcSlope$value,
+        mcErrorA = function() private$..mcErrorA$value,
+        mcErrorB = function() private$..mcErrorB$value,
         period = function() private$..period$value,
         carryover = function() private$..carryover$value,
         missing = function() private$..missing$value,
@@ -431,6 +476,11 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..regionSize = NA,
         ..regionSd = NA,
         ..contextSd = NA,
+        ..threshold = NA,
+        ..mcBias = NA,
+        ..mcSlope = NA,
+        ..mcErrorA = NA,
+        ..mcErrorB = NA,
         ..period = NA,
         ..carryover = NA,
         ..missing = NA,
@@ -499,6 +549,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "regionSize",
                     "regionSd",
                     "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
                     "period",
                     "carryover",
                     "missing",
@@ -535,6 +590,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "regionSize",
                     "regionSd",
                     "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
                     "period",
                     "carryover",
                     "missing",
@@ -573,6 +633,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "regionSize",
                     "regionSd",
                     "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
                     "period",
                     "carryover",
                     "missing",
@@ -632,6 +697,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "regionSize",
                     "regionSd",
                     "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
                     "period",
                     "carryover",
                     "missing",
@@ -736,7 +806,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "period",
                     "carryover",
                     "reliability",
-                    "misclass"),
+                    "misclass",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB"),
                 columns=list(
                     list(
                         `name`="variable", 
@@ -825,6 +900,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "regionSize",
                     "regionSd",
                     "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
                     "period",
                     "carryover",
                     "missing",
@@ -863,6 +943,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "regionSize",
                     "regionSd",
                     "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
                     "period",
                     "carryover",
                     "missing",
@@ -906,6 +991,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "regionSize",
                     "regionSd",
                     "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
                     "period",
                     "carryover",
                     "missing",
@@ -1000,6 +1090,15 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   variables (latent standard-normal scale)
 #' @param contextSd ecological study, SD of an unexplained region effect on
 #'   the outcome (linear predictor scale)
+#' @param threshold before-after study, enrol only people whose value before
+#'   is above this percentile (0 = everybody)
+#' @param mcBias method comparison, constant difference B - A in the outcome's
+#'   units (0 = scenario's value)
+#' @param mcSlope method comparison, B per unit of the true value (1 =
+#'   scenario's value)
+#' @param mcErrorA method comparison, random error of A as a percentage of the
+#'   outcome's SD (0 = scenario's value)
+#' @param mcErrorB .
 #' @param period .
 #' @param carryover .
 #' @param missing .
@@ -1067,6 +1166,11 @@ simStudy <- function(
     regionSize = 2000,
     regionSd = 0.5,
     contextSd = 0.2,
+    threshold = 0,
+    mcBias = 0,
+    mcSlope = 1,
+    mcErrorA = 0,
+    mcErrorB = 0,
     period = 0,
     carryover = 0,
     missing = 0,
@@ -1117,6 +1221,11 @@ simStudy <- function(
         regionSize = regionSize,
         regionSd = regionSd,
         contextSd = contextSd,
+        threshold = threshold,
+        mcBias = mcBias,
+        mcSlope = mcSlope,
+        mcErrorA = mcErrorA,
+        mcErrorB = mcErrorB,
         period = period,
         carryover = carryover,
         missing = missing,

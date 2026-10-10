@@ -37,7 +37,7 @@ outcomes:
     round: 0
     range: [0, 63]
     within_cor: 0.65
-    designs: [longitudinal, rct]
+    designs: [longitudinal, rct, pre_post]
     effects:
       treatment: {beta: [0, -3.5]}
       antidepressant: {beta: -2.8}
@@ -45,6 +45,7 @@ outcomes:
 null_variables: [long_episode]
 
 designs:
+  pre_post: {trend: -10}
   longitudinal: {visits: 4, dropout: 0.45, trend: -10}
 
 references:

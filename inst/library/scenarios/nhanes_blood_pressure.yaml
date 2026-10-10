@@ -72,7 +72,7 @@ outcomes:
     sd: 16.1
     round: 0
     range: [75, 230]
-    designs: [cross_sectional]
+    designs: [cross_sectional, method_comparison]
     effects:
       age: {beta: 0.45, per: 1}
       sex: {beta: 4.4}
@@ -83,6 +83,10 @@ outcomes:
 
 null_variables: [smoking, diabetes, active]
 
+
+designs:
+  # home monitor (B) vs clinic measurement (A)
+  method_comparison: {bias: -3, slope: 0.95, error_a: 0.10, error_b: 0.15}
 references:
   - "Centers for Disease Control and Prevention. National Health and Nutrition Examination Survey 2009-2012."
   - "Pruim R. NHANES: Data from the US National Health and Nutrition Examination Study. R package."

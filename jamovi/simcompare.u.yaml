@@ -80,6 +80,14 @@ children:
           name: designs_diagnostic
           optionName: designs
           optionPart: diagnostic
+        - type: CheckBox
+          name: designs_pre_post
+          optionName: designs
+          optionPart: pre_post
+        - type: CheckBox
+          name: designs_method_comparison
+          optionName: designs
+          optionPart: method_comparison
   - type: ListBox
     name: measured
     showColumnHeaders: true

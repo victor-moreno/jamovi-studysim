@@ -46,7 +46,7 @@ outcomes:
     sd: 10
     round: 0
     within_cor: 0.6
-    designs: [rct, crossover, cluster_rct, factorial, longitudinal]
+    designs: [rct, crossover, cluster_rct, factorial, longitudinal, pre_post, method_comparison]
     effects:
       sbp0: {beta: 0.6, per: 1}
       age: {beta: 0.15, per: 1}
@@ -56,6 +56,9 @@ outcomes:
       diet: {beta: [0, -4]}
 
 designs:
+  pre_post: {threshold: 70, trend: -2}
+  # automated oscillometric (B) vs auscultatory (A) readings
+  method_comparison: {bias: 4, slope: 1.0, error_a: 0.08, error_b: 0.15}
   crossover: {period: -1.5, carryover: 0}
 
 references:

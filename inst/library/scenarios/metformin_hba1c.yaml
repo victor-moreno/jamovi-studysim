@@ -33,7 +33,7 @@ outcomes:
     mean: 8.0
     sd: 0.8
     round: 1
-    designs: [rct, cluster_rct, longitudinal]
+    designs: [rct, cluster_rct, longitudinal, pre_post, method_comparison]
     effects:
       hba1c0: {beta: 0.6, per: 1}
       bmi: {beta: 0.01, per: 1}
@@ -50,6 +50,11 @@ outcomes:
       bmi: {OR: 0.97, per: 1}
       treatment: {OR: [1, 2.5]}
 
+
+designs:
+  pre_post: {threshold: 50}
+  # point-of-care analyser (B) vs laboratory HbA1c (A)
+  method_comparison: {bias: -0.1, slope: 1.03, error_a: 0.04, error_b: 0.12}
 references:
   - "Hirst JA et al. Quantifying the effect of metformin treatment and dose on glycemic control. Diabetes Care 2012;35:446-54."
   - "UK Prospective Diabetes Study (UKPDS) Group. Effect of intensive blood-glucose control with metformin. Lancet 1998;352:854-65."

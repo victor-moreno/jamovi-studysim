@@ -36,13 +36,15 @@ outcomes:
     round: 1
     range: [2, 60]
     within_cor: 0.6
-    designs: [longitudinal, rct]
+    designs: [longitudinal, rct, method_comparison]
     effects:
       treatment: {beta: [0, -2.4]}
 
 null_variables: [age_months, sex]
 
 designs:
+  # capillary finger-stick (B) vs venous blood lead (A)
+  method_comparison: {bias: 1.5, slope: 1.05, error_a: 0.05, error_b: 0.20}
   longitudinal: {visits: 3, dropout: 0.05, trend: -3.3, profile: [4.7, 3.6, 1]}
 
 references:

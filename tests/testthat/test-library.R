@@ -85,6 +85,7 @@ test_that("the three language dictionaries name every column uniquely and validl
         cols <- planned_columns(sc, sc$outcomes[[o]], des, sc$order)
         cols <- setdiff(cols, unlist(lapply(sc$order, function(v) setdiff(eco_cols(sc, v), v))))
         cols <- setdiff(cols, unlist(lapply(Filter(function(m) !is.null(m$block), sc$outcomes[[o]]$markers), marker_cols)))
+        cols <- setdiff(cols, paste0(o, c("_before", "_a", "_b")))   # named from the outcome and a suffix
         nm <- dname(cols, l)
         expect_true(all(cols %in% names(d$names)), info = paste(l, id, setdiff(cols, names(d$names))))
         expect_false(anyDuplicated(nm) > 0, info = paste(l, id, o, des))
