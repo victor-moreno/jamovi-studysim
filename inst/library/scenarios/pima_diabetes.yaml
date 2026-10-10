@@ -1,0 +1,98 @@
+id: pima_diabetes
+label: {en: "Diabetes in Pima women", es: "Diabetes en mujeres pima", ca: "Diabetis en dones pima"}
+domain: metabolic
+population: {en: "Pima Indian women aged 21 and over near Phoenix, Arizona", es: "Mujeres pima de 21 años o más cerca de Phoenix, Arizona", ca: "Dones pima de 21 anys o més a prop de Phoenix, Arizona"}
+
+# Estimated from the 532 complete records of R datasets Pima.tr and Pima.te
+# (MASS): logistic model of diabetes (WHO criteria) on pregnancies, diastolic
+# pressure, BMI, diabetes pedigree function and age; glucose two hours after
+# an oral glucose load as a diagnostic marker (AUC 0.79; non-diabetic mean
+# 110, SD 24 mg/dL).
+variables:
+  age: {from: dictionary, dist: "lognormal(31.6, 10.8)", range: [21, 81]}
+  pregnancies:
+    type: count
+    dist: negbin(3.5, 1.7)
+    range: [0, 17]
+    label: {en: Number of pregnancies, es: Número de embarazos, ca: Nombre d'embarassos}
+  bmi: {from: dictionary, dist: "lognormal(32.9, 6.9)", range: [18, 67]}
+  diastolic:
+    type: continuous
+    dist: normal(71.5, 12.3)
+    range: [24, 110]
+    round: 0
+    units: mmHg
+    label: {en: Diastolic blood pressure, es: Presión diastólica, ca: Pressió diastòlica}
+  pedigree:
+    type: continuous
+    dist: lognormal(0.50, 0.34)
+    range: [0.08, 2.42]
+    round: 3
+    label: {en: Diabetes pedigree function (family history), es: Función de pedigrí de diabetes (antecedentes familiares), ca: Funció de pedigrí de diabetis (antecedents familiars)}
+
+structure:
+  - [age, pregnancies, 0.67]
+  - [age, diastolic, 0.36]
+  - [bmi, diastolic, 0.31]
+
+correlations:
+  - [bmi, pedigree, 0.17]
+
+outcomes:
+  diabetes:
+    type: binary
+    label: {en: Type 2 diabetes, es: Diabetes tipo 2, ca: Diabetis tipus 2}
+    levels: [no, yes]
+    prevalence: 0.33
+    designs: [cross_sectional, diagnostic, case_control]
+    effects:
+      age: {OR: 1.05, per: 1}
+      pregnancies: {OR: 1.09, per: 1}
+      bmi: {OR: 1.69, per: 5}
+      pedigree: {OR: 1.94, per: 0.5}
+    markers:
+      glucose:
+        label: {en: Plasma glucose 2 h after a glucose load, es: Glucosa plasmática 2 h tras una sobrecarga, ca: Glucosa plasmàtica 2 h després d'una sobrecàrrega}
+        units: mg/dL
+        dist: normal(110, 24)
+        range: [56, 199]
+        round: 0
+        auc: 0.79
+        direction: higher
+
+null_variables: [diastolic]
+
+references:
+  - "Smith JW, Everhart JE, Dickson WC, Knowler WC, Johannes RS. Using the ADAP learning algorithm to forecast the onset of diabetes mellitus. Proc Symp Comput Appl Med Care 1988:261-5."
+  - "Knowler WC, Bennett PH, Hamman RF, Miller M. Diabetes incidence and prevalence in Pima Indians: a 19-fold greater incidence than in Rochester, Minnesota. Am J Epidemiol 1978;108:497-505."
+  - "Data: R datasets Pima.tr and Pima.te (MASS package), 532 women."
+
+i18n:
+  en: {names: {age: age, pregnancies: pregnancies, bmi: bmi, diastolic: diastolic, pedigree: pedigree, diabetes: diabetes, glucose: glucose}}
+  es: {names: {age: edad, pregnancies: embarazos, bmi: imc, diastolic: pad, pedigree: pedigri, diabetes: diabetes, glucose: glucosa}}
+  ca: {names: {age: edat, pregnancies: embarassos, bmi: imc, diastolic: pad, pedigree: pedigri, diabetes: diabetis, glucose: glucosa}}
+
+teaching:
+  en: >
+    One woman in three has diabetes, one of the highest prevalences in the
+    world. BMI and family history (the pedigree function) are the main factors;
+    the number of pregnancies looks important only because it rises with age.
+    Glucose two hours after a glucose load separates diabetic from non-diabetic
+    women with an AUC near 0.8, but the same test defines the disease, so its
+    accuracy is overstated (incorporation bias).
+  es: >
+    Una de cada tres mujeres tiene diabetes, una de las prevalencias más altas
+    del mundo. El IMC y los antecedentes familiares (la función de pedigrí) son
+    los factores principales; el número de embarazos solo parece importante
+    porque aumenta con la edad. La glucosa dos horas tras una sobrecarga separa a
+    las diabéticas de las no diabéticas con un AUC cercano a 0,8, pero la misma
+    prueba define la enfermedad, así que su exactitud está sobrestimada (sesgo de
+    incorporación).
+  ca: >
+    Una de cada tres dones té diabetis, una de les prevalences més altes del
+    món. L'IMC i els antecedents familiars (la funció de pedigrí) són els
+    factors principals; el nombre d'embarassos només sembla important perquè
+    augmenta amb l'edat. La glucosa dues hores després d'una sobrecàrrega separa
+    les diabètiques de les no diabètiques amb un AUC proper a 0,8, però la mateixa
+    prova defineix la malaltia, per això la seva exactitud està sobreestimada
+    (biaix d'incorporació).

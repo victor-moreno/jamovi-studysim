@@ -426,10 +426,19 @@ sim_ecological <- function(sc, oc, cal, seed, n, opt) {
     if (n < 3) stop("an ecological study needs at least 3 regions", call. = FALSE)
     if (m < 10) stop("regions need at least 10 people", call. = FALSE)
     exo <- sc$exogenous
+    # between-region correlations: the individual ones, unless `between`
+    # (triples variable, variable, r) sets them (contextual confounding)
+    Rb <- sc$R_exo[exo, exo, drop = FALSE]
+    if (length(opt$between)) {
+        b <- matrix(opt$between, ncol = 3, byrow = TRUE)
+        for (i in seq_len(nrow(b))) if (all(b[i, 1:2] %in% exo)) Rb[b[i, 1], b[i, 2]] <- Rb[b[i, 2], b[i, 1]] <- as.numeric(b[i, 3])
+        Rb <- near_pd(Rb)
+    }
+    Lb <- chol(Rb)
     rows <- lapply(seq_len(n), function(g) {
         shift <- with_seed(derive_seed(seed, sc$id, "region", g), {
             z <- stats::rnorm(length(exo))
-            stats::setNames(opt$region_sd * as.numeric(z %*% chol(sc$R_exo[exo, exo, drop = FALSE])), exo)
+            stats::setNames(opt$region_sd * as.numeric(z %*% Lb), exo)
         })
         ctx <- with_seed(derive_seed(seed, sc$id, oc$id, "context", g), stats::rnorm(1)) * opt$context_sd
         cov <- with_seed(derive_seed(seed, sc$id, "region people", g), gen_covariates(sc, m, shift))

@@ -192,7 +192,7 @@ factors with no effect), `designs` (default options per design, below),
 | `cluster_rct` | `clusters` 20, `icc` 0.05, `followup`, `loss` |
 | `factorial` | `interaction` 0 (beta, or log OR/HR/RR, for those given both), `followup`, `loss` |
 | `longitudinal` | `visits` 4, `dropout` 0.2 (fraction missing the last visit) |
-| `ecological` | `regions` 30, `region_size` 2000, `region_sd` 0.5, `context_sd` 0.2 |
+| `ecological` | `regions` 30, `region_size` 2000, `region_sd` 0.5, `context_sd` 0.2, `between` (triples `[a, b, r, ...]`: correlations of the regions' shifts of exogenous variables, when regions differ more coherently than people) |
 | `crossover` | `period` 0, `carryover` 0 |
 
 For example `matched_cc: {match: [age, sex], caliper: 2}`, `prognosis: {accrual: 4,

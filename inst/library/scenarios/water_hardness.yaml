@@ -1,0 +1,96 @@
+id: water_hardness
+label: {en: "Water hardness and mortality", es: "Dureza del agua y mortalidad", ca: "Duresa de l'aigua i mortalitat"}
+domain: environmental
+population: {en: "Men aged 45-64 in large towns of England and Wales, 1958-64", es: "Hombres de 45 a 64 años de grandes ciudades de Inglaterra y Gales, 1958-64", ca: "Homes de 45 a 64 anys de grans ciutats d'Anglaterra i Gal·les, 1958-64"}
+
+# From the 61 towns of the R dataset water (HSAUR3): mean mortality 1524 per
+# 100,000 per year; the slope on calcium hardness, -3.2 deaths per 100,000
+# per ppm, falls to -2.0 within the north/south regions (HR 0.987 per 10 ppm
+# for individuals here). Northern towns have softer water and more smoking and
+# manual work.
+variables:
+  age: {from: dictionary, dist: "uniform(45, 64)"}
+  north:
+    type: binary
+    p: 0.57
+    levels: [south, north]
+    label: {en: Region, es: Región, ca: Regió}
+  hardness:
+    type: continuous
+    dist: gamma(47, 38)
+    range: [5, 140]
+    round: 0
+    units: ppm
+    label: {en: Calcium hardness of drinking water, es: Dureza cálcica del agua de bebida, ca: Duresa càlcica de l'aigua de beure}
+  smoking:
+    type: binary
+    p: 0.55
+    levels: [no, yes]
+    label: {en: Current smoker, es: Fumador actual, ca: Fumador actual}
+  manual:
+    type: binary
+    p: 0.60
+    levels: [no, yes]
+    label: {en: Manual occupation, es: Ocupación manual, ca: Ocupació manual}
+
+structure:
+  - [north, hardness, -0.55]
+  - [north, smoking, 0.15]
+  - [north, manual, 0.25]
+
+outcomes:
+  death:
+    type: event
+    label: {en: Death from any cause, es: Muerte por cualquier causa, ca: Mort per qualsevol causa}
+    rate: 0.0152
+    window: 10
+    followup: 10
+    designs: [ecological, cohort]
+    effects:
+      age: {HR: 1.08, per: 1}
+      hardness: {HR: 0.987, per: 10}
+      north: {HR: 1.05}
+      smoking: {HR: 1.8}
+      manual: {HR: 1.25}
+
+designs:
+  ecological: {regions: 61, region_size: 3000, region_sd: 1.2, context_sd: 0.05}
+
+references:
+  - "Gardner MJ, Crawford MD, Morris JN. Patterns of mortality in middle and early old age in the county boroughs of England and Wales. Br J Prev Soc Med 1969;23:133-40."
+  - "Catling LA, Abubakar I, Lake IR et al. A systematic review of analytical observational studies investigating the association between cardiovascular disease and drinking water hardness. J Water Health 2008;6:433-42."
+  - "Data: R dataset water (HSAUR3 package), 61 towns."
+
+i18n:
+  en: {names: {age: age, north: region, hardness: hardness, smoking: smoking, manual: manual, death: death},
+       levels: {south: south, north: north}}
+  es: {names: {age: edad, north: region, hardness: dureza, smoking: fumador, manual: manual, death: muerte},
+       levels: {south: sur, north: norte}}
+  ca: {names: {age: edat, north: regio, hardness: duresa, smoking: fumador, manual: manual, death: mort},
+       levels: {south: sud, north: nord}}
+
+teaching:
+  en: >
+    A famous ecological association: towns with harder water had lower
+    mortality. Northern towns have softer water but also more smokers and
+    manual workers, so across towns hardness carries the north-south gradient
+    and its slope is several times its small individual effect. Within regions,
+    or in a cohort that measures smoking and occupation, little remains: an
+    ecological association is a hypothesis, not an estimate of an individual
+    effect.
+  es: >
+    Una asociación ecológica famosa: las ciudades con agua más dura tenían menos
+    mortalidad. Las ciudades del norte tienen el agua más blanda pero también más
+    fumadores y trabajadores manuales, así que entre ciudades la dureza arrastra
+    el gradiente norte-sur y su pendiente es varias veces su pequeño efecto
+    individual. Dentro de cada región, o en una cohorte que mide el tabaco y la
+    ocupación, queda poco: una asociación ecológica es una hipótesis, no la
+    estimación de un efecto individual.
+  ca: >
+    Una associació ecològica famosa: les ciutats amb l'aigua més dura tenien
+    menys mortalitat. Les ciutats del nord tenen l'aigua més tova però també més
+    fumadors i treballadors manuals, així que entre ciutats la duresa arrossega el
+    gradient nord-sud i el seu pendent és diverses vegades el seu petit efecte
+    individual. Dins de cada regió, o en una cohort que mesura el tabac i
+    l'ocupació, en queda poc: una associació ecològica és una hipòtesi, no
+    l'estimació d'un efecte individual.

@@ -1,0 +1,119 @@
+id: glow_fracture
+label: {en: "Fracture in older women", es: "Fracturas en mujeres mayores", ca: "Fractures en dones grans"}
+domain: musculoskeletal
+population: {en: "Women aged 55 and over seen in primary care (GLOW study)", es: "Mujeres de 55 años o más atendidas en atención primaria (estudio GLOW)", ca: "Dones de 55 anys o més ateses a l'atenció primària (estudi GLOW)"}
+
+# Estimated from the 500 women of GLOW500 (R package aplore3): logistic model
+# of a fracture in the first year on age, height, BMI, prior fracture, mother's
+# hip fracture, needing the arms to rise from a chair, smoking, self-rated
+# risk and menopausal status. The sample over-represents fractures (25%); the
+# outcome here has a population frequency instead.
+variables:
+  age: {from: dictionary, dist: "uniform(55, 90)"}
+  height:
+    type: continuous
+    dist: lognormal(161.4, 6.4)
+    range: [135, 190]
+    round: 0
+    units: cm
+    label: {en: Height, es: Talla, ca: Alçada}
+  bmi: {from: dictionary, dist: "lognormal(27.5, 6)", range: [15, 50]}
+  premenopausal:
+    type: binary
+    p: 0.19
+    levels: [no, yes]
+    label: {en: Menopause before age 45, es: Menopausia antes de los 45, ca: Menopausa abans dels 45}
+  smoking:
+    type: binary
+    p: 0.07
+    levels: [no, yes]
+    label: {en: Current smoker, es: Fumadora actual, ca: Fumadora actual}
+  prior_fracture:
+    type: binary
+    p: 0.25
+    levels: [no, yes]
+    label: {en: Previous fracture, es: Fractura previa, ca: Fractura prèvia}
+  mother_fracture:
+    type: binary
+    p: 0.13
+    levels: [no, yes]
+    label: {en: Mother had a hip fracture, es: Madre con fractura de cadera, ca: Mare amb fractura de maluc}
+  arms_assist:
+    type: binary
+    p: 0.38
+    levels: [no, yes]
+    label: {en: Needs arms to stand from a chair, es: Necesita los brazos para levantarse, ca: Necessita els braços per aixecar-se}
+  self_risk:
+    type: ordinal
+    levels: [less, same, greater]
+    probs: [0.33, 0.37, 0.30]
+    label: {en: Self-rated fracture risk vs women of the same age, es: Riesgo de fractura percibido frente a mujeres de su edad, ca: Risc de fractura percebut enfront de dones de la seva edat}
+
+structure:
+  - [age, height, -0.20]
+  - [age, bmi, -0.23]
+  - [age, prior_fracture, 0.38]
+  - [age, arms_assist, 0.25]
+  - [bmi, arms_assist, 0.38]
+  - [prior_fracture, arms_assist, 0.20]
+  - [prior_fracture, self_risk, 0.24]
+  - [mother_fracture, self_risk, 0.19]
+
+correlations:
+  - [premenopausal, smoking, 0.25]
+
+outcomes:
+  fracture:
+    type: binary
+    label: {en: Fracture in the first year, es: Fractura en el primer año, ca: Fractura el primer any}
+    levels: [no, yes]
+    prevalence: 0.05
+    designs: [cohort, case_control]
+    effects:
+      age: {OR: 1.04, per: 1}
+      height: {OR: 0.958, per: 1}
+      prior_fracture: {OR: 1.90}
+      mother_fracture: {OR: 1.91}
+      arms_assist: {OR: 1.42}
+      self_risk: {OR: [1, 1.51, 2.11]}
+
+null_variables: [bmi, smoking, premenopausal]
+
+designs:
+  case_control: {ratio: 3}
+
+references:
+  - "Hooven FH, Adachi JD, Adami S et al. The Global Longitudinal Study of Osteoporosis in Women (GLOW): rationale and study design. Osteoporos Int 2009;20:1107-16."
+  - "Hosmer DW, Lemeshow S, Sturdivant RX. Applied Logistic Regression, 3rd ed. Wiley; 2013."
+  - "Data: GLOW500 (R package aplore3), 500 women, 125 fractures."
+
+i18n:
+  en: {names: {age: age, height: height, bmi: bmi, premenopausal: early_menopause, smoking: smoking, prior_fracture: prior_fracture, mother_fracture: mother_fracture, arms_assist: arms_assist, self_risk: self_risk, fracture: fracture},
+       levels: {less: less, same: same, greater: greater}}
+  es: {names: {age: edad, height: talla, bmi: imc, premenopausal: menopausia_precoz, smoking: fumadora, prior_fracture: fractura_previa, mother_fracture: fractura_madre, arms_assist: ayuda_brazos, self_risk: riesgo_percibido, fracture: fractura},
+       levels: {less: menor, same: igual, greater: mayor}}
+  ca: {names: {age: edat, height: alcada, bmi: imc, premenopausal: menopausa_precoc, smoking: fumadora, prior_fracture: fractura_previa, mother_fracture: fractura_mare, arms_assist: ajuda_bracos, self_risk: risc_percebut, fracture: fractura},
+       levels: {less: menor, same: igual, greater: major}}
+
+teaching:
+  en: >
+    A risk-prediction question in the spirit of FRAX. A previous fracture
+    nearly doubles the odds, but its crude odds ratio is larger because older
+    and frailer women have both more previous fractures and more new ones.
+    Women's own judgement of their risk adds information beyond the measured
+    factors. Taller women break fewer bones once age is accounted for; BMI,
+    smoking and early menopause add nothing here.
+  es: >
+    Una pregunta de predicción del riesgo al estilo de FRAX. Una fractura previa
+    casi duplica la odds, pero su odds ratio cruda es mayor porque las mujeres
+    más mayores y frágiles tienen más fracturas previas y más fracturas nuevas.
+    La propia percepción del riesgo aporta información más allá de los factores
+    medidos. Las mujeres más altas se fracturan menos una vez tenida en cuenta
+    la edad; el IMC, el tabaco y la menopausia precoz no aportan nada aquí.
+  ca: >
+    Una pregunta de predicció del risc a l'estil de FRAX. Una fractura prèvia
+    gairebé duplica l'odds, però la seva odds ratio crua és més gran perquè les
+    dones més grans i fràgils tenen més fractures prèvies i més fractures noves.
+    La pròpia percepció del risc aporta informació més enllà dels factors
+    mesurats. Les dones més altes es fracturen menys un cop tinguda en compte
+    l'edat; l'IMC, el tabac i la menopausa precoç no hi aporten res.

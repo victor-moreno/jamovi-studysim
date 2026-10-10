@@ -1,0 +1,109 @@
+id: dietary_fat_breast
+label: {en: "Dietary fat and breast cancer", es: "Grasa de la dieta y cáncer de mama", ca: "Greix de la dieta i càncer de mama"}
+domain: oncology
+population: {en: "Women aged 40-69 in countries with different diets", es: "Mujeres de 40 a 69 años de países con dietas distintas", ca: "Dones de 40 a 69 anys de països amb dietes diferents"}
+
+# From the papers: across 32 countries, per-capita fat intake correlated 0.89
+# with breast cancer mortality (Armstrong & Doll 1975); within seven pooled
+# cohorts (337,819 women), the highest vs lowest quintile of fat intake had a
+# relative risk of 1.05 (Hunter et al. 1996). Here fat has no individual
+# effect; across countries (not within them) affluent diets go with fewer and
+# later births, greater height and more alcohol, which do act.
+variables:
+  age: {from: dictionary, dist: "uniform(40, 69)"}
+  fat:
+    type: continuous
+    dist: normal(36, 7)
+    range: [15, 55]
+    round: 0
+    units: {en: "% of energy", es: "% de la energía", ca: "% de l'energia"}
+    label: {en: Fat intake, es: Ingesta de grasa, ca: Ingesta de greix}
+  parity:
+    type: count
+    dist: poisson(2.2)
+    range: [0, 8]
+    units: {en: births, es: partos, ca: parts}
+    label: {en: Number of births, es: Número de partos, ca: Nombre de parts}
+  first_birth:
+    type: continuous
+    dist: normal(25, 4)
+    range: [15, 42]
+    round: 0
+    units: {en: years, es: años, ca: anys}
+    label: {en: Age at first birth, es: Edad al primer parto, ca: Edat al primer part}
+  height:
+    type: continuous
+    dist: normal(161, 6.5)
+    range: [140, 185]
+    round: 0
+    units: cm
+    label: {en: Height, es: Talla, ca: Alçada}
+  alcohol: {from: dictionary}
+
+correlations:
+  - [fat, parity, -0.10]
+  - [fat, first_birth, 0.10]
+  - [fat, height, 0.05]
+  - [fat, alcohol, 0.15]
+  - [parity, first_birth, -0.30]
+
+outcomes:
+  breast_cancer:
+    type: event
+    label: {en: Breast cancer, es: Cáncer de mama, ca: Càncer de mama}
+    rate: 0.0025
+    window: 10
+    followup: 10
+    designs: [ecological, case_control, cohort]
+    effects:
+      age: {HR: 1.03, per: 1}
+      parity: {HR: 0.90, per: 1}
+      first_birth: {HR: 1.03, per: 1}
+      height: {HR: 1.07, per: 5}
+      alcohol: {HR: 1.07, per: 10}
+
+null_variables: [fat]
+
+designs:
+  # countries differ far more coherently than women do (affluence)
+  ecological: {regions: 32, region_size: 3000, region_sd: 1.0, context_sd: 0.1,
+               between: [fat, parity, -0.8, fat, first_birth, 0.7, fat, height, 0.6, fat, alcohol, 0.5,
+                         parity, first_birth, -0.6, parity, height, -0.4, first_birth, height, 0.4]}
+  case_control: {ratio: 2}
+
+references:
+  - "Armstrong B, Doll R. Environmental factors and cancer incidence and mortality in different countries, with special reference to dietary practices. Int J Cancer 1975;15:617-31."
+  - "Hunter DJ, Spiegelman D, Adami HO et al. Cohort studies of fat intake and the risk of breast cancer: a pooled analysis. N Engl J Med 1996;334:356-61."
+  - "Prentice RL, Caan B, Chlebowski RT et al. Low-fat dietary pattern and risk of invasive breast cancer: the Women's Health Initiative randomized controlled dietary modification trial. JAMA 2006;295:629-42."
+
+i18n:
+  en: {names: {age: age, fat: fat, parity: parity, first_birth: first_birth, height: height, alcohol: alcohol, breast_cancer: breast_cancer}}
+  es: {names: {age: edad, fat: grasa, parity: partos, first_birth: edad_primer_parto, height: talla, alcohol: alcohol, breast_cancer: cancer_mama}}
+  ca: {names: {age: edat, fat: greix, parity: parts, first_birth: edat_primer_part, height: alcada, alcohol: alcohol, breast_cancer: cancer_mama}}
+
+teaching:
+  en: >
+    In the 1970s countries with fatty diets had far more breast cancer, and fat
+    became a prime suspect. Cohorts that measured each woman's diet found no
+    association, and a large randomised trial of a low-fat diet found little
+    benefit. The ecological correlation reflects what comes with affluence:
+    fewer and later births, taller women, more alcohol. Compare the ecological
+    regression of the regions with the case-control and cohort estimates for the
+    same population.
+  es: >
+    En los años setenta los países con dietas grasas tenían mucho más cáncer de
+    mama, y la grasa se convirtió en la principal sospechosa. Las cohortes que
+    midieron la dieta de cada mujer no encontraron asociación, y un gran ensayo
+    aleatorizado de dieta baja en grasa encontró poco beneficio. La correlación
+    ecológica refleja lo que acompaña a la riqueza: menos partos y más tardíos,
+    mujeres más altas, más alcohol. Compare la regresión ecológica de las
+    regiones con las estimaciones de casos y controles y de cohorte en la misma
+    población.
+  ca: >
+    Als anys setanta els països amb dietes greixoses tenien molt més càncer de
+    mama, i el greix es va convertir en el principal sospitós. Les cohorts que
+    van mesurar la dieta de cada dona no van trobar associació, i un gran assaig
+    aleatoritzat de dieta baixa en greix va trobar poc benefici. La correlació
+    ecològica reflecteix el que acompanya la riquesa: menys parts i més tardans,
+    dones més altes, més alcohol. Compareu la regressió ecològica de les regions
+    amb les estimacions de casos i controls i de cohort en la mateixa població.

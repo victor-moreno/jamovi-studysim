@@ -1,0 +1,127 @@
+id: low_birth_weight
+label: {en: "Low birth weight", es: "Bajo peso al nacer", ca: "Baix pes en néixer"}
+domain: perinatal
+population: {en: "Mothers delivering at Baystate Medical Center (Springfield, Massachusetts), 1986", es: "Madres que dieron a luz en el Baystate Medical Center (Springfield, Massachusetts), 1986", ca: "Mares que van parir al Baystate Medical Center (Springfield, Massachusetts), 1986"}
+
+# Estimated from the 189 births of the R dataset birthwt (MASS): logistic model
+# of birth weight < 2500 g (log odds ratios shrunk by 0.75: 59 events for 10
+# coefficients) and linear model of birth weight. The sample over-represents
+# low weight (31%); the outcomes here have population values.
+variables:
+  age: {from: dictionary, dist: "lognormal(23.2, 5.3)", range: [14, 45]}
+  weight: {from: dictionary, dist: "lognormal(58.9, 13.9)", range: [36, 115], label: {en: Mother's weight before pregnancy, es: Peso de la madre antes del embarazo, ca: Pes de la mare abans de l'embaràs}}
+  race:
+    type: nominal
+    levels: [white, black, other]
+    probs: [0.51, 0.14, 0.35]
+    label: {en: Mother's race, es: Raza de la madre, ca: Raça de la mare}
+  smoking:
+    type: binary
+    p: 0.39
+    levels: [no, yes]
+    label: {en: Smoked during pregnancy, es: Fumó durante el embarazo, ca: Va fumar durant l'embaràs}
+  prev_preterm:
+    type: binary
+    p: 0.16
+    levels: [no, yes]
+    label: {en: Previous preterm labour, es: Parto prematuro previo, ca: Part prematur previ}
+  hypertension:
+    type: binary
+    p: 0.064
+    levels: [no, yes]
+    label: {en: History of hypertension, es: Antecedente de hipertensión, ca: Antecedent d'hipertensió}
+  uterine_irritability:
+    type: binary
+    p: 0.15
+    levels: [no, yes]
+    label: {en: Uterine irritability, es: Irritabilidad uterina, ca: Irritabilitat uterina}
+  visits:
+    type: count
+    dist: negbin(0.8, 1.9)
+    range: [0, 6]
+    units: {en: visits, es: visitas, ca: visites}
+    label: {en: Physician visits in the first trimester, es: Visitas médicas en el primer trimestre, ca: Visites mèdiques al primer trimestre}
+
+structure:
+  - [age, weight, 0.19]
+  - [race, weight, -0.20]
+  - [race, smoking, -0.50]
+  - [smoking, prev_preterm, 0.33]
+  - [weight, hypertension, 0.45]
+  - [prev_preterm, uterine_irritability, 0.34]
+  - [age, visits, 0.25]
+  - [weight, visits, 0.16]
+
+outcomes:
+  low_weight:
+    type: binary
+    label: {en: Birth weight under 2500 g, es: Peso al nacer inferior a 2500 g, ca: Pes en néixer inferior a 2500 g}
+    levels: [no, yes]
+    prevalence: 0.08
+    designs: [cross_sectional, case_control, cohort]
+    effects:
+      weight: {OR: 0.882, per: 5}
+      race: {OR: [1, 2.49, 1.85]}
+      smoking: {OR: 1.90}
+      prev_preterm: {OR: 2.49}
+      hypertension: {OR: 4.04}
+      uterine_irritability: {OR: 1.71}
+  birth_weight:
+    type: continuous
+    label: {en: Birth weight, es: Peso al nacer, ca: Pes en néixer}
+    units: g
+    mean: 3250
+    sd: 600
+    round: 0
+    range: [600, 5500]
+    designs: [cross_sectional, cohort]
+    effects:
+      weight: {beta: 46, per: 5}
+      race: {beta: [0, -474, -340]}
+      smoking: {beta: -329}
+      prev_preterm: {beta: -202}
+      hypertension: {beta: -582}
+      uterine_irritability: {beta: -495}
+
+null_variables: [age, visits]
+
+designs:
+  case_control: {ratio: 2}
+
+references:
+  - "Hosmer DW, Lemeshow S. Applied Logistic Regression. Wiley; 1989 (low birth weight study, Baystate Medical Center)."
+  - "Venables WN, Ripley BD. Modern Applied Statistics with S, 4th ed. Springer; 2002."
+  - "Data: R dataset birthwt (MASS package), 189 births."
+
+i18n:
+  en: {names: {age: age, weight: weight, race: race, smoking: smoking, prev_preterm: prev_preterm, hypertension: hypertension, uterine_irritability: uterine_irritability, visits: visits, low_weight: low_weight, birth_weight: birth_weight},
+       levels: {white: white, black: black, other: other}}
+  es: {names: {age: edad, weight: peso, race: raza, smoking: fumo, prev_preterm: prematuro_previo, hypertension: hipertension, uterine_irritability: irritabilidad_uterina, visits: visitas, low_weight: bajo_peso, birth_weight: peso_nacer},
+       levels: {white: blanca, black: negra, other: otra}}
+  ca: {names: {age: edat, weight: pes, race: raca, smoking: fumava, prev_preterm: prematur_previ, hypertension: hipertensio, uterine_irritability: irritabilitat_uterina, visits: visites, low_weight: baix_pes, birth_weight: pes_neixer},
+       levels: {white: blanca, black: negra, other: altra}}
+
+teaching:
+  en: >
+    The same question with two outcomes: birth weight in grams, or below
+    2500 g. Dichotomising loses information, so the binary analysis needs many
+    more births for the same precision. Smoking is less common among Black and
+    other mothers, so it confounds the race comparison, and previous preterm
+    labour partly mediates smoking. The mother's age and the number of prenatal
+    visits have no effect of their own.
+  es: >
+    La misma pregunta con dos variables respuesta: el peso al nacer en gramos o
+    por debajo de 2500 g. Dicotomizar pierde información, así que el análisis
+    binario necesita muchos más nacimientos para la misma precisión. Fumar es
+    menos frecuente entre las madres negras y de otras razas, de modo que
+    confunde la comparación por raza, y el parto prematuro previo media en parte
+    el efecto del tabaco. La edad de la madre y el número de visitas prenatales
+    no tienen efecto propio.
+  ca: >
+    La mateixa pregunta amb dues variables resposta: el pes en néixer en grams o
+    per sota de 2500 g. Dicotomitzar perd informació, així que l'anàlisi binària
+    necessita molts més naixements per a la mateixa precisió. Fumar és menys
+    freqüent entre les mares negres i d'altres races, de manera que confon la
+    comparació per raça, i el part prematur previ media en part l'efecte del
+    tabac. L'edat de la mare i el nombre de visites prenatals no tenen efecte
+    propi.

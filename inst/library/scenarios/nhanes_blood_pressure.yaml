@@ -1,0 +1,123 @@
+id: nhanes_blood_pressure
+label: {en: "Blood pressure in US adults", es: "Presión arterial en adultos de EE. UU.", ca: "Pressió arterial en adults dels EUA"}
+domain: cardiovascular
+population: {en: "US adults aged 20-80 examined in NHANES 2009-2012", es: "Adultos de EE. UU. de 20 a 80 años examinados en NHANES 2009-2012", ca: "Adults dels EUA de 20 a 80 anys examinats a NHANES 2009-2012"}
+
+# Estimated from 11,778 adults (9,778 complete) of NHANESraw (R package
+# NHANES), survey weights ignored: logistic model of a measured blood pressure
+# >= 140/90 mmHg and linear model of systolic pressure.
+variables:
+  age: {from: dictionary, dist: "uniform(20, 80)"}
+  sex: {from: dictionary, p: 0.488}
+  race:
+    type: nominal
+    levels: [white, black, mexican, hispanic, other]
+    probs: [0.426, 0.219, 0.143, 0.103, 0.109]
+    label: {en: Race and ethnicity, es: Raza y etnia, ca: Raça i ètnia}
+  education:
+    type: ordinal
+    levels: [primary, some_high, high_school, some_college, college]
+    probs: [0.112, 0.152, 0.221, 0.289, 0.226]
+    label: {en: Education, es: Estudios, ca: Estudis}
+  poverty:
+    type: continuous
+    dist: uniform(0, 5)
+    round: 2
+    label: {en: Family income to poverty ratio, es: Ingresos familiares respecto al umbral de pobreza, ca: Ingressos familiars respecte al llindar de pobresa}
+  bmi: {from: dictionary, dist: "lognormal(29, 6.9)", range: [15, 70]}
+  smoking:
+    type: nominal
+    levels: [never, former, current]
+    probs: [0.555, 0.236, 0.209]
+    label: {en: Smoking, es: Tabaquismo, ca: Tabaquisme}
+  diabetes: {from: dictionary, p: 0.142}
+  active:
+    type: binary
+    p: 0.47
+    levels: [no, yes]
+    label: {en: Physically active, es: Físicamente activo, ca: Físicament actiu}
+
+structure:
+  - [age, education, -0.16]
+  - [race, education, -0.12]
+  - [education, poverty, 0.45]
+  - [race, poverty, -0.10]
+  - [age, diabetes, 0.40]
+  - [bmi, diabetes, 0.28]
+  - [education, active, 0.33]
+  - [age, active, -0.22]
+  - [bmi, active, -0.13]
+  - [sex, smoking, 0.23]
+  - [education, smoking, -0.15]
+  - [poverty, smoking, -0.12]
+
+outcomes:
+  high_bp:
+    type: binary
+    label: {en: "Blood pressure >= 140/90 mmHg at examination", es: "Presión >= 140/90 mmHg en la exploración", ca: "Pressió >= 140/90 mmHg a l'exploració"}
+    levels: [no, yes]
+    prevalence: 0.178
+    designs: [cross_sectional, case_control]
+    effects:
+      age: {OR: 1.055, per: 1}
+      sex: {OR: 1.30}
+      race: {OR: [1, 1.82, 1.27, 1.06, 1.14]}
+      bmi: {OR: 1.12, per: 5}
+      poverty: {OR: 0.94, per: 1}
+  sbp:
+    type: continuous
+    label: {en: Systolic blood pressure, es: Presión sistólica, ca: Pressió sistòlica}
+    units: mmHg
+    mean: 122.6
+    sd: 16.1
+    round: 0
+    range: [75, 230]
+    designs: [cross_sectional]
+    effects:
+      age: {beta: 0.45, per: 1}
+      sex: {beta: 4.4}
+      race: {beta: [0, 4.8, 1.0, 0.1, 0.7]}
+      bmi: {beta: 0.9, per: 5}
+      education: {beta: [0, -0.3, -0.2, -0.5, -2.8]}
+      poverty: {beta: -0.59, per: 1}
+
+null_variables: [smoking, diabetes, active]
+
+references:
+  - "Centers for Disease Control and Prevention. National Health and Nutrition Examination Survey 2009-2012."
+  - "Pruim R. NHANES: Data from the US National Health and Nutrition Examination Study. R package."
+  - "Data: NHANESraw (R package NHANES), adults aged 20-80."
+
+i18n:
+  en: {names: {age: age, sex: sex, race: race, education: education, poverty: poverty, bmi: bmi, smoking: smoking, diabetes: diabetes, active: active, high_bp: high_bp, sbp: sbp},
+       levels: {white: white, black: black, mexican: mexican, hispanic: other_hispanic, other: other, primary: primary, some_high: some_high_school, high_school: high_school, some_college: some_college, college: college}}
+  es: {names: {age: edad, sex: sexo, race: raza, education: estudios, poverty: ingresos, bmi: imc, smoking: tabaco, diabetes: diabetes, active: activo, high_bp: pa_elevada, sbp: pas},
+       levels: {white: blanca, black: negra, mexican: mexicana, hispanic: otra_hispana, other: otra, primary: primarios, some_high: secundaria_incompleta, high_school: secundaria, some_college: universidad_incompleta, college: universitarios}}
+  ca: {names: {age: edat, sex: sexe, race: raca, education: estudis, poverty: ingressos, bmi: imc, smoking: tabac, diabetes: diabetis, active: actiu, high_bp: pa_elevada, sbp: pas},
+       levels: {white: blanca, black: negra, mexican: mexicana, hispanic: altra_hispana, other: altra, primary: primaris, some_high: secundaria_incompleta, high_school: secundaria, some_college: universitat_incompleta, college: universitaris}}
+
+teaching:
+  en: >
+    A national survey: one examination per person, so prevalence, not
+    incidence. About one adult in five has a raised pressure, so odds ratios
+    overstate prevalence ratios; compare logistic and log-binomial (or Poisson)
+    models. Diabetes looks strongly associated in a crude analysis, but the
+    association disappears after age and BMI. Black adults have higher pressure
+    at every age. People already treated are not identified, a limitation of
+    this outcome.
+  es: >
+    Una encuesta nacional: una exploración por persona, así que prevalencia y no
+    incidencia. Uno de cada cinco adultos tiene la presión elevada, de modo que
+    las odds ratios exageran las razones de prevalencia; compare modelos
+    logísticos y log-binomiales (o de Poisson). La diabetes parece muy asociada
+    en el análisis crudo, pero la asociación desaparece al ajustar por edad e
+    IMC. Los adultos negros tienen la presión más alta a cualquier edad. No se
+    identifica a quienes ya están tratados, una limitación de esta variable.
+  ca: >
+    Una enquesta nacional: una exploració per persona, així que prevalença i no
+    incidència. Un de cada cinc adults té la pressió elevada, de manera que les
+    odds ratios exageren les raons de prevalença; compareu models logístics i
+    log-binomials (o de Poisson). La diabetis sembla molt associada a l'anàlisi
+    crua, però l'associació desapareix en ajustar per edat i IMC. Els adults
+    negres tenen la pressió més alta a qualsevol edat. No s'identifica qui ja
+    està tractat, una limitació d'aquesta variable.
