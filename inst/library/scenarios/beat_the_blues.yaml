@@ -1,0 +1,92 @@
+id: beat_the_blues
+label: {en: "Computerised CBT for depression", es: "Terapia cognitivo-conductual por ordenador para la depresión", ca: "Teràpia cognitivoconductual per ordinador per a la depressió"}
+domain: mental health
+population: {en: "Primary-care patients with depression or anxiety in south-east England, 2000s", es: "Pacientes de atención primaria con depresión o ansiedad del sureste de Inglaterra, años 2000", ca: "Pacients d'atenció primària amb depressió o ansietat del sud-est d'Anglaterra, anys 2000"}
+
+# Estimated from the 100 patients of the R dataset BtheB (HSAUR3): Beck
+# Depression Inventory at baseline and 2, 3, 5 and 8 months (here 4 equally
+# spaced visits); usual care falls from 24 to 14; Beat the Blues about 3.5
+# points lower at 8 months; antidepressants -2.8; correlation between visits
+# about 0.65; only half the patients reach the last visit.
+variables:
+  antidepressant:
+    type: binary
+    p: 0.44
+    levels: [no, yes]
+    label: {en: Taking antidepressants, es: Toma antidepresivos, ca: Pren antidepressius}
+  long_episode:
+    type: binary
+    p: 0.51
+    levels: [no, yes]
+    label: {en: Current episode longer than 6 months, es: Episodio actual de más de 6 meses, ca: Episodi actual de més de 6 mesos}
+
+correlations:
+  - [antidepressant, long_episode, 0.20]
+
+interventions:
+  treatment:
+    levels: [usual_care, beat_the_blues]
+    label: {en: Treatment, es: Tratamiento, ca: Tractament}
+
+outcomes:
+  bdi:
+    type: continuous
+    label: {en: Beck Depression Inventory at 8 months, es: Inventario de depresión de Beck a los 8 meses, ca: Inventari de depressió de Beck als 8 mesos}
+    mean: 13.6
+    sd: 9
+    round: 0
+    range: [0, 63]
+    within_cor: 0.65
+    designs: [longitudinal, rct]
+    effects:
+      treatment: {beta: [0, -3.5]}
+      antidepressant: {beta: -2.8}
+
+null_variables: [long_episode]
+
+designs:
+  longitudinal: {visits: 4, dropout: 0.45, trend: -10}
+
+references:
+  - "Proudfoot J, Goldberg D, Mann A et al. Computerized, interactive, multimedia cognitive-behavioural program for anxiety and depression in general practice. Psychol Med 2003;33:217-27."
+  - "Everitt BS, Hothorn T. A Handbook of Statistical Analyses Using R, 3rd ed. CRC Press; 2014, chapter 13."
+  - "Data: R dataset BtheB (HSAUR3 package), 100 patients."
+
+i18n:
+  en: {names: {antidepressant: antidepressant, long_episode: long_episode, treatment: treatment, bdi: bdi},
+       levels: {usual_care: usual_care, beat_the_blues: beat_the_blues}}
+  es: {names: {antidepressant: antidepresivo, long_episode: episodio_largo, treatment: tratamiento, bdi: bdi},
+       levels: {usual_care: tratamiento_habitual, beat_the_blues: beat_the_blues}}
+  ca: {names: {antidepressant: antidepressiu, long_episode: episodi_llarg, treatment: tractament, bdi: bdi},
+       levels: {usual_care: tractament_habitual, beat_the_blues: beat_the_blues}}
+
+teaching:
+  en: >
+    Depression scores fall in both arms (natural course and regression to the
+    mean), so a before-after comparison in the treated arm overstates the
+    benefit: the control arm is essential. Half the patients miss the last
+    visit, and those still depressed drop out more: analysing completers at
+    8 months is biased, while a mixed model with every visit uses all the
+    information under missing at random. Scores cannot fall below 0: this floor
+    compresses the differences, so estimates fall a little short of the effect
+    the data were generated with.
+  es: >
+    Las puntuaciones de depresión bajan en ambos grupos (evolución natural y
+    regresión a la media), así que una comparación antes-después en el grupo
+    tratado exagera el beneficio: el grupo control es imprescindible. La mitad
+    de los pacientes no llega a la última visita, y abandonan más quienes siguen
+    deprimidos: analizar a los que completan los 8 meses está sesgado, mientras
+    que un modelo mixto con todas las visitas usa toda la información bajo
+    pérdida aleatoria. Las puntuaciones no pueden bajar de 0: este suelo comprime
+    las diferencias, así que las estimaciones se quedan algo cortas respecto al
+    efecto con el que se generaron los datos.
+  ca: >
+    Les puntuacions de depressió baixen en tots dos grups (evolució natural i
+    regressió a la mitjana), així que una comparació abans-després en el grup
+    tractat exagera el benefici: el grup control és imprescindible. La meitat
+    dels pacients no arriba a l'última visita, i abandonen més els qui segueixen
+    deprimits: analitzar els qui completen els 8 mesos està esbiaixat, mentre
+    que un model mixt amb totes les visites fa servir tota la informació sota
+    pèrdua aleatòria. Les puntuacions no poden baixar de 0: aquest terra comprimeix
+    les diferències, així que les estimacions es queden una mica curtes respecte
+    a l'efecte amb què es van generar les dades.

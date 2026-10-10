@@ -1,0 +1,66 @@
+id: hypnotics_sleep
+label: {en: "Two hypnotics compared", es: "Comparación de dos hipnóticos", ca: "Comparació de dos hipnòtics"}
+domain: pharmacology
+population: {en: "Patients of the Michigan Asylum for the Insane, 1904", es: "Pacientes del Michigan Asylum for the Insane, 1904", ca: "Pacients del Michigan Asylum for the Insane, 1904"}
+
+# From the 10 patients of the R dataset sleep (Cushny & Peebles 1905, used by
+# Student 1908): extra hours of sleep 0.75 with dextro-hyoscyamine and 2.33
+# with laevo-hyoscine; within-patient difference 1.58 (SD 1.23); correlation
+# between the two drugs 0.80.
+variables:
+  age: {from: dictionary, dist: "uniform(20, 60)"}
+
+interventions:
+  drug:
+    levels: [hyoscyamine, hyoscine]
+    label: {en: Hypnotic, es: Hipnótico, ca: Hipnòtic}
+
+outcomes:
+  extra_sleep:
+    type: continuous
+    label: {en: Extra hours of sleep, es: Horas de sueño adicionales, ca: Hores de son addicionals}
+    units: {en: hours, es: horas, ca: hores}
+    mean: 0.75
+    sd: 1.9
+    round: 1
+    within_cor: 0.80
+    designs: [crossover, rct]
+    effects:
+      drug: {beta: [0, 1.58]}
+
+null_variables: [age]
+
+references:
+  - "Cushny AR, Peebles AR. The action of optical isomers II: hyoscines. J Physiol 1905;32:501-10."
+  - "Student. The probable error of a mean. Biometrika 1908;6:1-25."
+  - "Data: R dataset sleep (datasets package), 10 patients."
+
+i18n:
+  en: {names: {age: age, drug: drug, extra_sleep: extra_sleep},
+       levels: {hyoscyamine: hyoscyamine, hyoscine: hyoscine}}
+  es: {names: {age: edad, drug: farmaco, extra_sleep: sueno_extra},
+       levels: {hyoscyamine: hiosciamina, hyoscine: hioscina}}
+  ca: {names: {age: edat, drug: farmac, extra_sleep: son_extra},
+       levels: {hyoscyamine: hiosciamina, hyoscine: hioscina}}
+
+teaching:
+  en: >
+    The data behind Student's t test: each patient took both drugs, so the
+    comparison is within patients. Because the two responses are strongly
+    correlated, the paired analysis is far more precise than comparing two
+    independent groups of the same size. Simulate a parallel trial with the
+    same number of patients and compare the confidence intervals.
+  es: >
+    Los datos detrás de la t de Student: cada paciente tomó los dos fármacos,
+    así que la comparación es dentro de cada paciente. Como las dos respuestas
+    están muy correlacionadas, el análisis apareado es mucho más preciso que
+    comparar dos grupos independientes del mismo tamaño. Simule un ensayo
+    paralelo con el mismo número de pacientes y compare los intervalos de
+    confianza.
+  ca: >
+    Les dades darrere de la t de Student: cada pacient va prendre els dos
+    fàrmacs, així que la comparació és dins de cada pacient. Com que les dues
+    respostes estan molt correlacionades, l'anàlisi aparellada és molt més
+    precisa que comparar dos grups independents de la mateixa mida. Simuleu un
+    assaig paral·lel amb el mateix nombre de pacients i compareu els intervals
+    de confiança.

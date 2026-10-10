@@ -1,0 +1,82 @@
+id: asthma_formoterol
+label: {en: "Formoterol vs salbutamol in asthma", es: "Formoterol frente a salbutamol en el asma", ca: "Formoterol enfront de salbutamol en l'asma"}
+domain: respiratory
+population: {en: "Children aged 7-14 with moderate asthma", es: "Niños de 7 a 14 años con asma moderada", ca: "Infants de 7 a 14 anys amb asma moderada"}
+
+# From Senn's worked example of an AB/BA crossover (13 children): peak
+# expiratory flow 8 hours after a single dose of formoterol or salbutamol;
+# formoterol about 46 L/min higher; a small period effect; strong
+# within-child correlation.
+variables:
+  age: {from: dictionary, dist: "uniform(7, 14)"}
+  height:
+    type: continuous
+    dist: normal(145, 12)
+    range: [115, 180]
+    round: 0
+    units: cm
+    label: {en: Height, es: Talla, ca: Alçada}
+
+structure:
+  - [age, height, 0.80]
+
+interventions:
+  drug:
+    levels: [salbutamol, formoterol]
+    label: {en: Bronchodilator, es: Broncodilatador, ca: Broncodilatador}
+
+outcomes:
+  pef:
+    type: continuous
+    label: {en: Peak expiratory flow at 8 hours, es: Flujo espiratorio máximo a las 8 horas, ca: Flux espiratori màxim a les 8 hores}
+    units: L/min
+    mean: 290
+    sd: 60
+    round: 0
+    range: [100, 600]
+    within_cor: 0.85
+    designs: [crossover, rct]
+    effects:
+      drug: {beta: [0, 46]}
+      height: {beta: 3, per: 1}
+
+null_variables: [age]
+
+designs:
+  crossover: {period: -8, carryover: 0}
+
+references:
+  - "Senn S. Cross-over Trials in Clinical Research, 2nd ed. Wiley; 2002, chapter 3."
+  - "Senn S, Auclair P. The graphical representation of clinical trials with particular reference to measurements over time. Stat Med 1990;9:1287-302."
+
+i18n:
+  en: {names: {age: age, height: height, drug: drug, pef: pef},
+       levels: {salbutamol: salbutamol, formoterol: formoterol}}
+  es: {names: {age: edad, height: talla, drug: farmaco, pef: fem},
+       levels: {salbutamol: salbutamol, formoterol: formoterol}}
+  ca: {names: {age: edat, height: alcada, drug: farmac, pef: fem},
+       levels: {salbutamol: salbutamol, formoterol: formoterol}}
+
+teaching:
+  en: >
+    Each child received both bronchodilators on separate days, in random order.
+    Peak flow depends strongly on the child's size, which is the same in both
+    periods, so it cancels out within children: thirteen children are enough.
+    The period effect must be in the model (children breathed a little worse
+    on the second day); with a long-acting drug, carryover from the first
+    period is the threat a washout protects against.
+  es: >
+    Cada niño recibió los dos broncodilatadores en días distintos, en orden
+    aleatorio. El flujo máximo depende mucho del tamaño del niño, que es el
+    mismo en los dos periodos, así que se anula dentro de cada niño: bastan
+    trece niños. El efecto periodo debe estar en el modelo (los niños
+    respiraban algo peor el segundo día); con un fármaco de acción larga, el
+    efecto residual del primer periodo es la amenaza contra la que protege el
+    lavado.
+  ca: >
+    Cada infant va rebre els dos broncodilatadors en dies diferents, en ordre
+    aleatori. El flux màxim depèn molt de la mida de l'infant, que és la mateixa
+    en els dos períodes, així que s'anul·la dins de cada infant: n'hi ha prou
+    amb tretze. L'efecte període ha de ser al model (els infants respiraven una
+    mica pitjor el segon dia); amb un fàrmac d'acció llarga, l'efecte residual
+    del primer període és l'amenaça contra la qual protegeix el rentat.

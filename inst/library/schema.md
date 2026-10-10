@@ -191,7 +191,7 @@ factors with no effect), `designs` (default options per design, below),
 | `case_cohort` | `subcohort` 0.1 (fraction of the cohort), `followup`, `loss`, `accrual` |
 | `cluster_rct` | `clusters` 20, `icc` 0.05, `followup`, `loss` |
 | `factorial` | `interaction` 0 (beta, or log OR/HR/RR, for those given both), `followup`, `loss` |
-| `longitudinal` | `visits` 4, `dropout` 0.2 (fraction missing the last visit) |
+| `longitudinal` | `visits` 4, `dropout` 0.2 (fraction missing the last visit), `trend` 0 (change in the reference arm from baseline to the last visit; the outcome's `mean` is the last visit's), `profile` (the treatment effect at equally spaced visits as multiples of its last-visit value, e.g. `[4.7, 3.6, 1]` for an effect that fades; default linear) |
 | `ecological` | `regions` 30, `region_size` 2000, `region_sd` 0.5, `context_sd` 0.2, `between` (triples `[a, b, r, ...]`: correlations of the regions' shifts of exogenous variables, when regions differ more coherently than people) |
 | `crossover` | `period` 0, `carryover` 0 |
 

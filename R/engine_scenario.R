@@ -34,7 +34,9 @@ normalize_design_defaults <- function(x, pr) {
         out[[d]] <- list()
         for (k in names(x[[d]])) {
             v <- unlist(x[[d]][[k]])
-            out[[d]][[k]] <- if (k %in% c("match", "between")) as.character(v) else try_at(pr, sprintf("designs: %s %s", d, k), num_expr(v[1]))
+            out[[d]][[k]] <- if (k %in% c("match", "between")) as.character(v)
+                             else if (k == "profile") try_at(pr, sprintf("designs: %s %s", d, k), num_vec(v))
+                             else try_at(pr, sprintf("designs: %s %s", d, k), num_expr(v[1]))
             if (k == "between" && length(v) %% 3 != 0)
                 add_problem(pr, sprintf("designs: %s between", d), "between is a list of triples: variable, variable, correlation")
         }

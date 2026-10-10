@@ -20,7 +20,7 @@ design_defaults <- function(design, oc, sc) {
         nested_cc = list(ratio = 1, followup = oc$followup, loss = 0.02, accrual = 0),
         cluster_rct = list(followup = oc$followup, loss = 0.02, clusters = 20, icc = 0.05),
         factorial = list(followup = oc$followup, loss = 0.02, block = 4, interaction = 0),
-        longitudinal = list(block = 4, visits = 4, dropout = 0.2),
+        longitudinal = list(block = 4, visits = 4, dropout = 0.2, trend = 0),
         ecological = list(regions = 30, region_size = 2000, region_sd = 0.5, context_sd = 0.2),
         diagnostic = list(),
         case_cohort = list(subcohort = 0.1, followup = oc$followup, loss = 0.02, accrual = 0))
@@ -385,7 +385,15 @@ sim_longitudinal <- function(sc, oc, cal, seed, n, opt) {
     tr <- linear_predictor(oc, pop$cov, stats::setNames(list(arm), iv$id)) - lp0
     rho <- oc$within_cor
     e <- with_seed(derive_seed(seed, sc$id, oc$id, "visits", n, K), matrix(stats::rnorm(n * (K + 1)), n))
-    Y <- sapply(0:K, function(j) cal$a + lp0 + tr * j / K + oc$sd * (sqrt(rho) * pop$noise$z + sqrt(1 - rho) * e[, j + 1]))
+    # the treatment effect at each visit as a multiple of its value at the last
+    # visit: linear by default, or the scenario's `profile` (given at equally
+    # spaced visits, interpolated to these); `trend`: change in the reference
+    # arm from baseline to the last visit (the outcome's mean is at the last)
+    prof <- opt$profile
+    mult <- if (length(prof)) stats::approx(c(0, seq_along(prof) / length(prof)), c(0, prof), xout = (0:K) / K)$y else (0:K) / K
+    trend <- opt$trend %||% 0
+    Y <- sapply(0:K, function(j) cal$a + lp0 + tr * mult[j + 1] + trend * (j / K - 1) +
+                                 oc$sd * (sqrt(rho) * pop$noise$z + sqrt(1 - rho) * e[, j + 1]))
     # dropout after visit j (0..K-1), driven by the value seen at visit j
     U <- with_seed(derive_seed(seed, sc$id, oc$id, "dropout", n, K), matrix(stats::runif(n * K), n))
     Z <- scale(Y[, 1:K, drop = FALSE])

@@ -1,0 +1,79 @@
+id: epilepsy_progabide
+label: {en: "Progabide for epilepsy", es: "Progabida para la epilepsia", ca: "Progabida per a l'epilèpsia"}
+domain: neurology
+population: {en: "Adults with refractory partial seizures on antiepileptic drugs", es: "Adultos con crisis parciales refractarias en tratamiento antiepiléptico", ca: "Adults amb crisis parcials refractàries en tractament antiepilèptic"}
+
+# Estimated from the 59 patients of the R dataset epil (MASS): seizures over
+# the 8 weeks after randomisation, negative binomial model on treatment,
+# log of the 8-week baseline count and age (rate ratio 0.77 for progabide;
+# overdispersion size 3.7).
+variables:
+  age: {from: dictionary, dist: "normal(28.3, 6.3)", range: [18, 42]}
+  baseline:
+    type: count
+    dist: negbin(31, 1.6)
+    range: [6, 151]
+    units: {en: seizures in 8 weeks, es: crisis en 8 semanas, ca: crisis en 8 setmanes}
+    label: {en: Seizures in the 8 weeks before randomisation, es: Crisis en las 8 semanas previas, ca: Crisis en les 8 setmanes prèvies}
+  log_baseline:
+    type: continuous
+    formula: log(baseline)
+    round: 3
+    label: {en: Log of the baseline count, es: Logaritmo del recuento basal, ca: Logaritme del recompte basal}
+
+structure:
+  - [age, baseline, -0.16]
+
+interventions:
+  treatment:
+    levels: [placebo, progabide]
+    label: {en: Treatment, es: Tratamiento, ca: Tractament}
+
+outcomes:
+  seizures:
+    type: count
+    label: {en: Seizures in the 8 weeks after randomisation, es: Crisis en las 8 semanas tras la aleatorización, ca: Crisis en les 8 setmanes després de l'aleatorització}
+    mean: 34
+    size: 3.7
+    designs: [rct]
+    effects:
+      treatment: {RR: [1, 0.77]}
+      log_baseline: {RR: 2.81, per: 1}
+
+null_variables: [age, baseline]
+
+references:
+  - "Leppik IE et al. A double-blind crossover evaluation of progabide in partial seizures. Neurology 1985;35:285."
+  - "Thall PF, Vail SC. Some covariance models for longitudinal count data with overdispersion. Biometrics 1990;46:657-71."
+  - "Data: R dataset epil (MASS package), 59 patients."
+
+i18n:
+  en: {names: {age: age, baseline: baseline, log_baseline: log_baseline, treatment: treatment, seizures: seizures},
+       levels: {placebo: placebo, progabide: progabide}}
+  es: {names: {age: edad, baseline: crisis_basales, log_baseline: log_crisis_basales, treatment: tratamiento, seizures: crisis},
+       levels: {placebo: placebo, progabide: progabida}}
+  ca: {names: {age: edat, baseline: crisis_basals, log_baseline: log_crisis_basals, treatment: tractament, seizures: crisis},
+       levels: {placebo: placebo, progabide: progabida}}
+
+teaching:
+  en: >
+    Seizure counts vary enormously between patients, far more than a Poisson
+    model allows (overdispersion): its confidence interval is much too narrow.
+    Use a negative binomial model or robust standard errors. Adjusting for the
+    baseline count, on the log scale, removes most of the between-patient
+    variation and sharpens the comparison: progabide reduced seizures by about
+    a quarter.
+  es: >
+    Los recuentos de crisis varían enormemente entre pacientes, mucho más de lo
+    que permite un modelo de Poisson (sobredispersión): su intervalo de
+    confianza es demasiado estrecho. Use un modelo binomial negativo o errores
+    estándar robustos. Ajustar por el recuento basal, en escala logarítmica,
+    elimina la mayor parte de la variación entre pacientes y afina la
+    comparación: la progabida redujo las crisis en una cuarta parte.
+  ca: >
+    Els recomptes de crisis varien enormement entre pacients, molt més del que
+    permet un model de Poisson (sobredispersió): el seu interval de confiança és
+    massa estret. Feu servir un model binomial negatiu o errors estàndard
+    robustos. Ajustar pel recompte basal, en escala logarítmica, elimina la major
+    part de la variació entre pacients i afina la comparació: la progabida va
+    reduir les crisis en una quarta part.

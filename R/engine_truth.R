@@ -149,7 +149,7 @@ fit_longitudinal <- function(sc, oc, fd, terms, full) {
     for (v in adj) d[[v]] <- fd[[v]]
     rhs <- paste(c(".visit", sprintf("`%s`", cols), adj), collapse = " + ")
     f <- nlme::lme(stats::as.formula(paste(".y ~", rhs)), random = ~ 1 | .id, data = d, na.action = stats::na.omit,
-                   control = nlme::lmeControl(returnObject = TRUE))
+                   control = nlme::lmeControl(returnObject = TRUE, opt = "optim"))
     tt <- summary(f)$tTable
     rownames(tt) <- gsub("`", "", rownames(tt))
     b <- tt[, "Value"]; se <- tt[, "Std.Error"]

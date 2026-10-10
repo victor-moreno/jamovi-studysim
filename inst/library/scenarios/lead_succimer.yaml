@@ -1,0 +1,81 @@
+id: lead_succimer
+label: {en: "Succimer for lead-exposed children", es: "Succímero en niños expuestos al plomo", ca: "Succímer en infants exposats al plom"}
+domain: environmental
+population: {en: "Children aged 12-33 months with blood lead 20-44 ug/dL, four US cities, 1994-97 (TLC trial)", es: "Niños de 12 a 33 meses con plomo en sangre de 20-44 ug/dL, cuatro ciudades de EE. UU., 1994-97 (ensayo TLC)", ca: "Infants de 12 a 33 mesos amb plom a la sang de 20-44 ug/dL, quatre ciutats dels EUA, 1994-97 (assaig TLC)"}
+
+# From the published means of the 100-child subset used by Fitzmaurice, Laird
+# and Ware: blood lead at baseline 26.5 in both arms; weeks 1, 4 and 6:
+# placebo 24.7, 24.1, 23.2; succimer 13.5, 15.5, 20.8 ug/dL. Visits here are
+# equally spaced; the effect profile (4.7, 3.6 and 1 times the week-6
+# difference of -2.4) reproduces the rebound.
+variables:
+  age_months:
+    type: continuous
+    dist: uniform(12, 33)
+    round: 0
+    units: {en: months, es: meses, ca: mesos}
+    label: {en: Age, es: Edad, ca: Edat}
+  sex:
+    type: binary
+    p: 0.5
+    levels: [girl, boy]
+    label: {en: Sex, es: Sexo, ca: Sexe}
+
+interventions:
+  treatment:
+    levels: [placebo, succimer]
+    label: {en: Treatment, es: Tratamiento, ca: Tractament}
+
+outcomes:
+  blood_lead:
+    type: continuous
+    label: {en: Blood lead at week 6, es: Plomo en sangre en la semana 6, ca: Plom a la sang a la setmana 6}
+    units: ug/dL
+    mean: 23.2
+    sd: 6.5
+    round: 1
+    range: [2, 60]
+    within_cor: 0.6
+    designs: [longitudinal, rct]
+    effects:
+      treatment: {beta: [0, -2.4]}
+
+null_variables: [age_months, sex]
+
+designs:
+  longitudinal: {visits: 3, dropout: 0.05, trend: -3.3, profile: [4.7, 3.6, 1]}
+
+references:
+  - "Treatment of Lead-Exposed Children (TLC) Trial Group. The effect of chelation therapy with succimer on neuropsychological development in children exposed to lead. N Engl J Med 2001;344:1421-6."
+  - "Fitzmaurice GM, Laird NM, Ware JH. Applied Longitudinal Analysis, 2nd ed. Wiley; 2011 (TLC data)."
+
+i18n:
+  en: {names: {age_months: age_months, sex: sex, treatment: treatment, blood_lead: blood_lead},
+       levels: {girl: girl, boy: boy, placebo: placebo, succimer: succimer}}
+  es: {names: {age_months: edad_meses, sex: sexo, treatment: tratamiento, blood_lead: plomo_sangre},
+       levels: {girl: niña, boy: niño, placebo: placebo, succimer: succimero}}
+  ca: {names: {age_months: edat_mesos, sex: sexe, treatment: tractament, blood_lead: plom_sang},
+       levels: {girl: nena, boy: nen, placebo: placebo, succimer: succimer}}
+
+teaching:
+  en: >
+    Succimer halves blood lead within a week, but lead stored in bone returns
+    to the blood and by week 6 little difference remains. A single endpoint at
+    week 6 misses the story; model every visit (a treatment-by-time
+    interaction) to see the effect rise and fade. The trial also found no
+    benefit on cognition: lowering a biomarker is not the same as improving the
+    outcome that matters.
+  es: >
+    El succímero reduce a la mitad el plomo en sangre en una semana, pero el
+    plomo almacenado en el hueso vuelve a la sangre y en la semana 6 queda poca
+    diferencia. Una única variable en la semana 6 pierde la historia; modele
+    todas las visitas (una interacción tratamiento por tiempo) para ver cómo el
+    efecto sube y se desvanece. El ensayo tampoco encontró beneficio cognitivo:
+    bajar un biomarcador no es lo mismo que mejorar el resultado que importa.
+  ca: >
+    El succímer redueix a la meitat el plom a la sang en una setmana, però el
+    plom emmagatzemat a l'os torna a la sang i a la setmana 6 queda poca
+    diferència. Una única variable a la setmana 6 perd la història; modeleu
+    totes les visites (una interacció tractament per temps) per veure com
+    l'efecte puja i s'esvaeix. L'assaig tampoc no va trobar benefici cognitiu:
+    baixar un biomarcador no és el mateix que millorar el resultat que importa.
