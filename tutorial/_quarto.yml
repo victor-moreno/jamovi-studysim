@@ -19,6 +19,7 @@ website:
       - simulated-study.qmd
       - teaching.qmd
       - library.qmd
+      - scenarios.qmd
       - derive.qmd
       - how-it-works.qmd
 

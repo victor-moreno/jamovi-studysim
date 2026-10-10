@@ -1,0 +1,264 @@
+---
+title: "Scenario catalogue"
+---
+
+```{r}
+#| include: false
+source("_common.R")
+
+# one record per scenario, read from the module's own library, so this page
+# always matches the scenarios that ship with the module
+design_names <- c(cross_sectional = "Cross-sectional", cohort = "Cohort", case_control = "Case-control",
+                  matched_cc = "Matched case-control", nested_cc = "Nested case-control", case_cohort = "Case-cohort",
+                  ecological = "Ecological", rct = "Randomised trial", cluster_rct = "Cluster trial",
+                  factorial = "2x2 factorial", crossover = "Crossover", longitudinal = "Longitudinal trial",
+                  prognosis = "Prognosis", diagnostic = "Diagnostic accuracy")
+type_names <- c(binary = "binary", event = "time to event", continuous = "continuous", count = "count")
+recs <- lapply(names(lib$scenarios), function(id) {
+    raw <- lib$scenarios[[id]]
+    sc <- load_scenario(lib, id)
+    des <- unique(unlist(lapply(names(sc$outcomes), function(o) compatible_designs(sc, o))))
+    refs <- unlist(raw$references)
+    data <- grep("^Data:", refs, value = TRUE)
+    feats <- c(
+        if (length(sc$interventions)) "intervention",
+        if (any(vapply(sc$outcomes, function(o) !is.null(o$competing), TRUE))) "competing risks",
+        if (any(vapply(sc$outcomes, function(o) length(o$markers) > 0, TRUE))) "diagnostic markers",
+        if (any(vapply(sc$outcomes, function(o) any(vapply(o$effects, function(e) !is.null(e$by), TRUE)), TRUE))) "effect modification",
+        if (length(sc$rule_order)) "rules",
+        if (length(sc$null_variables)) "null variables",
+        if (nrow(sc$edges)) "causal structure")
+    list(id = id,
+         label = tr_text(raw$label, "en"),
+         domain = tools::toTitleCase(raw$domain %||% ""),
+         population = tr_text(raw$population, "en"),
+         outcomes = unname(lapply(sc$outcomes, function(o) list(label = tr_text(o$label, "en"), type = type_names[[o$type]]))),
+         types = unique(unname(vapply(sc$outcomes, function(o) type_names[[o$type]], ""))),
+         designs = unname(design_names[des]),
+         source = if (length(data)) "open data" else "published study",
+         dataset = if (length(data)) sub("^Data: *", "", data[1]) else "",
+         nvars = length(sc$variables),
+         features = feats,
+         references = setdiff(refs, data),
+         teaching = gsub("\\s+", " ", trimws(tr_text(raw$teaching, "en"))))
+})
+n_open <- sum(vapply(recs, function(r) r$source == "open data", TRUE))
+json <- jsonlite::toJSON(recs, auto_unbox = TRUE)
+```
+
+The module ships with **`r length(recs)` scenarios**, one clinical question
+each. Most replicate a real study: `r n_open` were estimated from open
+patient-level data and the others from the published tables of the study. Use the
+catalogue below to find one for a domain, a study design or a teaching point. In
+jamovi, all of them are in the scenario picker of *Simulated study* and *Compare
+designs*, grouped by domain.
+
+## How the scenarios were made
+
+**From open data.** Many classic studies are distributed as datasets with R
+packages (survival, MASS, datasets, HSAUR3, TH.data, pROC, medicaldata, aplore3,
+NHANES). For each one the module's own [*Derive scenario*](derive.qmd) engine
+estimated:
+
+- the distribution of every baseline variable (normal, log-normal, gamma, counts,
+  categories);
+- their correlations, on a latent scale (a Gaussian copula);
+- the conditional effects on the outcome, from the model the study would use
+  (logistic, Cox, linear, Poisson or negative binomial).
+
+When a study had few events for its number of variables, the effects were shrunk
+towards no effect by one common factor, so the confounding between them is kept.
+
+**From a published paper.** When no data are open, the parameters come from the
+paper's tables: the baseline characteristics (Table 1), the frequency of the
+outcome, and the adjusted estimates of the main analysis.
+
+**Finishing by hand.** Data cannot tell causes from correlates, so each scenario
+was then given:
+
+- a causal structure (which variable affects which: confounders, mediators);
+- reference categories and units;
+- the designs that make sense for the question;
+- labels and column names in English, Spanish and Catalan;
+- a teaching note.
+
+Variables that matter in the literature but had no effect in the data are kept as
+*null variables*, useful for teaching multiple testing and confounding.
+
+**Checking.** For every scenario and design, a large simulated study was analysed
+as a student would analyse it. Its estimates were compared with the values the
+data were generated with and with the source's main result. Examples:
+
+- the alcohol odds ratios of the Ille-et-Vilaine study;
+- the attenuated hazard ratio of local histology in the Wilms tumour study;
+- the vaccine efficacy of the Salk trial;
+- the AUC of high-sensitivity troponin.
+
+**What a scenario is, and is not.** A scenario stores parameters, never the
+original data. The data it produces resemble the source study in their
+distributions, associations and main results, so analyses give the same
+conclusions, but no row corresponds to a real person. The effect sizes are
+teaching values that reproduce the source; they are not meta-analytic estimates,
+and they should not be quoted as evidence. Every scenario lists its sources, and
+the original investigators deserve the credit for the data.
+
+## Catalogue
+
+Filter by any column, or type in the search box (it searches names, populations,
+outcomes and teaching notes). Click a column header to sort, and click a row for
+its population, outcomes, teaching note and references.
+
+```{=html}
+<style>
+/* filters in a grid that wraps; on narrow screens only the essential columns */
+#cat-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; margin-bottom: 8px; }
+#cat-controls .cat-wide { grid-column: span 2; }
+#cat-controls .cat-foot { grid-column: 1 / -1; display: flex; align-items: center; }
+#cat-table th { white-space: nowrap; cursor: pointer; user-select: none; }
+#cat-table tr.cat-row { cursor: pointer; }
+#cat-table .badge { white-space: normal; text-align: left; }
+@media (max-width: 700px) {
+  #cat-table th:nth-child(n+3), #cat-table tr.cat-row td:nth-child(n+3) { display: none; }
+  #cat-controls .cat-wide { grid-column: 1 / -1; }
+}
+</style>
+<div id="cat-controls">
+  <div class="cat-wide"><input id="f-text" type="search" class="form-control form-control-sm" placeholder="Search…" aria-label="Search"></div>
+  <div><select id="f-domain" class="form-select form-select-sm" aria-label="Domain"><option value="">All domains</option></select></div>
+  <div><select id="f-design" class="form-select form-select-sm" aria-label="Design"><option value="">All designs</option></select></div>
+  <div><select id="f-type" class="form-select form-select-sm" aria-label="Outcome type"><option value="">All outcome types</option></select></div>
+  <div><select id="f-source" class="form-select form-select-sm" aria-label="Source"><option value="">All sources</option></select></div>
+  <div><select id="f-feature" class="form-select form-select-sm" aria-label="Feature"><option value="">Any feature</option></select></div>
+  <div class="cat-foot"><span id="cat-count" class="text-muted small"></span>
+    <button id="f-reset" type="button" class="btn btn-sm btn-outline-secondary ms-auto">Clear filters</button></div>
+</div>
+<div><table id="cat-table" class="table table-sm table-hover align-middle">
+  <thead><tr>
+    <th data-k="label" role="button">Scenario</th><th data-k="domain" role="button">Domain</th>
+    <th data-k="designs" role="button">Designs</th><th data-k="types" role="button">Outcome</th>
+    <th data-k="source" role="button">Source</th><th data-k="nvars" role="button" class="text-end">Variables</th>
+  </tr></thead><tbody></tbody></table></div>
+<h2 id="coverage" class="anchored">Coverage by design</h2>
+<p class="text-muted small">Number of scenarios in the current selection that can be simulated with each design.</p>
+<div id="cat-coverage" class="d-flex flex-wrap gap-2 mb-4"></div>
+```
+
+```{r}
+#| results: asis
+cat(sprintf('<script id="cat-data" type="application/json">%s</script>', json))
+```
+
+```{=html}
+<script>
+(function () {
+  var data = JSON.parse(document.getElementById('cat-data').textContent);
+  var el = function (id) { return document.getElementById(id); };
+  var arr = function (x) { return Array.isArray(x) ? x : (x == null ? [] : [x]); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); };
+  var uniq = function (f) { var s = {}; data.forEach(function (r) { arr(f(r)).forEach(function (v) { s[v] = 1; }); }); return Object.keys(s).sort(); };
+  var fill = function (id, vals) { vals.forEach(function (v) { var o = document.createElement('option'); o.value = v; o.textContent = v; el(id).appendChild(o); }); };
+  var designOrder = ['Cross-sectional', 'Cohort', 'Case-control', 'Matched case-control', 'Nested case-control', 'Case-cohort', 'Ecological',
+                     'Randomised trial', 'Cluster trial', '2x2 factorial', 'Crossover', 'Longitudinal trial', 'Prognosis', 'Diagnostic accuracy'];
+  fill('f-domain', uniq(function (r) { return r.domain; }));
+  fill('f-design', designOrder.filter(function (d) { return data.some(function (r) { return arr(r.designs).indexOf(d) >= 0; }); }));
+  fill('f-type', uniq(function (r) { return r.types; }));
+  fill('f-source', uniq(function (r) { return r.source; }));
+  fill('f-feature', uniq(function (r) { return r.features; }));
+
+  // filters and sort survive a reload (per viewer, best effort)
+  var state = { key: 'domain', dir: 1, open: {} };
+  var save = function () { try { localStorage.setItem('studysim-cat', JSON.stringify({ f: ['f-text', 'f-domain', 'f-design', 'f-type', 'f-source', 'f-feature'].map(function (i) { return el(i).value; }), key: state.key, dir: state.dir })); } catch (e) {} };
+  try { var s = JSON.parse(localStorage.getItem('studysim-cat') || 'null');
+        if (s) { ['f-text', 'f-domain', 'f-design', 'f-type', 'f-source', 'f-feature'].forEach(function (i, k) { if (s.f && s.f[k] != null) el(i).value = s.f[k]; }); state.key = s.key || state.key; state.dir = s.dir || 1; } } catch (e) {}
+
+  var matches = function (r) {
+    var t = el('f-text').value.trim().toLowerCase();
+    if (el('f-domain').value && r.domain !== el('f-domain').value) return false;
+    if (el('f-design').value && arr(r.designs).indexOf(el('f-design').value) < 0) return false;
+    if (el('f-type').value && arr(r.types).indexOf(el('f-type').value) < 0) return false;
+    if (el('f-source').value && r.source !== el('f-source').value) return false;
+    if (el('f-feature').value && arr(r.features).indexOf(el('f-feature').value) < 0) return false;
+    if (t) {
+      var hay = [r.id, r.label, r.domain, r.population, r.teaching, r.dataset].concat(arr(r.designs), arr(r.outcomes).map(function (o) { return o.label; }), arr(r.references)).join(' ').toLowerCase();
+      return t.split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; });
+    }
+    return true;
+  };
+  var sortVal = function (r, k) { var v = r[k]; if (Array.isArray(v)) return v.join(', '); return typeof v === 'number' ? v : String(v || '').toLowerCase(); };
+
+  var render = function () {
+    var rows = data.filter(matches).sort(function (a, b) {
+      var x = sortVal(a, state.key), y = sortVal(b, state.key);
+      if (x < y) return -state.dir; if (x > y) return state.dir;
+      return a.label < b.label ? -1 : 1;
+    });
+    var html = rows.map(function (r) {
+      var open = state.open[r.id];
+      var main = '<tr class="cat-row' + (open ? ' table-active' : '') + '" data-id="' + esc(r.id) + '" tabindex="0" aria-expanded="' + !!open + '">' +
+        '<td><strong>' + esc(r.label) + '</strong><br><code class="small">' + esc(r.id) + '</code></td>' +
+        '<td>' + esc(r.domain) + '</td>' +
+        '<td>' + arr(r.designs).map(function (d) { return '<span class="badge rounded-pill border me-1 mb-1 fw-normal" style="color: inherit">' + esc(d) + '</span>'; }).join('') + '</td>' +
+        '<td class="small">' + arr(r.types).map(esc).join(', ') + '</td>' +
+        '<td class="small">' + esc(r.source) + '</td>' +
+        '<td class="text-end">' + r.nvars + '</td></tr>';
+      if (!open) return main;
+      var det = '<tr class="cat-detail"><td colspan="6"><div class="p-2 small">' +
+        '<p><strong>Population.</strong> ' + esc(r.population) + '</p>' +
+        '<p><strong>Designs.</strong> ' + arr(r.designs).map(esc).join(', ') + '</p>' +
+        '<p><strong>Outcomes.</strong> ' + arr(r.outcomes).map(function (o) { return esc(o.label) + ' (' + esc(o.type) + ')'; }).join('; ') + '</p>' +
+        (arr(r.features).length ? '<p><strong>Features.</strong> ' + arr(r.features).map(esc).join(', ') + '</p>' : '') +
+        '<p><strong>Teaching note.</strong> ' + esc(r.teaching) + '</p>' +
+        (r.dataset ? '<p><strong>Data.</strong> ' + esc(r.dataset) + '</p>' : '') +
+        '<p class="mb-0"><strong>Sources.</strong></p><ul class="mb-0">' + arr(r.references).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
+        '</div></td></tr>';
+      return main + det;
+    }).join('');
+    document.querySelector('#cat-table tbody').innerHTML = html || '<tr><td colspan="6" class="text-muted">No scenario matches these filters.</td></tr>';
+    el('cat-count').textContent = rows.length + ' of ' + data.length + ' scenarios';
+    document.querySelectorAll('#cat-table th').forEach(function (th) {
+      th.textContent = th.textContent.replace(/ [▲▼]$/, '') + (th.getAttribute('data-k') === state.key ? (state.dir > 0 ? ' ▲' : ' ▼') : '');
+      th.setAttribute('aria-sort', th.getAttribute('data-k') === state.key ? (state.dir > 0 ? 'ascending' : 'descending') : 'none');
+    });
+    var cov = el('cat-coverage');
+    cov.innerHTML = designOrder.map(function (d) {
+      var n = rows.filter(function (r) { return arr(r.designs).indexOf(d) >= 0; }).length;
+      return '<button type="button" class="btn btn-sm ' + (el('f-design').value === d ? 'btn-primary' : 'btn-outline-secondary') + '" data-design="' + esc(d) + '"' + (n ? '' : ' disabled') + '>' +
+             esc(d) + ' <span class="badge text-bg-secondary">' + n + '</span></button>';
+    }).join('');
+    save();
+  };
+
+  ['f-text', 'f-domain', 'f-design', 'f-type', 'f-source', 'f-feature'].forEach(function (i) { el(i).addEventListener('input', render); });
+  el('f-reset').addEventListener('click', function () { ['f-text', 'f-domain', 'f-design', 'f-type', 'f-source', 'f-feature'].forEach(function (i) { el(i).value = ''; }); render(); });
+  document.querySelectorAll('#cat-table th').forEach(function (th) {
+    th.addEventListener('click', function () { var k = th.getAttribute('data-k'); state.dir = state.key === k ? -state.dir : 1; state.key = k; render(); });
+  });
+  var toggle = function (tr) { var id = tr.getAttribute('data-id'); state.open[id] = !state.open[id]; render(); };
+  document.querySelector('#cat-table tbody').addEventListener('click', function (e) { var tr = e.target.closest('tr.cat-row'); if (tr) toggle(tr); });
+  document.querySelector('#cat-table tbody').addEventListener('keydown', function (e) { var tr = e.target.closest('tr.cat-row'); if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(tr); } });
+  el('cat-coverage').addEventListener('click', function (e) { var b = e.target.closest('button[data-design]'); if (!b) return; var d = b.getAttribute('data-design'); el('f-design').value = el('f-design').value === d ? '' : d; render(); });
+  render();
+})();
+</script>
+```
+
+## Choosing a scenario
+
+- **For a design**, filter by design. Most scenarios fit several designs, and
+  [*Compare designs*](simulated-study.qmd) simulates them from the same
+  population: the classic contrasts are a case-control vs a cohort study for a
+  rare cancer, an ecological vs an individual analysis (water hardness, dietary
+  fat), or a parallel vs a crossover trial (hypnotics, asthma).
+- **For a statistical idea**, use the features and the search box:
+  - *confounding*: free light chains, lung cancer and smoking, NHANES;
+  - *mediation*: myopia, birth weight;
+  - *effect modification*: RECOVERY, ISIS-2, breast cancer risk;
+  - *competing risks*: MGUS, PBC, colon cancer;
+  - *misclassification*: Wilms tumour;
+  - *overdispersion*: epilepsy;
+  - *dropout*: Beat the Blues;
+  - *overfitting with many markers*: glaucoma;
+  - *rare outcomes and sample size*: polio vaccine.
+- **For your own course**, export a scenario from *Library* as Excel or YAML,
+  change it, and load it back; or derive a new one from your own data with
+  [*Derive scenario*](derive.qmd).

@@ -24,6 +24,7 @@ same assignment (a *student key*), and the teacher can regenerate any of them.
 | Analysis | What it does |
 |---|---|
 | [Simulated study](simulated-study.qmd) | scenario → outcome → design → dataset, data dictionary, descriptives, causal diagram, answer key |
+| [Compare designs](simulated-study.qmd) | one scenario under several designs from the same population: estimates with 95% CI against the truth |
 | [Library](library.qmd) | lists, checks, explores and exports the scenarios; reads custom libraries (YAML, Excel, JSON) |
 | [Derive scenario](derive.qmd) | estimates a scenario from a real dataset, to simulate studies like it |
 
@@ -39,16 +40,10 @@ Download the `.jmo` for your computer from the
 package. The interface and the built-in scenarios are in English, Spanish and
 Catalan; jamovi's language setting chooses.
 
-## The scenarios of version 0.1
+## The scenarios
 
-| Scenario | Outcome | Designs |
-|---|---|---|
-| Breast cancer risk factors | breast cancer (event) | case-control, matched case-control, cohort |
-| Breast cancer prognosis | death (event) | prognosis, cohort |
-| Coronary heart disease incidence | CHD event | cohort, case-control, matched case-control |
-| Antihypertensive drug vs placebo | systolic pressure | randomised trial, 2×2 crossover |
-| Metformin vs placebo | HbA1c; HbA1c below 7% | randomised trial |
-| Bioequivalence of two formulations | AUC, Cmax (log-normal) | 2×2 crossover, randomised trial |
-
-Effect sizes are teaching-grade plausible values informed by the cited literature,
-not meta-analytic estimates.
+The module ships with 42 scenarios across 17 clinical domains, most of them
+replicating a real study from its open data or its published tables, with
+several scenarios for every design. The [scenario catalogue](scenarios.qmd)
+explains how they were made and lets you filter them by domain, design, outcome
+and teaching topic.

@@ -308,6 +308,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scenario catalogue</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./derive.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Derive a scenario from data</span></a>
   </div>
@@ -331,7 +337,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-simulated-studies" id="toc-why-simulated-studies" class="nav-link active" data-scroll-target="#why-simulated-studies">Why simulated studies</a></li>
   <li><a href="#the-menu" id="toc-the-menu" class="nav-link" data-scroll-target="#the-menu">The menu</a></li>
   <li><a href="#install" id="toc-install" class="nav-link" data-scroll-target="#install">Install</a></li>
-  <li><a href="#the-scenarios-of-version-0.1" id="toc-the-scenarios-of-version-0.1" class="nav-link" data-scroll-target="#the-scenarios-of-version-0.1">The scenarios of version 0.1</a></li>
+  <li><a href="#the-scenarios" id="toc-the-scenarios" class="nav-link" data-scroll-target="#the-scenarios">The scenarios</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/victor-moreno/jamovi-studysim/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -384,10 +390,14 @@ ul.task-list li input[type="checkbox"] {
 <td>scenario → outcome → design → dataset, data dictionary, descriptives, causal diagram, answer key</td>
 </tr>
 <tr class="even">
+<td><a href="./simulated-study.html">Compare designs</a></td>
+<td>one scenario under several designs from the same population: estimates with 95% CI against the truth</td>
+</tr>
+<tr class="odd">
 <td><a href="./library.html">Library</a></td>
 <td>lists, checks, explores and exports the scenarios; reads custom libraries (YAML, Excel, JSON)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="./derive.html">Derive scenario</a></td>
 <td>estimates a scenario from a real dataset, to simulate studies like it</td>
 </tr>
@@ -399,55 +409,9 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="install">Install</h2>
 <p>Download the <code>.jmo</code> for your computer from the <a href="https://github.com/victor-moreno/jamovi-studysim/releases">Releases</a> page (<code>x64</code> for Intel/AMD, <code>arm64</code> for Apple silicon) and in jamovi go to <strong>Modules (⊕) → Sideload</strong>. It needs jamovi 28.4 or newer and no other package. The interface and the built-in scenarios are in English, Spanish and Catalan; jamovi’s language setting chooses.</p>
 </section>
-<section id="the-scenarios-of-version-0.1" class="level2">
-<h2 class="anchored" data-anchor-id="the-scenarios-of-version-0.1">The scenarios of version 0.1</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Scenario</th>
-<th>Outcome</th>
-<th>Designs</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Breast cancer risk factors</td>
-<td>breast cancer (event)</td>
-<td>case-control, matched case-control, cohort</td>
-</tr>
-<tr class="even">
-<td>Breast cancer prognosis</td>
-<td>death (event)</td>
-<td>prognosis, cohort</td>
-</tr>
-<tr class="odd">
-<td>Coronary heart disease incidence</td>
-<td>CHD event</td>
-<td>cohort, case-control, matched case-control</td>
-</tr>
-<tr class="even">
-<td>Antihypertensive drug vs placebo</td>
-<td>systolic pressure</td>
-<td>randomised trial, 2×2 crossover</td>
-</tr>
-<tr class="odd">
-<td>Metformin vs placebo</td>
-<td>HbA1c; HbA1c below 7%</td>
-<td>randomised trial</td>
-</tr>
-<tr class="even">
-<td>Bioequivalence of two formulations</td>
-<td>AUC, Cmax (log-normal)</td>
-<td>2×2 crossover, randomised trial</td>
-</tr>
-</tbody>
-</table>
-<p>Effect sizes are teaching-grade plausible values informed by the cited literature, not meta-analytic estimates.</p>
+<section id="the-scenarios" class="level2">
+<h2 class="anchored" data-anchor-id="the-scenarios">The scenarios</h2>
+<p>The module ships with 42 scenarios across 17 clinical domains, most of them replicating a real study from its open data or its published tables, with several scenarios for every design. The <a href="./scenarios.html">scenario catalogue</a> explains how they were made and lets you filter them by domain, design, outcome and teaching topic.</p>
 
 
 </section>

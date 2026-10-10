@@ -39,7 +39,9 @@ aplore3, NHANES), or taken from the published tables of the study; each was
 then given a causal structure and a teaching note (English, Spanish, Catalan).
 The files store parameters only, never data. The format is in
 `inst/library/schema.md`. Effect sizes reproduce the source's main estimates
-as teaching values, not meta-analytic estimates.
+as teaching values, not meta-analytic estimates. The
+[scenario catalogue](https://victor-moreno.github.io/jamovi-studysim/scenarios.html)
+explains the method and filters the scenarios by domain, design and topic.
 
 | domain | scenario | designs | parameters from |
 |---|---|---|---|
