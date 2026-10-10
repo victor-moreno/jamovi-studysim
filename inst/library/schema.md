@@ -114,11 +114,58 @@ the population hits the target. Effects are **conditional** (adjusted for every
 other variable in the scenario); the answer key shows what crude and adjusted
 analyses of each design are expected to give.
 
-Default designs by outcome type: binary → cross-sectional, cohort, case-control,
-matched case-control; event → cohort, case-control, matched case-control;
-continuous and count → cross-sectional, cohort; plus randomised trial (and a 2×2
-crossover for continuous outcomes) when an effect names an intervention.
+Default designs by outcome type (used when an outcome has no `designs:` list):
+
+| outcome | designs |
+|---|---|
+| binary | cross_sectional, cohort, case_control, matched_cc, ecological; diagnostic when it has `markers:` |
+| event | cohort, case_control, matched_cc, nested_cc, case_cohort, ecological |
+| continuous, count | cross_sectional, cohort, ecological |
+| any, with an intervention effect | + rct, cluster_rct; continuous: + crossover, longitudinal; two 2-level interventions: + factorial |
+
 `prognosis` (patient cohort with staggered entry) must be listed in `designs:`.
+
+### Competing event (event outcomes)
+
+```yaml
+  bc_death:
+    type: event
+    risk: {value: 0.14, at: 10}
+    effects: {...}
+    competing:                       # whichever comes first ends follow-up
+      label: Death from other causes
+      risk: {value: 0.08, at: 10}    # as if the main event could not happen
+      shape: 1.5
+      effects:
+        age: {HR: 1.10, per: 1}
+```
+
+Cohort, prognosis and trial data then code the status 0 = censored, 1 = event,
+2 = competing event; the key gives cause-specific hazard ratios (Cox censoring
+status 2). Case-control style designs count only events before a competing one.
+
+### Markers (binary outcomes, diagnostic design)
+
+```yaml
+    markers:
+      psa:
+        dist: lognormal(5.5, 3.5)    # values in people without the disease
+        auc: 0.68                    # area under the ROC curve
+        direction: higher            # higher (default) or lower in the diseased
+        units: ng/mL
+        round: 1
+        range: [0.5, 100]
+      gene:                          # a block of p markers g01..g40
+        block: 40
+        informative: 4               # the first 4 have the AUC, the others 0.5
+        auc: 0.62
+        rho: 0.2                     # correlation among the block's markers
+```
+
+A marker is binormal: a latent N(0, 1) in the non-diseased, shifted by
+√2·Φ⁻¹(AUC) in the diseased, mapped to `dist` by its quantiles (which keeps the
+AUC). Markers depend on the disease only (conditionally independent of the
+other variables). A block has standard-normal values.
 
 ## Interventions (trials)
 
@@ -133,10 +180,23 @@ population; observational designs leave everybody in the reference level.
 ## Other scenario fields
 
 `id`, `label`, `domain`, `population` (text), `null_variables` (candidate
-factors with no effect), `designs` (default options per design, e.g.
-`matched_cc: {match: [age, sex], caliper: 2}`, `prognosis: {accrual: 4,
-followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`),
+factors with no effect), `designs` (default options per design, below),
 `references`, `teaching` (the note shown with the answer key).
+
+| design | options (defaults) |
+|---|---|
+| `cohort`, `prognosis`, `rct` | `followup` (outcome's), `loss` 0.02 per year, `accrual` (0; prognosis 2); rct: `block` 4, `looks` 0 |
+| `case_control`, `matched_cc` | `ratio` 1; matched: `match` [age, sex], `caliper` 2 |
+| `nested_cc` | `ratio` 1, `followup`, `loss`, `accrual` |
+| `case_cohort` | `subcohort` 0.1 (fraction of the cohort), `followup`, `loss`, `accrual` |
+| `cluster_rct` | `clusters` 20, `icc` 0.05, `followup`, `loss` |
+| `factorial` | `interaction` 0 (beta, or log OR/HR/RR, for those given both), `followup`, `loss` |
+| `longitudinal` | `visits` 4, `dropout` 0.2 (fraction missing the last visit) |
+| `ecological` | `regions` 30, `region_size` 2000, `region_sd` 0.5, `context_sd` 0.2 |
+| `crossover` | `period` 0, `carryover` 0 |
+
+For example `matched_cc: {match: [age, sex], caliper: 2}`, `prognosis: {accrual: 4,
+followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`.
 
 ## Excel sheets
 
@@ -148,10 +208,13 @@ followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`),
 | `outcomes` | outcome | scenario, outcome, type, scale, prevalence, rate, median, shape, mean, sd, within_cor, size, window, followup, round, time_units, risk, risk_at, levels, range, designs, units_*, label_*, description_* |
 | `structure` | edge | scenario, from, to, strength, kind (`path` or `correlation`) |
 | `effects` | effect | scenario, outcome, variable, measure, value, per, model, modifier, modifier_values (`pre: 0.93, post: 1.12`) |
+| `markers` | marker | scenario, outcome, marker, dist, round, auc, direction, block, informative, rho, range, units_*, label_* |
 | `designs` | design option | scenario, design, option, value |
 | `references` | reference | scenario, reference |
 
-Lists inside a cell are comma-separated (`never, former, current`).
+Lists inside a cell are comma-separated (`never, former, current`). A competing
+event is a row of `outcomes` (and its effects rows of `effects`) named
+`<outcome>:competing`.
 
 ## Names and categories in each language
 

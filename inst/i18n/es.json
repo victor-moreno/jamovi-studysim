@@ -13,8 +13,23 @@
             "{events} events in {pt} person-years": [
                 "{events} eventos en {pt} personas-año"
             ],
+            "{k} clusters randomised ({by} by arm), intraclass correlation {icc}": [
+                "{k} conglomerados aleatorizados ({by} por grupo), correlación intraclase {icc}"
+            ],
+            "{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}": [
+                "{k} análisis intermedios tras {ns} participantes; límites de O'Brien-Fleming |z| ≥ {b}"
+            ],
+            "{k} regions of {m} people": [
+                "{k} regiones de {m} personas"
+            ],
+            "{k} regions of {m} people (the sample size is not used): only totals, means and percentages per region are kept": [
+                "{k} regiones de {m} personas (no se usa el tamaño muestral): solo se guardan totales, medias y porcentajes por región"
+            ],
             "{n} cases have fewer controls than asked": [
                 "{n} casos tienen menos controles de los pedidos"
+            ],
+            "{n} competing events ({label}), status 2": [
+                "{n} eventos competitivos ({label}), estado 2"
             ],
             "{n} rows": [
                 "{n} filas"
@@ -25,8 +40,17 @@
             "2x2 crossover trial": [
                 "Ensayo cruzado 2x2"
             ],
+            "2x2 factorial trial": [
+                "Ensayo factorial 2x2"
+            ],
+            "2x2 factorial: {a} and {b} randomised independently; {cells} participants per combination": [
+                "Factorial 2x2: {a} y {b} aleatorizados de forma independiente; {cells} participantes por combinación"
+            ],
             "95% CI": [
                 "IC 95%"
+            ],
+            "a random subcohort of {sub} people from a cohort of {n}, plus every case: {cases} cases, {insub} of them in the subcohort": [
+                "una subcohorte aleatoria de {sub} personas de una cohorte de {n}, más todos los casos: {cases} casos, {insub} de ellos en la subcohorte"
             ],
             "About the scenario": [
                 "Sobre el escenario"
@@ -43,6 +67,9 @@
             "Answer key": [
                 "Clave de respuestas"
             ],
+            "Answer key: markers": [
+                "Clave de respuestas: marcadores"
+            ],
             "Answer key: notes": [
                 "Clave de respuestas: notas"
             ],
@@ -51,6 +78,12 @@
             ],
             "Answer key: what this design should estimate": [
                 "Clave de respuestas: qué debería estimar este diseño"
+            ],
+            "AUC of each marker alone (a block: the mean over its columns). Values are higher in the diseased unless the scenario says lower; the large study has 20,000 people.": [
+                "AUC de cada marcador por separado (un bloque: la media de sus columnas). Los valores son más altos en los enfermos salvo que el escenario diga lo contrario; el estudio grande tiene 20.000 personas."
+            ],
+            "baseline and {k} follow-up visits; participants seen at each visit: {n}": [
+                "visita basal y {k} visitas de seguimiento; participantes vistos en cada visita: {n}"
             ],
             "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
                 "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} años"
@@ -76,6 +109,9 @@
             "Carryover effect": [
                 "Efecto residual (carryover)"
             ],
+            "Case-cohort": [
+                "Caso-cohorte"
+            ],
             "Case-control": [
                 "Casos y controles"
             ],
@@ -97,11 +133,20 @@
             "Choose the outcome and the variables of the scenario (and the follow-up time for an event outcome).": [
                 "Elija la respuesta y las variables del escenario (y el tiempo de seguimiento si la respuesta es un evento)."
             ],
+            "Cluster randomised trial": [
+                "Ensayo aleatorizado por conglomerados"
+            ],
+            "Clusters": [
+                "Conglomerados"
+            ],
             "Cohort": [
                 "Cohorte"
             ],
             "Column": [
                 "Columna"
+            ],
+            "Columns": [
+                "Columnas"
             ],
             "Compare designs": [
                 "Comparar diseños"
@@ -124,6 +169,9 @@
             "Contrast": [
                 "Contraste"
             ],
+            "controls drawn from each case's risk set: a person can be a control more than once, and a control can later be a case": [
+                "controles extraídos del conjunto de riesgo de cada caso: una persona puede ser control más de una vez, y un control puede ser caso más tarde"
+            ],
             "Controls per case": [
                 "Controles por caso"
             ],
@@ -138,6 +186,9 @@
             ],
             "Crude": [
                 "Crudo"
+            ],
+            "Crude: difference at the last visit among those who attended it (completers). Adjusted: linear mixed model with all visits (random intercept, an effect per visit), valid when dropout depends on values already seen.": [
+                "Crudo: diferencia en la última visita entre quienes acudieron (completos). Ajustado: modelo lineal mixto con todas las visitas (intercepto aleatorio, un efecto por visita), válido cuando el abandono depende de valores ya observados."
             ],
             "custom": [
                 "propio"
@@ -199,8 +250,26 @@
             "Detect": [
                 "Detectar"
             ],
+            "Diagnostic accuracy": [
+                "Exactitud diagnóstica"
+            ],
+            "Differences between regions (exposures)": [
+                "Diferencias entre regiones (exposiciones)"
+            ],
+            "Differences between regions (outcome)": [
+                "Diferencias entre regiones (respuesta)"
+            ],
             "Distribution": [
                 "Distribución"
+            ],
+            "Dropout by the last visit (%)": [
+                "Abandonos en la última visita (%)"
+            ],
+            "Ecological (regions)": [
+                "Ecológico (regiones)"
+            ],
+            "Ecological regression on the regions: a percentage is compared all versus none of the region, a mean per unit. The true values are effects on individuals; the gap is the ecological bias.": [
+                "Regresión ecológica sobre las regiones: un porcentaje se compara toda la región frente a nadie, una media por unidad. Los valores verdaderos son efectos sobre individuos; la diferencia es el sesgo ecológico."
             ],
             "Effect sizes on the diagram": [
                 "Tamaños del efecto en el diagrama"
@@ -259,6 +328,9 @@
             "Follow-up time (event outcomes)": [
                 "Tiempo de seguimiento (eventos)"
             ],
+            "Follow-up visits": [
+                "Visitas de seguimiento"
+            ],
             "Form": [
                 "Forma"
             ],
@@ -280,14 +352,23 @@
             "integer": [
                 "entera"
             ],
+            "Interaction of the two interventions": [
+                "Interacción de las dos intervenciones"
+            ],
             "intercept {a}": [
                 "constante {a}"
             ],
             "intercept {a} gives a prevalence of {p}": [
                 "la constante {a} da una prevalencia de {p}"
             ],
+            "Interim looks": [
+                "Análisis intermedios"
+            ],
             "intervention": [
                 "intervención"
+            ],
+            "Intraclass correlation": [
+                "Correlación intraclase"
             ],
             "JSON (for the Simulated study pickers)": [
                 "JSON (para los selectores de Estudio simulado)"
@@ -319,6 +400,9 @@
             "log intercept {a}": [
                 "constante logarítmica {a}"
             ],
+            "Longitudinal trial (repeated visits)": [
+                "Ensayo longitudinal (visitas repetidas)"
+            ],
             "Loss to follow-up (% per year)": [
                 "Pérdidas de seguimiento (% anual)"
             ],
@@ -327,6 +411,9 @@
             ],
             "Manages the scenario library of the Study Simulator: reads a custom library (YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and exports the library or one scenario as Excel, JSON or YAML, or an Excel template to start a new one.": [
                 "Gestiona la biblioteca de escenarios del Simulador de estudios: lee una biblioteca propia (YAML, Excel, JSON o un zip de ellos), la comprueba, muestra sus escenarios y exporta la biblioteca o un escenario en Excel, JSON o YAML, o una plantilla Excel para empezar una nueva."
+            ],
+            "Marker": [
+                "Marcador"
             ],
             "Matched case-control": [
                 "Casos y controles emparejados"
@@ -360,6 +447,9 @@
             ],
             "Missingness": [
                 "Mecanismo de pérdida"
+            ],
+            "Nested case-control": [
+                "Casos y controles anidado"
             ],
             "no": [
                 "no"
@@ -409,6 +499,9 @@
             "path": [
                 "camino"
             ],
+            "People per region": [
+                "Personas por región"
+            ],
             "Period effect": [
                 "Efecto periodo"
             ],
@@ -420,6 +513,9 @@
             ],
             "prevalence {p}": [
                 "prevalencia {p}"
+            ],
+            "prevalence {p}%; markers measured on everybody: {list}": [
+                "prevalencia {p}%; marcadores medidos en todos: {list}"
             ],
             "Problem": [
                 "Problema"
@@ -459,6 +555,9 @@
             ],
             "References": [
                 "Referencias"
+            ],
+            "Regions": [
+                "Regiones"
             ],
             "risk {r} at {t} years": [
                 "riesgo {r} a {t} años"
@@ -529,6 +628,9 @@
             "Sources of the parameters": [
                 "Fuentes de los parámetros"
             ],
+            "Status 2 is a competing event: a Cox model that censors it estimates the true cause-specific hazard ratios; 1 - Kaplan-Meier then overstates the cumulative incidence of the event (use the cumulative incidence function).": [
+                "El estado 2 es un evento competitivo: un modelo de Cox que lo censura estima los hazard ratios específicos de causa verdaderos; 1 - Kaplan-Meier sobrestima entonces la incidencia acumulada del evento (use la función de incidencia acumulada)."
+            ],
             "Strength": [
                 "Fuerza"
             ],
@@ -552,6 +654,12 @@
             ],
             "studysim-language-code": [
                 "es"
+            ],
+            "Subcohort (% of the cohort)": [
+                "Subcohorte (% de la cohorte)"
+            ],
+            "subcohort {sub} of a cohort of {n}; {cases} cases": [
+                "subcohorte de {sub} de una cohorte de {n}; {cases} casos"
             ],
             "Summary": [
                 "Resumen"
@@ -586,11 +694,17 @@
             "True": [
                 "Verdadero"
             ],
+            "True AUC": [
+                "AUC verdadera"
+            ],
             "True value": [
                 "Valor verdadero"
             ],
             "True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare.": [
                 "Los valores verdaderos son {true}, la medida con que se generaron los datos (una cohorte seguida en el tiempo); este diseño estima {est}, que se le acercan cuando la respuesta es rara."
+            ],
+            "True values are conditional on the cluster; a model that ignores the clusters estimates a population-average effect (closer to the null for OR and HR) and needs cluster-robust standard errors.": [
+                "Los valores verdaderos son condicionales al conglomerado; un modelo que ignora los conglomerados estima un efecto promedio poblacional (más cercano al nulo para OR y HR) y necesita errores estándar robustos por conglomerado."
             ],
             "Type": [
                 "Tipo"
@@ -618,6 +732,9 @@
             ],
             "Whole library": [
                 "Toda la biblioteca"
+            ],
+            "With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level.": [
+                "Con una interacción, un modelo con los dos efectos principales estima el efecto de cada intervención promediado sobre la otra; los valores verdaderos valen cuando la otra intervención está en su nivel de referencia."
             ],
             "YAML (for an AI or a library)": [
                 "YAML (para una IA o una biblioteca)"

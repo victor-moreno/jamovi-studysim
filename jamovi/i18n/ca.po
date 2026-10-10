@@ -18,8 +18,28 @@ msgid "{events} events in {pt} person-years"
 msgstr "{events} esdeveniments en {pt} persones-any"
 
 #: R/simstudy.b.R
+msgid "{k} clusters randomised ({by} by arm), intraclass correlation {icc}"
+msgstr "{k} conglomerats aleatoritzats ({by} per grup), correlació intraclasse {icc}"
+
+#: R/simstudy.b.R
+msgid "{k} interim looks after {ns} participants; O'Brien-Fleming boundaries |z| ≥ {b}"
+msgstr "{k} anàlisis intermèdies després de {ns} participants; límits d'O'Brien-Fleming |z| ≥ {b}"
+
+#: R/simcompare.b.R
+msgid "{k} regions of {m} people"
+msgstr "{k} regions de {m} persones"
+
+#: R/simstudy.b.R
+msgid "{k} regions of {m} people (the sample size is not used): only totals, means and percentages per region are kept"
+msgstr "{k} regions de {m} persones (no es fa servir la mida mostral): només es guarden totals, mitjanes i percentatges per regió"
+
+#: R/simstudy.b.R
 msgid "{n} cases have fewer controls than asked"
 msgstr "{n} casos tenen menys controls dels demanats"
+
+#: R/simstudy.b.R
+msgid "{n} competing events ({label}), status 2"
+msgstr "{n} esdeveniments competitius ({label}), estat 2"
 
 #: R/simstudy.b.R
 msgid "{n} rows"
@@ -35,10 +55,24 @@ msgstr "{n} files, {c} completes per al model"
 msgid "2x2 crossover trial"
 msgstr "Assaig creuat 2x2"
 
+#: R/simstudy.b.R
+#: simCompare/options/designs/factorial.title
+#: simStudy/options/design/factorial.title
+msgid "2x2 factorial trial"
+msgstr "Assaig factorial 2x2"
+
+#: R/simstudy.b.R
+msgid "2x2 factorial: {a} and {b} randomised independently; {cells} participants per combination"
+msgstr "Factorial 2x2: {a} i {b} aleatoritzats de manera independent; {cells} participants per combinació"
+
 #: simCompare/results/estimates.columns.superTitle
 #: simDerive/results/effects.columns.superTitle
 msgid "95% CI"
 msgstr "IC 95%"
+
+#: R/simstudy.b.R
+msgid "a random subcohort of {sub} people from a cohort of {n}, plus every case: {cases} cases, {insub} of them in the subcohort"
+msgstr "una subcohort aleatòria de {sub} persones d'una cohort de {n}, més tots els casos: {cases} casos, {insub} d'ells a la subcohort"
 
 #: simLibrary/results/about.title
 msgid "About the scenario"
@@ -62,6 +96,10 @@ msgstr "Tots els dissenys mostregen la mateixa superpoblació (mateixa llavor i 
 msgid "Answer key"
 msgstr "Clau de respostes"
 
+#: simStudy/results/keyMarkers.title
+msgid "Answer key: markers"
+msgstr "Clau de respostes: marcadors"
+
 #: simStudy/results/keyNotes.title
 msgid "Answer key: notes"
 msgstr "Clau de respostes: notes"
@@ -73,6 +111,14 @@ msgstr "Clau de respostes: model veritable"
 #: simStudy/results/keyExpected.title
 msgid "Answer key: what this design should estimate"
 msgstr "Clau de respostes: què hauria d'estimar aquest disseny"
+
+#: R/simstudy.b.R
+msgid "AUC of each marker alone (a block: the mean over its columns). Values are higher in the diseased unless the scenario says lower; the large study has 20,000 people."
+msgstr "AUC de cada marcador per separat (un bloc: la mitjana de les seves columnes). Els valors són més alts en els malalts tret que l'escenari digui el contrari; l'estudi gran té 20.000 persones."
+
+#: R/simstudy.b.R
+msgid "baseline and {k} follow-up visits; participants seen at each visit: {n}"
+msgstr "visita basal i {k} visites de seguiment; participants vistos a cada visita: {n}"
 
 #: R/simstudy.b.R
 msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"
@@ -109,6 +155,12 @@ msgid "Carryover effect"
 msgstr "Efecte residual (carryover)"
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/case_cohort.title
+#: simStudy/options/design/case_cohort.title
+msgid "Case-cohort"
+msgstr "Cas-cohort"
+
+#: R/simstudy.b.R
 #: simCompare/options/designs/case_control.title
 #: simStudy/options/design/case_control.title
 msgid "Case-control"
@@ -140,6 +192,16 @@ msgid "Choose the outcome and the variables of the scenario (and the follow-up t
 msgstr "Trieu la resposta i les variables de l'escenari (i el temps de seguiment si la resposta és un esdeveniment)."
 
 #: R/simstudy.b.R
+#: simCompare/options/designs/cluster_rct.title
+#: simStudy/options/design/cluster_rct.title
+msgid "Cluster randomised trial"
+msgstr "Assaig aleatoritzat per conglomerats"
+
+#: simStudy/options/clusters.title
+msgid "Clusters"
+msgstr "Conglomerats"
+
+#: R/simstudy.b.R
 #: simCompare/options/designs/cohort.title
 #: simStudy/options/design/cohort.title
 msgid "Cohort"
@@ -148,6 +210,10 @@ msgstr "Cohort"
 #: simDerive/results/variables.columns.title
 msgid "Column"
 msgstr "Columna"
+
+#: simStudy/results/keyMarkers.columns.title
+msgid "Columns"
+msgstr "Columnes"
 
 #: R/simcompare.b.R
 #: package/analyses/simCompare.title
@@ -189,6 +255,10 @@ msgstr "Resposta contínua en escala logarítmica"
 msgid "Contrast"
 msgstr "Contrast"
 
+#: R/simstudy.b.R
+msgid "controls drawn from each case's risk set: a person can be a control more than once, and a control can later be a case"
+msgstr "controls extrets del conjunt de risc de cada cas: una persona pot ser control més d'una vegada, i un control pot ser cas més tard"
+
 #: simCompare/options/ccRatio.title
 #: simStudy/options/ccRatio.title
 msgid "Controls per case"
@@ -213,6 +283,10 @@ msgstr "Transversal"
 #: simStudy/results/keyExpected.columns.title
 msgid "Crude"
 msgstr "Cru"
+
+#: R/simstudy.b.R
+msgid "Crude: difference at the last visit among those who attended it (completers). Adjusted: linear mixed model with all visits (random intercept, an effect per visit), valid when dropout depends on values already seen."
+msgstr "Cru: diferència a l'última visita entre els que hi van anar (complets). Ajustat: model lineal mixt amb totes les visites (intercepte aleatori, un efecte per visita), vàlid quan l'abandonament depèn de valors ja observats."
 
 #: R/simlibrary.b.R
 msgid "custom"
@@ -315,10 +389,38 @@ msgstr "Detalls"
 msgid "Detect"
 msgstr "Detectar"
 
+#: R/simstudy.b.R
+#: simCompare/options/designs/diagnostic.title
+#: simStudy/options/design/diagnostic.title
+msgid "Diagnostic accuracy"
+msgstr "Exactitud diagnòstica"
+
+#: simStudy/options/regionSd.title
+msgid "Differences between regions (exposures)"
+msgstr "Diferències entre regions (exposicions)"
+
+#: simStudy/options/contextSd.title
+msgid "Differences between regions (outcome)"
+msgstr "Diferències entre regions (resposta)"
+
 #: simDerive/results/variables.columns.title
 #: simLibrary/results/variables.columns.title
 msgid "Distribution"
 msgstr "Distribució"
+
+#: simStudy/options/dropout.title
+msgid "Dropout by the last visit (%)"
+msgstr "Abandonaments a l'última visita (%)"
+
+#: R/simstudy.b.R
+#: simCompare/options/designs/ecological.title
+#: simStudy/options/design/ecological.title
+msgid "Ecological (regions)"
+msgstr "Ecològic (regions)"
+
+#: R/simstudy.b.R
+msgid "Ecological regression on the regions: a percentage is compared all versus none of the region, a mean per unit. The true values are effects on individuals; the gap is the ecological bias."
+msgstr "Regressió ecològica sobre les regions: un percentatge es compara tota la regió enfront de ningú, una mitjana per unitat. Els valors veritables són efectes sobre individus; la diferència és el biaix ecològic."
 
 #: simStudy/options/dagValues.title
 msgid "Effect sizes on the diagram"
@@ -406,6 +508,10 @@ msgstr "Seguiment (anys)"
 msgid "Follow-up time (event outcomes)"
 msgstr "Temps de seguiment (esdeveniments)"
 
+#: simStudy/options/visits.title
+msgid "Follow-up visits"
+msgstr "Visites de seguiment"
+
 #: simCompare/ui/measured.columns.label
 #: simStudy/ui/measured.columns.label
 msgid "Form"
@@ -437,6 +543,10 @@ msgstr "A l'escenari"
 msgid "integer"
 msgstr "entera"
 
+#: simStudy/options/interaction.title
+msgid "Interaction of the two interventions"
+msgstr "Interacció de les dues intervencions"
+
 #: R/simstudy.b.R
 msgid "intercept {a}"
 msgstr "constant {a}"
@@ -445,9 +555,17 @@ msgstr "constant {a}"
 msgid "intercept {a} gives a prevalence of {p}"
 msgstr "la constant {a} dona una prevalença de {p}"
 
+#: simStudy/options/looks.title
+msgid "Interim looks"
+msgstr "Anàlisis intermèdies"
+
 #: R/simlibrary.b.R
 msgid "intervention"
 msgstr "intervenció"
+
+#: simStudy/options/icc.title
+msgid "Intraclass correlation"
+msgstr "Correlació intraclasse"
 
 #: simDerive/options/exportFormat/json.title
 #: simLibrary/options/exportFormat/json.title
@@ -463,6 +581,7 @@ msgid "Label"
 msgstr "Etiqueta"
 
 #: simCompare/results/estimates.columns.title
+#: simStudy/results/keyMarkers.columns.title
 msgid "Large study"
 msgstr "Estudi gran"
 
@@ -496,6 +615,12 @@ msgstr "Biblioteca mostrada"
 msgid "log intercept {a}"
 msgstr "constant logarítmica {a}"
 
+#: R/simstudy.b.R
+#: simCompare/options/designs/longitudinal.title
+#: simStudy/options/design/longitudinal.title
+msgid "Longitudinal trial (repeated visits)"
+msgstr "Assaig longitudinal (visites repetides)"
+
 #: simCompare/options/loss.title
 #: simStudy/options/loss.title
 msgid "Loss to follow-up (% per year)"
@@ -510,6 +635,10 @@ msgstr "Inferior"
 #: simLibrary/options.description.main
 msgid "Manages the scenario library of the Study Simulator: reads a custom library (YAML, Excel, JSON or a zip of them), checks it, shows its scenarios, and exports the library or one scenario as Excel, JSON or YAML, or an Excel template to start a new one."
 msgstr "Gestiona la biblioteca d'escenaris del Simulador d'estudis: llegeix una biblioteca pròpia (YAML, Excel, JSON o un zip d'aquests), la comprova, mostra els seus escenaris i exporta la biblioteca o un escenari en Excel, JSON o YAML, o una plantilla Excel per començar-ne una de nova."
+
+#: simStudy/results/keyMarkers.columns.title
+msgid "Marker"
+msgstr "Marcador"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/matched_cc.title
@@ -565,6 +694,12 @@ msgstr "Valors perduts (%)"
 #: simStudy/options/missingMech.title
 msgid "Missingness"
 msgstr "Mecanisme de pèrdua"
+
+#: R/simstudy.b.R
+#: simCompare/options/designs/nested_cc.title
+#: simStudy/options/design/nested_cc.title
+msgid "Nested case-control"
+msgstr "Casos i controls niat"
 
 #: R/simderive.b.R
 msgid "no"
@@ -641,6 +776,10 @@ msgstr "Sortida"
 msgid "path"
 msgstr "camí"
 
+#: simStudy/options/regionSize.title
+msgid "People per region"
+msgstr "Persones per regió"
+
 #: simStudy/options/period.title
 msgid "Period effect"
 msgstr "Efecte període"
@@ -657,6 +796,10 @@ msgstr "Premeu <b>Obrir dades</b> per obrir les dades en una finestra nova, o <b
 #: R/simlibrary.b.R
 msgid "prevalence {p}"
 msgstr "prevalença {p}"
+
+#: R/simstudy.b.R
+msgid "prevalence {p}%; markers measured on everybody: {list}"
+msgstr "prevalença {p}%; marcadors mesurats en tothom: {list}"
 
 #: simLibrary/results/problems.columns.title
 msgid "Problem"
@@ -715,6 +858,10 @@ msgstr "Vermell: augmenta la resposta, blau: la redueix; * l'efecte depèn d'una
 #: R/simlibrary.b.R
 msgid "References"
 msgstr "Referències"
+
+#: simStudy/options/regions.title
+msgid "Regions"
+msgstr "Regions"
 
 #: R/simderive.b.R
 #: R/simlibrary.b.R
@@ -835,6 +982,10 @@ msgstr "Origen"
 msgid "Sources of the parameters"
 msgstr "Fonts dels paràmetres"
 
+#: R/simstudy.b.R
+msgid "Status 2 is a competing event: a Cox model that censors it estimates the true cause-specific hazard ratios; 1 - Kaplan-Meier then overstates the cumulative incidence of the event (use the cumulative incidence function)."
+msgstr "L'estat 2 és un esdeveniment competitiu: un model de Cox que el censura estima els hazard ratios específics de causa veritables; 1 - Kaplan-Meier sobreestima llavors la incidència acumulada de l'esdeveniment (feu servir la funció d'incidència acumulada)."
+
 #: simLibrary/results/structure.columns.title
 msgid "Strength"
 msgstr "Força"
@@ -867,6 +1018,14 @@ msgstr "Simulador d'estudis"
 #: jamovi/js/shared.js:33
 msgid "studysim-language-code"
 msgstr "ca"
+
+#: simStudy/options/subcohort.title
+msgid "Subcohort (% of the cohort)"
+msgstr "Subcohort (% de la cohort)"
+
+#: R/simcompare.b.R
+msgid "subcohort {sub} of a cohort of {n}; {cases} cases"
+msgstr "subcohort de {sub} d'una cohort de {n}; {cases} casos"
 
 #: simStudy/results/descriptives.columns.title
 msgid "Summary"
@@ -916,6 +1075,10 @@ msgstr "Cap a"
 msgid "True"
 msgstr "Veritable"
 
+#: simStudy/results/keyMarkers.columns.title
+msgid "True AUC"
+msgstr "AUC veritable"
+
 #: simStudy/results/keyEffects.columns.title
 msgid "True value"
 msgstr "Valor veritable"
@@ -924,6 +1087,10 @@ msgstr "Valor veritable"
 #: R/simstudy.b.R
 msgid "True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."
 msgstr "Els valors veritables són {true}, la mesura amb què es van generar les dades (una cohort seguida en el temps); aquest disseny estima {est}, que s'hi acosten quan la resposta és rara."
+
+#: R/simstudy.b.R
+msgid "True values are conditional on the cluster; a model that ignores the clusters estimates a population-average effect (closer to the null for OR and HR) and needs cluster-robust standard errors."
+msgstr "Els valors veritables són condicionals al conglomerat; un model que ignora els conglomerats estima un efecte mitjà poblacional (més proper al nul per a OR i HR) i necessita errors estàndard robustos per conglomerat."
 
 #: simDerive/results/variables.columns.title
 #: simLibrary/results/variables.columns.title
@@ -980,6 +1147,10 @@ msgstr "On"
 #: simLibrary/options/exportScope/all.title
 msgid "Whole library"
 msgstr "Tota la biblioteca"
+
+#: R/simstudy.b.R
+msgid "With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level."
+msgstr "Amb una interacció, un model amb els dos efectes principals estima l'efecte de cada intervenció mitjanat sobre l'altra; els valors veritables valen quan l'altra intervenció és al seu nivell de referència."
 
 #: simDerive/options/exportFormat/yaml.title
 msgid "YAML (for an AI or a library)"

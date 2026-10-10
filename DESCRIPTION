@@ -1,13 +1,16 @@
 Package: studysim
 Type: Package
 Title: Study Simulator
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: person("Victor", "Moreno", email = "v.moreno@iconcologia.net", role = c("aut", "cre"))
 Maintainer: Victor Moreno <v.moreno@iconcologia.net>
 Description: Simulates plausible medical study datasets for teaching: a clinical
     scenario from an editable library, a study design (cross-sectional, cohort,
-    case-control, randomised trial, crossover, prognosis), a sample size and some
-    realism (missing data), with a hidden answer key holding the true parameters.
+    case-control, nested case-control, case-cohort, ecological, randomised,
+    cluster, factorial, crossover and longitudinal trials, prognosis, diagnostic
+    accuracy), a sample size and some realism (missing data, dropout), with a
+    hidden answer key holding the true parameters; several designs can be
+    compared on the same population.
 License: GPL (>= 2)
 Encoding: UTF-8
 Imports: jmvcore (>= 0.8.5), R6, stats, utils, survival, nlme, yaml, jsonlite, digest, openxlsx, zip, tools, ggplot2, grid

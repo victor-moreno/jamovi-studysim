@@ -10,20 +10,29 @@ parameters and what crude and adjusted analyses of that design should find.
 
 ## Analyses (menu: Simulate)
 
-- **Simulated study**: scenario → outcome → design (case-control, matched
-  case-control, cohort, cross-sectional, randomised trial, 2×2 crossover,
-  prognosis); choose the measured variables and group numeric ones; missing data;
-  seed and student keys; data dictionary, descriptives, causal diagram and answer
-  key; *Open dataset* or *Export CSV*.
+- **Simulated study**: scenario → outcome → design; choose the measured
+  variables and group numeric ones; missing data; seed and student keys; data
+  dictionary, descriptives, causal diagram and answer key; *Open dataset* or
+  *Export CSV*. Designs:
+  - observational: cross-sectional, cohort, case-control, matched case-control,
+    nested case-control (risk sets), case-cohort, ecological (regions),
+    prognosis (with competing risks);
+  - trials: randomised (with interim looks), cluster randomised, 2×2 factorial,
+    2×2 crossover, longitudinal with dropout;
+  - diagnostic accuracy (markers with a target AUC, marker panels for p ≫ n).
+- **Compare designs**: one scenario under several designs drawn from the same
+  population: estimates with 95% CI per design against the truth (optionally the
+  large-study expectation), a forest plot, and all studies stacked in one dataset
+  with a design column.
 - **Library**: lists, checks, explores and exports scenarios; reads custom
   libraries in YAML, Excel or JSON.
 - **Derive scenario**: estimates a scenario from a real dataset (marginals, latent
   correlations, conditional effects) and checks it by simulation; an AI prompt and
   a Claude skill in `ai/` turn it into a teaching scenario.
 
-Six scenarios ship with version 0.1 (breast cancer risk and prognosis, coronary
-heart disease, an antihypertensive trial, metformin, bioequivalence); the format is
-in `inst/library/schema.md`. Effect sizes are teaching-grade plausible values
+Seven scenarios ship with version 0.2 (breast cancer risk and prognosis, coronary
+heart disease, an antihypertensive trial, metformin, bioequivalence, PSA and
+prostate cancer); the format is in `inst/library/schema.md`. Effect sizes are teaching-grade plausible values
 informed by the cited literature, not meta-analytic estimates.
 
 The options, results, built-in scenarios and dataset column names are available in
@@ -54,7 +63,8 @@ rendered to `docs/`.
 Designed and built together with Claude Code, over several rounds of design,
 implementation and testing in jamovi. Ideas come from simstudy, simDAG, PRIME-CVD
 and The Islands; no code was copied. Survival models use the R package `survival`
-by Terry Therneau.
+by Terry Therneau; mixed models in the answer key use `nlme` (Pinheiro, Bates and
+the R Core Team).
 
 This module has been developed with support of the Instituto de Salud Carlos III
 (ISCIII), “Programa FORTALECE del Ministerio de Ciencia e Innovación”, through the
