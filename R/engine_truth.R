@@ -264,10 +264,17 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
     out
 }
 
+# markers' true AUC and the AUC of one large diagnostic study
+expected_markers <- function(sc, oc, opt) {
+    big <- run_design("diagnostic", sc, oc, calibrate(sc, oc), derive_seed("truth", sc$id, oc$id), 20000, opt)
+    marker_table(oc, format_study(sc, oc, "diagnostic", big, character(), "en"))
+}
+
 answer_key <- function(sc, oc, design, opt, factors, lang = "en", categorize = list()) {
     cal <- calibrate(sc, oc)
     unmeasured <- setdiff(names(oc$effects), c(factors, names(sc$interventions)))
     list(effects = true_effects(sc, oc, lang),
+         markers = if (design == "diagnostic") expected_markers(sc, oc, opt),
          expected = expected_estimates(sc, oc, design, opt, factors, lang, categorize),
          calibration = cal,
          structure = sc$edges,

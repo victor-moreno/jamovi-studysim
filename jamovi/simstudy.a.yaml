@@ -83,6 +83,8 @@ options:
             title: Longitudinal trial (repeated visits)
           - name: ecological
             title: Ecological (regions)
+          - name: diagnostic
+            title: Diagnostic accuracy
       default: case_control
       description:
           R: study design; must fit the outcome

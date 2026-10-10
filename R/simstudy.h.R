@@ -81,7 +81,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "cluster_rct",
                     "factorial",
                     "longitudinal",
-                    "ecological"),
+                    "ecological",
+                    "diagnostic"),
                 default="case_control")
             private$..measured <- jmvcore::OptionArray$new(
                 "measured",
@@ -392,6 +393,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         dag = function() private$.items[["dag"]],
         keyEffects = function() private$.items[["keyEffects"]],
         keyExpected = function() private$.items[["keyExpected"]],
+        keyMarkers = function() private$.items[["keyMarkers"]],
         keyNotes = function() private$.items[["keyNotes"]],
         openState = function() private$.items[["openState"]],
         csvState = function() private$.items[["csvState"]]),
@@ -678,6 +680,38 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="note", 
                         `title`="Note", 
                         `type`="text"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="keyMarkers",
+                title="Answer key: markers",
+                visible="(showKey)",
+                rows=0,
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "design"),
+                columns=list(
+                    list(
+                        `name`="marker", 
+                        `title`="Marker", 
+                        `type`="text"),
+                    list(
+                        `name`="part", 
+                        `title`="Columns", 
+                        `type`="text"),
+                    list(
+                        `name`="nm", 
+                        `title`="N", 
+                        `type`="integer"),
+                    list(
+                        `name`="truth", 
+                        `title`="True AUC", 
+                        `type`="number"),
+                    list(
+                        `name`="expected", 
+                        `title`="Large study", 
+                        `type`="number"))))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="keyNotes",
@@ -888,6 +922,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$dag} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$keyEffects} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyExpected} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$keyMarkers} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyNotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$openState} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$csvState} \tab \tab \tab \tab \tab a table \cr

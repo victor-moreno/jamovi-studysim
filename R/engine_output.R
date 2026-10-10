@@ -133,6 +133,8 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
     } else {
         out[[oc$id]] <- with_desc(as.numeric(d$.y), olab)
     }
+    for (m in oc$markers) if (!is.null(res$markers)) for (nm in marker_cols(m))
+        out[[nm]] <- with_desc(res$markers[[nm]], var_desc(m, lang))
     for (v in factors) {
         vv <- sc$variables[[v]]
         out[[v]] <- with_desc(code_to_column(d[[v]], vv), var_desc(vv, lang))
@@ -200,6 +202,7 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
     out <- c(out, if (design %in% CASE_DESIGNS) c("case", if (design == "nested_cc") "time")
                   else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct", "case_cohort", "cluster_rct", "factorial")) c("time", oc$id)
                   else oc$id)
+    if (design == "diagnostic") out <- c(out, unlist(lapply(oc$markers, marker_cols)))
     c(out, intersect(sc$order, factors))
 }
 
@@ -225,7 +228,7 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         else if (nm %in% names(sc$interventions)) sc$interventions[[nm]]$levels
         else if (nm == "case") c("control", "case")
         else if (nm == "subcohort") c("no", "yes")
-        else if (nm == "time") "cont"
+        else if (nm == "time" || nm %in% unlist(lapply(oc$markers, marker_cols))) "cont"
         else if (nm == oc$id) {
             if ("time" %in% cols) { if (!is.null(oc$competing) && design != "case_cohort") c("0", "1", "2") else c("0", "1") }
             else if (oc$type %in% c("binary", "event")) oc$levels else "cont"

@@ -19,6 +19,12 @@ names:
   population: population
   diet: diet
   bc_death: bc_death
+  prostate_cancer: prostate_cancer
+  dre: dre
+  prior_biopsy: prior_biopsy
+  prostate_volume: prostate_volume
+  psa: psa
+  free_psa: free_psa
   age: age
   alcohol: alcohol
   auc: auc
@@ -61,6 +67,8 @@ names:
   tumour_size: tumour_size
   weight: weight
 levels:
+  normal: normal
+  abnormal: abnormal
   usual: usual
   low_salt: low_salt
   "control": control

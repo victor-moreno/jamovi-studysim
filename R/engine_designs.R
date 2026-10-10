@@ -22,6 +22,7 @@ design_defaults <- function(design, oc, sc) {
         factorial = list(followup = oc$followup, loss = 0.02, block = 4, interaction = 0),
         longitudinal = list(block = 4, visits = 4, dropout = 0.2),
         ecological = list(regions = 30, region_size = 2000, region_sd = 0.5, context_sd = 0.2),
+        diagnostic = list(),
         case_cohort = list(subcohort = 0.1, followup = oc$followup, loss = 0.02, accrual = 0))
     utils::modifyList(d, sc$design_defaults[[design]] %||% list())
 }
@@ -459,13 +460,77 @@ eco_cols <- function(sc, v) {
     if (is.null(x) || x$type %in% c("continuous", "count", "binary")) v else eco_col(v, x$levels[-1])
 }
 
+# column names of a marker (one, or the block's p)
+marker_cols <- function(m) if (is.null(m$block)) m$id else sprintf("%s%0*d", m$id, nchar(m$block), seq_len(m$block))
+
+# Diagnostic accuracy study: a cross-sectional sample (disease status by the
+# outcome model) with the outcome's markers measured on everybody
+sim_diagnostic <- function(sc, oc, cal, seed, n, opt) {
+    if (length(oc$markers) == 0) stop(sprintf("outcome '%s' has no markers, so it cannot be a diagnostic study", oc$id), call. = FALSE)
+    r <- sim_cross_sectional(sc, oc, cal, seed, n, opt)
+    y <- r$data$.y
+    mk <- with_seed(derive_seed(seed, sc$id, oc$id, "markers", n), {
+        cols <- list()
+        for (m in oc$markers) {
+            if (!is.null(m$block)) {
+                f <- stats::rnorm(n)
+                E <- sqrt(m$rho) * f + sqrt(1 - m$rho) * matrix(stats::rnorm(n * m$block), n)
+                k <- seq_len(m$informative)
+                E[, k] <- E[, k] + m$dir * m$delta * y
+                nm <- marker_cols(m)
+                for (j in seq_len(m$block)) cols[[nm[j]]] <- round(E[, j], 3)
+            } else {
+                z <- stats::rnorm(n) + m$dir * m$delta * y
+                x <- if (is.null(m$dist)) z else qdist(stats::pnorm(z), m$dist, m$range)
+                cols[[m$id]] <- if (!is.null(m$round)) round(x, m$round) else round(x, 3)
+            }
+        }
+        as.data.frame(cols, check.names = FALSE)
+    })
+    r$markers <- mk
+    r$facts$prevalence <- mean(y)
+    r$facts$markers <- names(oc$markers)
+    r
+}
+
+# empirical AUC of x for status d (1 = diseased), Mann-Whitney
+auc_of <- function(x, d, dir = 1) {
+    ok <- !is.na(x) & !is.na(d)
+    x <- dir * x[ok]; d <- d[ok] == 1
+    n1 <- sum(d); n0 <- sum(!d)
+    if (n1 == 0 || n0 == 0) return(NA_real_)
+    (sum(rank(x)[d]) - n1 * (n1 + 1) / 2) / (n1 * n0)
+}
+
+# per marker (a block as its informative and its noise markers): the true AUC
+# and the AUC in a formatted study fd (status from the outcome column)
+marker_table <- function(oc, fd) {
+    d <- as.integer(fd[[oc$id]]) - 1L
+    rows <- list()
+    for (m in oc$markers) {
+        if (is.null(m$block)) {
+            rows[[length(rows) + 1]] <- data.frame(marker = m$id, part = "", n_markers = 1L, true = m$auc,
+                                                   auc = auc_of(fd[[m$id]], d, m$dir), stringsAsFactors = FALSE)
+        } else {
+            nm <- marker_cols(m); k <- m$informative
+            a <- vapply(nm, function(v) auc_of(fd[[v]], d, m$dir), 0)
+            if (k > 0) rows[[length(rows) + 1]] <- data.frame(marker = m$id, part = sprintf("%s-%s", nm[1], nm[k]), n_markers = k,
+                                                              true = m$auc, auc = mean(a[seq_len(k)]), stringsAsFactors = FALSE)
+            if (k < m$block) rows[[length(rows) + 1]] <- data.frame(marker = m$id, part = sprintf("%s-%s", nm[k + 1], nm[m$block]),
+                                                                    n_markers = m$block - k, true = 0.5, auc = mean(a[-seq_len(k)]),
+                                                                    stringsAsFactors = FALSE)
+        }
+    }
+    do.call(rbind, rows)
+}
+
 run_design <- function(design, sc, oc, cal, seed, n, opt) {
     f <- switch(design,
         cross_sectional = sim_cross_sectional, cohort = sim_cohort, prognosis = sim_cohort,
         case_control = sim_case_control, matched_cc = sim_matched_cc,
         rct = sim_rct, crossover = sim_crossover, nested_cc = sim_nested_cc, case_cohort = sim_case_cohort,
         cluster_rct = sim_cluster_rct, factorial = sim_factorial, longitudinal = sim_longitudinal,
-        ecological = sim_ecological,
+        ecological = sim_ecological, diagnostic = sim_diagnostic,
         stop(sprintf("unknown design '%s'", design), call. = FALSE))
     f(sc, oc, cal, seed, n, opt)
 }

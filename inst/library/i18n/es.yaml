@@ -18,6 +18,12 @@ names:
   population: poblacion
   diet: consejo
   bc_death: muerte_cancer
+  prostate_cancer: cancer_prostata
+  dre: tacto_rectal
+  prior_biopsy: biopsia_previa
+  prostate_volume: volumen_prostata
+  psa: psa
+  free_psa: psa_libre
   age: edad
   alcohol: alcohol
   auc: auc
@@ -60,6 +66,8 @@ names:
   tumour_size: tamano_tumor
   weight: peso
 levels:
+  normal: normal
+  abnormal: anormal
   usual: habitual
   low_salt: dieta_baja_sal
   "control": control

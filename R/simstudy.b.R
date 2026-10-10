@@ -75,7 +75,7 @@ simStudyClass <- R6::R6Class(
             ctx <- private$.context()
             if (!is.null(ctx$error)) {
                 private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(ctx$error)))
-                for (nm in c("summary", "dictionary", "keyEffects", "keyExpected", "keyNotes"))
+                for (nm in c("summary", "dictionary", "keyEffects", "keyExpected", "keyMarkers", "keyNotes"))
                     self$results[[nm]]$setVisible(FALSE)
                 return()
             }
@@ -93,6 +93,17 @@ simStudyClass <- R6::R6Class(
                     variable = dname(te$variable[i], ctx$lang), contrast = te$contrast[i]))
                 for (r in private$.expectedRows(ctx))
                     self$results$keyExpected$addRow(rowKey = r$key, values = list(variable = dname(r$variable, ctx$lang), contrast = r$contrast))
+                if (ctx$design == "diagnostic") {
+                    for (m in ctx$oc$markers) {
+                        cols <- marker_cols(m)
+                        parts <- if (is.null(m$block)) list(c("", 1)) else
+                            Filter(Negate(is.null), list(if (m$informative > 0) c("inf", m$informative), if (m$informative < m$block) c("noise", m$block - m$informative)))
+                        for (pp in parts) self$results$keyMarkers$addRow(rowKey = paste(m$id, pp[1]), values = list(
+                            marker = tr_text(m$label, ctx$lang), nm = as.integer(pp[2]),
+                            part = if (pp[1] == "inf") sprintf("%s-%s", cols[1], cols[m$informative])
+                                   else if (pp[1] == "noise") sprintf("%s-%s", cols[m$informative + 1], cols[m$block]) else cols[1]))
+                    }
+                } else self$results$keyMarkers$setVisible(FALSE)
             }
         },
 
@@ -185,6 +196,9 @@ simStudyClass <- R6::R6Class(
                                                          k = f$clusters[1], by = paste(f$clusters[-1], collapse = "/"), icc = f$icc))
             if (!is.null(f$factorial)) li <- c(li, jmvcore::format(.("2x2 factorial: {a} and {b} randomised independently; {cells} participants per combination"),
                                                           a = dname(f$factorial[1], l), b = dname(f$factorial[2], l), cells = paste(f$cells, collapse = "/")))
+            if (!is.null(f$markers)) li <- c(li, jmvcore::format(.("prevalence {p}%; markers measured on everybody: {list}"), p = num(100 * f$prevalence, 1),
+                                                        list = htmlEscape(paste(vapply(ctx$oc$markers, function(m) {
+                                                            cc <- marker_cols(m); if (length(cc) > 1) sprintf("%s-%s", cc[1], cc[length(cc)]) else cc }, ""), collapse = ", "))))
             if (!is.null(f$regions)) li <- c(li, jmvcore::format(.("{k} regions of {m} people (the sample size is not used): only totals, means and percentages per region are kept"),
                                                         k = num(f$regions), m = num(f$region_size)))
             if (!is.null(f$attending)) li <- c(li, jmvcore::format(.("baseline and {k} follow-up visits; participants seen at each visit: {n}"),
@@ -253,6 +267,17 @@ simStudyClass <- R6::R6Class(
                 if (length(mm))
                     tbl$setNote("measure", jmvcore::format(.("True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."),
                                                           true = paste(mm, collapse = "/"), est = ex$measure[1]))
+            }
+            if (ctx$design == "diagnostic") {
+                mk <- self$results$keyMarkers
+                mt <- mk$state
+                if (is.null(mt)) { mt <- expected_markers(ctx$sc, ctx$oc, opt); mk$setState(mt) }
+                for (i in seq_len(nrow(mt))) {
+                    m <- ctx$oc$markers[[mt$marker[i]]]
+                    k <- paste(mt$marker[i], if (is.null(m$block)) "" else if (mt$true[i] > 0.5 || m$informative == m$block) "inf" else "noise")
+                    if (k %in% mk$rowKeys) mk$setRow(rowKey = k, values = list(truth = mt$true[i], expected = mt$auc[i]))
+                }
+                mk$setNote("auc", .("AUC of each marker alone (a block: the mean over its columns). Values are higher in the diseased unless the scenario says lower; the large study has 20,000 people."))
             }
             l <- ctx$lang
             calib <- switch(ctx$oc$type,
@@ -342,7 +367,8 @@ design_title <- function(d, self) {
            cluster_rct = .("Cluster randomised trial"),
            factorial = .("2x2 factorial trial"),
            longitudinal = .("Longitudinal trial (repeated visits)"),
-           ecological = .("Ecological (regions)"), d)
+           ecological = .("Ecological (regions)"),
+           diagnostic = .("Diagnostic accuracy"), d)
 }
 
 # the panel's Variables list -> measured factor ids and the grouping of the

@@ -65,7 +65,8 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "cluster_rct",
                     "factorial",
                     "longitudinal",
-                    "ecological"),
+                    "ecological",
+                    "diagnostic"),
                 default=list(
                     "case_control",
                     "matched_cc",

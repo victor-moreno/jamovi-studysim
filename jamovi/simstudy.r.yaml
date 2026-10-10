@@ -116,6 +116,29 @@ items:
             title: Note
             type: text
 
+    - name: keyMarkers
+      title: 'Answer key: markers'
+      type: Table
+      visible: (showKey)
+      rows: 0
+      clearWith: [libContent, scenario, outcome, design]
+      columns:
+          - name: marker
+            title: Marker
+            type: text
+          - name: part
+            title: Columns
+            type: text
+          - name: nm
+            title: N
+            type: integer
+          - name: truth
+            title: True AUC
+            type: number
+          - name: expected
+            title: Large study
+            type: number
+
     - name: keyNotes
       title: 'Answer key: notes'
       type: Html

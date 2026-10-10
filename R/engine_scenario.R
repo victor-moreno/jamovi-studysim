@@ -232,6 +232,33 @@ normalize_effect <- function(oc_id, var_id, e, vars, interventions, pr) {
     out
 }
 
+# A marker of a binary outcome (diagnostic design): binormal, i.e. a latent
+# N(0, 1) in people without the disease shifted by delta = sqrt(2) qnorm(auc)
+# in the diseased, then mapped to `dist` (the marker's distribution in the
+# non-diseased) by its quantiles, which keeps the AUC. A `block` is p markers
+# (standard-normal values, exchangeable correlation rho) of which the first
+# `informative` have the AUC and the others none.
+normalize_marker <- function(oc_id, id, m, pr) {
+    where <- sprintf("outcome '%s', marker '%s'", oc_id, id)
+    g <- function(x, default) { v <- try_at(pr, where, num_expr(x %||% default)); if (is.null(v)) default else v }
+    out <- list(id = id, label = m$label %||% id, units = m$units, round = if (!is.null(m$round)) as.integer(m$round), auc = g(m$auc, NA),
+                dir = if (identical(m$direction, "lower")) -1 else 1)
+    if (is.na(out$auc) || out$auc < 0.5 || out$auc >= 1) {
+        add_problem(pr, where, "needs auc, the area under the ROC curve (0.5 to 1)"); return(NULL) }
+    if (!is.null(m$direction) && !m$direction %in% c("higher", "lower"))
+        add_problem(pr, where, "direction must be higher or lower (values in the diseased)")
+    out$delta <- sqrt(2) * stats::qnorm(out$auc)
+    if (!is.null(m$block)) {
+        out$block <- as.integer(g(m$block, 0)); out$informative <- as.integer(g(m$informative, 0)); out$rho <- g(m$rho, 0)
+        if (out$block < 2 || out$informative < 0 || out$informative > out$block || out$rho < 0 || out$rho >= 1)
+            add_problem(pr, where, "a block needs block (number of markers, at least 2), informative (0 to block) and rho (0 to 1)")
+        return(out)
+    }
+    if (!is.null(m$range)) out$range <- try_at(pr, where, num_vec(m$range))
+    if (!is.null(m$dist)) out$dist <- try_at(pr, where, parse_dist(m$dist))
+    out
+}
+
 normalize_outcome <- function(id, o, vars, interventions, pr) {
     where <- sprintf("outcome '%s'", id)
     if (is.null(o$type) || !o$type %in% OUTCOME_TYPES) {
@@ -245,6 +272,10 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
         if (is.null(out$prevalence) || out$prevalence <= 0 || out$prevalence >= 1)
             add_problem(pr, where, "a binary outcome needs prevalence (0 to 1)")
         out$levels <- as.character(unlist(o$levels %||% c("no", "yes")))
+        if (length(o$markers)) {
+            out$markers <- Filter(Negate(is.null), lapply(names(o$markers), function(m) normalize_marker(id, m, o$markers[[m]], pr)))
+            names(out$markers) <- vapply(out$markers, `[[`, "", "id")
+        }
     } else if (o$type == "event") {
         out$shape <- g(o$shape %||% 1)
         out$levels <- as.character(unlist(o$levels %||% c("no", "yes")))
@@ -297,7 +328,7 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
 # Outcome type -> designs it can feed (scenario-first menu, task_plan.md);
 # trials need an intervention. An outcome's own `designs:` list overrides.
 DESIGNS <- c("cross_sectional", "cohort", "case_control", "matched_cc", "rct", "crossover", "prognosis",
-             "nested_cc", "case_cohort", "cluster_rct", "factorial", "longitudinal", "ecological")
+             "nested_cc", "case_cohort", "cluster_rct", "factorial", "longitudinal", "ecological", "diagnostic")
 
 compatible_designs <- function(sc, outcome) {
     oc <- sc$outcomes[[outcome]]
@@ -308,6 +339,7 @@ compatible_designs <- function(sc, outcome) {
         event = c("cohort", "case_control", "matched_cc", "nested_cc", "case_cohort", "ecological"),
         continuous = c("cross_sectional", "cohort", "ecological"),
         count = c("cross_sectional", "cohort", "ecological"))
+    if (length(oc$markers)) d <- c(d, "diagnostic")
     if (has_iv) {
         d <- c(d, "rct", "cluster_rct")
         if (oc$type == "continuous") d <- c(d, "crossover", "longitudinal")

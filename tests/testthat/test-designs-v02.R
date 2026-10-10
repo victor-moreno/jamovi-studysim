@@ -104,3 +104,31 @@ test_that("a competing event gives status 2 and cause-specific Cox recovers the 
   base <- simulate_study(toy(), "ev", "cohort", 500, "age", key = FALSE)$data
   expect_lt(sum(r$data$ev[1:500] == 1), sum(base$ev == 1) + 1)
 })
+
+test_that("diagnostic markers have the target AUC, keep their marginal and a block mixes signal and noise", {
+  raw <- toy_raw()
+  raw$outcomes$dis$markers <- list(
+    crp = list(dist = "lognormal(3, 2)", auc = 0.75, round = 2),
+    alb = list(dist = "normal(40, 4)", auc = 0.65, direction = "lower"),
+    omic = list(block = 20, informative = 3, auc = 0.7, rho = 0.3))
+  sc <- normalize_scenario(raw)
+  expect_true("diagnostic" %in% compatible_designs(sc, "dis"))
+  r <- simulate_study(sc, "dis", "diagnostic", 8000, "age", key = FALSE)
+  d <- r$data_raw
+  expect_true(all(c("crp", "alb", "omic01", "omic20") %in% names(d)))
+  mt <- marker_table(sc$outcomes$dis, d)
+  expect_equal(mt$auc, mt$true, tolerance = 0.03)
+  healthy <- d$dis == "no"
+  expect_equal(mean(d$alb[healthy]), 40, tolerance = 0.01)
+  expect_equal(cor(d$omic10, d$omic11), 0.3, tolerance = 0.1)
+  expect_error(simulate_study(toy(), "dis", "diagnostic", 100), "does not fit")
+})
+
+test_that("the PSA scenario runs a diagnostic study through simStudy", {
+  r <- simStudy(data = data.frame(), scenario = "prostate_cancer_psa", outcome = "prostate_cancer", design = "diagnostic", n = 300,
+                measured = list(list(var = "age", include = TRUE)), showKey = TRUE)
+  k <- r$keyMarkers$asDF
+  expect_equal(nrow(k), 4)
+  expect_true(all(!is.na(k$expected)))
+  expect_match(r$summary$content, "markers measured")
+})

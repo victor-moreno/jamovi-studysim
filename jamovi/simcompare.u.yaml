@@ -76,6 +76,10 @@ children:
           name: designs_ecological
           optionName: designs
           optionPart: ecological
+        - type: CheckBox
+          name: designs_diagnostic
+          optionName: designs
+          optionPart: diagnostic
   - type: ListBox
     name: measured
     showColumnHeaders: true

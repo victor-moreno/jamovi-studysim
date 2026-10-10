@@ -9,7 +9,7 @@
 
 var BUILTIN = require('./builtin');
 
-var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis', 'nested_cc', 'case_cohort', 'cluster_rct', 'factorial', 'longitudinal', 'ecological'];
+var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis', 'nested_cc', 'case_cohort', 'cluster_rct', 'factorial', 'longitudinal', 'ecological', 'diagnostic'];
 var LIB_MAX = 700000;   // base64 characters; the options hop to the engine is 1 MiB
 
 function getOpt(ui, name) {
@@ -154,6 +154,7 @@ function designsFor(sc, oc) {
                continuous: ['cross_sectional', 'cohort', 'ecological'],
                count: ['cross_sectional', 'cohort', 'ecological'] })[oc.type] || [];
     d = d.slice();
+    if (oc.markers && Object.keys(oc.markers).length) d.push('diagnostic');
     if (hasIv) {
         d.push('rct', 'cluster_rct');
         if (oc.type === 'continuous') d.push('crossover', 'longitudinal');

@@ -1,0 +1,98 @@
+id: prostate_cancer_psa
+label: {en: PSA and prostate cancer, es: PSA y cáncer de próstata, ca: PSA i càncer de pròstata}
+domain: diagnostics
+population: {en: "Men aged 50-80 referred for a prostate biopsy", es: "Hombres de 50 a 80 años remitidos para una biopsia de próstata", ca: "Homes de 50 a 80 anys derivats per a una biòpsia de pròstata"}
+
+variables:
+  age: {from: dictionary, dist: "normal(64, 7)", range: [50, 80]}
+  family_hist: {from: dictionary, p: 0.15}
+  dre:
+    type: binary
+    p: 0.18
+    levels: [normal, abnormal]
+    label: {en: Digital rectal examination, es: Tacto rectal, ca: Tacte rectal}
+  prior_biopsy:
+    type: binary
+    p: 0.20
+    levels: [no, yes]
+    label: {en: Previous negative biopsy, es: Biopsia negativa previa, ca: Biòpsia negativa prèvia}
+  prostate_volume:
+    type: continuous
+    dist: lognormal(45, 18)
+    range: [15, 150]
+    round: 0
+    units: mL
+    label: {en: Prostate volume, es: Volumen prostático, ca: Volum prostàtic}
+  bmi: {from: dictionary, dist: "lognormal(27.5, 4)"}
+
+structure:
+  - [age, prostate_volume, 0.30]
+
+outcomes:
+  prostate_cancer:
+    type: binary
+    label: {en: Prostate cancer on biopsy, es: Cáncer de próstata en la biopsia, ca: Càncer de pròstata a la biòpsia}
+    levels: [no, yes]
+    prevalence: 0.30
+    designs: [diagnostic, cross_sectional, case_control]
+    effects:
+      age: {OR: 1.03, per: 1}
+      family_hist: {OR: 1.30}
+      dre: {OR: 2.50}
+      prior_biopsy: {OR: 0.65}
+      prostate_volume: {OR: 0.80, per: 10}
+    markers:
+      psa:
+        label: {en: Prostate-specific antigen (PSA), es: Antígeno prostático específico (PSA), ca: Antigen prostàtic específic (PSA)}
+        units: ng/mL
+        dist: lognormal(5.5, 3.5)
+        range: [0.5, 100]
+        round: 1
+        auc: 0.68
+        direction: higher
+      free_psa:
+        label: {en: Free PSA, es: PSA libre, ca: PSA lliure}
+        units: "%"
+        dist: normal(22, 7)
+        range: [3, 60]
+        round: 0
+        auc: 0.70
+        direction: lower
+      gene:
+        label: {en: Urine RNA marker panel (standardised), es: Panel de marcadores de ARN en orina (estandarizado), ca: Panell de marcadors d'ARN en orina (estandarditzat)}
+        block: 40
+        informative: 4
+        auc: 0.62
+        rho: 0.2
+        direction: higher
+
+null_variables: [bmi]
+
+references:
+  - "Thompson IM et al. Operating characteristics of prostate-specific antigen in men with an initial PSA level of 3.0 ng/ml or lower. JAMA 2005;294:66-70."
+  - "Thompson IM et al. Assessing prostate cancer risk: results from the Prostate Cancer Prevention Trial. J Natl Cancer Inst 2006;98:529-34."
+  - "Catalona WJ et al. Use of the percentage of free prostate-specific antigen to enhance differentiation of prostate cancer from benign prostatic disease. JAMA 1998;279:1542-7."
+  - "Pepe MS. The Statistical Evaluation of Medical Tests for Classification and Prediction. Oxford University Press; 2003."
+
+teaching:
+  en: >
+    PSA alone discriminates modestly (AUC about 0.68); free PSA is lower in
+    cancer, so its direction is reversed. Combining the markers with age, DRE
+    and a previous negative biopsy in a logistic model raises the AUC. The
+    40-marker RNA panel has only 4 informative markers: choosing the best ones
+    and measuring their AUC on the same data is optimistic; check them on a new
+    study (another seed or student key).
+  es: >
+    El PSA solo discrimina de forma modesta (AUC de 0,68); el PSA libre es más
+    bajo en el cáncer, por lo que su dirección es la contraria. Combinar los
+    marcadores con la edad, el tacto rectal y una biopsia negativa previa en un
+    modelo logístico eleva el AUC. El panel de 40 marcadores de ARN solo tiene
+    4 informativos: elegir los mejores y medir su AUC con los mismos datos es
+    optimista; compruébelos en un estudio nuevo (otra semilla o clave).
+  ca: >
+    El PSA sol discrimina de manera modesta (AUC de 0,68); el PSA lliure és més
+    baix en el càncer, per això la seva direcció és la contrària. Combinar els
+    marcadors amb l'edat, el tacte rectal i una biòpsia negativa prèvia en un
+    model logístic eleva l'AUC. El panell de 40 marcadors d'ARN només en té 4
+    d'informatius: triar els millors i mesurar-ne l'AUC amb les mateixes dades
+    és optimista; comproveu-los en un estudi nou (una altra llavor o clau).
