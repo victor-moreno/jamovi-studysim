@@ -4,7 +4,7 @@
     "href": "scenarios.html",
     "title": "Scenario catalogue",
     "section": "",
-    "text": "The module ships with 62 scenarios, one clinical question each. Most replicate a real study: 29 were estimated from open patient-level data, 7 from teaching datasets of the author’s own studies, and the others from the published tables of the study. Use the catalogue below to find one for a domain, a study design or a teaching point. In jamovi, all of them are in the scenario picker of Simulated study and Compare designs, grouped by domain.",
+    "text": "The module ships with 65 scenarios, one clinical question each. Most replicate a real study: 29 were estimated from open patient-level data, 7 from teaching datasets of the author’s own studies, and the others from the published tables of the study. Use the catalogue below to find one for a domain, a study design or a teaching point. In jamovi, all of them are in the scenario picker of Simulated study and Compare designs, grouped by domain.",
     "crumbs": [
       "Scenario catalogue"
     ]
@@ -144,7 +144,7 @@
     "href": "index.html#the-scenarios",
     "title": "studysim: simulated medical studies for teaching",
     "section": "The scenarios",
-    "text": "The scenarios\nThe module ships with 62 scenarios across 21 clinical domains (dentistry and podiatry among them), most of them replicating a real study from its open data or its published tables, with several scenarios for every design. The scenario catalogue explains how they were made and lets you filter them by domain, design, outcome and teaching topic.",
+    "text": "The scenarios\nThe module ships with 65 scenarios across 21 clinical domains (dentistry and podiatry among them), most of them replicating a real study from its open data or its published tables, with several scenarios for every design. The scenario catalogue explains how they were made and lets you filter them by domain, design, outcome and teaching topic.",
     "crumbs": [
       "studysim: simulated medical studies for teaching"
     ]
