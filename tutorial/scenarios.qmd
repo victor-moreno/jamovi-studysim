@@ -12,7 +12,8 @@ design_names <- c(cross_sectional = "Cross-sectional", cohort = "Cohort", case_c
                   matched_cc = "Matched case-control", nested_cc = "Nested case-control", case_cohort = "Case-cohort",
                   ecological = "Ecological", rct = "Randomised trial", cluster_rct = "Cluster trial",
                   factorial = "2x2 factorial", crossover = "Crossover", longitudinal = "Longitudinal trial",
-                  prognosis = "Prognosis", diagnostic = "Diagnostic accuracy")
+                  prognosis = "Prognosis", diagnostic = "Diagnostic accuracy",
+                  pre_post = "Before-after", method_comparison = "Method comparison")
 type_names <- c(binary = "binary", event = "time to event", continuous = "continuous", count = "count")
 recs <- lapply(names(lib$scenarios), function(id) {
     raw <- lib$scenarios[[id]]
@@ -168,7 +169,7 @@ cat(sprintf('<script id="cat-data" type="application/json">%s</script>', json))
   var uniq = function (f) { var s = {}; data.forEach(function (r) { arr(f(r)).forEach(function (v) { s[v] = 1; }); }); return Object.keys(s).sort(); };
   var fill = function (id, vals) { vals.forEach(function (v) { var o = document.createElement('option'); o.value = v; o.textContent = v; el(id).appendChild(o); }); };
   var designOrder = ['Cross-sectional', 'Cohort', 'Case-control', 'Matched case-control', 'Nested case-control', 'Case-cohort', 'Ecological',
-                     'Randomised trial', 'Cluster trial', '2x2 factorial', 'Crossover', 'Longitudinal trial', 'Prognosis', 'Diagnostic accuracy'];
+                     'Randomised trial', 'Cluster trial', '2x2 factorial', 'Crossover', 'Longitudinal trial', 'Before-after', 'Prognosis', 'Diagnostic accuracy', 'Method comparison'];
   fill('f-domain', uniq(function (r) { return r.domain; }));
   fill('f-design', designOrder.filter(function (d) { return data.some(function (r) { return arr(r.designs).indexOf(d) >= 0; }); }));
   fill('f-type', uniq(function (r) { return r.types; }));

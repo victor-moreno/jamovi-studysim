@@ -71,6 +71,14 @@ GENERIC <- list(
     categorised = list(en = "categorised; the true effect is per unit (see true model)",
                        es = "categorizada; el efecto verdadero es por unidad (ver modelo verdadero)",
                        ca = "categoritzada; l'efecte veritable és per unitat (vegeu model veritable)"),
+    not_est_matched = list(en = "not estimable: matched on it", es = "no estimable: es variable de emparejamiento",
+                           ca = "no estimable: és variable d'aparellament"),
+    not_est_alias = list(en = "not estimable: determined by other measured variables (e.g. derived from the same one)",
+                         es = "no estimable: la determinan otras variables medidas (p. ej. derivadas de la misma)",
+                         ca = "no estimable: la determinen altres variables mesurades (p. ex. derivades de la mateixa)"),
+    log_zero = list(en = "the outcome has zeros: analysed as log(y + %s), which pulls the ratio towards 1",
+                    es = "el resultado tiene ceros: analizado como log(y + %s), lo que acerca la razón a 1",
+                    ca = "el resultat té zeros: analitzat com a log(y + %s), cosa que acosta la raó a 1"),
     mediqr = list(en = "median [IQR]", es = "mediana [RIC]", ca = "mediana [RIQ]"),
     vs = list(en = "vs", es = "frente a", ca = "enfront de"))
 

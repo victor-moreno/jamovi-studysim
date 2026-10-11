@@ -1430,3 +1430,15 @@ msgstr "Ficheros YAML (zip)"
 #: R/simderive.b.R
 msgid "yes"
 msgstr "sí"
+
+#: R/simstudy.b.R
+msgid "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios."
+msgstr "Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{pct}% en las razones."
+
+#: R/simstudy.b.R
+msgid "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{d} for the differences."
+msgstr "Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{d} en las diferencias."
+
+#: R/simstudy.b.R
+msgid "The answer key could not be computed for these options:"
+msgstr "No se ha podido calcular la clave de respuestas con estas opciones:"

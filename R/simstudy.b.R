@@ -196,7 +196,10 @@ simStudyClass <- R6::R6Class(
                 private$.wants("openState", "openData"); private$.wants("csvState", "exportCsv")
             }
             if (o$showDag) private$.fillDag(ctx)
-            if (o$showKey) private$.fillKey(ctx, calibrate(ctx$sc, ctx$oc), opt)
+            # a key that cannot be computed explains itself instead of showing R's message
+            if (o$showKey) tryCatch(private$.fillKey(ctx, calibrate(ctx$sc, ctx$oc), opt), error = function(e)
+                private$.notice(sprintf("<p><b>%s</b> %s</p>", .("The answer key could not be computed for these options:"),
+                                        htmlEscape(conditionMessage(e)))))
             private$.once("keyState", "exportKey", function(action) {
                 writeLines(private$.keyReport(ctx, opt), action$params$fullPath, useBytes = TRUE)
                 list(filename = sprintf("%s_%s_answer_key.html", ctx$sc$id, ctx$design))
@@ -239,6 +242,8 @@ simStudyClass <- R6::R6Class(
             if (!is.null(ex) && nrow(ex)) html <- c(html, "<h2>", esc(.("Answer key: what this design should estimate")), "</h2>",
                 tab(c(.("Variable"), .("Contrast"), .("True"), .("Crude"), .("Adjusted"), .("Estimate"), .("Note")),
                     cbind(dname(ex$variable, l), ex$contrast, num(ex$true), num(ex$crude), num(ex$adjusted), ex$measure, ex$note)))
+            mc <- mc_note(list(ex), self)
+            if (nzchar(mc)) html <- c(html, "<p>", esc(mc), "</p>")
             if (ctx$design == "diagnostic") {
                 mt <- self$results$keyMarkers$state %||% expected_markers(sc, oc, opt)
                 html <- c(html, "<h2>", esc(.("Answer key: markers")), "</h2>",
@@ -367,6 +372,8 @@ simStudyClass <- R6::R6Class(
             if (!is.null(ex)) {
                 tbl$setNote("n", jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
+                note <- mc_note(exl, self)
+                if (nzchar(note)) tbl$setNote("mc", note)
                 if (ctx$design == "factorial" && opt$interaction != 0)
                     tbl$setNote("interaction", .("With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level."))
                 if (!is.null(ctx$oc$competing) && ctx$design %in% c("cohort", "prognosis", "rct", "cluster_rct", "factorial"))
@@ -515,6 +522,19 @@ parse_measured <- function(measured, sc, self) {
         cats[[id]] <- spec
     }
     list(factors = intersect(sc$order, fac), cats = cats)
+}
+
+# Note on the Monte Carlo uncertainty of the expected values (a list of
+# estimate tables); "" for tables saved without intervals (before v0.4)
+mc_note <- function(tables, self) {
+    tables <- Filter(function(e) !is.null(e$lower), tables)
+    if (!length(tables)) return("")
+    mc <- mc_halfwidth(do.call(rbind, lapply(tables, function(e) e[, c("lower", "upper", "measure")])))
+    out <- c(if (!is.na(mc$pct)) jmvcore::format(.("The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios."),
+                                                 pct = formatC(mc$pct, format = "f", digits = 1)),
+             if (!is.na(mc$diff)) jmvcore::format(.("The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{d} for the differences."),
+                                                  d = formatC(signif(mc$diff, 2), format = "fg")))
+    paste(out, collapse = " ")
 }
 
 htmlEscape <- function(x) {

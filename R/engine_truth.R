@@ -81,6 +81,8 @@ true_effects <- function(sc, oc, lang = "en") {
 # full = FALSE gives the crossover's naive (unpaired) comparison.
 fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
     for (v in names(fd)) if (is.ordered(fd[[v]])) fd[[v]] <- factor(fd[[v]], ordered = FALSE)
+    # a log-scale outcome recorded with zeros (rounding): log(y + c), as an analyst would
+    if (isTRUE(oc$log) && is.numeric(fd[[oc$id]])) fd[[oc$id]] <- fd[[oc$id]] + log_shift(fd[[oc$id]], oc)
     rhs <- paste(terms, collapse = " + ")
     model <- if (design %in% c("matched_cc", "nested_cc")) "clogit" else if (design %in% c("case_control")) "logistic"
              else if (design == "case_cohort") "prentice"
@@ -130,6 +132,14 @@ fit_design_model <- function(design, sc, oc, fd, terms, full = TRUE) {
         return(list(coef = stats::coef(f), se = se, measure = "ratio", log = TRUE))
     list(coef = stats::coef(f), se = se, measure = c(logistic = "OR", clogit = "OR", cox = "HR", prentice = "HR", poisson = "RR", linear = "beta")[[model]],
          log = model != "linear")
+}
+
+# c added before taking logs of a log-scale outcome with zeros or negatives: half
+# its rounding unit (or half its smallest positive value); 0 when all are positive
+log_shift <- function(y, oc) {
+    y <- y[is.finite(y)]
+    if (!length(y) || all(y > 0)) return(0)
+    if (!is.null(oc$round)) 10^(-oc$round) / 2 else min(y[y > 0]) / 2
 }
 
 # Longitudinal trial. full = FALSE: completers only, difference at the last
@@ -223,7 +233,8 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     # the measured variables with the same measurement error as the student's data
     fd <- measurement_error(fd, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed("truth", "measurement"))
     fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
-    estimate_table(sc, oc, design, fd, factors, lang, categorize, opt = opt)
+    # ci: the large study's own interval is the Monte Carlo uncertainty of the expectation
+    estimate_table(sc, oc, design, fd, factors, lang, categorize, ci = TRUE, opt = opt)
 }
 
 # Crude and adjusted estimates of the main contrasts (the intervention, or
@@ -329,9 +340,28 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
     out$true[nul] <- if (adj$log) 1 else 0
     out$note[nul] <- ""
     if (!is.null(oc[["after"]])) { out$true <- NA_real_; out$note <- gtext("illness_death", lang) }
+    # not estimable: matched on (constant within sets) or aliased with other measured variables
+    na <- is.na(out$adjusted) & out$note == ""
+    if (any(na)) {
+        matched <- design == "matched_cc" & out$variable %in% unlist(opt$match)
+        out$note[na] <- ifelse(matched[na], gtext("not_est_matched", lang), gtext("not_est_alias", lang))
+    }
+    sh <- if (isTRUE(oc$log) && is.numeric(fd[[oc$id]])) log_shift(fd[[oc$id]], oc) else 0
+    if (sh > 0) out$note <- trimws(paste(out$note, sprintf(gtext("log_zero", lang), base::format(sh))))
     attr(out, "n") <- nrow(fd)
     attr(out, "adjusted_for") <- adj_terms
     out
+}
+
+# Largest 95% Monte Carlo half-width of expected estimates (rows of
+# estimate_table with ci = TRUE): in percent for ratios, in units for
+# differences; NA when there is none of that kind
+mc_halfwidth <- function(ex) {
+    ok <- is.finite(ex$lower) & is.finite(ex$upper) & ex$lower > -Inf
+    rat <- ok & ex$measure %in% c("OR", "HR", "RR", "ratio") & ex$lower > 0
+    dif <- ok & !ex$measure %in% c("OR", "HR", "RR", "ratio")
+    list(pct = if (any(rat)) max(100 * (sqrt(ex$upper[rat] / ex$lower[rat]) - 1)) else NA_real_,
+         diff = if (any(dif)) max((ex$upper[dif] - ex$lower[dif]) / 2) else NA_real_)
 }
 
 # markers' true AUC and the AUC of one large diagnostic study
@@ -356,7 +386,7 @@ expected_all <- function(sc, oc, design, opt, factors, lang = "en", categorize =
         fd2 <- fd
         # the secondary outcome's own follow-up, or none
         fd2$time <- fd[[paste0("time_", o)]]
-        out[[o]] <- estimate_table(sc, sc$outcomes[[o]], design, fd2, factors, lang, categorize, opt = opt)
+        out[[o]] <- estimate_table(sc, sc$outcomes[[o]], design, fd2, factors, lang, categorize, ci = TRUE, opt = opt)
     }
     out
 }

@@ -185,7 +185,7 @@ options:
       type: String
       default: ""
       description:
-          R: any text (e.g. a student ID); each key gives a different dataset
+          R: any text (e.g. a student ID); each key gives a different dataset (capitals and surrounding spaces are ignored)
 
     - name: showExpected
       title: Expected values (large studies)

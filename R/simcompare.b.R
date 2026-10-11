@@ -140,6 +140,7 @@ simCompareClass <- R6::R6Class(
                                                      expected = if (length(ex)) blank(ex[1]) else ""))
             }
             tbl$setNote("ci", .("Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate."))
+            if (!is.null(x)) { note <- mc_note(list(x), self); if (nzchar(note)) tbl$setNote("mc", note) }
             mm <- unique(e$true_measure[e$true_measure != e$measure & e$true_measure %in% c("HR", "OR", "RR")])
             if (length(mm))
                 tbl$setNote("measure", jmvcore::format(.("True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."),

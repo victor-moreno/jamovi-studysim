@@ -449,6 +449,12 @@ V02.update({
 "Variation between batches (%)": ("Variación entre lotes (%)", "Variació entre lots (%)"),
 })
 NEW.update(V02)
+# v0.4 fixes: Monte Carlo uncertainty of the expected values, key errors
+NEW.update({
+"The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios.": ("Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{pct}% en las razones.", "Els valors esperats provenen d'un únic estudi simulat: la seva incertesa de Monte Carlo (95%) arriba a ±{pct}% en les raons."),
+"The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{d} for the differences.": ("Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{d} en las diferencias.", "Els valors esperats provenen d'un únic estudi simulat: la seva incertesa de Monte Carlo (95%) arriba a ±{d} en les diferències."),
+"The answer key could not be computed for these options:": ("No se ha podido calcular la clave de respuestas con estas opciones:", "No s'ha pogut calcular la clau de respostes amb aquestes opcions:"),
+})
 for k, v in NEW.items():
     ES[k], CA[k] = v
 ES.update(ES2); CA.update(CA2)

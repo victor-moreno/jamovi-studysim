@@ -37,8 +37,12 @@ key_table("breast_cancer_prognosis", "death", "prognosis", c("age", "tumour_size
 
 *Breast cancer risk factors*, case-control with two controls per case. The data are
 generated as a cohort with hazard ratios; the case-control odds ratios approach them
-because the disease is rare. Menopause has no effect of its own, but is determined
-by age (a rule of the scenario): its crude odds ratio is pure confounding.
+because the disease is rare. Menopause is determined by age (a rule of the
+scenario), so much of its crude odds ratio is confounding by age. It does not fall
+to 1 after adjustment, though: the effect of BMI is given per level of menopause,
+so the menopause contrast in the *True* column (1.00) holds at a BMI of 0, and at
+usual BMI values post-menopausal women have a higher risk (see *Effect
+modification* below).
 
 ```{r}
 key_table("breast_cancer_risk", "breast_cancer", "case_control", c("age", "menopause", "parity", "family_hist", "alcohol"),

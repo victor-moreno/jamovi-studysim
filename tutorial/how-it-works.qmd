@@ -31,20 +31,32 @@ size, and a student key changes the seed.
 
 | design | sampling |
 |---|---|
-| cross-sectional | the first *n* people |
-| cohort, prognosis | follow-up with administrative censoring, loss to follow-up, staggered entry |
-| case-control | cases (events within a risk window) from as much population as needed, controls from the non-cases |
+| cross-sectional | the first *n* people; an event outcome is read as an event within its risk window |
+| ecological | whole regions whose means of the variables differ, plus an unexplained region effect; only totals, means and percentages per region are kept (*n* is not used) |
+| case-control | cases (events within a risk window) from as much population as needed, controls from the non-cases, rows in random order |
 | matched case-control | controls matched exactly on categorical variables and within a caliper on numeric ones |
-| randomised trial | permuted blocks, treatment effect on the outcome, follow-up for events |
+| cohort, prognosis | follow-up with administrative censoring, loss to follow-up and staggered entry; competing events as status 2 |
+| nested case-control | controls drawn from each case's risk set in a followed cohort |
+| case-cohort | a random subcohort of a followed cohort plus every case |
+| diagnostic accuracy | a cross-sectional sample with markers whose AUC is set (binormal), optionally in assay batches |
+| method comparison | the outcome measured by two methods, B with a bias, a proportional bias and its own error |
+| randomised trial | permuted blocks, treatment effect on the outcome, follow-up for events, optional interim looks |
+| cluster randomised trial | arms randomised by cluster, a cluster random effect set by the intraclass correlation |
+| 2×2 factorial | two interventions randomised independently, optional interaction |
 | 2×2 crossover | sequences AB/BA, within-subject correlation, period and carryover effects |
+| longitudinal trial | baseline and repeated visits, dropout that depends on the last value seen (missing at random) |
+| before-after | everybody treated, measured before and after; optional entry above a percentile (regression to the mean) |
 
 ## The answer key
 
 The *true model* lists the effects used. The *expected estimates* come from one
-large study of the same design (20 000 rows; 1500–3000 cases for case-control
-designs), analysed with the model a student would fit: logistic, conditional
-logistic, Cox, linear (with subject effects in a crossover) or Poisson; crude for
-each variable and adjusted for all measured ones.
+large study of the same design (40 000 rows, more for a rare outcome so that it has
+about 5000 events, up to 300 000; 1500–3000 cases for case-control designs; 200
+regions for an ecological study), analysed with the model a student would fit:
+logistic, conditional logistic, Cox, linear (with subject effects in a crossover,
+a mixed model for a longitudinal trial) or Poisson; crude for each variable and
+adjusted for all measured ones. Being one simulated study, it has a Monte Carlo
+uncertainty, which a note under the table gives.
 
 ## Source
 

@@ -124,7 +124,10 @@ sim_case_control <- function(sc, oc, cal, seed, n, opt) {
         nonc <- c(nonc, extra)
     }
     ctrl <- with_seed(derive_seed(seed, sc$id, oc$id, "controls", n), sample(nonc, n_ctrl))
-    d <- pool[c(cases, ctrl), , drop = FALSE]
+    # cases and controls in random order, so the row (and id) does not reveal the status
+    rows <- c(cases, ctrl)
+    rows <- with_seed(derive_seed(seed, sc$id, oc$id, "row order", n), rows[sample.int(length(rows))])
+    d <- pool[rows, , drop = FALSE]
     list(data = d, facts = list(cases = n_cases, controls = n_ctrl, source_population = scanned,
                                 risk_in_source = mean(pool$.y[seq_len(scanned)])))
 }

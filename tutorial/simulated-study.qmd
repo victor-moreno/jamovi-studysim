@@ -57,7 +57,8 @@ title: "Simulated study"
   ![Realism options.](screenshots/s14-realism.png){.screenshot width=60%}
 
 - *Output*: seed and **student key** (any text, e.g. a student ID: each key gives
-  a different dataset from the same options), which tables to show, and
+  a different dataset from the same options; capitals and surrounding spaces
+  are ignored), which tables to show, and
   **Answer key report**, which saves the whole key (true model, what the design
   should estimate, markers, diagram, notes) as one HTML page for the teacher.
 

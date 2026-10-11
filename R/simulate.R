@@ -14,7 +14,8 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     if (is.null(factors)) factors <- sc$order
     factors <- intersect(sc$order, factors)
     opt <- utils::modifyList(design_defaults(design, oc, sc), options)
-    seed_eff <- if (nzchar(student_key)) derive_seed(seed, trimws(student_key)) else seed
+    # a student key ignores case and surrounding spaces ("Anna " = "anna")
+    seed_eff <- if (nzchar(trimws(student_key))) derive_seed(seed, tolower(trimws(student_key))) else seed
     cal <- calibrate(sc, oc)
     res <- run_design(design, sc, oc, cal, seed_eff, n, opt)
     if (isTRUE(opt$secondary)) res <- secondary_outcomes(sc, oc, design, res, seed_eff, opt)
@@ -25,7 +26,8 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
                         status = if (oc$id %in% names(df)) as.integer(df[[oc$id]]) else NULL, lang = lang)
     df <- categorize_study(df, sc, categorize, lang)
     df <- add_noise_vars(df, noise, derive_seed(seed_eff, "noise"), lang)
-    driver <- if (design %in% CASE_DESIGNS) "case" else oc$id
+    # missingness "depending on the outcome": case status, or method A in a method comparison (no outcome column)
+    driver <- if (design %in% CASE_DESIGNS) "case" else if (design == "method_comparison") paste0(oc$id, "_a") else oc$id
     mcols <- c(if (design == "ecological") unlist(lapply(factors, function(v) eco_cols(sc, v))) else factors, noise_names(noise))
     df <- apply_missing(df, mcols, missing, missing_mech, derive_seed(seed_eff, "missing"), driver, df$id %||% df$region)
     df <- entry_errors(df, intersect(mcols, names(df)), entry, derive_seed(seed_eff, "entry"))
