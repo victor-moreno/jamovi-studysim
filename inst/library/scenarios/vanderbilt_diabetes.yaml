@@ -1,0 +1,190 @@
+id: vanderbilt_diabetes
+label: {en: Diabetes and obesity in rural Virginia (Vanderbilt), es: Diabetes y obesidad en la Virginia rural (Vanderbilt), ca: Diabetis i obesitat a la Virgínia rural (Vanderbilt)}
+domain: metabolic
+population:
+  en: African American adults from two rural counties of central Virginia screened for diabetes and cardiovascular risk
+  es: Adultos afroamericanos de dos condados rurales del centro de Virginia cribados para diabetes y riesgo cardiovascular
+  ca: Adults afroamericans de dos comtats rurals del centre de Virgínia cribats per a diabetis i risc cardiovascular
+
+# Estimated with studysim Derive from the Vanderbilt diabetes dataset (403
+# adults, 62 with glycated haemoglobin >= 7%), converted to metric units.
+# Effects: logistic model of age, waist, cholesterol and HDL, log odds ratios
+# shrunk by the heuristic factor 0.78. Stabilised glucose as a marker.
+variables:
+  age: {from: dictionary, dist: "gamma(46.9, 16.3)", range: [19, 92]}
+  sex: {from: dictionary, p: 0.419}
+  county:
+    type: binary
+    levels: [Buckingham, Louisa]
+    p: 0.504
+    label: {en: County, es: Condado, ca: Comtat}
+  height:
+    type: continuous
+    dist: normal(167.7, 10)
+    range: [132, 193]
+    round: 0
+    units: cm
+    label: {en: Height, es: Talla, ca: Talla}
+  weight:
+    type: continuous
+    dist: lognormal(80.6, 18.3)
+    range: [45, 148]
+    round: 1
+    units: kg
+    label: {en: Weight, es: Peso, ca: Pes}
+  waist:
+    type: continuous
+    dist: lognormal(96.3, 14.6)
+    range: [66, 143]
+    round: 0
+    units: cm
+    label: {en: Waist circumference, es: Perímetro de cintura, ca: Perímetre de cintura}
+  hip:
+    type: continuous
+    dist: lognormal(109.3, 14.4)
+    range: [76, 163]
+    round: 0
+    units: cm
+    label: {en: Hip circumference, es: Perímetro de cadera, ca: Perímetre de maluc}
+  frame:
+    type: ordinal
+    levels: [small, medium, large]
+    probs: [0.266, 0.471, 0.263]
+    label: {en: Body frame, es: Complexión, ca: Complexió}
+  bmi:
+    type: continuous
+    formula: weight / (height / 100)^2
+    round: 1
+    units: kg/m2
+    label: {en: Body mass index, es: Índice de masa corporal, ca: Índex de massa corporal}
+  whr:
+    type: continuous
+    formula: waist / hip
+    round: 2
+    label: {en: Waist-to-hip ratio, es: Índice cintura-cadera, ca: Índex cintura-maluc}
+  chol:
+    type: continuous
+    dist: lognormal(207.8, 44.5)
+    range: [78, 443]
+    round: 0
+    units: mg/dL
+    label: {en: Total cholesterol, es: Colesterol total, ca: Colesterol total}
+  hdl:
+    type: continuous
+    dist: lognormal(50.5, 17.3)
+    range: [12, 120]
+    round: 0
+    units: mg/dL
+    label: {en: HDL cholesterol, es: Colesterol HDL, ca: Colesterol HDL}
+  chol_ratio:
+    type: continuous
+    formula: chol / hdl
+    round: 1
+    label: {en: Cholesterol/HDL ratio, es: Cociente colesterol/HDL, ca: Quocient colesterol/HDL}
+  sbp:
+    type: continuous
+    dist: lognormal(136.9, 22.7)
+    range: [90, 250]
+    round: 0
+    units: mmHg
+    label: {en: Systolic pressure, es: Presión sistólica, ca: Pressió sistòlica}
+  dbp:
+    type: continuous
+    dist: gamma(83.3, 13.6)
+    range: [48, 124]
+    round: 0
+    units: mmHg
+    label: {en: Diastolic pressure, es: Presión diastólica, ca: Pressió diastòlica}
+
+structure:
+  - [sex, height, 0.85]
+  - [height, weight, 0.30]
+  - [weight, waist, 0.85]
+  - [weight, hip, 0.55]
+  - [waist, hip, 0.35]
+  - [sex, hip, -0.25]
+  - [weight, frame, 0.45]
+  - [sex, frame, 0.20]
+  - [age, waist, 0.15]
+  - [age, sbp, 0.45]
+  - [waist, sbp, 0.20]
+  - [sbp, dbp, 0.55]
+  - [age, chol, 0.24]
+  - [waist, hdl, -0.28]
+  - [chol, hdl, 0.19]
+
+outcomes:
+  diabetes:
+    type: binary
+    label: {en: Diabetes (glycated haemoglobin 7% or more), es: Diabetes (hemoglobina glicada del 7% o más), ca: Diabetis (hemoglobina glicada del 7% o més)}
+    levels: ["no", "yes"]
+    prevalence: 0.154
+    designs: [cross_sectional, diagnostic, case_control]
+    effects:
+      age: {OR: 1.51, per: 10}
+      waist: {OR: 1.27, per: 10}
+      chol: {OR: 1.37, per: 40}
+      hdl: {OR: 0.82, per: 10}
+    markers:
+      glucose:
+        label: {en: Stabilised glucose (non-fasting), es: Glucosa estabilizada (sin ayuno), ca: Glucosa estabilitzada (sense dejú)}
+        units: mg/dL
+        dist: lognormal(91.6, 26.9)
+        range: [48, 385]
+        round: 0
+        auc: 0.93
+        direction: higher
+
+null_variables: [sex, county, height, weight, hip, frame, bmi, whr, chol_ratio, sbp, dbp]
+
+i18n:
+  en:
+    names: {county: county, height: height, weight: weight, waist: waist, hip: hip, frame: frame, bmi: bmi, whr: whr, chol: chol, hdl: hdl, chol_ratio: chol_ratio, sbp: sbp, dbp: dbp, diabetes: diabetes, glucose: glucose}
+    levels: {Buckingham: Buckingham, Louisa: Louisa, small: small, medium: medium, large: large}
+  es:
+    names: {county: condado, height: talla, weight: peso, waist: cintura, hip: cadera, frame: complexion, bmi: imc, whr: icc, chol: colesterol, hdl: hdl, chol_ratio: cociente_col, sbp: pas, dbp: pad, diabetes: diabetes, glucose: glucosa}
+    levels: {Buckingham: Buckingham, Louisa: Louisa, small: pequena, medium: mediana, large: grande}
+  ca:
+    names: {county: comtat, height: talla, weight: pes, waist: cintura, hip: maluc, frame: complexio, bmi: imc, whr: icm, chol: colesterol, hdl: hdl, chol_ratio: quocient_col, sbp: pas, dbp: pad, diabetes: diabetis, glucose: glucosa}
+    levels: {Buckingham: Buckingham, Louisa: Louisa, small: petita, medium: mitjana, large: gran}
+
+references:
+  - "Data: Vanderbilt diabetes dataset (Willems JP et al.; distributed by FE Harrell, Department of Biostatistics, Vanderbilt University), 403 adults."
+  - "Willems JP, Saunders JT, Hunt DE, Schorling JB. Prevalence of coronary heart disease risk factors among rural blacks: a community-based study. South Med J 1997;90:814-20."
+
+teaching:
+  en: >
+    One adult in six has diabetes. Age, waist, total cholesterol and low HDL
+    predict it; weight, hip, body frame, BMI and the waist-to-hip ratio all
+    measure the same adiposity (correlations above 0.8), so which one enters
+    the model matters little for prediction and a lot for interpretation:
+    put several in and their coefficients become unstable. BMI, waist-to-hip
+    and cholesterol/HDL are ratios of measured variables. A non-fasting glucose
+    separates diabetic from non-diabetic people with an AUC above 0.9, but it
+    measures the same thing as the outcome. In the original data the second
+    blood pressure was measured mostly when the first was high: a variable
+    missing at random given another one.
+  es: >
+    Uno de cada seis adultos tiene diabetes. La edad, la cintura, el colesterol
+    total y el HDL bajo la predicen; el peso, la cadera, la complexión, el IMC y
+    el índice cintura-cadera miden la misma adiposidad (correlaciones por encima
+    de 0,8), así que cuál entra en el modelo importa poco para predecir y mucho
+    para interpretar: si se ponen varios, sus coeficientes se vuelven
+    inestables. El IMC, el índice cintura-cadera y el cociente colesterol/HDL
+    son cocientes de variables medidas. Una glucosa sin ayuno separa a los
+    diabéticos de los no diabéticos con un AUC por encima de 0,9, pero mide lo
+    mismo que la respuesta. En los datos originales la segunda presión arterial
+    se midió sobre todo cuando la primera era alta: una variable que falta al
+    azar dada otra.
+  ca: >
+    Un de cada sis adults té diabetis. L'edat, la cintura, el colesterol total i
+    l'HDL baix la prediuen; el pes, el maluc, la complexió, l'IMC i l'índex
+    cintura-maluc mesuren la mateixa adipositat (correlacions per sobre de 0,8),
+    de manera que quin entra al model importa poc per predir i molt per
+    interpretar: si se n'hi posen diversos, els coeficients es tornen
+    inestables. L'IMC, l'índex cintura-maluc i el quocient colesterol/HDL són
+    quocients de variables mesurades. Una glucosa sense dejú separa els
+    diabètics dels no diabètics amb un AUC per sobre de 0,9, però mesura el
+    mateix que la resposta. A les dades originals la segona pressió arterial es
+    va mesurar sobretot quan la primera era alta: una variable que falta a
+    l'atzar donada una altra.
