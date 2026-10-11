@@ -182,9 +182,13 @@ options:
               - name: cuts
                 type: String
                 default: ""
+              - name: exposure
+                type: Bool
+                default: false
       description:
           R: >
-              one entry per scenario variable, list(var = name, include = TRUE/FALSE,
+              one entry per scenario variable, list(var = name, include = TRUE/FALSE, exposure = TRUE/FALSE
+              (the variable the biases act on),
               form = "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10"/"scale",
               cuts = "18.5, 25, 30" or "10%, 90%", or the divisor for scale, e.g. "10"); included variables are in the
               dataset, the others are unmeasured (they still act); form groups a
@@ -397,6 +401,68 @@ options:
           R: >
               diagnostic study, share of the people negative on the first marker who get the
               reference standard (the others have no disease status): partial verification
+
+    - name: recall
+      title: Recall bias (% of cases)
+      type: Number
+      default: 0
+      min: 0
+      max: 100
+      description:
+          R: >
+              case-control designs: this share of the unexposed cases report the exposure (a numeric
+              exposure: cases report it this much higher, in %)
+
+    - name: ctrlSelect
+      title: Controls selected by exposure (odds ratio)
+      type: Number
+      default: 1
+      min: 0.1
+      max: 10
+      description:
+          R: >
+              case-control designs: odds of being selected as a control if exposed (per SD of a numeric
+              exposure), as with hospital controls; 1 = no selection bias
+
+    - name: collider
+      title: Add a variable caused by outcome and exposure
+      type: Bool
+      default: false
+      description:
+          R: >
+              cross-sectional, cohort and case-control designs: adds `admitted`, caused by the outcome and
+              by the exposure (a collider: adjusting for it biases)
+
+    - name: nonadherence
+      title: Non-adherence to treatment (%)
+      type: Number
+      default: 0
+      min: 0
+      max: 90
+      description:
+          R: >
+              randomised trial: this share of the treated stop the treatment, more often those with a worse
+              prognosis; adds the column `received`
+
+    - name: informative
+      title: Informative loss to follow-up (hazard ratio)
+      type: Number
+      default: 1
+      min: 0.2
+      max: 5
+      description:
+          R: >
+              followed designs: the hazard of loss to follow-up multiplies by this per SD of a person's
+              proneness to the event (1 = non-informative)
+
+    - name: immortal
+      title: Treatment started during follow-up (immortal time)
+      type: Bool
+      default: false
+      description:
+          R: >
+              cohort and prognosis designs with an event outcome: adds `treated` (ever) and `treatment_start`;
+              the treatment has no effect
 
     - name: missing
       title: Missing values (%)

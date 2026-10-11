@@ -33,7 +33,7 @@ simStudyClass <- R6::R6Class(
                 m <- parse_measured(o$measured, sc, self)
                 fac <- m$factors; cats <- m$cats
                 ctx <- list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
-                            factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats)
+                            factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats, exposures = m$exposures)
                 ctx$opt <- private$.designOptions(ctx)   # a mistyped number stops here, as a notice
                 ctx
             }, error = function(e) list(error = friendly_error(e, self)))
@@ -79,6 +79,17 @@ simStudyClass <- R6::R6Class(
             if (d == "crossover") {
                 opt$period <- num("period", .("Period effect"), -Inf, Inf)
                 opt$carryover <- num("carryover", .("Carryover effect"), -Inf, Inf)
+            }
+            # biases (engine_bias.R), only where they apply
+            if (d %in% c("case_control", "matched_cc")) { if (o$recall > 0) opt$recall <- o$recall / 100
+                                                          if (o$ctrlSelect != 1) opt$ctrl_or <- o$ctrlSelect }
+            if (o$collider && d %in% c("cross_sectional", "cohort", "case_control")) opt$collider <- TRUE
+            if (d == "rct" && o$nonadherence > 0) opt$nonadherence <- o$nonadherence / 100
+            if (o$informative != 1 && d %in% c("cohort", "prognosis", "rct", "nested_cc", "case_cohort")) opt$informative <- o$informative
+            if (o$immortal && d %in% c("cohort", "prognosis") && ctx$oc$type == "event") opt$immortal <- TRUE
+            if (!is.null(opt$recall) || !is.null(opt$ctrl_or) || isTRUE(opt$collider)) {
+                if (!length(ctx$exposures)) stop(.("Recall bias, control selection and the collider act on an exposure: tick it in the Exposure column of the Variables list."), call. = FALSE)
+                opt$exposures <- ctx$exposures
             }
             Filter(Negate(is.null), opt)
         },
@@ -167,11 +178,18 @@ simStudyClass <- R6::R6Class(
                 list(key = paste(sp$variable[i], sp$contrast[i]), variable = sp$variable[i], contrast = sp$contrast[i])))
             iv <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors))
             main <- if (length(iv)) iv else ctx$factors
+            # non-adherence adds the as-treated and per-protocol comparisons
+            suffixes <- c("", if (length(iv) && isTRUE(ctx$opt$nonadherence > 0)) sprintf(", %s", c(gtext("as_treated", ctx$lang), gtext("per_protocol", ctx$lang))))
             rows <- list()
-            for (v in main) {
+            for (sfx in suffixes) for (v in main) {
                 cr <- if (!is.null(ctx$cats[[v]])) cat_rows(v, ctx$cats[[v]], ctx$lang, ctx$sc) else contrast_rows(ctx$sc, ctx$oc, v, ctx$lang)
                 for (i in seq_len(nrow(cr)))
-                    rows[[length(rows) + 1]] <- list(key = paste(v, cr$contrast[i]), variable = v, contrast = cr$contrast[i])
+                    rows[[length(rows) + 1]] <- list(key = paste(v, paste0(cr$contrast[i], sfx)), variable = v, contrast = paste0(cr$contrast[i], sfx))
+            }
+            # immortal time: the treatment started during follow-up, as a baseline exposure
+            if (isTRUE(ctx$opt$immortal)) {
+                ct <- sprintf("%s %s %s", dlevel("yes", ctx$lang), gtext("vs", ctx$lang), dlevel("no", ctx$lang))
+                rows[[length(rows) + 1]] <- list(key = paste("treated", ct), variable = "treated", contrast = ct)
             }
             rows
         },
@@ -326,6 +344,15 @@ simStudyClass <- R6::R6Class(
             if (!is.null(f$markers)) li <- c(li, jmvcore::format(.("prevalence {p}%; markers measured on everybody: {list}"), p = num(100 * f$prevalence, 1),
                                                         list = htmlEscape(paste(vapply(ctx$oc$markers, function(m) {
                                                             cc <- marker_cols(m); if (length(cc) > 1) sprintf("%s-%s", cc[1], cc[length(cc)]) else cc }, ""), collapse = ", "))))
+            if (!is.null(f$nonadherent)) li <- c(li, jmvcore::format(.("{n} participants stopped their assigned treatment (column received)"), n = num(f$nonadherent)))
+            bo <- res$options
+            if (!is.null(bo$recall)) li <- c(li, jmvcore::format(.("recall bias: {p}% of the unexposed cases report the exposure ({vars})"),
+                                                         p = round(100 * bo$recall), vars = paste(dname(bo$exposures, l), collapse = ", ")))
+            if (!is.null(bo$ctrl_or)) li <- c(li, jmvcore::format(.("controls selected by exposure ({vars}): odds of selection x{or}"),
+                                                          or = bo$ctrl_or, vars = paste(dname(bo$exposures, l), collapse = ", ")))
+            if (isTRUE(bo$collider)) li <- c(li, .("the column admitted is caused by the outcome and by the exposure"))
+            if (!is.null(bo$informative)) li <- c(li, jmvcore::format(.("loss to follow-up depends on the risk of the outcome (hazard ratio {hr} per SD)"), hr = bo$informative))
+            if (isTRUE(bo$immortal)) li <- c(li, .("treatment started during follow-up: columns treated and treatment_start (the treatment has no effect)"))
             if (!is.null(f$spectrum)) li <- c(li, jmvcore::format(.("only the most severe {p}% of the diseased are in the study (spectrum)"), p = round(100 * f$spectrum)))
             if (!is.null(f$verified)) li <- c(li, jmvcore::format(.("disease status verified in {n} people: everybody positive on {m} and a share of the negatives (the others are missing)"),
                                                           n = num(f$verified), m = dname(f$verify_marker, l)))
@@ -432,6 +459,18 @@ simStudyClass <- R6::R6Class(
                     tbl$setNote("error", .("The measured variables have measurement error, also in this large study: the estimates are diluted towards no effect, and confounding is only partly removed."))
                 if (ctx$design == "ecological")
                     tbl$setNote("ecological", .("Ecological regression on the regions: a percentage is compared all versus none of the region, a mean per unit. The true values are effects on individuals; the gap is the ecological bias."))
+                if (isTRUE(opt$nonadherence > 0))
+                    tbl$setNote("adherence", .("Non-adherence: the rows without a label compare the arms as randomised (intention to treat), which dilutes the effect; as treated compares the treatment received and per protocol only those who received what they were assigned: both are biased because those who stopped had a different prognosis."))
+                if (isTRUE(opt$immortal))
+                    tbl$setNote("immortal", .("Immortal time: treated people had to survive until their treatment started, so a baseline comparison makes a useless treatment look protective; a time-dependent analysis (treated from treatment_start on) or a landmark analysis gives about 1."))
+                if (!is.null(opt$recall) || !is.null(opt$ctrl_or))
+                    tbl$setNote("cc_bias", .("Recall bias and selection of controls by exposure distort the odds ratios of the exposure; the true values are what an unbiased study would estimate."))
+                if (isTRUE(opt$collider))
+                    tbl$setNote("collider", .("admitted is a collider (caused by the outcome and the exposure): Adjusted (all) includes it and is biased; Adjusted (DAG) leaves it out."))
+                if (!is.null(opt$informative) && !is.null(attr(ex, "km")))
+                    tbl$setNote("km", jmvcore::format(.("Informative loss to follow-up: the Kaplan-Meier risk by {t} {units} is {km} in the large study and {true} in the population."),
+                                                      t = opt$followup, units = unit_text(ctx$oc$time_units, ctx$lang),
+                                                      km = round(attr(ex, "km"), 3), true = round(calibrate(ctx$sc, ctx$oc)$achieved$risk_followup, 3)))
                 if (ctx$design == "longitudinal")
                     tbl$setNote("longitudinal", .("Crude: difference at the last visit among those who attended it (completers). Adjusted: linear mixed model with all visits (random intercept, an effect per visit), valid when dropout depends on values already seen."))
                 if (ctx$design == "cluster_rct")
@@ -627,7 +666,8 @@ parse_measured <- function(measured, sc, self) {
             stop(jmvcore::format(.("Cut points of {var}: {msg}"), var = m$var, msg = friendly_error(e, self)), call. = FALSE))
         cats[[id]] <- spec
     }
-    list(factors = intersect(sc$order, fac), cats = cats)
+    ex <- ids_from_names(vapply(Filter(function(m) isTRUE(m$exposure), inc), function(m) as.character(m$var), ""), sc$order)
+    list(factors = intersect(sc$order, fac), cats = cats, exposures = intersect(sc$order, ex))
 }
 
 # "{events} events in {pt} person-years", in the outcome's time units

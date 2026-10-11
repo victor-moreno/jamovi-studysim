@@ -133,6 +133,9 @@ options:
               - name: cuts
                 type: String
                 default: ""
+              - name: exposure
+                type: Bool
+                default: false
       description:
           R: >
               one entry per scenario variable, list(var = name, include = TRUE/FALSE,

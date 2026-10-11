@@ -156,3 +156,35 @@ test_that("a marker that depends on a covariate moves with it", {
   expect_gt(stats::cor(r$markers$m, r$data$age), 0.5)
   expect_equal(sc$outcomes$d$markers$m$depends$age$mean, 60, tolerance = 0.02)
 })
+
+test_that("case-control biases act on the ticked exposure and the key shows them", {
+  sc <- load_scenario(builtin_library(), "lung_cancer_smoking")
+  oc <- sc$outcomes[[1]]
+  opt <- design_defaults("case_control", oc, sc)
+  base <- expected_estimates(sc, oc, "case_control", opt, c("age", "sex", "smoking"))
+  rec <- expected_estimates(sc, oc, "case_control", c(opt, list(exposures = "smoking", recall = 0.3)), c("age", "sex", "smoking"))
+  sel <- expected_estimates(sc, oc, "case_control", c(opt, list(exposures = "smoking", ctrl_or = 2)), c("age", "sex", "smoking"))
+  s <- base$variable == "smoking"
+  expect_true(all(rec$adjusted[s] > base$adjusted[s]))
+  expect_true(all(sel$adjusted[s] < base$adjusted[s]))
+  col <- expected_estimates(sc, oc, "case_control", c(opt, list(exposures = "smoking", collider = TRUE)), c("age", "sex", "smoking"))
+  expect_true("admitted" %in% attr(col, "adjusted_for"))
+  expect_true(all(col$adjusted[s] < col$dag[s]))
+})
+
+test_that("non-adherence, informative loss and immortal time", {
+  sc <- load_scenario(builtin_library(), "indomethacin_ercp")
+  oc <- sc$outcomes[[1]]
+  ex <- expected_estimates(sc, oc, "rct", c(design_defaults("rct", oc, sc), list(nonadherence = 0.3)), sc$order)
+  expect_equal(nrow(ex), 3)
+  expect_gt(ex$crude[1], 0.6)
+  r <- simulate_study(sc, oc$id, "rct", 200, sc$order, options = list(nonadherence = 0.3), key = FALSE)
+  expect_true(all(r$data_raw$received[r$data_raw$treatment == "placebo"] == "placebo"))
+  expect_gt(sum(r$data_raw$received != r$data_raw$treatment), 30)
+  sc <- load_scenario(builtin_library(), "chd_incidence")
+  oc <- sc$outcomes$chd
+  im <- expected_estimates(sc, oc, "cohort", c(design_defaults("cohort", oc, sc), list(immortal = TRUE)), c("age", "sex"))
+  expect_lt(im$adjusted[im$variable == "treated"], 0.6)
+  inf <- expected_estimates(sc, oc, "cohort", c(design_defaults("cohort", oc, sc), list(informative = 3, loss = 0.05)), c("age", "sex"))
+  expect_lt(attr(inf, "km"), calibrate(sc, oc)$achieved$risk_followup - 0.01)
+})

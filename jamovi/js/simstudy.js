@@ -70,7 +70,8 @@ module.exports = {
             var m = (!reset && prev[id]) || {};
             var inc = (!reset && prev[id]) ? !!m.include : true;
             return { 'var': vars[i], units: S.unitsText(defs[i], l, lib, sc), include: inc,
-                     form: S.isNumeric(defs[i]) ? (m.form || 'continuous') : 'continuous', cuts: S.isNumeric(defs[i]) ? (m.cuts || '') : '' };
+                     form: S.isNumeric(defs[i]) ? (m.form || 'continuous') : 'continuous', cuts: S.isNumeric(defs[i]) ? (m.cuts || '') : '',
+                     exposure: !!m.exposure };
         });
         S.setOpt(ui, 'measured', rows);
         this._numeric = defs.map(S.isNumeric);

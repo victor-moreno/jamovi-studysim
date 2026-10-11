@@ -24,6 +24,7 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     df <- measurement_error(df, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed(seed_eff, "measurement"))
     df <- assay_realism(df, sc, oc, design, factors, opt, derive_seed(seed_eff, "assay"),
                         status = if (oc$id %in% names(df)) as.integer(df[[oc$id]]) else NULL, lang = lang)
+    df <- apply_biases(df, sc, oc, design, opt, seed_eff, lang)   # recall, collider, immortal time
     df <- categorize_study(df, sc, categorize, lang)
     df <- add_noise_vars(df, noise, derive_seed(seed_eff, "noise"), lang)
     # missingness "depending on the outcome": case status, or method A in a method comparison (no outcome column)

@@ -46,16 +46,19 @@ status_of <- function(oc, cal, lp, noise, cov) {
 event_follow_up <- function(oc, cal, lp, noise, cov, opt, trt = NULL) {
     t1 <- draw_outcome(oc, cal, lp, noise)
     t2 <- competing_time(oc, cal, noise, cov, trt)
-    fu <- follow_up(pmin(t1, t2), noise, opt$followup, opt$loss, opt$accrual %||% 0)
+    fu <- follow_up(pmin(t1, t2), noise, opt$followup, opt$loss, opt$accrual %||% 0, opt$informative %||% 1)
     fu$status <- ifelse(fu$status == 1L, ifelse(t1 <= t2, 1L, 2L), 0L)
     fu
 }
 
 # follow-up with administrative censoring (staggered entry over `accrual`)
-# and exponential loss to follow-up at rate `loss` per time unit
-follow_up <- function(t, noise, followup, loss, accrual) {
+# and exponential loss to follow-up at rate `loss` per time unit; with
+# `informative` != 1 the rate multiplies by it per SD of the person's
+# proneness to the event (the latent of its noise: higher, earlier event)
+follow_up <- function(t, noise, followup, loss, accrual, informative = 1) {
     admin <- followup + accrual * (1 - noise$u3)
-    cens <- if (loss > 0) -log(noise$u2) / loss else Inf
+    rate <- if (informative != 1) loss * exp(log(informative) * stats::qnorm(noise$u)) else loss
+    cens <- if (loss > 0) -log(noise$u2) / rate else Inf
     end <- pmin(admin, cens)
     list(time = pmin(t, end), status = as.integer(t <= end))
 }
@@ -79,7 +82,7 @@ sim_cohort <- function(sc, oc, cal, seed, n, opt, trt = NULL, lp_add = 0, noise_
     if (oc$type == "event" && !is.null(oc[["after"]])) {
         # illness-death: death after a first event, followed with this outcome's censoring
         t <- after_event_times(sc, oc, cal, pop$cov, pop$noise, noise_for(sc, oc[["after"]], seed, pop$cov$.pid), trt)
-        fu <- follow_up(t, pop$noise, opt$followup, opt$loss, opt$accrual %||% 0)
+        fu <- follow_up(t, pop$noise, opt$followup, opt$loss, opt$accrual %||% 0, opt$informative %||% 1)
         d$.time <- fu$time; d$.status <- fu$status
         facts <- list(events = sum(fu$status == 1L), person_time = sum(fu$time))
     } else if (oc$type == "event") {
@@ -123,7 +126,9 @@ sim_case_control <- function(sc, oc, cal, seed, n, opt) {
         extra <- which(pool$.y == 0 & seq_len(nrow(pool)) > scanned)
         nonc <- c(nonc, extra)
     }
-    ctrl <- with_seed(derive_seed(seed, sc$id, oc$id, "controls", n), sample(nonc, n_ctrl))
+    # controls selected by exposure (hospital controls): odds ctrl_or per level or SD
+    w <- if (isTRUE(opt$ctrl_or != 1) && length(opt$exposures)) exp(log(opt$ctrl_or) * score_sum(sc, pool[nonc, , drop = FALSE], opt$exposures)) else NULL
+    ctrl <- with_seed(derive_seed(seed, sc$id, oc$id, "controls", n), if (is.null(w)) sample(nonc, n_ctrl) else sample(nonc, n_ctrl, prob = w))
     # cases and controls in random order, so the row (and id) does not reveal the status
     rows <- c(cases, ctrl)
     rows <- with_seed(derive_seed(seed, sc$id, oc$id, "row order", n), rows[sample.int(length(rows))])
@@ -158,6 +163,7 @@ sim_matched_cc <- function(sc, oc, cal, seed, n, opt) {
     groups <- split(which(avail), key[avail])
     if (!is.null(sortv)) groups <- lapply(groups, function(g) g[order(pool[[sortv]][g])])
     sets <- list(); incomplete <- 0L
+    wsel <- if (isTRUE(opt$ctrl_or != 1) && length(opt$exposures)) exp(log(opt$ctrl_or) * score_sum(sc, pool, opt$exposures)) else NULL
     with_seed(derive_seed(seed, sc$id, oc$id, "matching", n), {
         for (i in seq_along(cases)) {
             ci <- cases[i]
@@ -170,7 +176,7 @@ sim_matched_cc <- function(sc, oc, cal, seed, n, opt) {
             }
             ok <- ok[avail[ok]]
             for (v in near[-1]) ok <- ok[abs(pool[[v]][ok] - pool[[v]][ci]) <= opt$caliper]
-            take <- if (length(ok) > ratio) ok[sample.int(length(ok), ratio)] else ok
+            take <- if (length(ok) > ratio) ok[sample.int(length(ok), ratio, prob = if (!is.null(wsel)) wsel[ok])] else ok
             if (length(take) < ratio) incomplete <- incomplete + 1L
             avail[take] <- FALSE
             sets[[i]] <- data.frame(row = c(ci, take), set = i)
@@ -292,7 +298,24 @@ sim_rct <- function(sc, oc, cal, seed, n, opt) {
     iv <- trial_iv(sc, oc)
     arm <- randomise(iv, n, opt$block, derive_seed(seed, sc$id, "randomisation", n))
     trt <- stats::setNames(list(arm), iv$id)
-    r <- sim_cohort(sc, oc, cal, seed, n, opt, trt)
+    p_na <- opt$nonadherence %||% 0
+    if (p_na > 0) {
+        # non-adherence: some of those assigned an active arm stop it, more often
+        # those more prone to the outcome (odds x2 per SD of the linear
+        # predictor without treatment); the outcome follows what they received
+        pop <- population(sc, oc$id, seed, n)
+        z <- linear_predictor(oc, pop$cov)
+        z <- if (stats::sd(z) > 0) (z - mean(z)) / stats::sd(z) else z * 0
+        act <- arm != 1L
+        a <- stats::uniroot(function(a) mean(stats::plogis(a + log(2) * z[act])) - p_na, c(-30, 30))$root
+        u <- with_seed(derive_seed(seed, sc$id, "adherence", n), stats::runif(n))
+        stopped <- act & u < stats::plogis(a + log(2) * z)
+        recv <- ifelse(stopped, 1L, arm)
+        r <- sim_cohort(sc, oc, cal, seed, n, opt, stats::setNames(list(recv), iv$id), pop = pop)
+        r$data[[paste0(".", iv$id)]] <- arm
+        r$data$.received <- recv
+        r$facts$nonadherent <- sum(stopped)
+    } else r <- sim_cohort(sc, oc, cal, seed, n, opt, trt)
     r$facts$arms <- stats::setNames(as.list(tabulate(arm, length(iv$levels))), iv$levels)
     # interim looks: participants in order of enrolment, each analysed from the
     # first look after their outcome is known (not for time-to-event outcomes,
@@ -701,7 +724,8 @@ secondary_outcomes <- function(sc, oc, design, res, seed, opt) {
                 nzx <- if (o2$after == oc$id) prim else noise_for(sc, o2$after, seed, d$.pid)
                 fu <- follow_up(after_event_times(sc, o2, cal2, d, nz, nzx, trt), nz, opt$followup %||% o2$followup, opt$loss %||% 0, opt$accrual %||% 0)
                 fu$status <- as.integer(fu$status)
-            } else fu <- event_follow_up(o2, cal2, lp, nz, d, utils::modifyList(list(followup = o2$followup, loss = 0), opt), trt)
+            } else fu <- event_follow_up(o2, cal2, lp, nz, d, utils::modifyList(utils::modifyList(list(followup = o2$followup, loss = 0), opt),
+                                                                                   list(informative = 1)), trt)   # informative loss: the primary's only
             d[[paste0(".sec_time_", o)]] <- fu$time; d[[paste0(".sec_", o)]] <- fu$status
         } else if (o2$type == "event") {
             if (!is.null(o2$after)) next

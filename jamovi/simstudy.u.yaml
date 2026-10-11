@@ -64,6 +64,12 @@ children:
         template:
           type: TextBox
           format: string
+      - name: exposure
+        label: Exposure
+        maxWidth: 70
+        selectable: false
+        template:
+          type: CheckBox
   - type: LayoutBox
     margin: large
     children:
@@ -172,6 +178,38 @@ children:
             name: carryover
             format: string
             enable: (design:crossover)
+  - type: CollapseBox
+    label: Biases
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: Label
+            label: Recall, control selection and the collider act on the variables ticked in the Exposure column
+          - type: TextBox
+            name: recall
+            format: number
+            enable: (design:case_control || design:matched_cc)
+          - type: TextBox
+            name: ctrlSelect
+            format: number
+            enable: (design:case_control || design:matched_cc)
+          - type: CheckBox
+            name: collider
+            enable: (design:cross_sectional || design:cohort || design:case_control)
+          - type: TextBox
+            name: nonadherence
+            format: number
+            enable: (design:rct)
+          - type: TextBox
+            name: informative
+            format: number
+            enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort)
+          - type: CheckBox
+            name: immortal
+            enable: (design:cohort || design:prognosis)
           - type: TextBox
             name: spectrum
             format: number

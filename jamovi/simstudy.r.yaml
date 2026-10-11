@@ -11,7 +11,8 @@ items:
       clearWith: &gen [libContent, scenario, outcome, design, secondary, measured, n, ccRatio, followup, loss,
                        accrual, subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd, threshold, mcBias, mcSlope, mcErrorA, mcErrorB,
                        period, carryover, missing, missingMech, reliability, misclass, entryErrors, noiseVars, lodHandling,
-                       batches, batchCv, batchConfounded, spectrum, verification, seed,
+                       batches, batchCv, batchConfounded, spectrum, verification, recall, ctrlSelect, collider,
+                       nonadherence, informative, immortal, seed,
                        studentKey]
 
     - name: summary
@@ -101,7 +102,8 @@ items:
       rows: 0
       clearWith: [libContent, scenario, outcome, design, secondary, measured, ccRatio, followup, loss, accrual,
                   subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd,
-                  period, carryover, reliability, misclass, threshold, mcBias, mcSlope, mcErrorA, mcErrorB, spectrum, verification]
+                  period, carryover, reliability, misclass, threshold, mcBias, mcSlope, mcErrorA, mcErrorB, spectrum, verification,
+                  recall, ctrlSelect, collider, nonadherence, informative, immortal]
       columns:
           - name: outcome
             title: Outcome

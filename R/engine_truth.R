@@ -257,10 +257,17 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     fd <- format_study(sc, oc, design, big, sc$order, "en")
     # the measured variables with the same measurement error as the student's data
     fd <- measurement_error(fd, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed("truth", "measurement"))
+    fd <- apply_biases(fd, sc, oc, design, opt, derive_seed("truth", "biases"), "en")
     fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
     # ci: the large study's own interval is the Monte Carlo uncertainty of the expectation
     out <- estimate_table(sc, oc, design, fd, factors, lang, categorize, ci = TRUE, opt = opt)
-    add_total(out, sc, oc, lang)
+    out <- add_total(out, sc, oc, lang)
+    # informative loss: the Kaplan-Meier risk by the end of follow-up, to set against the true one
+    if (!is.null(out) && isTRUE(opt$informative != 1) && !is.null(fd$time) && !design %in% CASE_DESIGNS) {
+        km <- survival::survfit(survival::Surv(fd$time, fd[[oc$id]] == 1) ~ 1)
+        attr(out, "km") <- 1 - utils::tail(km$surv[km$time <= opt$followup], 1)
+    }
+    out
 }
 
 # the true total effect of each row of an expected table (NA where the row is
@@ -319,13 +326,18 @@ special_table <- function(design, sc, oc, fd, lang, opt) {
 estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize = list(), ci = FALSE, opt = list()) {
     if (design %in% c("pre_post", "method_comparison")) return(special_table(design, sc, oc, fd, lang, opt))
     iv <- intersect(names(sc$interventions), names(fd))
-    main <- if (length(iv)) iv else factors
+    # biases' columns (engine_bias.R): a collider adjusted for with the rest, a
+    # treatment started during follow-up analysed as a baseline exposure
+    extra <- intersect(c("admitted", "treated"), names(fd))
+    main <- if (length(iv)) iv else c(factors, intersect("treated", names(fd)))
     if (length(main) == 0) return(NULL)
     # covariates are constant within a crossover subject: the subject terms absorb them
-    adj_terms <- if (design == "crossover") iv else unique(c(iv, factors))
+    adj_terms <- if (design == "crossover") iv else unique(c(iv, factors, extra))
     adj <- fit_design_model(design, sc, oc, fd, adj_terms)
-    rows <- lapply(main, function(v) {
-        cr <- contrast_rows(sc, oc, v, lang)
+    make_rows <- function(fd, adj, suffix = "") lapply(main, function(v) {
+        cr <- if (v == "treated") data.frame(variable = v, contrast = sprintf("%s %s %s", dlevel("yes", lang), gtext("vs", lang), dlevel("no", lang)),
+                                             coefname = "treatedyes", per = 1, level = NA_integer_, stringsAsFactors = FALSE)
+              else contrast_rows(sc, oc, v, lang)
         catd <- is.ordered(fd[[v]]) && is_grouping(categorize[[v]])
         logd <- !is.null(categorize[[v]]) && categorize[[v]]$form %in% LOG_FORMS && is.numeric(fd[[v]])
         scaled <- !is.null(categorize[[v]]) && categorize[[v]]$form == "scale" && is.numeric(fd[[v]])
@@ -370,7 +382,7 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
             note <- paste(sprintf("%s=%s: %.3g", dname(eff$by$var, lang), dlevel(sc$variables[[eff$by$var]]$levels, lang), back(eff$by$coef)), collapse = "; ")
             tv[] <- NA_real_
         }
-        data.frame(variable = v, contrast = cr$contrast,
+        data.frame(variable = v, contrast = paste0(cr$contrast, suffix),
                    true = tv,
                    true_measure = if (is.null(eff)) null_measure(oc) else eff$measure,
                    crude = unname(get(crude)), adjusted = unname(get(adj)), dag = unname(get(dagfit)),
@@ -378,6 +390,15 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
                    upper = if (ci) unname(get(adj, stats::qnorm(0.975))) else NA_real_,
                    measure = adj$measure, note = note, stringsAsFactors = FALSE)
     })
+    rows <- make_rows(fd, adj)
+    if ("received" %in% names(fd) && length(iv)) {
+        # non-adherence: the treatment received instead of the one assigned (as
+        # treated), and only those who received what they were assigned (per protocol)
+        at <- fd; at[[iv[1]]] <- at$received
+        rows <- c(rows, make_rows(at, fit_design_model(design, sc, oc, at, adj_terms), sprintf(", %s", gtext("as_treated", lang))))
+        pp <- fd[as.character(fd$received) == as.character(fd[[iv[1]]]), , drop = FALSE]
+        rows <- c(rows, make_rows(pp, fit_design_model(design, sc, oc, pp, adj_terms), sprintf(", %s", gtext("per_protocol", lang))))
+    }
     out <- do.call(rbind, rows)
     # variables without an effect: the null value on the estimate's own scale
     nul <- !out$variable %in% names(oc$effects)

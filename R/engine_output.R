@@ -80,6 +80,13 @@ GENERIC <- list(
                     es = "el resultado tiene ceros: analizado como log(y + %s), lo que acerca la razón a 1",
                     ca = "el resultat té zeros: analitzat com a log(y + %s), cosa que acosta la raó a 1"),
     by = list(en = "by", es = "a", ca = "a"),
+    as_treated = list(en = "as treated", es = "según tratamiento recibido", ca = "segons tractament rebut"),
+    per_protocol = list(en = "per protocol", es = "por protocolo", ca = "per protocol"),
+    received = list(en = "Treatment actually received", es = "Tratamiento recibido realmente", ca = "Tractament rebut realment"),
+    admitted = list(en = "Admitted to hospital during the study", es = "Ingreso hospitalario durante el estudio", ca = "Ingrés hospitalari durant l'estudi"),
+    treated = list(en = "Started the treatment during follow-up", es = "Inició el tratamiento durante el seguimiento", ca = "Va iniciar el tractament durant el seguiment"),
+    treatment_start = list(en = "Time from entry to the start of the treatment", es = "Tiempo desde la entrada hasta el inicio del tratamiento",
+                           ca = "Temps des de l'entrada fins a l'inici del tractament"),
     risk = list(en = "Risk", es = "Riesgo", ca = "Risc"),
     rd = list(en = "Risk difference", es = "Diferencia de riesgos", ca = "Diferència de riscos"),
     nnt = list(en = "Number needed to treat for one event fewer", es = "Número necesario a tratar para un evento menos", ca = "Nombre necessari a tractar per a un esdeveniment menys"),
@@ -178,6 +185,8 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
         x <- sc$interventions[[v]]
         out[[v]] <- with_desc(factor(x$levels[d[[paste0(".", v)]]], levels = x$levels), tr_text(x$label, lang))
     }
+    if (!is.null(d$.received)) out$received <- with_desc(factor(sc$interventions[[iv[1]]]$levels[d$.received], levels = sc$interventions[[iv[1]]]$levels),
+                                                          gtext("received", lang))
     if (!is.null(d$.look)) out$look <- with_desc(as.integer(d$.look), gtext("look", lang))
     if (!is.null(d$.visit)) out$visit <- with_desc(as.integer(d$.visit), gtext("visit", lang))
     olab <- var_desc(oc, lang)
@@ -232,9 +241,9 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
 data_dictionary <- function(sc, df, factors, ids = names(df)) {
     rows <- lapply(seq_along(df), function(j) {
         x <- df[[j]]; id <- ids[j]
-        role <- if (id %in% factors || !is.null(attr(x, "eco")) || grepl("^extra_[0-9]+$", id)) "factor"
+        role <- if (id %in% c(factors, "admitted", "treated", "treatment_start") || !is.null(attr(x, "eco")) || grepl("^extra_[0-9]+$", id)) "factor"
                 else if (id %in% c("id", "set", "sequence", "period", "subcohort", "cluster", "look", "visit", "region", "population", "batch")) "design"
-                else if (id %in% names(sc$interventions)) "intervention" else "outcome"
+                else if (id %in% c(names(sc$interventions), "received")) "intervention" else "outcome"
         type <- if (is.ordered(x)) "ordinal" else if (is.factor(x)) "nominal" else if (is.integer(x)) "integer" else "continuous"
         values <- if (is.factor(x)) paste(levels(x), collapse = ", ")
                   else sprintf("%s \u2013 %s", base::format(min(x, na.rm = TRUE)), base::format(max(x, na.rm = TRUE)))
@@ -289,6 +298,7 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
     looks <- design == "rct" && (opt$looks %||% 0) >= 2 && oc$type != "event"
     out <- c("id", if (design %in% c("matched_cc", "nested_cc")) "set", if (design == "case_cohort") "subcohort",
              if (design == "cluster_rct") "cluster", if (design == "crossover") c("sequence", "period"), iv,
+             if (design == "rct" && (opt$nonadherence %||% 0) > 0) "received",
              if (looks) "look", if (design == "longitudinal") "visit")
     out <- c(out, if (design == "pre_post") c(paste0(oc$id, "_before"), oc$id)
                   else if (design == "method_comparison") paste0(oc$id, c("_a", "_b"))
@@ -297,8 +307,13 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
                   else oc$id)
     if (isTRUE(opt$secondary)) out <- c(out, secondary_columns(sc, oc, design))
     if (design == "diagnostic") out <- c(out, unname(unlist(lapply(oc$markers, marker_cols))), if ((opt$batches %||% 0) >= 2) "batch")
-    c(out, intersect(sc$order, factors), noise_names(opt$noise %||% 0))
+    c(out, intersect(sc$order, factors), bias_columns(sc, oc, design, opt), noise_names(opt$noise %||% 0))
 }
+
+# columns the biases add (engine_bias.R), after the measured variables
+bias_columns <- function(sc, oc, design, opt) c(
+    if (isTRUE(opt$collider) && design %in% c("cross_sectional", "cohort", "case_control") && length(opt$exposures)) "admitted",
+    if (isTRUE(opt$immortal) && design %in% c("cohort", "prognosis") && oc$type == "event") c("treated", "treatment_start"))
 
 # What the descriptives table shows for each column, known before the data
 # exist (rows are built in .init()): "cont", or the factor levels. id and set
@@ -321,6 +336,9 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
             c(paste(lv, collapse = "-"), paste(rev(lv), collapse = "-"))
         } else if (nm == "period") c("1", "2")
         else if (nm %in% names(sc$interventions)) sc$interventions[[nm]]$levels
+        else if (nm == "received") trial_iv(sc, oc)$levels
+        else if (nm %in% c("admitted", "treated")) c("no", "yes")
+        else if (nm == "treatment_start") "cont"
         else if (nm == "case") c("control", "case")
         else if (nm == "subcohort") c("no", "yes")
         else if (grepl("^time_", nm) && sub("^time_", "", nm) %in% names(sc$outcomes)) "cont"

@@ -39,6 +39,12 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             carryover = "",
             spectrum = 100,
             verification = 100,
+            recall = 0,
+            ctrlSelect = 1,
+            collider = FALSE,
+            nonadherence = 0,
+            informative = 1,
+            immortal = FALSE,
             missing = 0,
             missingMech = "mcar",
             reliability = 1,
@@ -166,7 +172,11 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         jmvcore::OptionString$new(
                             "cuts",
                             NULL,
-                            default=""))))
+                            default=""),
+                        jmvcore::OptionBool$new(
+                            "exposure",
+                            NULL,
+                            default=FALSE))))
             private$..n <- jmvcore::OptionInteger$new(
                 "n",
                 n,
@@ -275,6 +285,38 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=100,
                 min=0,
                 max=100)
+            private$..recall <- jmvcore::OptionNumber$new(
+                "recall",
+                recall,
+                default=0,
+                min=0,
+                max=100)
+            private$..ctrlSelect <- jmvcore::OptionNumber$new(
+                "ctrlSelect",
+                ctrlSelect,
+                default=1,
+                min=0.1,
+                max=10)
+            private$..collider <- jmvcore::OptionBool$new(
+                "collider",
+                collider,
+                default=FALSE)
+            private$..nonadherence <- jmvcore::OptionNumber$new(
+                "nonadherence",
+                nonadherence,
+                default=0,
+                min=0,
+                max=90)
+            private$..informative <- jmvcore::OptionNumber$new(
+                "informative",
+                informative,
+                default=1,
+                min=0.2,
+                max=5)
+            private$..immortal <- jmvcore::OptionBool$new(
+                "immortal",
+                immortal,
+                default=FALSE)
             private$..missing <- jmvcore::OptionNumber$new(
                 "missing",
                 missing,
@@ -414,6 +456,12 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..carryover)
             self$.addOption(private$..spectrum)
             self$.addOption(private$..verification)
+            self$.addOption(private$..recall)
+            self$.addOption(private$..ctrlSelect)
+            self$.addOption(private$..collider)
+            self$.addOption(private$..nonadherence)
+            self$.addOption(private$..informative)
+            self$.addOption(private$..immortal)
             self$.addOption(private$..missing)
             self$.addOption(private$..missingMech)
             self$.addOption(private$..reliability)
@@ -469,6 +517,12 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         carryover = function() private$..carryover$value,
         spectrum = function() private$..spectrum$value,
         verification = function() private$..verification$value,
+        recall = function() private$..recall$value,
+        ctrlSelect = function() private$..ctrlSelect$value,
+        collider = function() private$..collider$value,
+        nonadherence = function() private$..nonadherence$value,
+        informative = function() private$..informative$value,
+        immortal = function() private$..immortal$value,
         missing = function() private$..missing$value,
         missingMech = function() private$..missingMech$value,
         reliability = function() private$..reliability$value,
@@ -523,6 +577,12 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..carryover = NA,
         ..spectrum = NA,
         ..verification = NA,
+        ..recall = NA,
+        ..ctrlSelect = NA,
+        ..collider = NA,
+        ..nonadherence = NA,
+        ..informative = NA,
+        ..immortal = NA,
         ..missing = NA,
         ..missingMech = NA,
         ..reliability = NA,
@@ -617,6 +677,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batchConfounded",
                     "spectrum",
                     "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Html$new(
@@ -665,6 +731,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batchConfounded",
                     "spectrum",
                     "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -715,6 +787,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batchConfounded",
                     "spectrum",
                     "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -786,6 +864,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batchConfounded",
                     "spectrum",
                     "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -902,7 +986,13 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mcErrorA",
                     "mcErrorB",
                     "spectrum",
-                    "verification"),
+                    "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal"),
                 columns=list(
                     list(
                         `name`="outcome", 
@@ -1084,6 +1174,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batchConfounded",
                     "spectrum",
                     "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -1134,6 +1230,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batchConfounded",
                     "spectrum",
                     "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1189,6 +1291,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batchConfounded",
                     "spectrum",
                     "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1244,6 +1352,12 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batchConfounded",
                     "spectrum",
                     "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1300,7 +1414,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param secondary adds the scenario's other outcomes as columns, for the
 #'   same people (cross-sectional, cohort, prognosis and trial designs)
 #' @param measured one entry per scenario variable, list(var = name, include =
-#'   TRUE/FALSE, form =
+#'   TRUE/FALSE, exposure = TRUE/FALSE (the variable the biases act on), form =
 #'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10"/"scale",
 #'   cuts = "18.5, 25, 30" or "10\%, 90\%", or the divisor for scale, e.g.
 #'   "10"); included variables are in the dataset, the others are unmeasured
@@ -1356,6 +1470,24 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param verification diagnostic study, share of the people negative on the
 #'   first marker who get the reference standard (the others have no disease
 #'   status): partial verification
+#' @param recall case-control designs: this share of the unexposed cases
+#'   report the exposure (a numeric exposure: cases report it this much higher,
+#'   in \%)
+#' @param ctrlSelect case-control designs: odds of being selected as a control
+#'   if exposed (per SD of a numeric exposure), as with hospital controls; 1 =
+#'   no selection bias
+#' @param collider cross-sectional, cohort and case-control designs: adds
+#'   \code{admitted}, caused by the outcome and by the exposure (a collider:
+#'   adjusting for it biases)
+#' @param nonadherence randomised trial: this share of the treated stop the
+#'   treatment, more often those with a worse prognosis; adds the column
+#'   \code{received}
+#' @param informative followed designs: the hazard of loss to follow-up
+#'   multiplies by this per SD of a person's proneness to the event (1 =
+#'   non-informative)
+#' @param immortal cohort and prognosis designs with an event outcome: adds
+#'   \code{treated} (ever) and \code{treatment_start}; the treatment has no
+#'   effect
 #' @param missing .
 #' @param missingMech .
 #' @param reliability share of the observed variance that is true variance (1
@@ -1440,6 +1572,12 @@ simStudy <- function(
     carryover = "",
     spectrum = 100,
     verification = 100,
+    recall = 0,
+    ctrlSelect = 1,
+    collider = FALSE,
+    nonadherence = 0,
+    informative = 1,
+    immortal = FALSE,
     missing = 0,
     missingMech = "mcar",
     reliability = 1,
@@ -1503,6 +1641,12 @@ simStudy <- function(
         carryover = carryover,
         spectrum = spectrum,
         verification = verification,
+        recall = recall,
+        ctrlSelect = ctrlSelect,
+        collider = collider,
+        nonadherence = nonadherence,
+        informative = informative,
+        immortal = immortal,
         missing = missing,
         missingMech = missingMech,
         reliability = reliability,
