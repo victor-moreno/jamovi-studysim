@@ -500,25 +500,41 @@ eco_cols <- function(sc, v) {
 marker_cols <- function(m) if (is.null(m$block)) m$id else sprintf("%s%0*d", m$id, nchar(m$block), seq_len(m$block))
 
 # Diagnostic accuracy study: a cross-sectional sample (disease status by the
-# outcome model) with the outcome's markers measured on everybody
+# outcome model) with the outcome's markers measured on everybody.
+# - severity: the diseased differ in how far the markers move (severity_sd),
+#   one severity per person shared by the markers;
+# - spectrum (opt$spectrum < 1): only the most severe fraction of the diseased
+#   reach the study (markers without severity_sd are given 1 on the latent scale);
+# - depends: markers that move with covariates in everybody;
+# - verification (opt$verify < 1): everybody positive on the first marker gets
+#   the reference standard, only this fraction of the negatives (status missing
+#   for the others: partial verification).
+# The new draws use their own streams: markers without them are as before.
 sim_diagnostic <- function(sc, oc, cal, seed, n, opt) {
     if (length(oc$markers) == 0) stop(sprintf("outcome '%s' has no markers, so it cannot be a diagnostic study", oc$id), call. = FALSE)
     r <- sim_cross_sectional(sc, oc, cal, seed, n, opt)
     y <- r$data$.y
+    f <- opt$spectrum %||% 1
+    single <- Filter(function(m) is.null(m$block), oc$markers)
+    sev <- function(m) if (m$severity_sd > 0) m$severity_sd else if (f < 1) 1 else 0
+    w <- if (any(vapply(single, sev, 0) > 0)) with_seed(derive_seed(seed, sc$id, oc$id, "severity", n), stats::rnorm(n)) else rep(0, n)
+    if (f < 1) w <- stats::qnorm(1 - f + f * stats::pnorm(w))
     mk <- with_seed(derive_seed(seed, sc$id, oc$id, "markers", n), {
         cols <- list()
         rc <- oc$marker_cor %||% 0
         shared <- if (rc > 0) stats::rnorm(n) else 0
         for (m in oc$markers) {
             if (!is.null(m$block)) {
-                f <- stats::rnorm(n)
-                E <- sqrt(m$rho) * f + sqrt(1 - m$rho) * matrix(stats::rnorm(n * m$block), n)
+                f0 <- stats::rnorm(n)
+                E <- sqrt(m$rho) * f0 + sqrt(1 - m$rho) * matrix(stats::rnorm(n * m$block), n)
                 k <- seq_len(m$informative)
                 E[, k] <- E[, k] + m$dir * m$delta * y
                 nm <- marker_cols(m)
                 for (j in seq_len(m$block)) cols[[nm[j]]] <- round(E[, j], 3)
             } else {
-                z <- sqrt(rc) * shared + sqrt(1 - rc) * stats::rnorm(n) + m$dir * m$delta * y
+                s <- sev(m)
+                delta <- if (s == m$severity_sd) m$delta else sqrt(2 + s^2) * stats::qnorm(m$auc)
+                z <- sqrt(rc) * shared + sqrt(1 - rc) * stats::rnorm(n) + m$dir * (delta + s * w) * y + depends_shift(m, r$data)
                 x <- if (is.null(m$dist)) z else qdist(stats::pnorm(z), m$dist, m$range)
                 cols[[m$id]] <- if (!is.null(m$round)) round(x, m$round) else round(x, 3)
             }
@@ -528,7 +544,49 @@ sim_diagnostic <- function(sc, oc, cal, seed, n, opt) {
     r$markers <- mk
     r$facts$prevalence <- mean(y)
     r$facts$markers <- names(oc$markers)
+    if (f < 1) r$facts$spectrum <- f
+    v <- opt$verify %||% 1
+    if (v < 1 && length(single)) {
+        m1 <- single[[1]]
+        pos <- m1$dir * (mk[[m1$id]] - marker_cutoff(m1)) > 0
+        u <- with_seed(derive_seed(seed, sc$id, oc$id, "verification", n), stats::runif(n))
+        verified <- pos | u < v
+        r$data$.y[!verified] <- NA
+        r$facts$verified <- sum(verified); r$facts$verify_marker <- m1$id
+    }
     r
+}
+
+# a marker's latent shift from the covariates it depends on (standardised codes)
+depends_shift <- function(m, d) {
+    out <- 0
+    for (dp in m$depends) out <- out + dp$b * (as.numeric(d[[dp$var]]) - dp$mean) / dp$sd
+    out
+}
+
+# the cut-off of a single marker, in its units: the library's, or Youden's
+# point of the binormal model (the latent midpoint between the groups)
+marker_cutoff <- function(m) {
+    if (!is.null(m$cutoff) && !is.na(m$cutoff)) return(m$cutoff)
+    c_lat <- m$dir * m$delta / 2
+    x <- if (is.null(m$dist)) c_lat else qdist(stats::pnorm(c_lat), m$dist, m$range)
+    signif(x, 3)
+}
+
+# sensitivity, specificity, PPV and NPV of each single marker at its cut-off
+# in a formatted study fd (rows without a verified status are left out)
+accuracy_table <- function(oc, fd) {
+    d <- as.integer(fd[[oc$id]]) - 1L
+    rows <- lapply(Filter(function(m) is.null(m$block), oc$markers), function(m) {
+        cut <- marker_cutoff(m)
+        x <- fd[[m$id]]
+        ok <- !is.na(x) & !is.na(d)
+        pos <- m$dir * (x[ok] - cut) > 0; dd <- d[ok] == 1
+        data.frame(marker = m$id, cutoff = cut, dir = m$dir, stat = c("sens", "spec", "ppv", "npv"),
+                   value = c(mean(pos[dd]), mean(!pos[!dd]), mean(dd[pos]), mean(!dd[!pos])), stringsAsFactors = FALSE)
+    })
+    if (!length(rows)) return(NULL)
+    do.call(rbind, rows)
 }
 
 # empirical AUC of x for status d (1 = diseased), Mann-Whitney
@@ -542,12 +600,15 @@ auc_of <- function(x, d, dir = 1) {
 
 # per marker (a block as its informative and its noise markers): the true AUC
 # and the AUC in a formatted study fd (status from the outcome column)
-marker_table <- function(oc, fd) {
+# pop: a formatted clean population, for the true AUC of markers that depend on
+# covariates (their `auc` holds at fixed covariates, not in the population)
+marker_table <- function(oc, fd, pop = NULL) {
     d <- as.integer(fd[[oc$id]]) - 1L
     rows <- list()
     for (m in oc$markers) {
         if (is.null(m$block)) {
-            rows[[length(rows) + 1]] <- data.frame(marker = m$id, part = "", n_markers = 1L, true = m$auc,
+            tv <- if (length(m$depends) && !is.null(pop)) auc_of(pop[[m$id]], as.integer(pop[[oc$id]]) - 1L, m$dir) else m$auc
+            rows[[length(rows) + 1]] <- data.frame(marker = m$id, part = "", n_markers = 1L, true = tv,
                                                    auc = auc_of(fd[[m$id]], d, m$dir), stringsAsFactors = FALSE)
         } else {
             nm <- marker_cols(m); k <- m$informative

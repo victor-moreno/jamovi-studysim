@@ -37,6 +37,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             mcErrorB = "",
             period = "",
             carryover = "",
+            spectrum = 100,
+            verification = 100,
             missing = 0,
             missingMech = "mcar",
             reliability = 1,
@@ -261,6 +263,18 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "carryover",
                 carryover,
                 default="")
+            private$..spectrum <- jmvcore::OptionNumber$new(
+                "spectrum",
+                spectrum,
+                default=100,
+                min=5,
+                max=100)
+            private$..verification <- jmvcore::OptionNumber$new(
+                "verification",
+                verification,
+                default=100,
+                min=0,
+                max=100)
             private$..missing <- jmvcore::OptionNumber$new(
                 "missing",
                 missing,
@@ -398,6 +412,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..mcErrorB)
             self$.addOption(private$..period)
             self$.addOption(private$..carryover)
+            self$.addOption(private$..spectrum)
+            self$.addOption(private$..verification)
             self$.addOption(private$..missing)
             self$.addOption(private$..missingMech)
             self$.addOption(private$..reliability)
@@ -451,6 +467,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         mcErrorB = function() private$..mcErrorB$value,
         period = function() private$..period$value,
         carryover = function() private$..carryover$value,
+        spectrum = function() private$..spectrum$value,
+        verification = function() private$..verification$value,
         missing = function() private$..missing$value,
         missingMech = function() private$..missingMech$value,
         reliability = function() private$..reliability$value,
@@ -503,6 +521,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..mcErrorB = NA,
         ..period = NA,
         ..carryover = NA,
+        ..spectrum = NA,
+        ..verification = NA,
         ..missing = NA,
         ..missingMech = NA,
         ..reliability = NA,
@@ -538,6 +558,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         keyExpected = function() private$.items[["keyExpected"]],
         keyTrial = function() private$.items[["keyTrial"]],
         keyMarkers = function() private$.items[["keyMarkers"]],
+        keyAccuracy = function() private$.items[["keyAccuracy"]],
         keyNotes = function() private$.items[["keyNotes"]],
         openState = function() private$.items[["openState"]],
         csvState = function() private$.items[["csvState"]],
@@ -594,6 +615,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batches",
                     "batchCv",
                     "batchConfounded",
+                    "spectrum",
+                    "verification",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Html$new(
@@ -640,6 +663,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batches",
                     "batchCv",
                     "batchConfounded",
+                    "spectrum",
+                    "verification",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -688,6 +713,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batches",
                     "batchCv",
                     "batchConfounded",
+                    "spectrum",
+                    "verification",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -757,6 +784,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batches",
                     "batchCv",
                     "batchConfounded",
+                    "spectrum",
+                    "verification",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -871,7 +900,9 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mcBias",
                     "mcSlope",
                     "mcErrorA",
-                    "mcErrorB"),
+                    "mcErrorB",
+                    "spectrum",
+                    "verification"),
                 columns=list(
                     list(
                         `name`="outcome", 
@@ -946,7 +977,9 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "libContent",
                     "scenario",
                     "outcome",
-                    "design"),
+                    "design",
+                    "spectrum",
+                    "verification"),
                 columns=list(
                     list(
                         `name`="marker", 
@@ -963,6 +996,42 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="truth", 
                         `title`="True AUC", 
+                        `type`="number"),
+                    list(
+                        `name`="expected", 
+                        `title`="Large study", 
+                        `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="keyAccuracy",
+                title="Answer key: accuracy at a cut-off",
+                visible="(showKey)",
+                rows=0,
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "design",
+                    "spectrum",
+                    "verification"),
+                columns=list(
+                    list(
+                        `name`="marker", 
+                        `title`="Marker", 
+                        `type`="text", 
+                        `combineBelow`=TRUE),
+                    list(
+                        `name`="cutoff", 
+                        `title`="Cut-off", 
+                        `type`="text", 
+                        `combineBelow`=TRUE),
+                    list(
+                        `name`="stat", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="truth", 
+                        `title`="True", 
                         `type`="number"),
                     list(
                         `name`="expected", 
@@ -1013,6 +1082,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batches",
                     "batchCv",
                     "batchConfounded",
+                    "spectrum",
+                    "verification",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -1061,6 +1132,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batches",
                     "batchCv",
                     "batchConfounded",
+                    "spectrum",
+                    "verification",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1114,6 +1187,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batches",
                     "batchCv",
                     "batchConfounded",
+                    "spectrum",
+                    "verification",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1167,6 +1242,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "batches",
                     "batchCv",
                     "batchConfounded",
+                    "spectrum",
+                    "verification",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1274,6 +1351,11 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   scenario's value
 #' @param carryover crossover trial, effect left by the first treatment;
 #'   empty: the scenario's value
+#' @param spectrum diagnostic study, the diseased in the study come from this
+#'   most severe share (100 = all): spectrum bias
+#' @param verification diagnostic study, share of the people negative on the
+#'   first marker who get the reference standard (the others have no disease
+#'   status): partial verification
 #' @param missing .
 #' @param missingMech .
 #' @param reliability share of the observed variance that is true variance (1
@@ -1309,6 +1391,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$keyExpected} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyTrial} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyMarkers} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$keyAccuracy} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyNotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$openState} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$csvState} \tab \tab \tab \tab \tab a table \cr
@@ -1355,6 +1438,8 @@ simStudy <- function(
     mcErrorB = "",
     period = "",
     carryover = "",
+    spectrum = 100,
+    verification = 100,
     missing = 0,
     missingMech = "mcar",
     reliability = 1,
@@ -1416,6 +1501,8 @@ simStudy <- function(
         mcErrorB = mcErrorB,
         period = period,
         carryover = carryover,
+        spectrum = spectrum,
+        verification = verification,
         missing = missing,
         missingMech = missingMech,
         reliability = reliability,

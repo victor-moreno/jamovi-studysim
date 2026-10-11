@@ -11,7 +11,7 @@ items:
       clearWith: &gen [libContent, scenario, outcome, design, secondary, measured, n, ccRatio, followup, loss,
                        accrual, subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd, threshold, mcBias, mcSlope, mcErrorA, mcErrorB,
                        period, carryover, missing, missingMech, reliability, misclass, entryErrors, noiseVars, lodHandling,
-                       batches, batchCv, batchConfounded, seed,
+                       batches, batchCv, batchConfounded, spectrum, verification, seed,
                        studentKey]
 
     - name: summary
@@ -101,7 +101,7 @@ items:
       rows: 0
       clearWith: [libContent, scenario, outcome, design, secondary, measured, ccRatio, followup, loss, accrual,
                   subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd,
-                  period, carryover, reliability, misclass, threshold, mcBias, mcSlope, mcErrorA, mcErrorB]
+                  period, carryover, reliability, misclass, threshold, mcBias, mcSlope, mcErrorA, mcErrorB, spectrum, verification]
       columns:
           - name: outcome
             title: Outcome
@@ -155,7 +155,7 @@ items:
       type: Table
       visible: (showKey)
       rows: 0
-      clearWith: [libContent, scenario, outcome, design]
+      clearWith: [libContent, scenario, outcome, design, spectrum, verification]
       columns:
           - name: marker
             title: Marker
@@ -168,6 +168,31 @@ items:
             type: integer
           - name: truth
             title: True AUC
+            type: number
+          - name: expected
+            title: Large study
+            type: number
+
+    - name: keyAccuracy
+      title: 'Answer key: accuracy at a cut-off'
+      type: Table
+      visible: (showKey)
+      rows: 0
+      clearWith: [libContent, scenario, outcome, design, spectrum, verification]
+      columns:
+          - name: marker
+            title: Marker
+            type: text
+            combineBelow: true
+          - name: cutoff
+            title: Cut-off
+            type: text
+            combineBelow: true
+          - name: stat
+            title: ''
+            type: text
+          - name: truth
+            title: 'True'
             type: number
           - name: expected
             title: Large study

@@ -119,3 +119,40 @@ test_that("trials report absolute effects and the marginal ratio is closer to 1"
   expect_identical(a$key, trial_absolute_rows(sc, oc, "rct"))
   expect_null(trial_absolute(sc, oc, "cohort", list()))
 })
+
+diag_raw <- function(marker) list(id = "diag",
+  variables = list(age = list(type = "continuous", dist = "uniform(40, 80)")),
+  outcomes = list(d = list(type = "binary", prevalence = 0.3, effects = list(age = list(OR = 1.03)),
+                           markers = list(m = marker))))
+
+test_that("a marker's cut-off gives sensitivity and specificity, true and in the study", {
+  sc <- normalize_scenario(diag_raw(list(auc = 0.8)))
+  m <- sc$outcomes$d$markers$m
+  expect_equal(marker_cutoff(m), signif(m$delta / 2, 3))
+  em <- expected_markers(sc, sc$outcomes$d, list())
+  a <- em$accuracy
+  expect_equal(a$true[a$stat == "sens"], stats::pnorm(m$delta / 2), tolerance = 0.01)
+  expect_equal(a$true[a$stat == "spec"], stats::pnorm(m$delta / 2), tolerance = 0.01)
+  expect_equal(a$expected, a$true, tolerance = 0.03)
+})
+
+test_that("severity keeps the population AUC; spectrum and partial verification bias the study", {
+  sc <- normalize_scenario(diag_raw(list(auc = 0.75, severity_sd = 1.5)))
+  oc <- sc$outcomes$d
+  em <- expected_markers(sc, oc, list())
+  expect_equal(em$auc$auc, 0.75, tolerance = 0.015)
+  sp <- expected_markers(sc, oc, list(spectrum = 0.3))
+  expect_gt(sp$auc$auc, 0.82)
+  ve <- expected_markers(sc, oc, list(verify = 0.2))
+  s <- ve$accuracy
+  expect_gt(s$expected[s$stat == "sens"], s$true[s$stat == "sens"] + 0.1)
+  expect_lt(s$expected[s$stat == "spec"], s$true[s$stat == "spec"] - 0.1)
+})
+
+test_that("a marker that depends on a covariate moves with it", {
+  sc <- normalize_scenario(diag_raw(list(auc = 0.7, depends = list(age = 0.8))))
+  oc <- sc$outcomes$d
+  r <- run_design("diagnostic", sc, oc, calibrate(sc, oc), 1, 5000, list())
+  expect_gt(stats::cor(r$markers$m, r$data$age), 0.5)
+  expect_equal(sc$outcomes$d$markers$m$depends$age$mean, 60, tolerance = 0.02)
+})

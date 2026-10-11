@@ -57,7 +57,8 @@ simStudyClass <- R6::R6Class(
             # realism that also shapes the answer key (measurement error) or the columns (noise)
             opt$reliability <- o$reliability; opt$misclass <- o$misclass / 100; opt$noise <- o$noiseVars
             opt$lod_handling <- o$lodHandling
-            if (d == "diagnostic") { opt$batches <- o$batches; opt$batch_cv <- o$batchCv / 100; opt$batch_confounded <- o$batchConfounded }
+            if (d == "diagnostic") { opt$batches <- o$batches; opt$batch_cv <- o$batchCv / 100; opt$batch_confounded <- o$batchConfounded
+                                     opt$spectrum <- o$spectrum / 100; opt$verify <- o$verification / 100 }
             if (d == "case_cohort") opt$subcohort <- num("subcohort", .("Subcohort (% of the cohort)"), 0.1, 90, scale = 100)
             if (d == "rct") opt$looks <- o$looks
             if (d == "cluster_rct") { opt$clusters <- num("clusters", .("Clusters"), 4, 1000, TRUE); opt$icc <- num("icc", .("Intraclass correlation"), 0, 0.9) }
@@ -94,7 +95,7 @@ simStudyClass <- R6::R6Class(
             ctx <- private$.context()
             if (!is.null(ctx$error)) {
                 private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(ctx$error)))
-                for (nm in c("summary", "dictionary", "keyEffects", "keyExpected", "keyTrial", "keyMarkers", "keyNotes"))
+                for (nm in c("summary", "dictionary", "keyEffects", "keyExpected", "keyTrial", "keyMarkers", "keyAccuracy", "keyNotes"))
                     self$results[[nm]]$setVisible(FALSE)
                 return()
             }
@@ -136,7 +137,10 @@ simStudyClass <- R6::R6Class(
                             part = if (pp[1] == "inf") sprintf("%s-%s", cols[1], cols[m$informative])
                                    else if (pp[1] == "noise") sprintf("%s-%s", cols[m$informative + 1], cols[m$block]) else cols[1]))
                     }
-                } else self$results$keyMarkers$setVisible(FALSE)
+                    # accuracy at a cut-off of each single marker
+                    for (m in Filter(function(m) is.null(m$block), ctx$oc$markers)) for (st in c("sens", "spec", "ppv", "npv"))
+                        self$results$keyAccuracy$addRow(rowKey = paste(m$id, st), values = list(marker = tr_text(m$label, ctx$lang), stat = accuracy_label(st, self)))
+                } else for (nm in c("keyMarkers", "keyAccuracy")) self$results[[nm]]$setVisible(FALSE)
             }
         },
 
@@ -264,9 +268,15 @@ simStudyClass <- R6::R6Class(
             if (!is.null(ta)) html <- c(html, "<h2>", esc(.("Answer key: absolute effects in the trial")), "</h2>",
                                         tab(c("", .("Value")), cbind(ta$quantity, num(ta$value))))
             if (ctx$design == "diagnostic") {
-                mt <- self$results$keyMarkers$state %||% expected_markers(sc, oc, opt)
+                em <- self$results$keyMarkers$state %||% expected_markers(sc, oc, opt)
+                mt <- em$auc
                 html <- c(html, "<h2>", esc(.("Answer key: markers")), "</h2>",
                           tab(c(.("Marker"), .("Columns"), .("True AUC"), .("Large study")), cbind(mt$marker, mt$part, num(mt$true), num(mt$auc))))
+                ac <- em$accuracy
+                if (!is.null(ac)) html <- c(html, "<h2>", esc(.("Answer key: accuracy at a cut-off")), "</h2>",
+                    tab(c(.("Marker"), .("Cut-off"), "", .("True"), .("Large study")),
+                        cbind(ac$marker, sprintf("%s %s", ifelse(ac$dir > 0, ">", "<"), base::format(ac$cutoff)),
+                              vapply(ac$stat, accuracy_label, "", self), num(ac$true), num(ac$expected))))
             }
             html <- c(html, "<h2>", esc(.("Causal diagram")), "</h2><img alt='DAG' src='data:image/png;base64,", img, "'>",
                       "<h2>", esc(.("Teaching note")), "</h2><p>", esc(tr_text(sc$teaching, l)), "</p>",
@@ -316,6 +326,9 @@ simStudyClass <- R6::R6Class(
             if (!is.null(f$markers)) li <- c(li, jmvcore::format(.("prevalence {p}%; markers measured on everybody: {list}"), p = num(100 * f$prevalence, 1),
                                                         list = htmlEscape(paste(vapply(ctx$oc$markers, function(m) {
                                                             cc <- marker_cols(m); if (length(cc) > 1) sprintf("%s-%s", cc[1], cc[length(cc)]) else cc }, ""), collapse = ", "))))
+            if (!is.null(f$spectrum)) li <- c(li, jmvcore::format(.("only the most severe {p}% of the diseased are in the study (spectrum)"), p = round(100 * f$spectrum)))
+            if (!is.null(f$verified)) li <- c(li, jmvcore::format(.("disease status verified in {n} people: everybody positive on {m} and a share of the negatives (the others are missing)"),
+                                                          n = num(f$verified), m = dname(f$verify_marker, l)))
             if (!is.null(f$regions)) li <- c(li, jmvcore::format(.("{k} regions of {m} people (the sample size is not used): only totals, means and percentages per region are kept"),
                                                         k = num(f$regions), m = num(f$region_size)))
             if (ctx$design == "pre_post") li <- c(li, if (!is.null(f$threshold))
@@ -439,8 +452,20 @@ simStudyClass <- R6::R6Class(
             }
             if (ctx$design == "diagnostic") {
                 mk <- self$results$keyMarkers
-                mt <- mk$state
-                if (is.null(mt)) { mt <- expected_markers(ctx$sc, ctx$oc, opt); mk$setState(mt) }
+                em <- mk$state
+                if (is.data.frame(em)) em <- list(auc = em)   # a state saved by v0.4
+                if (is.null(em)) { em <- expected_markers(ctx$sc, ctx$oc, opt); mk$setState(em) }
+                mt <- em$auc
+                ka <- self$results$keyAccuracy
+                for (i in seq_len(NROW(em$accuracy))) {
+                    a <- em$accuracy[i, ]
+                    k <- paste(a$marker, a$stat)
+                    if (k %in% ka$rowKeys) ka$setRow(rowKey = k, values = list(cutoff = sprintf("%s %s", if (a$dir > 0) ">" else "<", base::format(a$cutoff)),
+                                                                              truth = a$true, expected = if (is.na(a$expected)) "" else a$expected))
+                }
+                ka$setNote("cut", .("Test positive beyond the cut-off (the scenario's, or the point that maximises sensitivity + specificity). True: a population of 100,000 without selection or verification bias; PPV and NPV at the prevalence of each."))
+                if (isTRUE(opt$verify < 1)) ka$setNote("verify", .("Partial verification: the large study, like the dataset, has the disease status only for the verified people; analysing them alone overstates sensitivity and understates specificity."))
+                if (isTRUE(opt$spectrum < 1)) ka$setNote("spectrum", .("Spectrum bias: only the most severe diseased are in the study, so sensitivity and the AUC are higher than in the population."))
                 for (i in seq_len(nrow(mt))) {
                     m <- ctx$oc$markers[[mt$marker[i]]]
                     k <- paste(mt$marker[i], if (is.null(m$block)) "" else if (mt$true[i] > 0.5 || m$informative == m$block) "inf" else "noise")
@@ -532,6 +557,9 @@ dag_render <- function(image) {
     print(dag_plot(st$g, st$w, st$h, st$key, st$caption))
     TRUE
 }
+
+accuracy_label <- function(st, self) switch(st, sens = .("Sensitivity"), spec = .("Specificity"), ppv = .("Positive predictive value"),
+                                            npv = .("Negative predictive value"), st)
 
 # The design options a study used (the scenario's unless typed in the panel),
 # for the summary: "Follow-up: 10 years; Loss to follow-up: 2% per year"

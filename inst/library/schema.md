@@ -202,12 +202,24 @@ outcomes fit cohort, prognosis and randomised trial designs.
         dist: lognormal(0.012, 0.012)
         auc: 0.90
         lod: 0.01                    # limit of detection (also for variables)
+      ca125:
+        dist: lognormal(15, 10)
+        auc: 0.80
+        cutoff: 35                   # test positive beyond it (default: Youden's point)
+        severity_sd: 1               # the diseased differ in how far it moves
+        depends: {age: 0.3}          # latent shift per SD of age, in everybody
 ```
 
 A marker is binormal: a latent N(0, 1) in the non-diseased, shifted by
 √2·Φ⁻¹(AUC) in the diseased, mapped to `dist` by its quantiles (which keeps the
 AUC). Markers depend on the disease only (conditionally independent of the
-other variables). A block has standard-normal values. The outcome's
+other variables) unless it `depends` on some of them; `auc` is then the AUC at
+fixed values of those variables, and the key gives the population AUC. With
+`severity_sd` the diseased differ in a severity shared by the markers, and the
+shift is widened so that `auc` stays the population AUC (a study of the most
+severe cases overstates it: spectrum bias). The key reports sensitivity,
+specificity and predictive values at `cutoff` (by default the latent midpoint
+between the groups, Youden's point). A block has standard-normal values. The outcome's
 `marker_cor` (default 0) correlates its single markers within disease groups
 (markers that measure related things).
 
@@ -254,7 +266,7 @@ followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`.
 | `outcomes` | outcome | scenario, outcome, type, scale, prevalence, rate, median, shape, mean, sd, within_cor, size, window, followup, round, time_units, risk, risk_at, levels, range, designs, units_*, label_*, description_* |
 | `structure` | edge | scenario, from, to, strength, kind (`path` or `correlation`) |
 | `effects` | effect | scenario, outcome, variable, measure, value, per, model, center, modifier, modifier_values (`pre: 0.93, post: 1.12`) |
-| `markers` | marker | scenario, outcome, marker, dist, round, auc, direction, block, informative, rho, range, units_*, label_* |
+| `markers` | marker | scenario, outcome, marker, dist, round, auc, direction, block, informative, rho, lod, cutoff, severity_sd, depends (`age: 0.3`), range, units_*, label_* |
 | `designs` | design option | scenario, design, option, value |
 | `references` | reference | scenario, reference |
 

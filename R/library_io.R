@@ -121,7 +121,7 @@ var_row <- function(scenario, id, v) {
     c(r, ml_cols(v$units, "units"), ml_cols(v$label, "label"), ml_cols(v$description, "description"))
 }
 
-MARKER_FIELDS <- c("dist", "round", "auc", "direction", "block", "informative", "rho", "lod")
+MARKER_FIELDS <- c("dist", "round", "auc", "direction", "block", "informative", "rho", "lod", "cutoff", "severity_sd")
 
 OUTCOME_FIELDS <- c("type", "scale", "prevalence", "rate", "median", "shape", "mean", "sd", "within_cor",
                     "size", "window", "followup", "round", "time_units", "marker_cor")
@@ -185,6 +185,7 @@ library_to_tables <- function(lib) {
             r <- list(scenario = s$id, outcome = o, marker = m)
             for (f in MARKER_FIELDS) r[[f]] <- if (is.null(x[[f]])) NA else as.character(na1(x[[f]]))
             r$range <- csv1(x$range)
+            r$depends <- if (is.null(x$depends)) NA else paste(sprintf("%s: %s", names(x$depends), unlist(x$depends)), collapse = LIST_SEP)
             c(r, ml_cols(x$units, "units"), ml_cols(x$label, "label"))
         })
     }), recursive = FALSE)), recursive = FALSE))
@@ -289,6 +290,10 @@ tables_to_library <- function(t) {
                 x <- list()
                 for (f in MARKER_FIELDS) if (!is.null(cell(m, f))) x[[f]] <- cell(m, f)
                 if (!is.null(uncsv(cell(m, "range")))) x$range <- uncsv(cell(m, "range"))
+                if (!is.null(uncsv(cell(m, "depends")))) {
+                    kv <- uncsv(cell(m, "depends"))
+                    x$depends <- stats::setNames(as.list(trimws(sub("^[^:]*:", "", kv))), trimws(sub(":.*$", "", kv)))
+                }
                 for (f in c("units", "label")) if (!is.null(ml_from(m, f))) x[[f]] <- ml_from(m, f)
                 o$markers[[m$marker]] <- x
             }

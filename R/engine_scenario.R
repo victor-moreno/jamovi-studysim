@@ -249,9 +249,17 @@ fill_centers <- function(sc, pr) {
     need <- function(oc) Filter(function(e) !is.null(e$by) && e$type %in% c("continuous", "count"),
                                 c(oc$effects, oc$competing$effects, oc$after_event$effects))
     effs <- unlist(lapply(sc$outcomes, need), recursive = FALSE)
-    if (!length(effs)) return(sc)
+    deps <- unlist(lapply(sc$outcomes, function(oc) lapply(oc$markers, `[[`, "depends")), recursive = FALSE)
+    if (!length(effs) && !length(unlist(deps))) return(sc)
     cov <- tryCatch(with_seed(derive_seed("center", sc$id), gen_covariates(sc, 20000L)), error = function(e) NULL)
     if (is.null(cov)) return(sc)
+    # markers' depends: the variable standardised by its population mean and SD
+    for (o in names(sc$outcomes)) for (m in names(sc$outcomes[[o]]$markers)) for (v in names(sc$outcomes[[o]]$markers[[m]]$depends)) {
+        x <- as.numeric(cov[[v]])
+        sc$outcomes[[o]]$markers[[m]]$depends[[v]]$mean <- mean(x)
+        sc$outcomes[[o]]$markers[[m]]$depends[[v]]$sd <- max(stats::sd(x), 1e-8)
+    }
+    if (!length(effs)) return(sc)
     fix <- function(oc) {
         for (k in c("effects", "competing", "after_event")) {
             if (k != "effects") { if (!is.null(oc[[k]])) oc[[k]] <- fix(oc[[k]]); next }
@@ -280,7 +288,7 @@ fill_centers <- function(sc, pr) {
 # non-diseased) by its quantiles, which keeps the AUC. A `block` is p markers
 # (standard-normal values, exchangeable correlation rho) of which the first
 # `informative` have the AUC and the others none.
-normalize_marker <- function(oc_id, id, m, pr) {
+normalize_marker <- function(oc_id, id, m, pr, vars = list()) {
     where <- sprintf("outcome '%s', marker '%s'", oc_id, id)
     g <- function(x, default) { v <- try_at(pr, where, num_expr(x %||% default)); if (is.null(v)) default else v }
     out <- list(id = id, label = m$label %||% id, units = m$units, round = if (!is.null(m$round)) as.integer(m$round), auc = g(m$auc, NA),
@@ -289,7 +297,24 @@ normalize_marker <- function(oc_id, id, m, pr) {
         add_problem(pr, where, "needs auc, the area under the ROC curve (0.5 to 1)"); return(NULL) }
     if (!is.null(m$direction) && !m$direction %in% c("higher", "lower"))
         add_problem(pr, where, "direction must be higher or lower (values in the diseased)")
-    out$delta <- sqrt(2) * stats::qnorm(out$auc)
+    # severity_sd: the diseased differ in how far the marker moves (a disease
+    # severity shared by the markers); the shift is widened so that `auc`
+    # stays the population AUC: delta = sqrt(2 + s^2) qnorm(auc)
+    out$severity_sd <- g(m$severity_sd, 0)
+    if (out$severity_sd < 0) add_problem(pr, where, "severity_sd must be 0 or more")
+    out$delta <- sqrt(2 + out$severity_sd^2) * stats::qnorm(out$auc)
+    if (!is.null(m$cutoff)) out$cutoff <- g(m$cutoff, NA)   # test positive beyond it (Youden's point otherwise)
+    # depends: {age: 0.3}: the marker's latent value moves by b per SD of the
+    # variable, in diseased and non-diseased alike (auc is then the AUC at
+    # fixed values of those variables); moments filled by normalize_scenario
+    if (length(m$depends)) {
+        out$depends <- list()
+        for (v in names(m$depends)) {
+            if (is.null(vars[[v]]) || !vars[[v]]$type %in% c("continuous", "count", "binary", "ordinal"))
+                add_problem(pr, where, sprintf("depends: '%s' must be a numeric, binary or ordinal variable of the scenario", v))
+            else out$depends[[v]] <- list(var = v, b = g(m$depends[[v]], 0))
+        }
+    }
     if (!is.null(m$block)) {
         out$block <- as.integer(g(m$block, 0)); out$informative <- as.integer(g(m$informative, 0)); out$rho <- g(m$rho, 0)
         if (out$block < 2 || out$informative < 0 || out$informative > out$block || out$rho < 0 || out$rho >= 1)
@@ -319,7 +344,7 @@ normalize_outcome <- function(id, o, vars, interventions, pr) {
             # correlation of the single markers within disease groups (a shared factor)
             out$marker_cor <- g(o$marker_cor %||% 0)
             if (out$marker_cor < 0 || out$marker_cor >= 1) add_problem(pr, where, "marker_cor must be between 0 and 1")
-            out$markers <- Filter(Negate(is.null), lapply(names(o$markers), function(m) normalize_marker(id, m, o$markers[[m]], pr)))
+            out$markers <- Filter(Negate(is.null), lapply(names(o$markers), function(m) normalize_marker(id, m, o$markers[[m]], pr, vars)))
             names(out$markers) <- vapply(out$markers, `[[`, "", "id")
         }
     } else if (o$type == "event") {

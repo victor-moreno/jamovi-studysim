@@ -376,6 +376,28 @@ options:
           R: >
               crossover trial, effect left by the first treatment; empty: the scenario's value
 
+    - name: spectrum
+      title: Diseased only among the most severe (%)
+      type: Number
+      default: 100
+      min: 5
+      max: 100
+      description:
+          R: >
+              diagnostic study, the diseased in the study come from this most severe share
+              (100 = all): spectrum bias
+
+    - name: verification
+      title: Test-negatives verified (%)
+      type: Number
+      default: 100
+      min: 0
+      max: 100
+      description:
+          R: >
+              diagnostic study, share of the people negative on the first marker who get the
+              reference standard (the others have no disease status): partial verification
+
     - name: missing
       title: Missing values (%)
       type: Number

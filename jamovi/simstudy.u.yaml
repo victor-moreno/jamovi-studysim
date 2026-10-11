@@ -172,6 +172,14 @@ children:
             name: carryover
             format: string
             enable: (design:crossover)
+          - type: TextBox
+            name: spectrum
+            format: number
+            enable: (design:diagnostic)
+          - type: TextBox
+            name: verification
+            format: number
+            enable: (design:diagnostic)
   - type: CollapseBox
     label: Realism
     collapsed: true

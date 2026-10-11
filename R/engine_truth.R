@@ -416,7 +416,17 @@ mc_halfwidth <- function(ex) {
 # markers' true AUC and the AUC of one large diagnostic study
 expected_markers <- function(sc, oc, opt) {
     big <- run_design("diagnostic", sc, oc, calibrate(sc, oc), derive_seed("truth", sc$id, oc$id), 20000, opt)
-    marker_table(oc, format_study(sc, oc, "diagnostic", big, character(), "en"))
+    fd <- format_study(sc, oc, "diagnostic", big, character(), "en")
+    # the truth: a clean population (no spectrum or verification bias) of 100,000
+    pop <- run_design("diagnostic", sc, oc, calibrate(sc, oc), derive_seed("truth", "population", sc$id, oc$id), 100000,
+                      opt[setdiff(names(opt), c("spectrum", "verify"))])
+    pfd <- format_study(sc, oc, "diagnostic", pop, sc$order, "en")
+    acc <- accuracy_table(oc, fd)
+    if (!is.null(acc)) {
+        tru <- accuracy_table(oc, pfd)
+        acc$true <- tru$value; acc$expected <- acc$value; acc$value <- NULL
+    }
+    list(auc = marker_table(oc, fd, pfd), accuracy = acc)
 }
 
 # The expectations of every outcome from one large study of this design with
