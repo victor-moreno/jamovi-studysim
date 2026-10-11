@@ -1,0 +1,191 @@
+id: dyspepsia_organic
+label: {en: Organic dyspepsia from symptoms (a diagnostic score), es: Dispepsia orgánica a partir de los síntomas (una puntuación diagnóstica), ca: Dispèpsia orgànica a partir dels símptomes (una puntuació diagnòstica)}
+domain: gastroenterology
+population:
+  en: Patients referred for dyspepsia who underwent endoscopy, the reference test
+  es: Pacientes derivados por dispepsia a los que se hizo una endoscopia, la prueba de referencia
+  ca: Pacients derivats per dispèpsia als quals es va fer una endoscòpia, la prova de referència
+
+# Estimated with studysim Derive from a teaching dataset (492 patients, 217
+# with an organic cause: oesophagitis or peptic ulcer at endoscopy). Effects:
+# the logistic model of the symptoms; the score is the published sum of
+# weights (AUC 0.81 in the data). Intensities are recorded as "mild" when the
+# symptom is absent: written as structural values.
+variables:
+  age: {from: dictionary, dist: "normal(45.2, 16.1)", range: [15, 85]}
+  sex: {from: dictionary, p: 0.478}
+  smoking_heavy:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.191
+    label: {en: More than 10 cigarettes a day, es: Más de 10 cigarrillos al día, ca: Més de 10 cigarrets al dia}
+  alcohol_heavy:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.093
+    label: {en: More than 30 g of alcohol a day, es: Más de 30 g de alcohol al día, ca: Més de 30 g d'alcohol al dia}
+  nsaids:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.081
+    label: {en: Anti-inflammatory drugs 2 or more days a week, es: Antiinflamatorios 2 o más días por semana, ca: Antiinflamatoris 2 o més dies per setmana}
+  overweight:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.561
+    label: {en: BMI over 25, es: IMC mayor de 25, ca: IMC superior a 25}
+  discomfort:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.807
+    label: {en: Epigastric pain or discomfort, es: Dolor o malestar epigástrico, ca: Dolor o malestar epigàstric}
+  pain_intensity:
+    type: ordinal
+    levels: [mild, moderate, severe]
+    probs: [0.42, 0.395, 0.185]
+    only_if: discomfort == "yes"
+    otherwise: mild
+    label: {en: Pain intensity, es: Intensidad del dolor, ca: Intensitat del dolor}
+  pain_cyclic:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.287
+    label: {en: Pain in bouts (cyclic), es: Dolor en brotes (cíclico), ca: Dolor en brots (cíclic)}
+  night_pain:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.29
+    label: {en: Night pain, es: Dolor nocturno, ca: Dolor nocturn}
+  relief_eating:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.226
+    label: {en: Pain relieved by eating, es: El dolor calma con la ingesta, ca: El dolor es calma amb la ingesta}
+  heartburn:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.689
+    label: {en: Heartburn, es: Pirosis, ca: Pirosi}
+  heartburn_intensity:
+    type: ordinal
+    levels: [mild, moderate, severe]
+    probs: [0.386, 0.375, 0.239]
+    only_if: heartburn == "yes"
+    otherwise: mild
+    label: {en: Heartburn intensity, es: Intensidad de la pirosis, ca: Intensitat de la pirosi}
+  heartburn_daily:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.327
+    only_if: heartburn == "yes"
+    otherwise: "no"
+    label: {en: Daily heartburn, es: Pirosis diaria, ca: Pirosi diària}
+  bowel:
+    type: binary
+    levels: [abnormal, normal]
+    p: 0.65
+    label: {en: Bowel habit, es: Ritmo deposicional, ca: Ritme deposicional}
+  prior_ulcer:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.134
+    label: {en: Previous ulcer, es: Úlcera previa, ca: Úlcera prèvia}
+  score:
+    type: continuous
+    formula: (age > 40) + 2 * (sex == "male") + (alcohol_heavy == "yes") + (smoking_heavy == "yes") + 2 * (nsaids == "yes") + 2 * (relief_eating == "yes") + (pain_cyclic == "yes") + 2 * (heartburn == "yes") + 2 * (heartburn_daily == "yes") + (heartburn_intensity != "mild") + (bowel == "normal") + 2 * (prior_ulcer == "yes")
+    round: 0
+    units: {en: points, es: puntos, ca: punts}
+    label: {en: Diagnostic score (sum of weights), es: Puntuación diagnóstica (suma de pesos), ca: Puntuació diagnòstica (suma de pesos)}
+
+correlations:
+  - [sex, smoking_heavy, 0.57]
+  - [sex, alcohol_heavy, 0.70]
+  - [smoking_heavy, alcohol_heavy, 0.54]
+  - [age, overweight, 0.48]
+  - [age, smoking_heavy, -0.31]
+  - [age, nsaids, 0.32]
+  - [sex, bowel, 0.41]
+  - [sex, prior_ulcer, 0.28]
+  - [discomfort, night_pain, 0.60]
+  - [discomfort, relief_eating, 0.60]
+  - [discomfort, pain_cyclic, 0.50]
+  - [pain_cyclic, relief_eating, 0.54]
+  - [pain_cyclic, prior_ulcer, 0.37]
+  - [night_pain, relief_eating, 0.36]
+  - [pain_cyclic, heartburn, -0.26]
+
+outcomes:
+  organic:
+    type: binary
+    label: {en: Organic cause at endoscopy (oesophagitis or peptic ulcer), es: Causa orgánica en la endoscopia (esofagitis o úlcera péptica), ca: Causa orgànica a l'endoscòpia (esofagitis o úlcera pèptica)}
+    levels: ["no", "yes"]
+    prevalence: 0.441
+    designs: [cross_sectional, diagnostic, case_control]
+    effects:
+      age: {OR: 1.21, per: 10}
+      sex: {OR: 2.77}
+      smoking_heavy: {OR: 1.8}
+      alcohol_heavy: {OR: 2.05}
+      nsaids: {OR: 3.3}
+      discomfort: {OR: 0.52}
+      pain_cyclic: {OR: 1.47}
+      relief_eating: {OR: 3.46}
+      heartburn: {OR: 1.25}
+      heartburn_intensity: {OR: [1, 1.47, 2.27]}
+      heartburn_daily: {OR: 2.44}
+      bowel: {OR: 1.75}
+      prior_ulcer: {OR: 2.65}
+
+null_variables: [overweight, pain_intensity, night_pain, score]
+
+i18n:
+  en:
+    names: {smoking_heavy: smoking_heavy, alcohol_heavy: alcohol_heavy, nsaids: nsaids, overweight: overweight, discomfort: discomfort, pain_intensity: pain_intensity, pain_cyclic: pain_cyclic, night_pain: night_pain, relief_eating: relief_eating, heartburn: heartburn, heartburn_intensity: heartburn_intensity, heartburn_daily: heartburn_daily, bowel: bowel, prior_ulcer: prior_ulcer, score: score, organic: organic}
+    levels: {mild: mild, moderate: moderate, severe: severe, abnormal: abnormal, normal: normal}
+  es:
+    names: {smoking_heavy: tabaco_10, alcohol_heavy: alcohol_30, nsaids: aine, overweight: sobrepeso, discomfort: malestar, pain_intensity: intensidad_dolor, pain_cyclic: dolor_ciclico, night_pain: dolor_nocturno, relief_eating: calma_ingesta, heartburn: pirosis, heartburn_intensity: intensidad_pirosis, heartburn_daily: pirosis_diaria, bowel: deposiciones, prior_ulcer: ulcera_previa, score: puntuacion, organic: organica}
+    levels: {mild: leve, moderate: moderada, severe: intensa, abnormal: anormal, normal: normal}
+  ca:
+    names: {smoking_heavy: tabac_10, alcohol_heavy: alcohol_30, nsaids: aine, overweight: sobrepes, discomfort: malestar, pain_intensity: intensitat_dolor, pain_cyclic: dolor_ciclic, night_pain: dolor_nocturn, relief_eating: calma_ingesta, heartburn: pirosi, heartburn_intensity: intensitat_pirosi, heartburn_daily: pirosi_diaria, bowel: deposicions, prior_ulcer: ulcera_previa, score: puntuacio, organic: organica}
+    levels: {mild: lleu, moderate: moderada, severe: intensa, abnormal: anormal, normal: normal}
+
+references:
+  - "Data: dyspepsia and endoscopy, teaching dataset (492 patients; V Moreno, 2007)."
+
+teaching:
+  en: >
+    Endoscopy finds an organic cause (oesophagitis or ulcer) in 44% of the
+    patients. Male sex, anti-inflammatory drugs, pain relieved by eating,
+    daily or intense heartburn and a previous ulcer point to it; a simple sum of
+    integer weights reaches an AUC near 0.8, almost as good as the logistic
+    model it comes from. Choose a cut-off of the score that would spare
+    endoscopies, and see how many organic cases it misses. The intensity of a
+    symptom only exists when the symptom does: in the original file it was
+    recorded as "mild" for patients without it, a structural value that blurs
+    the comparison. The original file also had a column "functional" that was
+    a copy of the diagnosis: a predictor that contains the outcome makes a
+    perfect, useless model.
+  es: >
+    La endoscopia encuentra una causa orgánica (esofagitis o úlcera) en el 44%
+    de los pacientes. El sexo masculino, los antiinflamatorios, el dolor que
+    calma con la ingesta, la pirosis diaria o intensa y una úlcera previa la
+    sugieren; una simple suma de pesos enteros alcanza un AUC cercano a 0,8,
+    casi tan bueno como el modelo logístico del que sale. Elegid un punto de
+    corte de la puntuación que ahorre endoscopias y ved cuántos casos orgánicos
+    se pierden. La intensidad de un síntoma solo existe cuando hay síntoma: en el
+    fichero original se registró como "leve" para quien no lo tenía, un valor
+    estructural que enturbia la comparación. El fichero original tenía además
+    una columna "functional" que era una copia del diagnóstico: un predictor que
+    contiene la respuesta da un modelo perfecto e inútil.
+  ca: >
+    L'endoscòpia troba una causa orgànica (esofagitis o úlcera) en el 44% dels
+    pacients. El sexe masculí, els antiinflamatoris, el dolor que es calma amb
+    la ingesta, la pirosi diària o intensa i una úlcera prèvia la suggereixen;
+    una simple suma de pesos enters arriba a un AUC proper a 0,8, gairebé tan bo
+    com el model logístic del qual surt. Trieu un punt de tall de la puntuació
+    que estalviï endoscòpies i mireu quants casos orgànics es perden. La
+    intensitat d'un símptoma només existeix quan hi ha símptoma: al fitxer
+    original es va registrar com a "lleu" per a qui no el tenia, un valor
+    estructural que enterboleix la comparació. El fitxer original tenia a més
+    una columna "functional" que era una còpia del diagnòstic: un predictor que
+    conté la resposta dona un model perfecte i inútil.
