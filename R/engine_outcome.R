@@ -109,13 +109,7 @@ after_event_times <- function(sc, oc, cal, cov, nz, nzx, trt = NULL) {
 draw_outcome <- function(oc, cal, lp, noise) {
     switch(oc$type,
         binary = as.integer(noise$u < stats::plogis(cal$a + lp)),
-        continuous = {
-            y <- cal$a + lp + oc$sd * noise$z
-            if (isTRUE(oc$log)) y <- exp(y)
-            if (!is.null(oc$range)) y <- pmin(pmax(y, oc$range[1]), oc$range[2])
-            if (!is.null(oc$round)) y <- round(y, oc$round)
-            y
-        },
+        continuous = finish_continuous(cal$a + lp + oc$sd * noise$z, oc, cal$a + lp),
         count = {
             mu <- exp(cal$a + lp)
             if (is.null(oc$size)) stats::qpois(noise$u, mu) else stats::qnbinom(noise$u, size = oc$size, mu = mu)

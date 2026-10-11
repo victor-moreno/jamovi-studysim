@@ -355,11 +355,8 @@ sim_crossover <- function(sc, oc, cal, seed, n, opt) {
     rows <- lapply(1:2, function(p) {
         t <- if (p == 1) sq else 3L - sq
         lp <- linear_predictor(oc, pop$cov, stats::setNames(list(t), iv$id))
-        y <- cal$a + lp + oc$sd * (sqrt(rho) * pop$noise$z + sqrt(1 - rho) * zp[, p]) +
-            (p == 2) * opt$period + (p == 2 & sq == 2) * opt$carryover
-        if (isTRUE(oc$log)) y <- exp(y)
-        if (!is.null(oc$range)) y <- pmin(pmax(y, oc$range[1]), oc$range[2])
-        if (!is.null(oc$round)) y <- round(y, oc$round)
+        mu <- cal$a + lp + (p == 2) * opt$period + (p == 2 & sq == 2) * opt$carryover
+        y <- finish_continuous(mu + oc$sd * (sqrt(rho) * pop$noise$z + sqrt(1 - rho) * zp[, p]), oc, mu)
         d <- pop$cov
         d$.seq <- sq; d$.period <- p; d[[paste0(".", iv$id)]] <- t; d$.y <- y
         d$.row <- seq_len(n)
@@ -372,9 +369,17 @@ sim_crossover <- function(sc, oc, cal, seed, n, opt) {
     list(data = d, facts = list(sequences = tabulate(sq, 2), within_cor = rho))
 }
 
-# a continuous outcome's value from its linear predictor and noise (log
-# scale, range, rounding), as draw_outcome() does
-finish_continuous <- function(y, oc) {
+# A continuous outcome's value from y = mu + sd * z on the generation scale
+# (log scale, range, rounding). With a range and its mean mu, the value is
+# drawn from the normal truncated to the range by z's own quantile (the rank
+# of the person's noise is kept), so values do not pile up at the bounds.
+finish_continuous <- function(y, oc, mu = NULL) {
+    if (!is.null(oc$range) && !is.null(mu)) {
+        tf <- function(b) if (isTRUE(oc$log)) log(pmax(b, 0)) else b
+        lo <- stats::pnorm((tf(oc$range[1]) - mu) / oc$sd); hi <- stats::pnorm((tf(oc$range[2]) - mu) / oc$sd)
+        u <- stats::pnorm((y - mu) / oc$sd)
+        y <- ifelse(hi - lo > 1e-12, mu + oc$sd * stats::qnorm(lo + u * (hi - lo)), y)
+    }
     if (isTRUE(oc$log)) y <- exp(y)
     if (!is.null(oc$range)) y <- pmin(pmax(y, oc$range[1]), oc$range[2])
     if (!is.null(oc$round)) y <- round(y, oc$round)
@@ -405,8 +410,8 @@ sim_longitudinal <- function(sc, oc, cal, seed, n, opt) {
     prof <- opt$profile
     mult <- if (length(prof)) stats::approx(c(0, seq_along(prof) / length(prof)), c(0, prof), xout = (0:K) / K)$y else (0:K) / K
     trend <- opt$trend %||% 0
-    Y <- sapply(0:K, function(j) cal$a + lp0 + tr * mult[j + 1] + trend * (j / K - 1) +
-                                 oc$sd * (sqrt(rho) * pop$noise$z + sqrt(1 - rho) * e[, j + 1]))
+    M <- sapply(0:K, function(j) cal$a + lp0 + tr * mult[j + 1] + trend * (j / K - 1))
+    Y <- M + sapply(0:K, function(j) oc$sd * (sqrt(rho) * pop$noise$z + sqrt(1 - rho) * e[, j + 1]))
     # dropout after visit j (0..K-1), driven by the value seen at visit j
     U <- with_seed(derive_seed(seed, sc$id, oc$id, "dropout", n, K), matrix(stats::runif(n * K), n))
     Z <- scale(Y[, 1:K, drop = FALSE])
@@ -422,7 +427,7 @@ sim_longitudinal <- function(sc, oc, cal, seed, n, opt) {
         keep <- lastv >= j
         d <- pop$cov[keep, , drop = FALSE]
         d[[paste0(".", iv$id)]] <- arm[keep]
-        d$.visit <- j; d$.y <- finish_continuous(Y[keep, j + 1], oc); d$.row <- which(keep)
+        d$.visit <- j; d$.y <- finish_continuous(Y[keep, j + 1], oc, M[keep, j + 1]); d$.row <- which(keep)
         d
     })
     d <- do.call(rbind, rows)
@@ -572,9 +577,11 @@ sim_pre_post <- function(sc, oc, cal, seed, n, opt) {
         lp0 <- linear_predictor(oc, ch$cov)
         tr <- linear_predictor(oc, ch$cov, stats::setNames(list(rep(length(iv$levels), CHUNK)), iv$id)) - lp0
         e <- with_seed(derive_seed(seed, sc$id, oc$id, "prepost", k), matrix(stats::rnorm(2 * CHUNK), CHUNK))
-        y0 <- cal$a + lp0 + oc$sd * (sqrt(rho) * ch$noise$z + sqrt(1 - rho) * e[, 1])
-        y1 <- cal$a + lp0 + tr + (opt$trend %||% 0) + oc$sd * (sqrt(rho) * ch$noise$z + sqrt(1 - rho) * e[, 2])
-        d <- ch$cov; d$.y0 <- y0; d$.y <- y1; d
+        d <- ch$cov
+        d$.m0 <- cal$a + lp0; d$.m1 <- cal$a + lp0 + tr + (opt$trend %||% 0)
+        d$.y0 <- d$.m0 + oc$sd * (sqrt(rho) * ch$noise$z + sqrt(1 - rho) * e[, 1])
+        d$.y <- d$.m1 + oc$sd * (sqrt(rho) * ch$noise$z + sqrt(1 - rho) * e[, 2])
+        d
     }
     th <- opt$threshold %||% 0
     cut <- if (th > 0) stats::quantile(draw(1)$.y0, th / 100, names = FALSE) else -Inf
@@ -586,7 +593,8 @@ sim_pre_post <- function(sc, oc, cal, seed, n, opt) {
         parts[[k]] <- d; have <- have + nrow(d)
     }
     d <- do.call(rbind, parts)[seq_len(n), , drop = FALSE]
-    d$.y0 <- finish_continuous(d$.y0, oc); d$.y <- finish_continuous(d$.y, oc)
+    d$.y0 <- finish_continuous(d$.y0, oc, d$.m0); d$.y <- finish_continuous(d$.y, oc, d$.m1)
+    d$.m0 <- d$.m1 <- NULL
     rownames(d) <- NULL   # everybody treated: no treatment column
     list(data = d, facts = list(screened = if (th > 0) k * CHUNK else NULL, threshold = if (th > 0) th else NULL))
 }

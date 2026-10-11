@@ -112,7 +112,7 @@ warns when a center lies outside the variable's values.
 |---|---|---|---|
 | `binary` | `prevalence` | `OR` (logistic) | logistic regression |
 | `event` | `rate`, `risk` or `median`; `shape` | `HR` (proportional hazards; `OR`/`RR` read as HR) | Cox (cohort), logistic (case-control) |
-| `continuous` | `mean`, `sd` (residual), `within_cor` (crossover), `round`, `range` | `beta` (difference per unit) | linear regression |
+| `continuous` | `mean`, `sd` (residual), `within_cor` (crossover), `round`, `range` (truncation, exact) | `beta` (difference per unit) | linear regression |
 | `continuous` with `scale: log` | `mean` = geometric mean, `sd` of log values | `ratio` | linear regression on logs |
 | `count` | `mean`, optional `size` (negative binomial) | `RR` | Poisson regression |
 

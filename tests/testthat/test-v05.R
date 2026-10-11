@@ -38,3 +38,14 @@ test_that("the modifier's expected effect says where it holds", {
   expect_match(ex$note[ex$variable == "menopause"], "at bmi = 26.6")
   expect_lt(abs(log(ex$adjusted[ex$variable == "menopause"])), 0.2)
 })
+
+test_that("a continuous outcome with a range is truncated, not piled at the bounds", {
+  raw <- list(id = "trunc", variables = list(x = list(type = "continuous", dist = "normal(0, 1)")),
+              outcomes = list(y = list(type = "continuous", mean = 95, sd = 10, range = c(0, 100),
+                                       effects = list(x = list(beta = 2)))))
+  sc <- normalize_scenario(raw)
+  y <- simulate_study(sc, "y", "cross_sectional", 3000, key = FALSE)$data_raw$y
+  expect_lt(mean(y >= 100), 0.002)
+  expect_true(all(y >= 0 & y <= 100))
+  expect_gt(stats::cor(y, simulate_study(sc, "y", "cross_sectional", 3000, key = FALSE)$data_raw$x), 0.1)
+})
