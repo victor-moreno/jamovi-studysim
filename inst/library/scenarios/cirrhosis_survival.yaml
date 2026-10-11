@@ -1,0 +1,162 @@
+id: cirrhosis_survival
+label: {en: Survival in liver cirrhosis (Child-Pugh score), es: Supervivencia en la cirrosis hepática (puntuación de Child-Pugh), ca: Supervivència en la cirrosi hepàtica (puntuació de Child-Pugh)}
+domain: gastroenterology
+population:
+  en: Patients with liver cirrhosis followed from evaluation (a hospital series of 105 patients)
+  es: Pacientes con cirrosis hepática seguidos desde la evaluación (una serie hospitalaria de 105 pacientes)
+  ca: Pacients amb cirrosi hepàtica seguits des de l'avaluació (una sèrie hospitalària de 105 pacients)
+
+# Estimated with studysim Derive from a teaching dataset (105 patients, 68
+# deaths, follow-up up to 4.7 years; zeros in five laboratory columns meant
+# "not measured"). Effects: Cox model of Child-Pugh, age, creatinine, hepatitis
+# C and sodium, log hazard ratios shrunk by the heuristic factor 0.75.
+variables:
+  age: {from: dictionary, dist: "normal(58.5, 11)", range: [28, 80]}
+  sex: {from: dictionary, p: 0.657}
+  alcohol:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.72
+    label: {en: Alcoholic aetiology, es: Etiología alcohólica, ca: Etiologia alcohòlica}
+  hbv:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.11
+    label: {en: Hepatitis B (HBsAg), es: Hepatitis B (HBsAg), ca: Hepatitis B (HBsAg)}
+  hcv:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.56
+    label: {en: Hepatitis C, es: Hepatitis C, ca: Hepatitis C}
+  bilirubin:
+    type: continuous
+    dist: lognormal(3.9, 4.2)
+    range: [0.3, 26]
+    round: 1
+    units: mg/dL
+    label: {en: Total bilirubin, es: Bilirrubina total, ca: Bilirubina total}
+  albumin:
+    type: continuous
+    dist: normal(2.95, 0.68)
+    range: [1.4, 4.6]
+    round: 1
+    units: g/dL
+    label: {en: Albumin, es: Albúmina, ca: Albúmina}
+  pugh:
+    type: continuous
+    dist: uniform(5, 14)
+    range: [5, 15]
+    round: 0
+    units: {en: points, es: puntos, ca: punts}
+    label: {en: "Child-Pugh score (5-15; ascites, encephalopathy, albumin, bilirubin, prothrombin)", es: "Puntuación de Child-Pugh (5-15; ascitis, encefalopatía, albúmina, bilirrubina, protrombina)", ca: "Puntuació de Child-Pugh (5-15; ascites, encefalopatia, albúmina, bilirubina, protrombina)"}
+  creatinine:
+    type: continuous
+    dist: lognormal(1.0, 0.6)
+    range: [0.3, 5.1]
+    round: 1
+    units: mg/dL
+    label: {en: Creatinine, es: Creatinina, ca: Creatinina}
+  sodium:
+    type: continuous
+    dist: normal(135.2, 6.1)
+    range: [109, 150]
+    round: 0
+    units: mmol/L
+    label: {en: Serum sodium, es: Sodio sérico, ca: Sodi sèric}
+  hb:
+    type: continuous
+    dist: normal(11.6, 2.5)
+    range: [4.9, 16.7]
+    round: 1
+    units: g/dL
+    label: {en: Haemoglobin, es: Hemoglobina, ca: Hemoglobina}
+
+structure:
+  # the score is built from bilirubin and albumin (and three other items)
+  - [bilirubin, pugh, 0.50]
+  - [albumin, pugh, -0.45]
+  - [albumin, sodium, 0.40]
+  - [pugh, sodium, -0.15]
+  - [age, bilirubin, -0.35]
+  - [bilirubin, albumin, -0.36]
+  - [hbv, pugh, 0.25]
+  - [hcv, bilirubin, 0.29]
+  - [alcohol, bilirubin, 0.27]
+  - [age, creatinine, 0.20]
+  - [albumin, hb, 0.20]
+  - [creatinine, hb, -0.23]
+
+correlations:
+  - [sex, alcohol, -0.36]
+  - [alcohol, hcv, -0.34]
+  - [sex, hbv, -0.50]
+  - [age, alcohol, -0.25]
+  - [age, hbv, -0.38]
+
+outcomes:
+  death:
+    type: event
+    label: {en: Death, es: Muerte, ca: Mort}
+    risk: {value: 0.65, at: 3}
+    shape: 0.79
+    followup: 4
+    window: 4
+    levels: ["no", "yes"]
+    designs: [prognosis, cohort]
+    effects:
+      pugh: {HR: 1.13, per: 1}
+      age: {HR: 1.15, per: 10}
+      creatinine: {HR: 1.58, per: 1}
+      hcv: {HR: 1.68}
+      sodium: {HR: 0.91, per: 5}
+
+null_variables: [sex, alcohol, hbv, bilirubin, albumin, hb]
+
+designs:
+  prognosis: {accrual: 2, followup: 3, loss: 0.02}
+
+i18n:
+  en:
+    names: {alcohol: alcohol, hbv: hbv, hcv: hcv, bilirubin: bilirubin, albumin: albumin, pugh: pugh, creatinine: creatinine, sodium: sodium, hb: hb, death: death}
+  es:
+    names: {alcohol: alcohol, hbv: vhb, hcv: vhc, bilirubin: bilirrubina, albumin: albumina, pugh: pugh, creatinine: creatinina, sodium: sodio, hb: hb, death: muerte}
+  ca:
+    names: {alcohol: alcohol, hbv: vhb, hcv: vhc, bilirubin: bilirubina, albumin: albumina, pugh: pugh, creatinine: creatinina, sodium: sodi, hb: hb, death: mort}
+
+references:
+  - "Data: cirrhosis survival teaching dataset (105 patients; V Moreno, practical on survival analysis, 1999)."
+  - "Pugh RN, Murray-Lyon IM, Dawson JL, Pietroni MC, Williams R. Transection of the oesophagus for bleeding oesophageal varices. Br J Surg 1973;60:646-9."
+
+teaching:
+  en: >
+    Two thirds of the patients die within three years. The Child-Pugh score
+    sums ascites, encephalopathy, albumin, bilirubin and prothrombin, so
+    bilirubin and albumin predict death strongly on their own but add nothing
+    once the score is in the model: they act through it (and adjusting for both
+    the score and its components splits one effect into collinear pieces).
+    Kidney function (creatinine) and hepatitis C add to the score; low sodium
+    goes with advanced disease. With about 70 deaths a model of 20 laboratory
+    values overfits badly: count events per variable, shrink, and validate.
+    The original data used 0 for tests not done.
+  es: >
+    Dos tercios de los pacientes mueren en tres años. La puntuación de
+    Child-Pugh suma ascitis, encefalopatía, albúmina, bilirrubina y protrombina,
+    así que la bilirrubina y la albúmina predicen la muerte por sí solas pero no
+    añaden nada cuando la puntuación está en el modelo: actúan a través de ella
+    (y ajustar a la vez por la puntuación y sus componentes reparte un efecto en
+    trozos colineales). La función renal (creatinina) y la hepatitis C se suman a
+    la puntuación; el sodio bajo acompaña a la enfermedad avanzada. Con unas 70
+    muertes, un modelo de 20 valores de laboratorio se sobreajusta mucho: contad
+    eventos por variable, encoged y validad. Los datos originales usaban 0 para
+    las pruebas no hechas.
+  ca: >
+    Dos terços dels pacients moren en tres anys. La puntuació de Child-Pugh
+    suma ascites, encefalopatia, albúmina, bilirubina i protrombina, de manera
+    que la bilirubina i l'albúmina prediuen la mort per si soles però no hi
+    afegeixen res quan la puntuació és al model: actuen a través d'ella (i
+    ajustar alhora per la puntuació i els seus components reparteix un efecte en
+    trossos col·lineals). La funció renal (creatinina) i l'hepatitis C se sumen a
+    la puntuació; el sodi baix acompanya la malaltia avançada. Amb unes 70 morts,
+    un model de 20 valors de laboratori se sobreajusta molt: compteu
+    esdeveniments per variable, encongiu i valideu. Les dades originals feien
+    servir 0 per a les proves no fetes.
