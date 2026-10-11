@@ -101,11 +101,18 @@ outcomes:
       fgfr2: {HR: 1.26, model: additive}         # genotype: additive, dominant or recessive
 ```
 
+A numeric effect modified by another variable (`by:`) acts on `x - center`:
+the modifier's own effect (none, unless it has an effect of its own) holds at
+`x = center`. The default `center` is the population mean of x, so an
+unmodified-looking modifier does not pick up a large effect at x = 0; write
+`center: 0` when 0 is a meaningful value (never used, no births). The check
+warns when a center lies outside the variable's values.
+
 | type | target | effects | analysed with |
 |---|---|---|---|
 | `binary` | `prevalence` | `OR` (logistic) | logistic regression |
 | `event` | `rate`, `risk` or `median`; `shape` | `HR` (proportional hazards; `OR`/`RR` read as HR) | Cox (cohort), logistic (case-control) |
-| `continuous` | `mean`, `sd` (residual), `within_cor` (crossover), `round`, `range` | `beta` (difference per unit) | linear regression |
+| `continuous` | `mean`, `sd` (residual), `within_cor` (crossover), `round`, `range` (truncation, exact) | `beta` (difference per unit) | linear regression |
 | `continuous` with `scale: log` | `mean` = geometric mean, `sd` of log values | `ratio` | linear regression on logs |
 | `count` | `mean`, optional `size` (negative binomial) | `RR` | Poisson regression |
 
@@ -195,12 +202,24 @@ outcomes fit cohort, prognosis and randomised trial designs.
         dist: lognormal(0.012, 0.012)
         auc: 0.90
         lod: 0.01                    # limit of detection (also for variables)
+      ca125:
+        dist: lognormal(15, 10)
+        auc: 0.80
+        cutoff: 35                   # test positive beyond it (default: Youden's point)
+        severity_sd: 1               # the diseased differ in how far it moves
+        depends: {age: 0.3}          # latent shift per SD of age, in everybody
 ```
 
 A marker is binormal: a latent N(0, 1) in the non-diseased, shifted by
 √2·Φ⁻¹(AUC) in the diseased, mapped to `dist` by its quantiles (which keeps the
 AUC). Markers depend on the disease only (conditionally independent of the
-other variables). A block has standard-normal values. The outcome's
+other variables) unless it `depends` on some of them; `auc` is then the AUC at
+fixed values of those variables, and the key gives the population AUC. With
+`severity_sd` the diseased differ in a severity shared by the markers, and the
+shift is widened so that `auc` stays the population AUC (a study of the most
+severe cases overstates it: spectrum bias). The key reports sensitivity,
+specificity and predictive values at `cutoff` (by default the latent midpoint
+between the groups, Youden's point). A block has standard-normal values. The outcome's
 `marker_cor` (default 0) correlates its single markers within disease groups
 (markers that measure related things).
 
@@ -237,6 +256,20 @@ factors with no effect), `designs` (default options per design, below),
 For example `matched_cc: {match: [age, sex], caliper: 2}`, `prognosis: {accrual: 4,
 followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`.
 
+## Locking the answer key
+
+```yaml
+lock: 2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b   # SHA-256 of the teacher code
+```
+
+A library with `lock:` (written by the Library analysis when a teacher code
+is typed before exporting) hides, while it is loaded, the answer key, its
+report, the class export, the effect sizes on the diagram, the true values of
+Compare designs and the effects in Library, until the same code is typed
+under *Teacher code*. It is a deterrent for a class, not protection: the
+library file itself holds the parameters. In Excel it is a row of a
+`settings` sheet (setting `lock`, value the hash).
+
 ## Excel sheets
 
 | sheet | one row per | columns |
@@ -246,8 +279,8 @@ followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`.
 | `interventions` | intervention | scenario, intervention, levels, ratio, label_* |
 | `outcomes` | outcome | scenario, outcome, type, scale, prevalence, rate, median, shape, mean, sd, within_cor, size, window, followup, round, time_units, risk, risk_at, levels, range, designs, units_*, label_*, description_* |
 | `structure` | edge | scenario, from, to, strength, kind (`path` or `correlation`) |
-| `effects` | effect | scenario, outcome, variable, measure, value, per, model, modifier, modifier_values (`pre: 0.93, post: 1.12`) |
-| `markers` | marker | scenario, outcome, marker, dist, round, auc, direction, block, informative, rho, range, units_*, label_* |
+| `effects` | effect | scenario, outcome, variable, measure, value, per, model, center, modifier, modifier_values (`pre: 0.93, post: 1.12`) |
+| `markers` | marker | scenario, outcome, marker, dist, round, auc, direction, block, informative, rho, lod, cutoff, severity_sd, depends (`age: 0.3`), range, units_*, label_* |
 | `designs` | design option | scenario, design, option, value |
 | `references` | reference | scenario, reference |
 
