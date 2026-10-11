@@ -1,0 +1,163 @@
+id: arrhythmia_ecg
+label: {en: Abnormal ECG from global ECG measurements (arrhythmia), es: ECG anormal a partir de medidas globales del ECG (arritmia), ca: ECG anormal a partir de mesures globals de l'ECG (arítmia)}
+domain: cardiovascular
+population:
+  en: Adults with a 12-lead ECG reviewed by a cardiologist (normal or one of 15 arrhythmia classes)
+  es: Adultos con un ECG de 12 derivaciones revisado por un cardiólogo (normal o una de 15 clases de arritmia)
+  ca: Adults amb un ECG de 12 derivacions revisat per un cardiòleg (normal o una de 15 classes d'arítmia)
+
+# From the UCI Arrhythmia database (452 records, 207 abnormal), the 15 global
+# measurements of its 279 attributes. Effects: logistic model of the global
+# measurements (AUC 0.73), lightly shrunk. The data have impossible values
+# (height 780 cm, weight 6 kg, age 0) and zeros for "not measured" in the PR
+# interval and P wave; marginals here are the plausible ones.
+variables:
+  age: {from: dictionary, dist: "normal(46.5, 16)", range: [18, 83]}
+  sex: {from: dictionary, p: 0.449}
+  height:
+    type: continuous
+    dist: normal(166, 9)
+    range: [140, 195]
+    round: 0
+    units: cm
+    label: {en: Height, es: Talla, ca: Talla}
+  weight:
+    type: continuous
+    dist: normal(68.2, 14)
+    range: [40, 140]
+    round: 0
+    units: kg
+    label: {en: Weight, es: Peso, ca: Pes}
+  heart_rate:
+    type: continuous
+    dist: lognormal(74.5, 13.9)
+    range: [44, 163]
+    round: 0
+    units: bpm
+    label: {en: Heart rate, es: Frecuencia cardíaca, ca: Freqüència cardíaca}
+  qrs:
+    type: continuous
+    dist: lognormal(88.9, 15.4)
+    range: [55, 188]
+    round: 0
+    units: ms
+    label: {en: QRS duration, es: Duración del QRS, ca: Durada del QRS}
+  p_wave:
+    type: continuous
+    dist: lognormal(92.5, 21.4)
+    range: [37, 205]
+    round: 0
+    units: ms
+    label: {en: P wave duration, es: Duración de la onda P, ca: Durada de l'ona P}
+  pr:
+    type: continuous
+    dist: lognormal(161.6, 32.4)
+    range: [100, 520]
+    round: 0
+    units: ms
+    label: {en: PR interval, es: Intervalo PR, ca: Interval PR}
+  qt:
+    type: continuous
+    dist: normal(367.2, 33.4)
+    range: [232, 509]
+    round: 0
+    units: ms
+    label: {en: QT interval, es: Intervalo QT, ca: Interval QT}
+  t_wave:
+    type: continuous
+    dist: lognormal(169.9, 35.6)
+    range: [108, 381]
+    round: 0
+    units: ms
+    label: {en: T wave duration, es: Duración de la onda T, ca: Durada de l'ona T}
+  qrs_axis:
+    type: continuous
+    dist: normal(33.7, 45.4)
+    range: [-172, 169]
+    round: 0
+    units: {en: degrees, es: grados, ca: graus}
+    label: {en: QRS axis, es: Eje del QRS, ca: Eix del QRS}
+  t_axis:
+    type: continuous
+    dist: normal(36.2, 57.9)
+    range: [-177, 179]
+    round: 0
+    units: {en: degrees, es: grados, ca: graus}
+    label: {en: T axis, es: Eje de la onda T, ca: Eix de l'ona T}
+
+structure:
+  - [sex, height, 0.60]
+  - [height, weight, 0.40]
+  - [age, weight, 0.35]
+  - [sex, qrs, 0.43]
+  - [qrs, t_wave, 0.40]
+  - [p_wave, pr, 0.68]
+  - [heart_rate, qt, -0.67]       # QT shortens as the heart beats faster
+  - [age, qt, 0.15]
+  - [qrs, qt, 0.20]
+  - [age, qrs_axis, -0.27]
+  - [weight, qrs_axis, -0.12]
+  - [sex, t_axis, 0.19]
+  - [age, heart_rate, -0.20]
+
+outcomes:
+  abnormal:
+    type: binary
+    label: {en: Abnormal ECG (any arrhythmia class), es: ECG anormal (cualquier clase de arritmia), ca: ECG anormal (qualsevol classe d'arítmia)}
+    levels: ["no", "yes"]
+    prevalence: 0.458
+    designs: [cross_sectional, case_control]
+    effects:
+      qrs: {OR: 1.8, per: 10}
+      heart_rate: {OR: 1.3, per: 10}
+      sex: {OR: 1.65}
+      p_wave: {OR: 0.86, per: 10}
+      pr: {OR: 1.18, per: 20}
+      t_wave: {OR: 1.15, per: 20}
+      weight: {OR: 0.82, per: 10}
+      age: {OR: 1.1, per: 10}
+
+null_variables: [height, qt, qrs_axis, t_axis]
+
+i18n:
+  en:
+    names: {height: height, weight: weight, heart_rate: heart_rate, qrs: qrs, p_wave: p_wave, pr: pr, qt: qt, t_wave: t_wave, qrs_axis: qrs_axis, t_axis: t_axis, abnormal: abnormal}
+  es:
+    names: {height: talla, weight: peso, heart_rate: frecuencia, qrs: qrs, p_wave: onda_p, pr: pr, qt: qt, t_wave: onda_t, qrs_axis: eje_qrs, t_axis: eje_t, abnormal: anormal}
+  ca:
+    names: {height: talla, weight: pes, heart_rate: frequencia, qrs: qrs, p_wave: ona_p, pr: pr, qt: qt, t_wave: ona_t, qrs_axis: eix_qrs, t_axis: eix_t, abnormal: anormal}
+
+references:
+  - "Data: Arrhythmia database, UCI Machine Learning Repository (Güvenir HA, Acar B, Demiröz G, Çekin A; 452 records)."
+  - "Güvenir HA, Acar B, Demiröz G, Çekin A. A supervised machine learning algorithm for arrhythmia analysis. Computers in Cardiology 1997;24:433-6."
+
+teaching:
+  en: >
+    Almost half of the ECGs are abnormal. A wide QRS (bundle branch blocks), a
+    fast or slow rate, and male sex point to an arrhythmia; the global
+    measurements alone reach an AUC near 0.75, and the 264 lead-by-lead
+    attributes of the original data add the rest. QT depends on heart rate:
+    adjust one for the other, or use a corrected QT. A good dataset to compare
+    a few clinical predictors with many automatic ones, and logistic regression
+    with penalised models. Clean before you analyse: the original file has a
+    height of 780 cm, a weight of 6 kg and zeros for intervals not measured.
+  es: >
+    Casi la mitad de los ECG son anormales. Un QRS ancho (bloqueos de rama),
+    una frecuencia rápida o lenta y el sexo masculino apuntan a una arritmia;
+    las medidas globales solas alcanzan un AUC cercano a 0,75, y los 264
+    atributos derivación a derivación de los datos originales añaden el resto.
+    El QT depende de la frecuencia cardíaca: ajustad uno por la otra o usad un
+    QT corregido. Un buen conjunto para comparar unos pocos predictores clínicos
+    con muchos automáticos, y la regresión logística con modelos penalizados.
+    Limpiad antes de analizar: el fichero original tiene una talla de 780 cm,
+    un peso de 6 kg y ceros para intervalos no medidos.
+  ca: >
+    Gairebé la meitat dels ECG són anormals. Un QRS ample (blocs de branca), una
+    freqüència ràpida o lenta i el sexe masculí apunten a una arítmia; les
+    mesures globals soles arriben a un AUC proper a 0,75, i els 264 atributs
+    derivació a derivació de les dades originals hi afegeixen la resta. El QT
+    depèn de la freqüència cardíaca: ajusteu l'un per l'altra o feu servir un QT
+    corregit. Un bon conjunt per comparar uns pocs predictors clínics amb molts
+    d'automàtics, i la regressió logística amb models penalitzats. Netegeu
+    abans d'analitzar: el fitxer original té una talla de 780 cm, un pes de 6 kg
+    i zeros per a intervals no mesurats.
