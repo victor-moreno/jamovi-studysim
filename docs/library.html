@@ -72,7 +72,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./scenarios.html" rel="next">
-<link href="./teaching.html" rel="prev">
+<link href="./analysis.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -338,6 +338,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analysing the data in jamovi</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./library.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">The scenario library</span></a>
   </div>
@@ -447,8 +453,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><strong>Variables</strong>: continuous (normal, log-normal, gamma, beta, uniform), counts (Poisson, negative binomial), binary, nominal, ordinal and genotypes.</li>
 <li><strong>Structure and correlations</strong> among variables, and <strong>rules</strong>: a probability that depends on other variables, structural values (<code>only_if</code>/<code>otherwise</code>) and formulas for derived variables.</li>
-<li><strong>Outcomes</strong>: binary (prevalence), events (rate, risk or median; Weibull shape), continuous (also on the log scale) and counts, each with conditional effects (OR, HR, RR, ratio, beta), effect modification (<code>by:</code>) and interventions for trials.</li>
+<li><strong>Outcomes</strong>: binary (prevalence), events (rate, risk or median; Weibull shape), continuous (also on the log scale) and counts, each with conditional effects (OR, HR, RR, ratio, beta), effect modification (<code>by:</code>, centred at the population mean of the variable unless <code>center:</code> says otherwise) and interventions for trials; diagnostic markers with an AUC, a <code>cutoff</code>, a dependence on covariates (<code>depends:</code>) or on disease severity (<code>severity_sd</code>).</li>
 <li><strong>Translations</strong>: labels in several languages, and an <code>i18n:</code> section with the column names and category labels students see.</li>
+<li><strong>A lock</strong>: typed in <em>Teacher code</em> before exporting, it locks the exported library; while it is loaded, the answer key, the true values and the effects need the same code (a deterrent: the file itself holds the parameters).</li>
 </ul>
 
 
@@ -870,8 +877,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./teaching.html" class="pagination-link" aria-label="Teaching with studysim">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Teaching with studysim</span>
+      <a href="./analysis.html" class="pagination-link" aria-label="Analysing the data in jamovi">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Analysing the data in jamovi</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

@@ -302,6 +302,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analysing the data in jamovi</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./library.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The scenario library</span></a>
   </div>
@@ -376,6 +382,7 @@ ul.task-list li input[type="checkbox"] {
 <li>binary: logistic model; events: Weibull proportional hazards (inverse transform); continuous: linear (optionally on the log scale); counts: Poisson or negative binomial.</li>
 <li>The intercept, or the baseline hazard, is <strong>calibrated</strong> on 100 000 simulated people so the population has the scenario’s prevalence, rate, risk at a time, median or mean.</li>
 <li>Each person has their own outcome noise, shared by their treated and untreated versions, so trials compare potential outcomes of the same people.</li>
+<li>A numeric effect modified by another variable (<code>by:</code>) acts on its distance to a <code>center</code> (the population mean by default), so the modifier has no implied effect of its own; a continuous outcome with a range is drawn from the truncated distribution.</li>
 </ul>
 </section>
 <section id="designs" class="level2">
@@ -422,7 +429,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td>diagnostic accuracy</td>
-<td>a cross-sectional sample with markers whose AUC is set (binormal), optionally in assay batches</td>
+<td>a cross-sectional sample with markers whose AUC is set (binormal), possibly depending on covariates or on disease severity, optionally in assay batches, with spectrum or partial verification bias</td>
 </tr>
 <tr class="odd">
 <td>method comparison</td>
@@ -457,7 +464,9 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-answer-key" class="level2">
 <h2 class="anchored" data-anchor-id="the-answer-key">The answer key</h2>
-<p>The <em>true model</em> lists the effects used. The <em>expected estimates</em> come from one large study of the same design (40 000 rows, more for a rare outcome so that it has about 5000 events, up to 300 000; 1500–3000 cases for case-control designs; 200 regions for an ecological study), analysed with the model a student would fit: logistic, conditional logistic, Cox, linear (with subject effects in a crossover, a mixed model for a longitudinal trial) or Poisson; crude for each variable and adjusted for all measured ones. Being one simulated study, it has a Monte Carlo uncertainty, which a note under the table gives.</p>
+<p>The <em>true model</em> lists the direct effects used. The <strong>total effect</strong> of a variable that acts through others (its descendants in the structure and the rules) is the regression of the outcome on the variable and on every variable it does not cause, in a simulated population of 40 000 to 200 000 people: a valid adjustment set of the diagram, which leaves the mediators out. Where nothing the variable causes acts on the outcome, the total effect is the direct one.</p>
+<p>The <em>expected estimates</em> are the average of three large studies of the same design (one for matched case-control, whose matching is slow): 40 000 rows, more for a rare outcome so that each has about 5000 events, up to 300 000; 1500–3000 cases for case-control designs; 200 regions for an ecological study. Each is analysed with the model a student would fit: logistic, conditional logistic, Cox, linear (with subject effects in a crossover, a mixed model for a longitudinal trial) or Poisson; crude for each variable, adjusted for all measured ones, and adjusted for the measured variables each one does not cause (<em>Adjusted (DAG)</em>). Ratios are averaged on the log scale; the note under the table gives the Monte Carlo uncertainty of the average.</p>
+<p>Trials’ absolute effects come from the potential outcomes of 100 000 people under every arm; diagnostic accuracy at a cut-off is true in a clean population of 100 000 and expected in a large study with the same biases.</p>
 </section>
 <section id="source" class="level2">
 <h2 class="anchored" data-anchor-id="source">Source</h2>

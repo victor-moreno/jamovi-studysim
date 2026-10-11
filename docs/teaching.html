@@ -36,7 +36,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./library.html" rel="next">
+<link href="./analysis.html" rel="next">
 <link href="./simulated-study.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -303,6 +303,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analysing the data in jamovi</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./library.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The scenario library</span></a>
   </div>
@@ -339,6 +345,10 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#confounding-by-indication-chemotherapy" id="toc-confounding-by-indication-chemotherapy" class="nav-link" data-scroll-target="#confounding-by-indication-chemotherapy">Confounding by indication: chemotherapy</a></li>
   <li><a href="#odds-ratios-from-a-case-control-study" id="toc-odds-ratios-from-a-case-control-study" class="nav-link" data-scroll-target="#odds-ratios-from-a-case-control-study">Odds ratios from a case-control study</a></li>
   <li><a href="#effect-modification" id="toc-effect-modification" class="nav-link" data-scroll-target="#effect-modification">Effect modification</a></li>
+  <li><a href="#adjusting-for-everything-the-table-2-fallacy" id="toc-adjusting-for-everything-the-table-2-fallacy" class="nav-link" data-scroll-target="#adjusting-for-everything-the-table-2-fallacy">Adjusting for everything: the Table 2 fallacy</a></li>
+  <li><a href="#trials-absolute-effects-and-non-collapsibility" id="toc-trials-absolute-effects-and-non-collapsibility" class="nav-link" data-scroll-target="#trials-absolute-effects-and-non-collapsibility">Trials: absolute effects and non-collapsibility</a></li>
+  <li><a href="#biases-on-purpose" id="toc-biases-on-purpose" class="nav-link" data-scroll-target="#biases-on-purpose">Biases on purpose</a></li>
+  <li><a href="#chance-and-bias-replicate-studies" id="toc-chance-and-bias-replicate-studies" class="nav-link" data-scroll-target="#chance-and-bias-replicate-studies">Chance and bias: replicate studies</a></li>
   <li><a href="#categorising-a-continuous-variable" id="toc-categorising-a-continuous-variable" class="nav-link" data-scroll-target="#categorising-a-continuous-variable">Categorising a continuous variable</a></li>
   <li><a href="#trials-parallel-and-crossover" id="toc-trials-parallel-and-crossover" class="nav-link" data-scroll-target="#trials-parallel-and-crossover">Trials: parallel and crossover</a></li>
   <li><a href="#assignments-with-student-keys" id="toc-assignments-with-student-keys" class="nav-link" data-scroll-target="#assignments-with-student-keys">Assignments with student keys</a></li>
@@ -368,21 +378,34 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Each exercise below names the scenario and options, then what the students should find. The tables are the answer key’s <em>expected estimates</em> (one large simulated study), computed by the module itself when this page was built.</p>
+<p>Each exercise below names the scenario and options, then what the students should find. The tables are the answer key’s <em>expected estimates</em> (the average of large simulated studies), computed by the module itself when this page was built. <em>True</em> is the <strong>direct</strong> effect the data were generated with (every other variable fixed); where a variable also acts through others, the <strong>total</strong> effect follows, and <em>Adjusted (DAG)</em> adjusts each variable only for what it does not cause.</p>
 <section id="confounding-coffee-and-coronary-heart-disease" class="level2">
 <h2 class="anchored" data-anchor-id="confounding-coffee-and-coronary-heart-disease">Confounding: coffee and coronary heart disease</h2>
 <p><em>Coronary heart disease incidence</em>, cohort, measure age, sex, smoking and coffee. Coffee has no effect, but coffee drinkers smoke more: the crude hazard ratio of coffee is above 1 and disappears once smoking is in the model.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Variable</th>
 <th style="text-align: left;">Contrast</th>
 <th style="text-align: left;">True</th>
-<th style="text-align: right;"></th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">total</th>
 <th style="text-align: right;">Crude</th>
-<th style="text-align: right;">Adjusted</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: right;">Adjusted (DAG)</th>
 <th style="text-align: left;">Estimate</th>
 </tr>
 </thead>
@@ -394,6 +417,8 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">1.05</td>
 <td style="text-align: right;">1.07</td>
 <td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.07</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="even">
@@ -401,8 +426,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">male vs female</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.60</td>
-<td style="text-align: right;">1.75</td>
 <td style="text-align: right;">1.76</td>
+<td style="text-align: right;">1.77</td>
+<td style="text-align: right;">1.79</td>
+<td style="text-align: right;">1.79</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="odd">
@@ -410,8 +437,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">former vs never</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.20</td>
-<td style="text-align: right;">1.16</td>
-<td style="text-align: right;">1.15</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.21</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="even">
@@ -419,8 +448,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">current vs never</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.60</td>
-<td style="text-align: right;">1.74</td>
-<td style="text-align: right;">1.71</td>
+<td style="text-align: right;">1.81</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: right;">1.75</td>
+<td style="text-align: right;">1.78</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="odd">
@@ -428,8 +459,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">per 1 cups/day</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
 <td style="text-align: right;">1.08</td>
-<td style="text-align: right;">1.02</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">1.01</td>
 <td style="text-align: left;">HR</td>
 </tr>
 </tbody>
@@ -444,14 +477,27 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Variable</th>
 <th style="text-align: left;">Contrast</th>
 <th style="text-align: left;">True</th>
-<th style="text-align: right;"></th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">total</th>
 <th style="text-align: right;">Crude</th>
-<th style="text-align: right;">Adjusted</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: right;">Adjusted (DAG)</th>
 <th style="text-align: left;">Estimate</th>
 </tr>
 </thead>
@@ -460,6 +506,8 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">age</td>
 <td style="text-align: left;">per 1 years</td>
 <td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">1.03</td>
 <td style="text-align: right;">1.03</td>
 <td style="text-align: right;">1.03</td>
 <td style="text-align: right;">1.03</td>
@@ -470,8 +518,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">per 10 mm</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.15</td>
+<td style="text-align: right;">1.19</td>
+<td style="text-align: right;">1.16</td>
 <td style="text-align: right;">1.14</td>
-<td style="text-align: right;">1.13</td>
+<td style="text-align: right;">1.16</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="odd">
@@ -479,8 +529,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">per 1</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.08</td>
+<td style="text-align: right;">1.06</td>
 <td style="text-align: right;">1.08</td>
 <td style="text-align: right;">1.08</td>
+<td style="text-align: right;">1.06</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="even">
@@ -488,8 +540,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">G2 vs G1</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.50</td>
-<td style="text-align: right;">1.65</td>
-<td style="text-align: right;">1.73</td>
+<td style="text-align: right;">1.68</td>
+<td style="text-align: right;">1.56</td>
+<td style="text-align: right;">1.64</td>
+<td style="text-align: right;">1.56</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="odd">
@@ -497,8 +551,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">G3 vs G1</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">2.20</td>
-<td style="text-align: right;">2.55</td>
-<td style="text-align: right;">2.82</td>
+<td style="text-align: right;">2.75</td>
+<td style="text-align: right;">2.48</td>
+<td style="text-align: right;">2.77</td>
+<td style="text-align: right;">2.50</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="even">
@@ -506,8 +562,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">yes vs no</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">0.75</td>
-<td style="text-align: right;">1.07</td>
-<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">0.76</td>
 <td style="text-align: left;">HR</td>
 </tr>
 </tbody>
@@ -517,18 +575,31 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="odds-ratios-from-a-case-control-study" class="level2">
 <h2 class="anchored" data-anchor-id="odds-ratios-from-a-case-control-study">Odds ratios from a case-control study</h2>
-<p><em>Breast cancer risk factors</em>, case-control with two controls per case. The data are generated as a cohort with hazard ratios; the case-control odds ratios approach them because the disease is rare. Menopause is determined by age (a rule of the scenario), so much of its crude odds ratio is confounding by age. It does not fall to 1 after adjustment, though: the effect of BMI is given per level of menopause, so the menopause contrast in the <em>True</em> column (1.00) holds at a BMI of 0, and at usual BMI values post-menopausal women have a higher risk (see <em>Effect modification</em> below).</p>
+<p><em>Breast cancer risk factors</em>, case-control with two controls per case. The data are generated as a cohort with hazard ratios; the case-control odds ratios approach them because the disease is rare. Menopause is determined by age (a rule of the scenario), so much of its crude odds ratio is confounding by age. After adjustment it falls near 1, its direct effect. What remains above 1 is mediated: only post-menopausal women take hormone replacement therapy, which is not measured here, so menopause carries part of its effect (the <em>total</em> column). BMI’s effect, which differs before and after menopause, is centred at the population’s mean BMI, where menopause has no effect of its own.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Variable</th>
 <th style="text-align: left;">Contrast</th>
 <th style="text-align: left;">True</th>
-<th style="text-align: right;"></th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">total</th>
 <th style="text-align: right;">Crude</th>
-<th style="text-align: right;">Adjusted</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: right;">Adjusted (DAG)</th>
 <th style="text-align: left;">Estimate</th>
 </tr>
 </thead>
@@ -538,7 +609,9 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">per 1 years</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.04</td>
-<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">1.04</td>
 <td style="text-align: right;">1.04</td>
 <td style="text-align: left;">OR</td>
 </tr>
@@ -547,8 +620,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">post vs pre</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.00</td>
-<td style="text-align: right;">6.39</td>
-<td style="text-align: right;">3.06</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">2.33</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">1.08</td>
 <td style="text-align: left;">OR</td>
 </tr>
 <tr class="odd">
@@ -556,8 +631,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">per 1 births</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">0.93</td>
-<td style="text-align: right;">1.06</td>
-<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">0.93</td>
+<td style="text-align: right;">1.02</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.94</td>
 <td style="text-align: left;">OR</td>
 </tr>
 <tr class="even">
@@ -565,8 +642,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">yes vs no</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.80</td>
-<td style="text-align: right;">1.74</td>
-<td style="text-align: right;">1.77</td>
+<td style="text-align: right;">1.80</td>
+<td style="text-align: right;">1.73</td>
+<td style="text-align: right;">1.72</td>
+<td style="text-align: right;">1.72</td>
 <td style="text-align: left;">OR</td>
 </tr>
 <tr class="odd">
@@ -575,7 +654,9 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.07</td>
 <td style="text-align: right;">1.07</td>
-<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">1.08</td>
 <td style="text-align: left;">OR</td>
 </tr>
 </tbody>
@@ -588,20 +669,33 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="effect-modification">Effect modification</h2>
 <p>In the same scenario BMI protects before menopause and raises risk after it. A model without the interaction gives a single, misleading BMI effect; students should fit <code>bmi × menopause</code>. The answer key shows the true effect per level of menopause in its note.</p>
 </section>
-<section id="categorising-a-continuous-variable" class="level2">
-<h2 class="anchored" data-anchor-id="categorising-a-continuous-variable">Categorising a continuous variable</h2>
-<p>Systolic pressure in quartiles (<em>Form: quartiles</em>) gives a dose-response pattern but loses information: compare the precision of the per-10-mmHg estimate with the quartile contrasts, and the effect of choosing other cut points.</p>
+<section id="adjusting-for-everything-the-table-2-fallacy" class="level2">
+<h2 class="anchored" data-anchor-id="adjusting-for-everything-the-table-2-fallacy">Adjusting for everything: the Table 2 fallacy</h2>
+<p><em>Coronary heart disease incidence</em>, cohort, all variables measured. Age, sex and education act partly through blood pressure, cholesterol, BMI, diabetes and HDL. A model with every variable gives their <strong>direct</strong> effects: education seems to do nothing, and the effect of sex shrinks. Adjusting each exposure only for its confounders (<em>Adjusted (DAG)</em>) gives the <strong>total</strong> effect, the one that answers “what if this changed?”. A single mutually adjusted table (the “Table 2” of many papers) mixes both kinds.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 21%">
+<col style="width: 4%">
+<col style="width: 6%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 8%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Variable</th>
 <th style="text-align: left;">Contrast</th>
 <th style="text-align: left;">True</th>
-<th style="text-align: right;"></th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">total</th>
 <th style="text-align: right;">Crude</th>
-<th style="text-align: right;">Adjusted</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: right;">Adjusted (DAG)</th>
 <th style="text-align: left;">Estimate</th>
 </tr>
 </thead>
@@ -612,7 +706,9 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.05</td>
 <td style="text-align: right;">1.07</td>
-<td style="text-align: right;">1.06</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.07</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="even">
@@ -620,8 +716,408 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">male vs female</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">1.60</td>
-<td style="text-align: right;">1.75</td>
+<td style="text-align: right;">1.76</td>
 <td style="text-align: right;">1.77</td>
+<td style="text-align: right;">1.61</td>
+<td style="text-align: right;">1.81</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education</td>
+<td style="text-align: left;">secondary vs primary</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">education</td>
+<td style="text-align: left;">university vs primary</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.89</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">0.88</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">total_chol</td>
+<td style="text-align: left;">per 1 mmol/L</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.31</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">smoking</td>
+<td style="text-align: left;">former vs never</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">smoking</td>
+<td style="text-align: left;">current vs never</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.60</td>
+<td style="text-align: right;">1.81</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: right;">1.60</td>
+<td style="text-align: right;">1.79</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">physical_activity</td>
+<td style="text-align: left;">per 1 MET-h/week</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cigarettes</td>
+<td style="text-align: left;">per 1 cigarettes/day</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">1.02</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">coffee</td>
+<td style="text-align: left;">per 1 cups/day</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bmi</td>
+<td style="text-align: left;">per 1 kg/m2</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.02</td>
+<td style="text-align: right;">1.06</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.02</td>
+<td style="text-align: right;">1.06</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sbp</td>
+<td style="text-align: left;">per 10 mmHg</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">hdl</td>
+<td style="text-align: left;">per 1 mmol/L</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">0.41</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">diabetes</td>
+<td style="text-align: left;">yes vs no</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.80</td>
+<td style="text-align: right;">1.80</td>
+<td style="text-align: right;">2.94</td>
+<td style="text-align: right;">1.88</td>
+<td style="text-align: right;">1.88</td>
+<td style="text-align: left;">HR</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="trials-absolute-effects-and-non-collapsibility" class="level2">
+<h2 class="anchored" data-anchor-id="trials-absolute-effects-and-non-collapsibility">Trials: absolute effects and non-collapsibility</h2>
+<p><em>Indomethacin after ERCP</em>, randomised trial. The key gives the risk in each arm, the risk difference and the number needed to treat. The odds ratio of the 2×2 table (the marginal one) is closer to 1 than the conditional odds ratio the data were generated with, although randomisation leaves no confounding: adjusting for prognostic variables moves it towards the conditional one.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 89%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Risk: placebo</td>
+<td style="text-align: right;">0.1700</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Risk: indomethacin</td>
+<td style="text-align: right;">0.0896</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Risk difference, indomethacin vs placebo</td>
+<td style="text-align: right;">-0.0806</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number needed to treat for one event fewer, indomethacin vs placebo</td>
+<td style="text-align: right;">12.4000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Risk ratio, indomethacin vs placebo</td>
+<td style="text-align: right;">0.5260</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Odds ratio, marginal (population), indomethacin vs placebo</td>
+<td style="text-align: right;">0.4800</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Odds ratio, conditional (true model), indomethacin vs placebo</td>
+<td style="text-align: right;">0.4700</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="biases-on-purpose" class="level2">
+<h2 class="anchored" data-anchor-id="biases-on-purpose">Biases on purpose</h2>
+<p>The <em>Biases</em> section of the panel builds a bias into the study; the answer key’s large study carries the same bias, so it shows what the biased design estimates next to the truth. Recall bias, controls selected by exposure and the collider act on the variables ticked in the <em>Exposure</em> column.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>bias</th>
+<th>design</th>
+<th>what students should see</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Recall bias</td>
+<td>case-control</td>
+<td>unexposed cases report the exposure: its odds ratio inflated</td>
+</tr>
+<tr class="even">
+<td>Controls selected by exposure</td>
+<td>case-control</td>
+<td>hospital controls with more exposure: its odds ratio towards 1</td>
+</tr>
+<tr class="odd">
+<td>Collider (<code>admitted</code>)</td>
+<td>cross-sectional, cohort, case-control</td>
+<td>adjusting for a variable caused by the outcome and the exposure distorts the exposure’s effect</td>
+</tr>
+<tr class="even">
+<td>Non-adherence</td>
+<td>randomised trial</td>
+<td>intention to treat dilutes the effect; as treated and per protocol are confounded by prognosis</td>
+</tr>
+<tr class="odd">
+<td>Informative loss to follow-up</td>
+<td>followed designs</td>
+<td>Kaplan-Meier underestimates the risk; hazard ratios shift</td>
+</tr>
+<tr class="even">
+<td>Immortal time</td>
+<td>cohort, prognosis</td>
+<td>a useless treatment started during follow-up looks protective when analysed at baseline</td>
+</tr>
+<tr class="odd">
+<td>Spectrum, partial verification</td>
+<td>diagnostic</td>
+<td>sensitivity and AUC too high with severe cases; with only some negatives verified, sensitivity too high and specificity too low</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 18%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Contrast</th>
+<th style="text-align: left;">True</th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">total</th>
+<th style="text-align: right;">Crude</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: right;">Adjusted (DAG)</th>
+<th style="text-align: left;">Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">age</td>
+<td style="text-align: left;">per 1 years</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sex</td>
+<td style="text-align: left;">male vs female</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">2.46</td>
+<td style="text-align: right;">2.70</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">2.72</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">smoking</td>
+<td style="text-align: left;">former vs never</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">7.87</td>
+<td style="text-align: right;">7.66</td>
+<td style="text-align: right;">7.66</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">smoking</td>
+<td style="text-align: left;">1-14 vs never</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">7.70</td>
+<td style="text-align: right;">7.70</td>
+<td style="text-align: right;">12.01</td>
+<td style="text-align: right;">11.43</td>
+<td style="text-align: right;">11.43</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">smoking</td>
+<td style="text-align: left;">15-24 vs never</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">13.70</td>
+<td style="text-align: right;">13.70</td>
+<td style="text-align: right;">21.87</td>
+<td style="text-align: right;">20.19</td>
+<td style="text-align: right;">20.19</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">smoking</td>
+<td style="text-align: left;">25+ vs never</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">24.50</td>
+<td style="text-align: right;">24.50</td>
+<td style="text-align: right;">41.97</td>
+<td style="text-align: right;">37.87</td>
+<td style="text-align: right;">37.87</td>
+<td style="text-align: left;">OR</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Recall bias of 30% on smoking (lung cancer, case-control): every smoking odds ratio is inflated.</p>
+</section>
+<section id="chance-and-bias-replicate-studies" class="level2">
+<h2 class="anchored" data-anchor-id="chance-and-bias-replicate-studies">Chance and bias: replicate studies</h2>
+<p><em>Compare designs</em> with 200 <em>replicate studies per design</em>: the spread of the estimates is the standard error a single study only estimates; a confidence interval should contain the true value in about 95% of the studies, and power is the share of studies that find the effect. A biased design shows a shifted distribution and poor coverage, however many studies are drawn.</p>
+</section>
+<section id="categorising-a-continuous-variable" class="level2">
+<h2 class="anchored" data-anchor-id="categorising-a-continuous-variable">Categorising a continuous variable</h2>
+<p>Systolic pressure in quartiles (<em>Form: quartiles</em>) gives a dose-response pattern but loses information: compare the precision of the per-10-mmHg estimate with the quartile contrasts, and the effect of choosing other cut points.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 17%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Contrast</th>
+<th style="text-align: left;">True</th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">total</th>
+<th style="text-align: right;">Crude</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: right;">Adjusted (DAG)</th>
+<th style="text-align: left;">Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">age</td>
+<td style="text-align: left;">per 1 years</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.06</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sex</td>
+<td style="text-align: left;">male vs female</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.60</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: right;">1.77</td>
+<td style="text-align: right;">1.79</td>
+<td style="text-align: right;">1.79</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="odd">
@@ -629,8 +1125,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">Q2 vs Q1</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">1.63</td>
-<td style="text-align: right;">1.36</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1.58</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">1.32</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="even">
@@ -638,8 +1136,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">Q3 vs Q1</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">2.17</td>
-<td style="text-align: right;">1.58</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">2.30</td>
+<td style="text-align: right;">1.67</td>
+<td style="text-align: right;">1.67</td>
 <td style="text-align: left;">HR</td>
 </tr>
 <tr class="odd">
@@ -647,8 +1147,10 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">Q4 vs Q1</td>
 <td style="text-align: left;">HR</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">3.67</td>
-<td style="text-align: right;">2.29</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">3.74</td>
+<td style="text-align: right;">2.30</td>
+<td style="text-align: right;">2.30</td>
 <td style="text-align: left;">HR</td>
 </tr>
 </tbody>
@@ -662,14 +1164,23 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 30%">
+<col style="width: 6%">
+<col style="width: 9%">
+<col style="width: 8%">
+<col style="width: 20%">
+<col style="width: 12%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Variable</th>
 <th style="text-align: left;">Contrast</th>
 <th style="text-align: left;">True</th>
-<th style="text-align: right;"></th>
+<th style="text-align: right;">direct</th>
 <th style="text-align: right;">Crude</th>
-<th style="text-align: right;">Adjusted</th>
+<th style="text-align: right;">Adjusted (all)</th>
 <th style="text-align: left;">Estimate</th>
 </tr>
 </thead>
@@ -679,8 +1190,8 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">amlodipine vs placebo</td>
 <td style="text-align: left;">beta</td>
 <td style="text-align: right;">-9</td>
-<td style="text-align: right;">-9.09</td>
-<td style="text-align: right;">-9.12</td>
+<td style="text-align: right;">-8.99</td>
+<td style="text-align: right;">-8.97</td>
 <td style="text-align: left;">beta</td>
 </tr>
 </tbody>
@@ -688,14 +1199,23 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 30%">
+<col style="width: 6%">
+<col style="width: 9%">
+<col style="width: 8%">
+<col style="width: 20%">
+<col style="width: 12%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Variable</th>
 <th style="text-align: left;">Contrast</th>
 <th style="text-align: left;">True</th>
-<th style="text-align: right;"></th>
+<th style="text-align: right;">direct</th>
 <th style="text-align: right;">Crude</th>
-<th style="text-align: right;">Adjusted</th>
+<th style="text-align: right;">Adjusted (all)</th>
 <th style="text-align: left;">Estimate</th>
 </tr>
 </thead>
@@ -705,8 +1225,8 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">amlodipine vs placebo</td>
 <td style="text-align: left;">beta</td>
 <td style="text-align: right;">-9</td>
-<td style="text-align: right;">-8.8</td>
-<td style="text-align: right;">-8.8</td>
+<td style="text-align: right;">-8.92</td>
+<td style="text-align: right;">-8.92</td>
 <td style="text-align: left;">beta</td>
 </tr>
 </tbody>
@@ -718,6 +1238,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="assignments-with-student-keys" class="level2">
 <h2 class="anchored" data-anchor-id="assignments-with-student-keys">Assignments with student keys</h2>
 <p>Give every student the same options and their own <strong>student key</strong> (e.g.&nbsp;their ID): each gets a different dataset from the same superpopulation. The teacher reproduces any of them by typing the key, and the answer key is the same for all.</p>
+<p><strong>Export class</strong> (Output) does it in one go: type the student keys (separated by commas) and it saves a zip with one CSV and one codebook per student, a register of keys and seeds, and one answer key report. Students then get only their data.</p>
+<p>A <strong>teacher code</strong> keeps the key out of the students’ panel: typed in <em>Library</em> before exporting a library, it locks that library; while it is loaded, the answer key, its report, the class export, the effect sizes on the diagram, the true values of <em>Compare designs</em> and the effects in <em>Library</em> need the code. It is a deterrent, not protection: the library file itself holds the parameters. The causal diagram is shown without effect sizes by default.</p>
 
 
 </section>
@@ -1143,8 +1665,8 @@ ul.task-list li input[type="checkbox"] {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./library.html" class="pagination-link" aria-label="The scenario library">
-        <span class="nav-page-text">The scenario library</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./analysis.html" class="pagination-link" aria-label="Analysing the data in jamovi">
+        <span class="nav-page-text">Analysing the data in jamovi</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

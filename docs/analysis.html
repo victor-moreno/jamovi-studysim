@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Analysing the data in jamovi – studysim</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./library.html" rel="next">
+<link href="./teaching.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-1bdbca75b362e6c5a8c09207907ff998.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-a0666f337939ae1e4b4bafc9d6a9399a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-1bdbca75b362e6c5a8c09207907ff998.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar docked quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./analysis.html">Analysing the data in jamovi</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">studysim</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">studysim: simulated medical studies for teaching</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./simulated-study.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Simulated study</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./teaching.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Teaching with studysim</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./analysis.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Analysing the data in jamovi</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./library.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The scenario library</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scenario catalogue</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./derive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Derive a scenario from data</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./how-it-works.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How it works</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#design-analysis-and-module" id="toc-design-analysis-and-module" class="nav-link active" data-scroll-target="#design-analysis-and-module">Design, analysis and module</a></li>
+  <li><a href="#worked-exercises" id="toc-worked-exercises" class="nav-link" data-scroll-target="#worked-exercises">Worked exercises</a>
+  <ul class="collapse">
+  <li><a href="#cross-sectional-diabetes-in-pima-women" id="toc-cross-sectional-diabetes-in-pima-women" class="nav-link" data-scroll-target="#cross-sectional-diabetes-in-pima-women">Cross-sectional: diabetes in Pima women</a></li>
+  <li><a href="#cohort-coronary-heart-disease" id="toc-cohort-coronary-heart-disease" class="nav-link" data-scroll-target="#cohort-coronary-heart-disease">Cohort: coronary heart disease</a></li>
+  <li><a href="#case-control-and-matched-case-control-oesophageal-cancer" id="toc-case-control-and-matched-case-control-oesophageal-cancer" class="nav-link" data-scroll-target="#case-control-and-matched-case-control-oesophageal-cancer">Case-control and matched case-control: oesophageal cancer</a></li>
+  <li><a href="#nested-case-control-and-case-cohort-wilms-tumour-relapse" id="toc-nested-case-control-and-case-cohort-wilms-tumour-relapse" class="nav-link" data-scroll-target="#nested-case-control-and-case-cohort-wilms-tumour-relapse">Nested case-control and case-cohort: Wilms tumour relapse</a></li>
+  <li><a href="#prognosis-with-a-competing-event" id="toc-prognosis-with-a-competing-event" class="nav-link" data-scroll-target="#prognosis-with-a-competing-event">Prognosis with a competing event</a></li>
+  <li><a href="#diagnostic-accuracy-psa" id="toc-diagnostic-accuracy-psa" class="nav-link" data-scroll-target="#diagnostic-accuracy-psa">Diagnostic accuracy: PSA</a></li>
+  <li><a href="#method-comparison-two-blood-pressure-devices" id="toc-method-comparison-two-blood-pressure-devices" class="nav-link" data-scroll-target="#method-comparison-two-blood-pressure-devices">Method comparison: two blood pressure devices</a></li>
+  <li><a href="#randomised-trial-indomethacin-and-pancreatitis" id="toc-randomised-trial-indomethacin-and-pancreatitis" class="nav-link" data-scroll-target="#randomised-trial-indomethacin-and-pancreatitis">Randomised trial: indomethacin and pancreatitis</a></li>
+  <li><a href="#cluster-randomised-trial-handwashing-in-karachi" id="toc-cluster-randomised-trial-handwashing-in-karachi" class="nav-link" data-scroll-target="#cluster-randomised-trial-handwashing-in-karachi">Cluster randomised trial: handwashing in Karachi</a></li>
+  <li><a href="#factorial-aspirin-and-beta-carotene" id="toc-factorial-aspirin-and-beta-carotene" class="nav-link" data-scroll-target="#factorial-aspirin-and-beta-carotene">2×2 factorial: aspirin and beta-carotene</a></li>
+  <li><a href="#crossover-an-antihypertensive" id="toc-crossover-an-antihypertensive" class="nav-link" data-scroll-target="#crossover-an-antihypertensive">Crossover: an antihypertensive</a></li>
+  <li><a href="#longitudinal-trial-succimer-for-lead-exposure" id="toc-longitudinal-trial-succimer-for-lead-exposure" class="nav-link" data-scroll-target="#longitudinal-trial-succimer-for-lead-exposure">Longitudinal trial: succimer for lead exposure</a></li>
+  <li><a href="#before-after-metformin" id="toc-before-after-metformin" class="nav-link" data-scroll-target="#before-after-metformin">Before-after: metformin</a></li>
+  <li><a href="#ecological-water-hardness-and-mortality" id="toc-ecological-water-hardness-and-mortality" class="nav-link" data-scroll-target="#ecological-water-hardness-and-mortality">Ecological: water hardness and mortality</a></li>
+  </ul></li>
+  <li><a href="#simulating-many-studies" id="toc-simulating-many-studies" class="nav-link" data-scroll-target="#simulating-many-studies">Simulating many studies</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/victor-moreno/jamovi-studysim/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Analysing the data in jamovi</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Each design calls for its own analysis, and not all of them are in base jamovi. The table says which analysis fits each design and where to find it: in base jamovi, in another module of the jamovi library (<em>Modules ▸ jamovi library</em>), or in one of the author’s modules (<a href="https://victor-moreno.github.io/jamovi-modules-vm/">jamovi-modules-vm</a>). Below it, one worked exercise per design: the scenario, what to do in jamovi, and what the answer key says a correct analysis should find.</p>
+<section id="design-analysis-and-module" class="level2">
+<h2 class="anchored" data-anchor-id="design-analysis-and-module">Design, analysis and module</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>design</th>
+<th>layout of the data</th>
+<th>analysis</th>
+<th>in jamovi</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cross-sectional</td>
+<td>one row per person</td>
+<td>logistic (binary), linear (continuous), Poisson (count) regression</td>
+<td><em>Regression ▸ Logistic Regression ▸ 2 Outcomes</em>, <em>Linear Regression</em>; Poisson: <strong>GAMLj</strong> <em>Generalized Linear Models</em></td>
+</tr>
+<tr class="even">
+<td>Cohort (event)</td>
+<td>time, status 0/1 (2 = competing event)</td>
+<td>Kaplan-Meier, Cox regression</td>
+<td><strong>prognosis</strong> <em>Prognosis ▸ Kaplan-Meier</em>, <em>Cox Regression</em></td>
+</tr>
+<tr class="odd">
+<td>Case-control</td>
+<td>case/control</td>
+<td>logistic regression; odds ratio of a 2×2 table</td>
+<td><em>Regression ▸ Logistic Regression ▸ 2 Outcomes</em>; <em>Frequencies ▸ Independent Samples</em> (odds ratio)</td>
+</tr>
+<tr class="even">
+<td>Matched case-control</td>
+<td><code>set</code> = matched set</td>
+<td>conditional logistic regression</td>
+<td><strong>condLogReg</strong> <em>Regression ▸ Logistic Regression ▸ Conditional (Matched)</em>, matching variable <code>set</code></td>
+</tr>
+<tr class="odd">
+<td>Nested case-control</td>
+<td><code>set</code> = risk set</td>
+<td>conditional logistic regression (it estimates the hazard ratio)</td>
+<td><strong>condLogReg</strong>, matching variable <code>set</code></td>
+</tr>
+<tr class="even">
+<td>Case-cohort</td>
+<td>subcohort yes/no, time, status</td>
+<td>Cox regression with Prentice weights and robust variance</td>
+<td>not in a jamovi module: the <strong>Rj</strong> editor with <code>survival::cch()</code></td>
+</tr>
+<tr class="odd">
+<td>Prognosis</td>
+<td>time from entry, status</td>
+<td>Kaplan-Meier, Cox; with a competing event, cause-specific Cox (status 2 censored)</td>
+<td><strong>prognosis</strong>; cumulative incidence of competing risks: <strong>Rj</strong> with <code>cmprsk</code></td>
+</tr>
+<tr class="even">
+<td>Diagnostic accuracy</td>
+<td>status, markers</td>
+<td>ROC curve, AUC, sensitivity and specificity at a cut-off</td>
+<td><strong>meddecide</strong> (ClinicoPath) or <strong>psychoPDA</strong> <em>Test ROC</em>; at a cut-off: <em>Compute</em> a positive/negative column, then <em>Frequencies ▸ Independent Samples</em></td>
+</tr>
+<tr class="odd">
+<td>Method comparison</td>
+<td><code>y_a</code>, <code>y_b</code></td>
+<td>Bland-Altman limits of agreement</td>
+<td><strong>blandr</strong> or <strong>SimplyAgree</strong>; or <em>Compute</em> the difference and the mean, then <em>Descriptives</em> and a scatterplot</td>
+</tr>
+<tr class="even">
+<td>Randomised trial</td>
+<td>arm, outcome</td>
+<td>risk difference, relative risk, NNT (binary); t-test or ANCOVA (continuous); Kaplan-Meier and Cox (event)</td>
+<td><em>Frequencies ▸ Independent Samples</em>; <em>T-Tests</em>, <em>ANOVA ▸ ANCOVA</em>; <strong>prognosis</strong>; interim looks: <strong>jmsequential</strong></td>
+</tr>
+<tr class="odd">
+<td>Cluster randomised trial</td>
+<td><code>cluster</code></td>
+<td>mixed (multilevel) model with a random intercept per cluster</td>
+<td><strong>GAMLj</strong> <em>Mixed Models</em> (continuous), <em>Generalized Mixed Models</em> (binary, count)</td>
+</tr>
+<tr class="even">
+<td>2×2 factorial trial</td>
+<td>two arms</td>
+<td>ANOVA or regression with both treatments and their interaction</td>
+<td><em>ANOVA ▸ ANOVA</em>; <em>Regression ▸ Logistic Regression</em></td>
+</tr>
+<tr class="odd">
+<td>2×2 crossover</td>
+<td>long: one row per period; wide: one per person</td>
+<td>paired t-test (wide); mixed model with treatment and period (long)</td>
+<td><em>T-Tests ▸ Paired Samples</em>; <strong>GAMLj</strong> <em>Mixed Models</em></td>
+</tr>
+<tr class="even">
+<td>Longitudinal trial</td>
+<td>long: one row per visit; wide: one per person</td>
+<td>linear mixed model with all visits (long); repeated-measures ANOVA on completers (wide)</td>
+<td><strong>GAMLj</strong> <em>Mixed Models</em>; <em>ANOVA ▸ Repeated Measures ANOVA</em></td>
+</tr>
+<tr class="odd">
+<td>Before-after</td>
+<td><code>y_before</code>, <code>y</code></td>
+<td>paired t-test of the change</td>
+<td><em>T-Tests ▸ Paired Samples</em></td>
+</tr>
+<tr class="even">
+<td>Ecological</td>
+<td>one row per region</td>
+<td>regression of the regional rate on regional means and percentages</td>
+<td><em>Compute</em> the rate (cases / people), then <em>Regression ▸ Linear Regression</em></td>
+</tr>
+</tbody>
+</table>
+<p><em>Repeated measures</em> (Design options) gives the crossover and longitudinal trials one row per person (<em>wide</em>), which jamovi’s paired t-test and repeated-measures ANOVA need; the default <em>long</em> layout is the one for mixed models.</p>
+<p><strong>Export codebook</strong> saves the data dictionary next to the CSV, since a CSV keeps no column descriptions.</p>
+</section>
+<section id="worked-exercises" class="level2">
+<h2 class="anchored" data-anchor-id="worked-exercises">Worked exercises</h2>
+<p>Each exercise uses the default seed (1) and the scenario’s default options. The tables are the answer key’s <em>what this design should estimate</em>: a correct analysis of a study of the size given should land near <em>Adjusted</em>, within its own confidence interval.</p>
+<section id="cross-sectional-diabetes-in-pima-women" class="level3">
+<h3 class="anchored" data-anchor-id="cross-sectional-diabetes-in-pima-women">Cross-sectional: diabetes in Pima women</h3>
+<p><em>Pima Indian diabetes</em>, cross-sectional, 700 women, all variables. Fit <em>Regression ▸ Logistic Regression ▸ 2 Outcomes</em> with <code>diabetes</code> as the outcome and the measured variables as covariates (<em>Odds ratio</em> under <em>Model Coefficients</em>). Then fit one variable at a time and compare each crude odds ratio with its adjusted one.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Contrast</th>
+<th style="text-align: left;">True</th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">total</th>
+<th style="text-align: right;">Crude</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: right;">Adjusted (DAG)</th>
+<th style="text-align: left;">Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">age</td>
+<td style="text-align: left;">per 1 years</td>
+<td style="text-align: left;">OR</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.06</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bmi</td>
+<td style="text-align: left;">per 5 kg/m2</td>
+<td style="text-align: left;">OR</td>
+<td style="text-align: right;">1.69</td>
+<td style="text-align: right;">1.69</td>
+<td style="text-align: right;">1.65</td>
+<td style="text-align: right;">1.69</td>
+<td style="text-align: right;">1.69</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">pedigree</td>
+<td style="text-align: left;">per 0.5</td>
+<td style="text-align: left;">OR</td>
+<td style="text-align: right;">1.94</td>
+<td style="text-align: right;">1.94</td>
+<td style="text-align: right;">2.01</td>
+<td style="text-align: right;">1.93</td>
+<td style="text-align: right;">1.93</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pregnancies</td>
+<td style="text-align: left;">per 1</td>
+<td style="text-align: left;">OR</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: right;">1.09</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">diastolic</td>
+<td style="text-align: left;">per 1 mmHg</td>
+<td style="text-align: left;">OR</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">triceps</td>
+<td style="text-align: left;">per 1 mm</td>
+<td style="text-align: left;">OR</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">OR</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="cohort-coronary-heart-disease" class="level3">
+<h3 class="anchored" data-anchor-id="cohort-coronary-heart-disease">Cohort: coronary heart disease</h3>
+<p><em>Coronary heart disease</em>, cohort of 3,000. In <strong>prognosis</strong>, <em>Kaplan-Meier</em> of <code>time</code> and <code>chd</code> by smoking, then <em>Cox Regression</em> with the measured variables. Leave out <code>hdl</code> (untick it under <em>Variables</em>) to see the hazard ratio for sex change: HDL is a mediator of sex, so the estimate moves towards the <strong>total</strong> effect, which is what the <em>Adjusted (DAG)</em> column estimates.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 18%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Contrast</th>
+<th style="text-align: left;">True</th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">total</th>
+<th style="text-align: right;">Crude</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: right;">Adjusted (DAG)</th>
+<th style="text-align: left;">Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">age</td>
+<td style="text-align: left;">per 1 years</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.05</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sex</td>
+<td style="text-align: left;">male vs female</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.60</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: right;">1.77</td>
+<td style="text-align: right;">1.81</td>
+<td style="text-align: right;">1.81</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">smoking</td>
+<td style="text-align: left;">former vs never</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">smoking</td>
+<td style="text-align: left;">current vs never</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.60</td>
+<td style="text-align: right;">1.81</td>
+<td style="text-align: right;">1.76</td>
+<td style="text-align: right;">1.79</td>
+<td style="text-align: right;">1.79</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">total_chol</td>
+<td style="text-align: left;">per 1 mmol/L</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.31</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bmi</td>
+<td style="text-align: left;">per 1 kg/m2</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.02</td>
+<td style="text-align: right;">1.06</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.03</td>
+<td style="text-align: right;">1.06</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sbp</td>
+<td style="text-align: left;">per 10 mmHg</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: left;">HR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">diabetes</td>
+<td style="text-align: left;">yes vs no</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.80</td>
+<td style="text-align: right;">1.80</td>
+<td style="text-align: right;">2.94</td>
+<td style="text-align: right;">1.88</td>
+<td style="text-align: right;">1.88</td>
+<td style="text-align: left;">HR</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="case-control-and-matched-case-control-oesophageal-cancer" class="level3">
+<h3 class="anchored" data-anchor-id="case-control-and-matched-case-control-oesophageal-cancer">Case-control and matched case-control: oesophageal cancer</h3>
+<p><em>Oesophageal cancer</em>, case-control with the scenario’s 4 controls per case. <em>Regression ▸ Logistic Regression ▸ 2 Outcomes</em> with <code>case</code> as the outcome. Then <em>Matched case-control</em> (matched on age group) and <strong>condLogReg</strong> with <code>set</code> as the matching variable: the matching variable itself cannot be estimated, and an unconditional logistic regression of matched data is biased towards the null.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 22%">
+<col style="width: 7%">
+<col style="width: 10%">
+<col style="width: 8%">
+<col style="width: 22%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Contrast</th>
+<th style="text-align: left;">True</th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">Crude</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: left;">Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">age_group</td>
+<td style="text-align: left;">35-44 vs 25-34</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">7.00</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age_group</td>
+<td style="text-align: left;">45-54 vs 25-34</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">40.00</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">age_group</td>
+<td style="text-align: left;">55-64 vs 25-34</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">75.00</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age_group</td>
+<td style="text-align: left;">65-74 vs 25-34</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">130.00</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">age_group</td>
+<td style="text-align: left;">75+ vs 25-34</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">125.00</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">alcohol</td>
+<td style="text-align: left;">40-79 vs 0-39</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">4.20</td>
+<td style="text-align: right;">4.70</td>
+<td style="text-align: right;">4.33</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">alcohol</td>
+<td style="text-align: left;">80-119 vs 0-39</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">7.30</td>
+<td style="text-align: right;">8.30</td>
+<td style="text-align: right;">7.26</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">alcohol</td>
+<td style="text-align: left;">120+ vs 0-39</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">36.70</td>
+<td style="text-align: right;">40.96</td>
+<td style="text-align: right;">32.33</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">tobacco</td>
+<td style="text-align: left;">10-19 vs 0-9</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.55</td>
+<td style="text-align: right;">1.86</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">tobacco</td>
+<td style="text-align: left;">20-29 vs 0-9</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">1.67</td>
+<td style="text-align: right;">2.03</td>
+<td style="text-align: right;">1.47</td>
+<td style="text-align: left;">OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">tobacco</td>
+<td style="text-align: left;">30+ vs 0-9</td>
+<td style="text-align: left;">HR</td>
+<td style="text-align: right;">5.16</td>
+<td style="text-align: right;">7.42</td>
+<td style="text-align: right;">4.69</td>
+<td style="text-align: left;">OR</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="nested-case-control-and-case-cohort-wilms-tumour-relapse" class="level3">
+<h3 class="anchored" data-anchor-id="nested-case-control-and-case-cohort-wilms-tumour-relapse">Nested case-control and case-cohort: Wilms tumour relapse</h3>
+<p><em>Wilms tumour</em>, nested case-control with 3 controls per case: <strong>condLogReg</strong> with <code>set</code> (the risk set) as matching variable gives hazard ratios, with no rare-disease assumption. The case-cohort version needs a weighted Cox model: in <strong>Rj</strong>, <code>survival::cch(Surv(time, relapse) ~ histology + stage, data = data, subcoh = ~ subcohort == "yes", id = ~ id, cohort.size = …, method = "LinYing")</code> (the cohort size is in the <em>Study</em> summary).</p>
+</section>
+<section id="prognosis-with-a-competing-event" class="level3">
+<h3 class="anchored" data-anchor-id="prognosis-with-a-competing-event">Prognosis with a competing event</h3>
+<p><em>Breast cancer prognosis</em>, outcome <em>Death from breast cancer</em>, prognosis design. In <strong>prognosis</strong>, <em>Cox Regression</em> of <code>time</code> and the status: the status has a 2 for a death from other causes; treat it as censored to estimate the cause-specific hazard ratios of the key. 1 − Kaplan-Meier then overstates the cumulative incidence of the event.</p>
+</section>
+<section id="diagnostic-accuracy-psa" class="level3">
+<h3 class="anchored" data-anchor-id="diagnostic-accuracy-psa">Diagnostic accuracy: PSA</h3>
+<p><em>Prostate cancer and PSA</em>, diagnostic, 500 men. In <strong>meddecide</strong> or <strong>psychoPDA</strong>, the ROC curve of <code>psa</code> against <code>prostate_cancer</code>. The key gives the AUC and, at a cut-off, the sensitivity, specificity and predictive values; <em>Compute</em> <code>psa &gt; 5.63</code> and cross it with the disease (<em>Frequencies ▸ Independent Samples</em>) to check them by hand. Then set <em>Test-negatives verified (%)</em> to 20 (Biases): among the verified, sensitivity is far too high.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Marker</th>
+<th style="text-align: right;">Cut-off</th>
+<th style="text-align: left;"></th>
+<th style="text-align: right;">True</th>
+<th style="text-align: right;">Large study</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">psa</td>
+<td style="text-align: right;">5.63</td>
+<td style="text-align: left;">sens</td>
+<td style="text-align: right;">0.630</td>
+<td style="text-align: right;">0.632</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">psa</td>
+<td style="text-align: right;">5.63</td>
+<td style="text-align: left;">spec</td>
+<td style="text-align: right;">0.636</td>
+<td style="text-align: right;">0.638</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">psa</td>
+<td style="text-align: right;">5.63</td>
+<td style="text-align: left;">ppv</td>
+<td style="text-align: right;">0.426</td>
+<td style="text-align: right;">0.429</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">psa</td>
+<td style="text-align: right;">5.63</td>
+<td style="text-align: left;">npv</td>
+<td style="text-align: right;">0.800</td>
+<td style="text-align: right;">0.801</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">free_psa</td>
+<td style="text-align: right;">19.40</td>
+<td style="text-align: left;">sens</td>
+<td style="text-align: right;">0.646</td>
+<td style="text-align: right;">0.646</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">free_psa</td>
+<td style="text-align: right;">19.40</td>
+<td style="text-align: left;">spec</td>
+<td style="text-align: right;">0.643</td>
+<td style="text-align: right;">0.641</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">free_psa</td>
+<td style="text-align: right;">19.40</td>
+<td style="text-align: left;">ppv</td>
+<td style="text-align: right;">0.437</td>
+<td style="text-align: right;">0.436</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">free_psa</td>
+<td style="text-align: right;">19.40</td>
+<td style="text-align: left;">npv</td>
+<td style="text-align: right;">0.809</td>
+<td style="text-align: right;">0.808</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="method-comparison-two-blood-pressure-devices" class="level3">
+<h3 class="anchored" data-anchor-id="method-comparison-two-blood-pressure-devices">Method comparison: two blood pressure devices</h3>
+<p><em>NHANES blood pressure</em>, method comparison of <code>sbp</code>. In <strong>blandr</strong> or <strong>SimplyAgree</strong>, the Bland-Altman analysis of <code>sbp_a</code> and <code>sbp_b</code>: the mean difference, the limits of agreement and the proportional bias (B grows faster than A).</p>
+</section>
+<section id="randomised-trial-indomethacin-and-pancreatitis" class="level3">
+<h3 class="anchored" data-anchor-id="randomised-trial-indomethacin-and-pancreatitis">Randomised trial: indomethacin and pancreatitis</h3>
+<p><em>Indomethacin after ERCP</em>, randomised trial of 600. <em>Frequencies ▸ Independent Samples</em> with <code>treatment</code> and <code>pancreatitis</code> (<em>Comparative measures</em>: relative risk, difference in proportions); the number needed to treat is 1 / risk difference. The key’s trial table gives the true risks: note that the marginal odds ratio (what the 2×2 table estimates) is closer to 1 than the conditional one the data were generated with, with no confounding at all.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 89%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Risk: placebo</td>
+<td style="text-align: right;">0.1700</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Risk: indomethacin</td>
+<td style="text-align: right;">0.0896</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Risk difference, indomethacin vs placebo</td>
+<td style="text-align: right;">-0.0806</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number needed to treat for one event fewer, indomethacin vs placebo</td>
+<td style="text-align: right;">12.4000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Risk ratio, indomethacin vs placebo</td>
+<td style="text-align: right;">0.5260</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Odds ratio, marginal (population), indomethacin vs placebo</td>
+<td style="text-align: right;">0.4800</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Odds ratio, conditional (true model), indomethacin vs placebo</td>
+<td style="text-align: right;">0.4700</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="cluster-randomised-trial-handwashing-in-karachi" class="level3">
+<h3 class="anchored" data-anchor-id="cluster-randomised-trial-handwashing-in-karachi">Cluster randomised trial: handwashing in Karachi</h3>
+<p><em>Handwashing in Karachi</em>, cluster trial. In <strong>GAMLj</strong> <em>Generalized Mixed Models</em>, a Poisson model of <code>pneumonia</code> with <code>soap</code> as a fixed factor and <code>cluster</code> as the cluster variable. Ignoring the clusters (a plain Poisson regression) gives confidence intervals that are too narrow.</p>
+</section>
+<section id="factorial-aspirin-and-beta-carotene" class="level3">
+<h3 class="anchored" data-anchor-id="factorial-aspirin-and-beta-carotene">2×2 factorial: aspirin and beta-carotene</h3>
+<p><em>Physicians’ Health Study</em>, factorial. <strong>prognosis</strong> <em>Cox Regression</em> with both treatments; adding their interaction tests whether one changes the other’s effect.</p>
+</section>
+<section id="crossover-an-antihypertensive" class="level3">
+<h3 class="anchored" data-anchor-id="crossover-an-antihypertensive">Crossover: an antihypertensive</h3>
+<p><em>Antihypertensive drug</em>, crossover of 30 people with <em>Repeated measures: wide</em>. <em>T-Tests ▸ Paired Samples</em> of <code>sbp_placebo</code> and <code>sbp_amlodipine</code>. With the long layout, <strong>GAMLj</strong> <em>Mixed Models</em> of <code>sbp</code> with <code>drug</code> and <code>period</code> as fixed factors and <code>id</code> as cluster gives the same estimate and the period effect.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 30%">
+<col style="width: 6%">
+<col style="width: 9%">
+<col style="width: 8%">
+<col style="width: 20%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Contrast</th>
+<th style="text-align: left;">True</th>
+<th style="text-align: right;">direct</th>
+<th style="text-align: right;">Crude</th>
+<th style="text-align: right;">Adjusted (all)</th>
+<th style="text-align: left;">Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">drug</td>
+<td style="text-align: left;">amlodipine vs placebo</td>
+<td style="text-align: left;">beta</td>
+<td style="text-align: right;">-9</td>
+<td style="text-align: right;">-8.92</td>
+<td style="text-align: right;">-8.92</td>
+<td style="text-align: left;">beta</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="longitudinal-trial-succimer-for-lead-exposure" class="level3">
+<h3 class="anchored" data-anchor-id="longitudinal-trial-succimer-for-lead-exposure">Longitudinal trial: succimer for lead exposure</h3>
+<p><em>Succimer for lead-exposed children</em>, longitudinal. Long layout: <strong>GAMLj</strong> <em>Mixed Models</em> of <code>blood_lead</code> with <code>treatment</code>, <code>visit</code> (as a factor) and their interaction, <code>id</code> as cluster. The key’s <em>Crude</em> is the naive comparison of the completers at the last visit, <em>Adjusted</em> the mixed model with every visit.</p>
+</section>
+<section id="before-after-metformin" class="level3">
+<h3 class="anchored" data-anchor-id="before-after-metformin">Before-after: metformin</h3>
+<p><em>Metformin and HbA1c</em>, before-after, enrolling only people above the 50th percentile. <em>T-Tests ▸ Paired Samples</em> of <code>hba1c_before</code> and <code>hba1c</code>: the mean change is larger than the true effect, because of regression to the mean.</p>
+</section>
+<section id="ecological-water-hardness-and-mortality" class="level3">
+<h3 class="anchored" data-anchor-id="ecological-water-hardness-and-mortality">Ecological: water hardness and mortality</h3>
+<p><em>Water hardness</em>, ecological. <em>Compute</em> the death rate per 100,000 (<code>death / population * 100000</code>) and regress it on the region means and percentages (<em>Regression ▸ Linear Regression</em>); compare the regional slope with the true individual effect in the key: the gap is the ecological bias.</p>
+</section>
+</section>
+<section id="simulating-many-studies" class="level2">
+<h2 class="anchored" data-anchor-id="simulating-many-studies">Simulating many studies</h2>
+<p><em>Compare designs</em> with <em>Replicate studies per design</em> draws hundreds of studies of each design and reports, for each estimate, its mean, bias, spread (the standard error a study does not see), power and the coverage of its confidence intervals: chance and bias side by side.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./teaching.html" class="pagination-link" aria-label="Teaching with studysim">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Teaching with studysim</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./library.html" class="pagination-link" aria-label="The scenario library">
+        <span class="nav-page-text">The scenario library</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/victor-moreno/jamovi-studysim/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -303,6 +303,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analysing the data in jamovi</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./library.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">The scenario library</span></a>
   </div>
@@ -384,7 +390,7 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Scenarios for design</strong> narrows the pickers to the scenarios (and outcomes) that fit one design, e.g.&nbsp;every scenario that can be run as a case-cohort study.</li>
 <li><strong>Scenario</strong> and <strong>Outcome</strong> come from the library (built-in, or a custom one read with <em>Browse…</em>), grouped by clinical domain.</li>
 <li><strong>Design</strong> lists only the designs that fit the outcome: an event in a population can be studied with a cohort or a case-control study (unmatched or matched), a patient outcome with a prognosis cohort, a treatment effect with a randomised trial or, for continuous outcomes, a 2×2 crossover.</li>
-<li><strong>Variables</strong>: every variable is <em>measured</em> at start; untick one to leave it out of the dataset. It still acts on the outcome, which is how you teach residual confounding. The second column shows units or categories.</li>
+<li><strong>Variables</strong>: every variable is <em>measured</em> at start; untick one to leave it out of the dataset. It still acts on the outcome, which is how you teach residual confounding. The second column shows units or categories; the <strong>Exposure</strong> column marks the variable(s) the biases act on (below).</li>
 <li><strong>Form</strong> groups a numeric variable: median split, tertiles, quartiles, quintiles (cut points from the sample, as a study would compute them) or <strong>cuts</strong> typed as values (<code>18.5, 25, 30</code>; with a decimal comma <code>18,5; 25</code>) or percentiles (<code>10%, 90%</code>). Labels read <code>Q2: 120–131</code> or <code>G1: ≤25</code>. <strong>log2</strong> and <strong>log10</strong> transform it instead (of x + 1 when there are zeros); the answer key then gives the effect per doubling or per 10-fold increase. <strong>scale</strong> divides it by the number typed in <em>Cuts / scale</em> (e.g.&nbsp;<code>10</code> for alcohol in units of 10 g/day, or <code>1</code> to undo the scenario’s default unit); the answer key labels the contrast <em>per 10 g/day</em> and re-expresses the true effect in that unit.</li>
 <li><strong>Sample size</strong>: people in the study (cases plus controls in a case-control study).</li>
 </ul>
@@ -397,8 +403,15 @@ ul.task-list li input[type="checkbox"] {
 </figure>
 </div>
 <ul>
-<li><em>Design options</em>: controls per case; follow-up, loss to follow-up and recruitment period for cohorts and trials; subcohort, clusters and ICC, interaction, interim looks, visits and dropout, regions; period and carryover for a crossover; entry threshold for a before-after study; bias, slope and errors of two methods. A 0 keeps the scenario’s default.</li>
-<li><em>Realism</em>:
+<li><p><em>Design options</em>: controls per case; follow-up, loss to follow-up and recruitment period for cohorts and trials; subcohort, clusters and ICC, interaction, interim looks, visits and dropout, regions; period and carryover for a crossover; entry threshold for a before-after study; bias, slope and errors of two methods. An <strong>empty box keeps the scenario’s value</strong> (many scenarios set their own: 4 controls per case, 3 visits); the <em>Study</em> summary lists the values used. <em>Repeated measures</em> gives crossover and longitudinal trials one row per measurement (<em>long</em>, for mixed models) or one per person (<em>wide</em>, for a paired t-test or repeated-measures ANOVA).</p></li>
+<li><p><em>Biases</em> builds a bias into the study, and into the answer key’s large study, so the key shows what the biased design estimates: <strong>recall bias</strong> and <strong>controls selected by exposure</strong> (case-control), a <strong>collider</strong> <code>admitted</code> caused by the outcome and the exposure, <strong>non-adherence</strong> to treatment related to prognosis (a column <code>received</code>; the key adds as-treated and per-protocol rows), <strong>informative loss to follow-up</strong>, a treatment started during follow-up with no effect (<strong>immortal time</strong>: <code>treated</code>, <code>treatment_start</code>), and in diagnostic studies <strong>spectrum</strong> (only the most severe diseased) and <strong>partial verification</strong> (only some test-negatives get the reference standard). Recall, selection and the collider need a ticked <em>Exposure</em>. See <a href="./teaching.html#biases-on-purpose">Teaching</a>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="screenshots/s18-biases.png" class="screenshot img-fluid figure-img" style="width:60.0%"></p>
+<figcaption>Biases: only those of the chosen design are enabled.</figcaption>
+</figure>
+</div></li>
+<li><p><em>Realism</em>:</p>
 <ul>
 <li><strong>missing values</strong> in the measured variables: completely at random, depending on the outcome, or depending on the missing value itself (MNAR);</li>
 <li><strong>measurement error</strong>: the reliability of numeric measures and a share of misclassified categories, non-differential. The answer key uses the same error, so it shows how much the estimates are diluted and how much confounding remains;</li>
@@ -411,7 +424,7 @@ ul.task-list li input[type="checkbox"] {
 <figcaption>Realism options.</figcaption>
 </figure>
 </div></li>
-<li><em>Output</em>: seed and <strong>student key</strong> (any text, e.g.&nbsp;a student ID: each key gives a different dataset from the same options; capitals and surrounding spaces are ignored), which tables to show, and <strong>Answer key report</strong>, which saves the whole key (true model, what the design should estimate, markers, diagram, notes) as one HTML page for the teacher.</li>
+<li><p><em>Output</em>: seed and <strong>student key</strong> (any text, e.g.&nbsp;a student ID: each key gives a different dataset from the same options; capitals and surrounding spaces are ignored), which tables to show, and <strong>Answer key report</strong>, which saves the whole key (true model, what the design should estimate, markers, diagram, notes) as one HTML page for the teacher. <strong>Export class</strong> takes the <em>student keys of the class</em> (separated by commas) and saves a zip with one CSV and one codebook per student, a register of keys and seeds, and one answer key report. A <strong>teacher code</strong> unlocks a library locked with it (see <a href="./teaching.html#assignments-with-student-keys">Teaching</a>).</p></li>
 </ul>
 </section>
 <section id="several-outcomes-in-one-study" class="level3">
@@ -435,7 +448,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-data" class="level2">
 <h2 class="anchored" data-anchor-id="the-data">The data</h2>
-<p><strong>Open dataset</strong> opens the data in a new jamovi window, with nominal, ordinal and ID columns typed and each column described; <strong>Export CSV</strong> saves them.</p>
+<p><strong>Open dataset</strong> opens the data in a new jamovi window, with nominal, ordinal and ID columns typed and each column described; <strong>Export CSV</strong> saves them, and <strong>Export codebook</strong> saves the data dictionary as another CSV (a CSV keeps no column descriptions). <a href="./analysis.html">Analysing the data in jamovi</a> says which analysis and module fit each design.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="screenshots/s10-dataset.png" class="screenshot img-fluid figure-img"></p>
@@ -458,7 +471,7 @@ ul.task-list li input[type="checkbox"] {
 <figcaption>Univariate descriptives: mean (SD) and median [IQR], or n (%) per category.</figcaption>
 </figure>
 </div>
-<p>The <strong>causal diagram</strong> shows the scenario’s structure: measured variables in solid boxes, unmeasured ones dashed, null variables in italics, grey arrows for paths among variables, dark arrows for effects on the outcome. It is shown by default with the effect sizes (red raises the outcome, blue lowers it); untick <em>Effect sizes on the diagram</em> to hide them from students.</p>
+<p>The <strong>causal diagram</strong> shows the scenario’s structure: measured variables in solid boxes, unmeasured ones dashed, null variables in italics, grey arrows for paths among variables, dark arrows for effects on the outcome. It is shown by default without effect sizes; tick <em>Effect sizes on the diagram</em> to colour the arrows (red raises the outcome, blue lowers it) and give their sizes.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="screenshots/s05-dag.png" class="screenshot img-fluid figure-img"></p>
@@ -468,16 +481,22 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-answer-key" class="level2">
 <h2 class="anchored" data-anchor-id="the-answer-key">The answer key</h2>
-<p><em>Answer key</em> adds three parts, for the teacher:</p>
+<p><em>Answer key</em> adds these parts, for the teacher:</p>
 <ol type="1">
-<li><p><strong>True model</strong>: the conditional effects the data were generated with, by contrast, including the null variables (no effect).</p>
+<li><p><strong>True model</strong>: by contrast, the <strong>direct</strong> (conditional) effects the data were generated with, including the null variables, and the <strong>total</strong> effect of each variable that also acts through others (mediators), estimated in a large simulated population; a variable acting only through others reads <em>no direct effect; acts through …</em>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="screenshots/s06-key-true.png" class="screenshot img-fluid figure-img" style="width:75.0%"></p>
-<figcaption>True model.</figcaption>
+<p><img src="screenshots/s06-key-true.png" class="screenshot img-fluid figure-img"></p>
+<figcaption>True model: direct and total effects; education acts only through smoking, BMI, blood pressure, HDL and diabetes.</figcaption>
 </figure>
 </div></li>
-<li><p><strong>What this design should estimate</strong>: crude and adjusted estimates from one large simulated study with the same design, measured variables and grouping. This is what a correct analysis of the student’s data should approach. Where the generating measure differs from the design’s (hazard ratios generated, odds ratios estimated by a case-control study) a note says so.</p>
+<li><p><strong>What this design should estimate</strong>: crude and adjusted estimates averaged over three large simulated studies with the same design, measured variables, grouping, measurement error and biases (one for matched case-control), with their Monte Carlo uncertainty in a note. This is what a correct analysis of the student’s data should approach. <em>Adjusted (all)</em> adjusts for every measured variable; <em>Adjusted (DAG)</em> adjusts each one only for the measured variables it does not cause, and approaches its <em>True (total)</em>. Where the generating measure differs from the design’s (hazard ratios generated, odds ratios estimated by a case-control study) a note says so. Trials with a binary or event outcome add <strong>absolute effects</strong>: risk per arm, risk difference, NNT, risk ratio, and the marginal next to the conditional odds or hazard ratio. Diagnostic studies add <strong>accuracy at a cut-off</strong>: sensitivity, specificity and predictive values, true and in the large study.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="screenshots/s19-key-trial.png" class="screenshot img-fluid figure-img" style="width:65.0%"></p>
+<figcaption>Absolute effects of a trial: risks, NNT, and the marginal odds ratio closer to 1 than the conditional one.</figcaption>
+</figure>
+</div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="screenshots/s07-key-expected.png" class="screenshot img-fluid figure-img"></p>
@@ -486,6 +505,7 @@ ul.task-list li input[type="checkbox"] {
 </div></li>
 <li><p><strong>Notes</strong>: teaching note of the scenario, calibration of the outcome, latent structure and the sources of the parameters.</p></li>
 </ol>
+<p>The <em>Study</em> summary warns when there are fewer than 10 events per parameter of a model adjusted for every measured variable.</p>
 </section>
 <section id="compare-designs" class="level2">
 <h2 class="anchored" data-anchor-id="compare-designs">Compare designs</h2>
@@ -500,12 +520,19 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Studies</strong>: rows, cases and controls, events, clusters or regions of each one;</li>
 <li><strong>Estimates by design</strong>: crude and adjusted estimates with their 95% CI next to the true values, and optionally what each design gives in a large study;</li>
 <li>a <strong>forest plot</strong> of the same estimates, one panel per contrast;</li>
-<li>the <strong>causal diagram</strong> with the effect sizes, once, because it is the same for every design: what changes between designs is how the population is sampled, not how it works.</li>
+<li>the <strong>causal diagram</strong>, once, because it is the same for every design: what changes between designs is how the population is sampled, not how it works.</li>
 </ul>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="screenshots/s17-compare-plot.png" class="screenshot img-fluid figure-img"></p>
 <figcaption>Estimates plot: the cohort of 500 women has 10 cases, so its intervals are far wider than the case-control studies’.</figcaption>
+</figure>
+</div>
+<p><strong>Replicate studies per design</strong> (next to the sample size) draws that many studies of each design and reports each estimate’s mean, bias, spread (empirical standard error) next to the model’s, power and the coverage of its confidence intervals, with a plot of their sampling distribution.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="screenshots/s20-replicates.png" class="screenshot img-fluid figure-img"></p>
+<figcaption>Replicate studies: 200 parallel and 200 cluster trials of 500 people.</figcaption>
 </figure>
 </div>
 <p><em>Open dataset</em> stacks all the studies in one dataset with a <code>design</code> column, to analyse them with jamovi’s filters. Typical exercises: a case-control vs a cohort study of a rare cancer (same estimates, very different precision for the same number of people), a parallel vs a crossover trial, an ecological vs an individual-level analysis.</p>
