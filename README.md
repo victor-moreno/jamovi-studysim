@@ -6,7 +6,8 @@ get a plausible dataset in a new jamovi window, with confounders, mediators, eff
 modifiers and null variables built in. A hidden **answer key** gives the true
 parameters and what crude and adjusted analyses of that design should find.
 
-**Tutorial: <https://victor-moreno.github.io/jamovi-studysim/>**
+**Tutorial: <https://victor-moreno.github.io/jamovi-studysim/>**, with a page on
+which jamovi analysis and module fit each design.
 
 ## Analyses (menu: Simulate)
 
@@ -23,12 +24,22 @@ parameters and what crude and adjusted analyses of that design should find.
     and method comparison (Bland-Altman);
   - several outcomes for the same people (linked outcomes, illness-death);
   - realism: missing data (MCAR, MAR, MNAR), measurement error, detection
-    limits and assay batches, data-entry errors, extra null variables; an
-    answer-key report for the teacher.
+    limits and assay batches, data-entry errors, extra null variables;
+  - biases on purpose: recall bias, controls selected by exposure, a collider,
+    non-adherence (ITT, as treated, per protocol), informative loss to
+    follow-up, immortal time, spectrum and partial verification in diagnostic
+    studies;
+  - an answer key with direct and total effects, crude, fully adjusted and
+    DAG-adjusted expected estimates, absolute effects of trials (risks, NNT,
+    marginal vs conditional ratios) and diagnostic accuracy at a cut-off; an
+    answer-key report, a codebook export, a wide layout for repeated measures,
+    a class export (one dataset per student key, zipped) and a teacher code
+    that locks the key.
 - **Compare designs**: one scenario under several designs drawn from the same
   population: estimates with 95% CI per design against the truth (optionally the
-  large-study expectation), a forest plot, and all studies stacked in one dataset
-  with a design column.
+  large-study expectation), a forest plot, replicate studies (bias, standard
+  error, power, CI coverage, sampling distribution), and all studies stacked in
+  one dataset with a design column.
 - **Library**: lists, checks, explores and exports scenarios; reads custom
   libraries in YAML, Excel or JSON.
 - **Derive scenario**: estimates a scenario from a real dataset (marginals, latent

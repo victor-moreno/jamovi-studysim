@@ -60,7 +60,12 @@ teaching: {en: "Age confounds parity and menopause...", es: "..."}
   formulas for derived variables.
 - **Outcomes**: binary (prevalence), events (rate, risk or median; Weibull shape),
   continuous (also on the log scale) and counts, each with conditional effects
-  (OR, HR, RR, ratio, beta), effect modification (`by:`) and interventions for
-  trials.
+  (OR, HR, RR, ratio, beta), effect modification (`by:`, centred at the
+  population mean of the variable unless `center:` says otherwise) and
+  interventions for trials; diagnostic markers with an AUC, a `cutoff`, a
+  dependence on covariates (`depends:`) or on disease severity (`severity_sd`).
 - **Translations**: labels in several languages, and an `i18n:` section with the
   column names and category labels students see.
+- **A lock**: typed in *Teacher code* before exporting, it locks the exported
+  library; while it is loaded, the answer key, the true values and the effects
+  need the same code (a deterrent: the file itself holds the parameters).

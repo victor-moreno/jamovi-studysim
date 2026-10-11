@@ -1,0 +1,191 @@
+---
+title: "Analysing the data in jamovi"
+---
+
+```{r}
+source("_common.R")
+```
+
+Each design calls for its own analysis, and not all of them are in base jamovi.
+The table says which analysis fits each design and where to find it: in base
+jamovi, in another module of the jamovi library (*Modules ▸ jamovi library*),
+or in one of the author's modules
+([jamovi-modules-vm](https://victor-moreno.github.io/jamovi-modules-vm/)).
+Below it, one worked exercise per design: the scenario, what to do in jamovi,
+and what the answer key says a correct analysis should find.
+
+## Design, analysis and module
+
+| design | layout of the data | analysis | in jamovi |
+|---|---|---|---|
+| Cross-sectional | one row per person | logistic (binary), linear (continuous), Poisson (count) regression | *Regression ▸ Logistic Regression ▸ 2 Outcomes*, *Linear Regression*; Poisson: **GAMLj** *Generalized Linear Models* |
+| Cohort (event) | time, status 0/1 (2 = competing event) | Kaplan-Meier, Cox regression | **prognosis** *Prognosis ▸ Kaplan-Meier*, *Cox Regression* |
+| Case-control | case/control | logistic regression; odds ratio of a 2×2 table | *Regression ▸ Logistic Regression ▸ 2 Outcomes*; *Frequencies ▸ Independent Samples* (odds ratio) |
+| Matched case-control | `set` = matched set | conditional logistic regression | **condLogReg** *Regression ▸ Logistic Regression ▸ Conditional (Matched)*, matching variable `set` |
+| Nested case-control | `set` = risk set | conditional logistic regression (it estimates the hazard ratio) | **condLogReg**, matching variable `set` |
+| Case-cohort | subcohort yes/no, time, status | Cox regression with Prentice weights and robust variance | not in a jamovi module: the **Rj** editor with `survival::cch()` |
+| Prognosis | time from entry, status | Kaplan-Meier, Cox; with a competing event, cause-specific Cox (status 2 censored) | **prognosis**; cumulative incidence of competing risks: **Rj** with `cmprsk` |
+| Diagnostic accuracy | status, markers | ROC curve, AUC, sensitivity and specificity at a cut-off | **meddecide** (ClinicoPath) or **psychoPDA** *Test ROC*; at a cut-off: *Compute* a positive/negative column, then *Frequencies ▸ Independent Samples* |
+| Method comparison | `y_a`, `y_b` | Bland-Altman limits of agreement | **blandr** or **SimplyAgree**; or *Compute* the difference and the mean, then *Descriptives* and a scatterplot |
+| Randomised trial | arm, outcome | risk difference, relative risk, NNT (binary); t-test or ANCOVA (continuous); Kaplan-Meier and Cox (event) | *Frequencies ▸ Independent Samples*; *T-Tests*, *ANOVA ▸ ANCOVA*; **prognosis**; interim looks: **jmsequential** |
+| Cluster randomised trial | `cluster` | mixed (multilevel) model with a random intercept per cluster | **GAMLj** *Mixed Models* (continuous), *Generalized Mixed Models* (binary, count) |
+| 2×2 factorial trial | two arms | ANOVA or regression with both treatments and their interaction | *ANOVA ▸ ANOVA*; *Regression ▸ Logistic Regression* |
+| 2×2 crossover | long: one row per period; wide: one per person | paired t-test (wide); mixed model with treatment and period (long) | *T-Tests ▸ Paired Samples*; **GAMLj** *Mixed Models* |
+| Longitudinal trial | long: one row per visit; wide: one per person | linear mixed model with all visits (long); repeated-measures ANOVA on completers (wide) | **GAMLj** *Mixed Models*; *ANOVA ▸ Repeated Measures ANOVA* |
+| Before-after | `y_before`, `y` | paired t-test of the change | *T-Tests ▸ Paired Samples* |
+| Ecological | one row per region | regression of the regional rate on regional means and percentages | *Compute* the rate (cases / people), then *Regression ▸ Linear Regression* |
+
+*Repeated measures* (Design options) gives the crossover and longitudinal trials
+one row per person (*wide*), which jamovi's paired t-test and repeated-measures
+ANOVA need; the default *long* layout is the one for mixed models.
+
+**Export codebook** saves the data dictionary next to the CSV, since a CSV
+keeps no column descriptions.
+
+## Worked exercises
+
+Each exercise uses the default seed (1) and the scenario's default options. The
+tables are the answer key's *what this design should estimate*: a correct
+analysis of a study of the size given should land near *Adjusted*, within its
+own confidence interval.
+
+### Cross-sectional: diabetes in Pima women
+
+*Pima Indian diabetes*, cross-sectional, 700 women, all variables. Fit
+*Regression ▸ Logistic Regression ▸ 2 Outcomes* with `diabetes` as the outcome
+and the measured variables as covariates (*Odds ratio* under *Model
+Coefficients*). Then fit one variable at a time and compare each crude odds
+ratio with its adjusted one.
+
+```{r}
+key_table("pima_diabetes", "diabetes", "cross_sectional", load_scenario(lib, "pima_diabetes")$order)
+```
+
+### Cohort: coronary heart disease
+
+*Coronary heart disease*, cohort of 3,000. In **prognosis**, *Kaplan-Meier* of
+`time` and `chd` by smoking, then *Cox Regression* with the measured variables.
+Leave out `hdl` (untick it under *Variables*) to see the hazard ratio for sex
+change: HDL is a mediator of sex, so the estimate moves towards the **total**
+effect, which is what the *Adjusted (DAG)* column estimates.
+
+```{r}
+key_table("chd_incidence", "chd", "cohort", c("age", "sex", "smoking", "total_chol", "bmi", "sbp", "diabetes"))
+```
+
+### Case-control and matched case-control: oesophageal cancer
+
+*Oesophageal cancer*, case-control with the scenario's 4 controls per case.
+*Regression ▸ Logistic Regression ▸ 2 Outcomes* with `case` as the outcome.
+Then *Matched case-control* (matched on age group) and **condLogReg** with
+`set` as the matching variable: the matching variable itself cannot be
+estimated, and an unconditional logistic regression of matched data is biased
+towards the null.
+
+```{r}
+key_table("esoph_cancer", "oesophageal_cancer", "matched_cc", load_scenario(lib, "esoph_cancer")$order)
+```
+
+### Nested case-control and case-cohort: Wilms tumour relapse
+
+*Wilms tumour*, nested case-control with 3 controls per case: **condLogReg** with
+`set` (the risk set) as matching variable gives hazard ratios, with no
+rare-disease assumption. The case-cohort version needs a weighted Cox model:
+in **Rj**, `survival::cch(Surv(time, relapse) ~ histology + stage, data = data,
+subcoh = ~ subcohort == "yes", id = ~ id, cohort.size = …, method = "LinYing")`
+(the cohort size is in the *Study* summary).
+
+### Prognosis with a competing event
+
+*Breast cancer prognosis*, outcome *Death from breast cancer*, prognosis
+design. In **prognosis**, *Cox Regression* of `time` and the status: the status
+has a 2 for a death from other causes; treat it as censored to estimate the
+cause-specific hazard ratios of the key. 1 − Kaplan-Meier then overstates the
+cumulative incidence of the event.
+
+### Diagnostic accuracy: PSA
+
+*Prostate cancer and PSA*, diagnostic, 500 men. In **meddecide** or
+**psychoPDA**, the ROC curve of `psa` against `prostate_cancer`. The key gives the
+AUC and, at a cut-off, the sensitivity, specificity and predictive values;
+*Compute* `psa > 5.63` and cross it with the disease (*Frequencies ▸
+Independent Samples*) to check them by hand. Then set *Test-negatives verified
+(%)* to 20 (Biases): among the verified, sensitivity is far too high.
+
+```{r}
+sc <- load_scenario(lib, "prostate_cancer_psa"); oc <- sc$outcomes$prostate_cancer
+em <- expected_markers(sc, oc, list())
+a <- em$accuracy; a$true <- round(a$true, 3); a$expected <- round(a$expected, 3)
+knitr::kable(a[, c("marker", "cutoff", "stat", "true", "expected")], col.names = c("Marker", "Cut-off", "", "True", "Large study"), row.names = FALSE)
+```
+
+### Method comparison: two blood pressure devices
+
+*NHANES blood pressure*, method comparison of `sbp`. In **blandr** or
+**SimplyAgree**, the Bland-Altman analysis of `sbp_a` and `sbp_b`: the mean
+difference, the limits of agreement and the proportional bias (B grows faster
+than A).
+
+### Randomised trial: indomethacin and pancreatitis
+
+*Indomethacin after ERCP*, randomised trial of 600. *Frequencies ▸ Independent
+Samples* with `treatment` and `pancreatitis` (*Comparative measures*: relative
+risk, difference in proportions); the number needed to treat is 1 / risk
+difference. The key's trial table gives the true risks: note that the marginal
+odds ratio (what the 2×2 table estimates) is closer to 1 than the conditional
+one the data were generated with, with no confounding at all.
+
+```{r}
+trial_table("indomethacin_ercp", "pancreatitis")
+```
+
+### Cluster randomised trial: handwashing in Karachi
+
+*Handwashing in Karachi*, cluster trial. In **GAMLj** *Generalized Mixed Models*,
+a Poisson model of `pneumonia` with `soap` as a fixed factor and `cluster` as the
+cluster variable. Ignoring the clusters (a plain Poisson regression) gives
+confidence intervals that are too narrow.
+
+### 2×2 factorial: aspirin and beta-carotene
+
+*Physicians' Health Study*, factorial. **prognosis** *Cox Regression* with both
+treatments; adding their interaction tests whether one changes the other's
+effect.
+
+### Crossover: an antihypertensive
+
+*Antihypertensive drug*, crossover of 30 people with *Repeated measures: wide*.
+*T-Tests ▸ Paired Samples* of `sbp_placebo` and `sbp_amlodipine`. With the long
+layout, **GAMLj** *Mixed Models* of `sbp` with `drug` and `period` as fixed
+factors and `id` as cluster gives the same estimate and the period effect.
+
+```{r}
+key_table("antihypertensive_trial", "sbp", "crossover", character())
+```
+
+### Longitudinal trial: succimer for lead exposure
+
+*Succimer for lead-exposed children*, longitudinal. Long layout: **GAMLj**
+*Mixed Models* of `blood_lead` with `treatment`, `visit` (as a factor) and their
+interaction, `id` as cluster. The key's *Crude* is the naive comparison of the
+completers at the last visit, *Adjusted* the mixed model with every visit.
+
+### Before-after: metformin
+
+*Metformin and HbA1c*, before-after, enrolling only people above the 50th
+percentile. *T-Tests ▸ Paired Samples* of `hba1c_before` and `hba1c`: the mean
+change is larger than the true effect, because of regression to the mean.
+
+### Ecological: water hardness and mortality
+
+*Water hardness*, ecological. *Compute* the death rate per 100,000 (`death /
+population * 100000`) and regress it on the region means and percentages
+(*Regression ▸ Linear Regression*); compare the regional slope with the true
+individual effect in the key: the gap is the ecological bias.
+
+## Simulating many studies
+
+*Compare designs* with *Replicate studies per design* draws hundreds of studies
+of each design and reports, for each estimate, its mean, bias, spread (the
+standard error a study does not see), power and the coverage of its confidence
+intervals: chance and bias side by side.

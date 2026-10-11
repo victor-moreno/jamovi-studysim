@@ -28,8 +28,11 @@ same assignment (a *student key*), and the teacher can regenerate any of them.
 | [Library](library.qmd) | lists, checks, explores and exports the scenarios; reads custom libraries (YAML, Excel, JSON) |
 | [Derive scenario](derive.qmd) | estimates a scenario from a real dataset, to simulate studies like it |
 
-[Teaching with studysim](teaching.qmd) has worked exercises, and
-[How it works](how-it-works.qmd) describes the simulation model.
+[Teaching with studysim](teaching.qmd) has worked exercises (confounding,
+mediation and the Table 2 fallacy, non-collapsibility, biases built on purpose,
+chance against bias), [Analysing the data in jamovi](analysis.qmd) says which
+analysis and module fit each design, and [How it works](how-it-works.qmd)
+describes the simulation model.
 
 ## Install
 

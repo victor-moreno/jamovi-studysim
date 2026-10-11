@@ -7,8 +7,12 @@ source("_common.R")
 ```
 
 Each exercise below names the scenario and options, then what the students should
-find. The tables are the answer key's *expected estimates* (one large simulated
-study), computed by the module itself when this page was built.
+find. The tables are the answer key's *expected estimates* (the average of large
+simulated studies), computed by the module itself when this page was built.
+*True* is the **direct** effect the data were generated with (every other
+variable fixed); where a variable also acts through others, the **total** effect
+follows, and *Adjusted (DAG)* adjusts each variable only for what it does not
+cause.
 
 ## Confounding: coffee and coronary heart disease
 
@@ -38,11 +42,12 @@ key_table("breast_cancer_prognosis", "death", "prognosis", c("age", "tumour_size
 *Breast cancer risk factors*, case-control with two controls per case. The data are
 generated as a cohort with hazard ratios; the case-control odds ratios approach them
 because the disease is rare. Menopause is determined by age (a rule of the
-scenario), so much of its crude odds ratio is confounding by age. It does not fall
-to 1 after adjustment, though: the effect of BMI is given per level of menopause,
-so the menopause contrast in the *True* column (1.00) holds at a BMI of 0, and at
-usual BMI values post-menopausal women have a higher risk (see *Effect
-modification* below).
+scenario), so much of its crude odds ratio is confounding by age. After
+adjustment it falls near 1, its direct effect. What remains above 1 is mediated:
+only post-menopausal women take hormone replacement therapy, which is not
+measured here, so menopause carries part of its effect (the *total* column).
+BMI's effect, which differs before and after menopause, is centred at the
+population's mean BMI, where menopause has no effect of its own.
 
 ```{r}
 key_table("breast_cancer_risk", "breast_cancer", "case_control", c("age", "menopause", "parity", "family_hist", "alcohol"),
@@ -58,6 +63,65 @@ In the same scenario BMI protects before menopause and raises risk after it. A
 model without the interaction gives a single, misleading BMI effect; students
 should fit `bmi × menopause`. The answer key shows the true effect per level of
 menopause in its note.
+
+## Adjusting for everything: the Table 2 fallacy
+
+*Coronary heart disease incidence*, cohort, all variables measured. Age, sex
+and education act partly through blood pressure, cholesterol, BMI, diabetes and
+HDL. A model with every variable gives their **direct** effects: education
+seems to do nothing, and the effect of sex shrinks. Adjusting each exposure only
+for its confounders (*Adjusted (DAG)*) gives the **total** effect, the one
+that answers "what if this changed?". A single mutually adjusted table (the
+"Table 2" of many papers) mixes both kinds.
+
+```{r}
+key_table("chd_incidence", "chd", "cohort", load_scenario(lib, "chd_incidence")$order)
+```
+
+## Trials: absolute effects and non-collapsibility
+
+*Indomethacin after ERCP*, randomised trial. The key gives the risk in each arm,
+the risk difference and the number needed to treat. The odds ratio of the
+2×2 table (the marginal one) is closer to 1 than the conditional odds ratio the
+data were generated with, although randomisation leaves no confounding:
+adjusting for prognostic variables moves it towards the conditional one.
+
+```{r}
+trial_table("indomethacin_ercp", "pancreatitis")
+```
+
+## Biases on purpose
+
+The *Biases* section of the panel builds a bias into the study; the answer key's
+large study carries the same bias, so it shows what the biased design
+estimates next to the truth. Recall bias, controls selected by exposure and the
+collider act on the variables ticked in the *Exposure* column.
+
+| bias | design | what students should see |
+|---|---|---|
+| Recall bias | case-control | unexposed cases report the exposure: its odds ratio inflated |
+| Controls selected by exposure | case-control | hospital controls with more exposure: its odds ratio towards 1 |
+| Collider (`admitted`) | cross-sectional, cohort, case-control | adjusting for a variable caused by the outcome and the exposure distorts the exposure's effect |
+| Non-adherence | randomised trial | intention to treat dilutes the effect; as treated and per protocol are confounded by prognosis |
+| Informative loss to follow-up | followed designs | Kaplan-Meier underestimates the risk; hazard ratios shift |
+| Immortal time | cohort, prognosis | a useless treatment started during follow-up looks protective when analysed at baseline |
+| Spectrum, partial verification | diagnostic | sensitivity and AUC too high with severe cases; with only some negatives verified, sensitivity too high and specificity too low |
+
+```{r}
+key_table("lung_cancer_smoking", "lung_cancer", "case_control", c("age", "sex", "smoking"),
+          options = list(exposures = "smoking", recall = 0.3))
+```
+
+Recall bias of 30% on smoking (lung cancer, case-control): every smoking odds
+ratio is inflated.
+
+## Chance and bias: replicate studies
+
+*Compare designs* with 200 *replicate studies per design*: the spread of the
+estimates is the standard error a single study only estimates; a confidence
+interval should contain the true value in about 95% of the studies, and power is
+the share of studies that find the effect. A biased design shows a shifted
+distribution and poor coverage, however many studies are drawn.
 
 ## Categorising a continuous variable
 
@@ -89,3 +153,14 @@ to a geometric mean ratio, then check whether its 90% CI lies within 0.80–1.25
 Give every student the same options and their own **student key** (e.g. their ID):
 each gets a different dataset from the same superpopulation. The teacher reproduces
 any of them by typing the key, and the answer key is the same for all.
+
+**Export class** (Output) does it in one go: type the student keys (separated by
+commas) and it saves a zip with one CSV and one codebook per student, a register
+of keys and seeds, and one answer key report. Students then get only their data.
+
+A **teacher code** keeps the key out of the students' panel: typed in *Library*
+before exporting a library, it locks that library; while it is loaded, the answer
+key, its report, the class export, the effect sizes on the diagram, the true
+values of *Compare designs* and the effects in *Library* need the code. It is a
+deterrent, not protection: the library file itself holds the parameters. The
+causal diagram is shown without effect sizes by default.

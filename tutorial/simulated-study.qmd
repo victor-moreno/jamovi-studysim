@@ -18,7 +18,8 @@ title: "Simulated study"
   trial or, for continuous outcomes, a 2×2 crossover.
 - **Variables**: every variable is *measured* at start; untick one to leave it
   out of the dataset. It still acts on the outcome, which is how you teach
-  residual confounding. The second column shows units or categories.
+  residual confounding. The second column shows units or categories; the
+  **Exposure** column marks the variable(s) the biases act on (below).
 - **Form** groups a numeric variable: median split, tertiles, quartiles, quintiles
   (cut points from the sample, as a study would compute them) or **cuts** typed
   as values (`18.5, 25, 30`; with a decimal comma `18,5; 25`) or percentiles
@@ -39,7 +40,22 @@ title: "Simulated study"
   recruitment period for cohorts and trials; subcohort, clusters and ICC,
   interaction, interim looks, visits and dropout, regions; period and carryover
   for a crossover; entry threshold for a before-after study; bias, slope and
-  errors of two methods. A 0 keeps the scenario's default.
+  errors of two methods. An **empty box keeps the scenario's value** (many
+  scenarios set their own: 4 controls per case, 3 visits); the *Study* summary
+  lists the values used. *Repeated measures* gives crossover and longitudinal
+  trials one row per measurement (*long*, for mixed models) or one per person
+  (*wide*, for a paired t-test or repeated-measures ANOVA).
+- *Biases* builds a bias into the study, and into the answer key's large study,
+  so the key shows what the biased design estimates: **recall bias** and
+  **controls selected by exposure** (case-control), a **collider** `admitted`
+  caused by the outcome and the exposure, **non-adherence** to treatment related
+  to prognosis (a column `received`; the key adds as-treated and per-protocol
+  rows), **informative loss to follow-up**, a treatment started during
+  follow-up with no effect (**immortal time**: `treated`, `treatment_start`), and
+  in diagnostic studies **spectrum** (only the most severe diseased) and
+  **partial verification** (only some test-negatives get the reference
+  standard). Recall, selection and the collider need a ticked *Exposure*. See
+  [Teaching](teaching.qmd#biases-on-purpose).
 - *Realism*:
   - **missing values** in the measured variables: completely at random,
     depending on the outcome, or depending on the missing value itself (MNAR);
@@ -61,6 +77,10 @@ title: "Simulated study"
   are ignored), which tables to show, and
   **Answer key report**, which saves the whole key (true model, what the design
   should estimate, markers, diagram, notes) as one HTML page for the teacher.
+  **Export class** takes the *student keys of the class* (separated by commas)
+  and saves a zip with one CSV and one codebook per student, a register of keys
+  and seeds, and one answer key report. A **teacher code** unlocks a library
+  locked with it (see [Teaching](teaching.qmd#assignments-with-student-keys)).
 
 ### Several outcomes in one study
 
@@ -95,7 +115,10 @@ options that change the data do.
 ## The data
 
 **Open dataset** opens the data in a new jamovi window, with nominal, ordinal and
-ID columns typed and each column described; **Export CSV** saves them.
+ID columns typed and each column described; **Export CSV** saves them, and
+**Export codebook** saves the data dictionary as another CSV (a CSV keeps no
+column descriptions). [Analysing the data in jamovi](analysis.qmd) says which
+analysis and module fit each design.
 
 ![The dataset in its own window.](screenshots/s10-dataset.png){.screenshot}
 
@@ -112,30 +135,45 @@ Column names and category labels follow jamovi's language (`age` → `edad`/`eda
 The **causal diagram** shows the scenario's structure: measured variables in solid
 boxes, unmeasured ones dashed, null variables in italics, grey arrows for paths
 among variables, dark arrows for effects on the outcome. It is shown by
-default with the effect sizes (red raises the outcome, blue lowers it); untick
-*Effect sizes on the diagram* to hide them from students.
+default without effect sizes; tick *Effect sizes on the diagram* to colour the
+arrows (red raises the outcome, blue lowers it) and give their sizes.
 
 ![Causal diagram with effect sizes.](screenshots/s05-dag.png){.screenshot}
 
 ## The answer key
 
-*Answer key* adds three parts, for the teacher:
+*Answer key* adds these parts, for the teacher:
 
-1. **True model**: the conditional effects the data were generated with, by
-   contrast, including the null variables (no effect).
+1. **True model**: by contrast, the **direct** (conditional) effects the data
+   were generated with, including the null variables, and the **total** effect
+   of each variable that also acts through others (mediators), estimated in a
+   large simulated population; a variable acting only through others reads *no
+   direct effect; acts through …*.
 
    ![True model.](screenshots/s06-key-true.png){.screenshot width=75%}
 
-2. **What this design should estimate**: crude and adjusted estimates from one
-   large simulated study with the same design, measured variables and grouping.
-   This is what a correct analysis of the student's data should approach. Where
-   the generating measure differs from the design's (hazard ratios generated, odds
+2. **What this design should estimate**: crude and adjusted estimates averaged
+   over three large simulated studies with the same design, measured variables,
+   grouping, measurement error and biases (one for matched case-control), with
+   their Monte Carlo uncertainty in a note. This is what a correct analysis of
+   the student's data should approach. *Adjusted (all)* adjusts for every
+   measured variable; *Adjusted (DAG)* adjusts each one only for the measured
+   variables it does not cause, and approaches its *True (total)*. Where the
+   generating measure differs from the design's (hazard ratios generated, odds
    ratios estimated by a case-control study) a note says so.
+   Trials with a binary or event outcome add **absolute effects**: risk per
+   arm, risk difference, NNT, risk ratio, and the marginal next to the
+   conditional odds or hazard ratio. Diagnostic studies add **accuracy at a
+   cut-off**: sensitivity, specificity and predictive values, true and in the
+   large study.
 
    ![Expected estimates: the crude coffee effect disappears after adjustment; systolic pressure in quartiles.](screenshots/s07-key-expected.png){.screenshot}
 
 3. **Notes**: teaching note of the scenario, calibration of the outcome, latent
    structure and the sources of the parameters.
+
+The *Study* summary warns when there are fewer than 10 events per parameter of a
+model adjusted for every measured variable.
 
 ## Compare designs
 
@@ -150,11 +188,16 @@ are hidden. It shows:
 - **Estimates by design**: crude and adjusted estimates with their 95% CI
   next to the true values, and optionally what each design gives in a large study;
 - a **forest plot** of the same estimates, one panel per contrast;
-- the **causal diagram** with the effect sizes, once, because it is the same for
+- the **causal diagram**, once, because it is the same for
   every design: what changes between designs is how the population is sampled,
   not how it works.
 
 ![Estimates plot: the cohort of 500 women has 10 cases, so its intervals are far wider than the case-control studies'.](screenshots/s17-compare-plot.png){.screenshot}
+
+**Replicate studies per design** (next to the sample size) draws that many
+studies of each design and reports each estimate's mean, bias, spread (empirical
+standard error) next to the model's, power and the coverage of its confidence
+intervals, with a plot of their sampling distribution.
 
 *Open dataset* stacks all the studies in one dataset with a `design` column, to
 analyse them with jamovi's filters. Typical exercises: a case-control vs a cohort
