@@ -1,0 +1,177 @@
+id: colorectal_diet_mallorca
+label: {en: Diet and colorectal cancer in Majorca (energy adjustment), es: Dieta y cáncer colorrectal en Mallorca (ajuste por energía), ca: Dieta i càncer colorectal a Mallorca (ajust per energia)}
+domain: oncology / nutrition
+population:
+  en: Adults aged 27-83 from Majorca, Spain; cases of colorectal cancer and population controls, diet by a food-frequency questionnaire
+  es: Adultos de 27 a 83 años de Mallorca; casos de cáncer colorrectal y controles poblacionales, dieta por un cuestionario de frecuencia de consumo
+  ca: Adults de 27 a 83 anys de Mallorca; casos de càncer colorectal i controls poblacionals, dieta per un qüestionari de freqüència de consum
+
+# Marginals and structure from the 295 controls of a teaching dataset of the
+# Majorca case-control study (286 cases), log-scale correlations given energy;
+# effects from its logistic models: energy 1.39 per SD, fibre 0.79 per SD
+# adjusted for energy (0.99 crude), vitamin C 0.78 adjusted, smoking.
+variables:
+  age: {from: dictionary, dist: "normal(65, 11.1)", range: [27, 83]}
+  sex: {from: dictionary, p: 0.536}
+  smoking: {from: dictionary, probs: [0.556, 0.231, 0.213]}
+  energy:
+    type: continuous
+    dist: normal(1928, 573)
+    range: [650, 4400]
+    round: 0
+    units: kcal/day
+    label: {en: Total energy intake, es: Ingesta energética total, ca: Ingesta energètica total}
+  protein:
+    type: continuous
+    dist: lognormal(74.8, 22.8)
+    range: [25, 220]
+    round: 1
+    units: g/day
+    label: {en: Protein, es: Proteínas, ca: Proteïnes}
+  fat:
+    type: continuous
+    dist: lognormal(85.8, 31.3)
+    range: [15, 230]
+    round: 1
+    units: g/day
+    label: {en: Total fat, es: Grasa total, ca: Greix total}
+  carbohydrate:
+    type: continuous
+    dist: lognormal(205.8, 59.2)
+    range: [65, 460]
+    round: 1
+    units: g/day
+    label: {en: Carbohydrates, es: Hidratos de carbono, ca: Hidrats de carboni}
+  fibre:
+    type: continuous
+    dist: lognormal(15.6, 6.1)
+    range: [2, 40]
+    round: 1
+    units: g/day
+    label: {en: Dietary fibre, es: Fibra dietética, ca: Fibra dietètica}
+  vitamin_c:
+    type: continuous
+    dist: lognormal(148.6, 65.2)
+    range: [15, 380]
+    round: 0
+    units: mg/day
+    label: {en: Vitamin C, es: Vitamina C, ca: Vitamina C}
+  folate:
+    type: continuous
+    dist: lognormal(195.5, 74)
+    range: [55, 580]
+    round: 0
+    units: µg/day
+    label: {en: Folate, es: Folatos, ca: Folats}
+  calcium:
+    type: continuous
+    dist: lognormal(827, 425)
+    range: [95, 3340]
+    round: 0
+    units: mg/day
+    label: {en: Calcium, es: Calcio, ca: Calci}
+  drinker:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.67
+    label: {en: Drinks alcohol, es: Bebe alcohol, ca: Beu alcohol}
+  alcohol:
+    type: continuous
+    dist: gamma(21.4, 24)
+    range: [0, 166]
+    round: 1
+    only_if: drinker == "yes"      # structural zero for non-drinkers
+    otherwise: 0
+    units: g/day
+    label: {en: Alcohol, es: Alcohol, ca: Alcohol}
+
+structure:
+  - [sex, energy, 0.20]            # men eat more
+  - [sex, smoking, 0.60]
+  - [sex, drinker, 0.40]
+  - [energy, protein, 0.81]
+  - [energy, fat, 0.88]
+  - [energy, carbohydrate, 0.84]
+  - [energy, calcium, 0.47]
+  - [energy, fibre, 0.50]
+  - [energy, alcohol, 0.30]
+  # fruit and vegetables: fibre, vitamin C and folate go together beyond energy
+  - [fibre, vitamin_c, 0.65]
+  - [energy, vitamin_c, 0.20]
+  - [fibre, folate, 0.45]
+  - [energy, folate, 0.35]
+  - [vitamin_c, folate, 0.20]
+
+outcomes:
+  colorectal_cancer:
+    type: event
+    label: {en: Colorectal cancer, es: Cáncer colorrectal, ca: Càncer colorectal}
+    rate: 0.5/1000
+    window: 10
+    followup: 10
+    levels: ["no", "yes"]
+    designs: [case_control, matched_cc, cohort]
+    effects:
+      energy: {HR: 1.50, per: 500}
+      fibre: {HR: 0.90, per: 5}
+      vitamin_c: {HR: 0.90, per: 50}
+      smoking: {HR: [1, 0.65, 1.95]}
+      sex: {HR: 1.2}
+
+null_variables: [age, protein, fat, carbohydrate, folate, calcium, drinker, alcohol]
+
+designs:
+  case_control: {ratio: 1}
+  matched_cc: {ratio: 1}
+
+i18n:
+  en:
+    names: {energy: energy, protein: protein, fat: fat, carbohydrate: carbohydrate, fibre: fibre, vitamin_c: vitamin_c, folate: folate, calcium: calcium, drinker: drinker, alcohol: alcohol, colorectal_cancer: colorectal_cancer}
+  es:
+    names: {energy: energia, protein: proteinas, fat: grasa, carbohydrate: hidratos, fibre: fibra, vitamin_c: vitamina_c, folate: folatos, calcium: calcio, drinker: bebedor, alcohol: alcohol, colorectal_cancer: cancer_colorrectal}
+  ca:
+    names: {energy: energia, protein: proteines, fat: greix, carbohydrate: hidrats, fibre: fibra, vitamin_c: vitamina_c, folate: folats, calcium: calci, drinker: bevedor, alcohol: alcohol, colorectal_cancer: cancer_colorectal}
+
+references:
+  - "Data: Majorca colorectal cancer case-control study, teaching dataset (581 participants; V Moreno)."
+  - "Benito E, Obrador A, Stiggelbout A et al. A population-based case-control study of colorectal cancer in Majorca. I. Dietary factors. Int J Cancer 1990;45:69-76. (to verify)"
+  - "Willett WC, Howe GR, Kushi LH. Adjustment for total energy intake in epidemiologic studies. Am J Clin Nutr 1997;65:1220S-8S."
+
+teaching:
+  en: >
+    People who eat more eat more of everything: protein, fat and carbohydrate
+    correlate above 0.8 with total energy, and fibre, vitamin C and folate
+    about 0.5. Energy raises the risk (OR about 1.4 per 500 kcal), so fibre,
+    which goes with energy, looks harmless in a crude analysis (OR near 1) and
+    protective once energy is in the model: energy is a negative confounder.
+    Adjust by adding energy to the model, by the residual method, or by
+    nutrient densities, and compare. Put all the nutrients in one model and the
+    estimates explode (collinearity). Fibre, vitamin C and folate come from the
+    same fruit and vegetables: which one acts cannot be told from these data.
+    A third of the people drink no alcohol: grams of alcohol has a structural
+    zero.
+  es: >
+    Quien come más come más de todo: proteínas, grasa e hidratos se
+    correlacionan por encima de 0,8 con la energía total, y la fibra, la
+    vitamina C y los folatos alrededor de 0,5. La energía aumenta el riesgo (OR
+    de 1,4 por 500 kcal), así que la fibra, que va con la energía, parece
+    inocua en un análisis crudo (OR cercana a 1) y protectora cuando la energía
+    entra en el modelo: la energía es un confusor negativo. Ajustad añadiendo la
+    energía al modelo, por el método de los residuos o con densidades de
+    nutrientes, y comparad. Poned todos los nutrientes en un mismo modelo y las
+    estimaciones se disparan (colinealidad). La fibra, la vitamina C y los
+    folatos vienen de las mismas frutas y verduras: con estos datos no se puede
+    saber cuál actúa. Un tercio de las personas no bebe alcohol: los gramos de
+    alcohol tienen un cero estructural.
+  ca: >
+    Qui menja més menja més de tot: proteïnes, greix i hidrats es correlacionen
+    per sobre de 0,8 amb l'energia total, i la fibra, la vitamina C i els folats
+    al voltant de 0,5. L'energia augmenta el risc (OR d'1,4 per 500 kcal), de
+    manera que la fibra, que va amb l'energia, sembla innòcua en una anàlisi
+    crua (OR propera a 1) i protectora quan l'energia entra al model: l'energia
+    és un confusor negatiu. Ajusteu afegint l'energia al model, pel mètode dels
+    residus o amb densitats de nutrients, i compareu. Poseu tots els nutrients
+    en un mateix model i les estimacions es disparen (col·linealitat). La fibra,
+    la vitamina C i els folats vénen de les mateixes fruites i verdures: amb
+    aquestes dades no es pot saber quin actua. Un terç de les persones no beu
+    alcohol: els grams d'alcohol tenen un zero estructural.
