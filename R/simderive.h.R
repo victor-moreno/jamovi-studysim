@@ -384,7 +384,7 @@ simDeriveBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "studysim",
                 name = "simDerive",
-                version = c(0,4,0),
+                version = c(0,5,0),
                 options = options,
                 results = simDeriveResults$new(options=options),
                 data = data,

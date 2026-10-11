@@ -10,8 +10,32 @@
             ", cases and controls in separate batches": [
                 ", casos i controls en lots diferents"
             ],
+            "'{cuts}' is not a list of numbers.": [
+                "'{cuts}' no és una llista de nombres."
+            ],
+            "'{cuts}': percentiles must be between 0 and 100.": [
+                "'{cuts}': els percentils han d'estar entre 0 i 100."
+            ],
+            "'{cuts}': use either values or percentiles, not both.": [
+                "'{cuts}': feu servir valors o percentils, no tots dos."
+            ],
+            "'{file}' is not a library: use a .yaml, .yml, .json, .xlsx or .zip file.": [
+                "'{file}' no és una biblioteca: feu servir un fitxer .yaml, .yml, .json, .xlsx o .zip."
+            ],
             "{cases} cases and {controls} controls": [
                 "{cases} casos i {controls} controls"
+            ],
+            "{e} events for {p} parameters of a model adjusted for every measured variable ({r} per parameter, fewer than 10): its estimates will be unstable and pushed away from the null; adjust only for the confounders the diagram points to, or simulate a larger study.": [
+                "{e} esdeveniments per a {p} paràmetres d'un model ajustat per totes les variables mesurades ({r} per paràmetre, menys de 10): les seves estimacions seran inestables i s'allunyaran del nul; ajusteu només pels confusors que assenyala el diagrama, o simuleu un estudi més gran."
+            ],
+            "{events} events in {pt} person-days": [
+                "{events} esdeveniments en {pt} persones-dia"
+            ],
+            "{events} events in {pt} person-months": [
+                "{events} esdeveniments en {pt} persones-mes"
+            ],
+            "{events} events in {pt} person-weeks": [
+                "{events} esdeveniments en {pt} persones-setmana"
             ],
             "{events} events in {pt} person-years": [
                 "{events} esdeveniments en {pt} persones-any"
@@ -43,11 +67,20 @@
             "{n} of {total} scenarios fit the {design} design.": [
                 "{n} de {total} escenaris encaixen amb el disseny {design}."
             ],
+            "{n} participants stopped their assigned treatment (column received)": [
+                "{n} participants van deixar el tractament assignat (columna rebut)"
+            ],
             "{n} rows": [
                 "{n} files"
             ],
             "{n} rows, {c} complete for the model": [
                 "{n} files, {c} completes per al model"
+            ],
+            "{r} studies of {n} per design, each adjusted for all the measured variables. Bias: of the mean estimate (geometric for ratios) against the true value. SE (spread): standard deviation of the estimates (log scale for ratios); SE (model): the mean of the reported ones. Power: confidence intervals that exclude no effect; coverage: intervals that contain the true value (95% expected).": [
+                "{r} estudis de {n} per disseny, cadascun ajustat per totes les variables mesurades. Biaix: de l'estimació mitjana (geomètrica per a les raons) respecte al valor veritable. EE (dispersió): desviació estàndard de les estimacions (escala logarítmica per a les raons); EE (model): la mitjana dels obtinguts. Potència: intervals de confiança que exclouen l'absència d'efecte; cobertura: intervals que contenen el valor veritable (s'espera un 95%)."
+            ],
+            "{title}: write a number between {lo} and {hi}, or leave it empty for the scenario's value.": [
+                "{title}: escriviu un nombre entre {lo} i {hi}, o deixeu-lo buit per fer servir el valor de l'escenari."
             ],
             "2x2 crossover trial": [
                 "Assaig creuat 2x2"
@@ -61,14 +94,29 @@
             "95% CI": [
                 "IC 95%"
             ],
+            "A cluster trial needs at least 4 clusters and 2 people per cluster: raise the sample size or lower the number of clusters.": [
+                "Un assaig per conglomerats necessita almenys 4 conglomerats i 2 persones per conglomerat: augmenteu la mida mostral o reduïu el nombre de conglomerats."
+            ],
             "a random subcohort of {sub} people from a cohort of {n}, plus every case: {cases} cases, {insub} of them in the subcohort": [
                 "una subcohort aleatòria de {sub} persones d'una cohort de {n}, més tots els casos: {cases} casos, {insub} d'ells a la subcohort"
             ],
             "About the scenario": [
                 "Sobre l'escenari"
             ],
+            "Add a variable caused by outcome and exposure": [
+                "Afegir una variable causada pel resultat i l'exposició"
+            ],
             "Adjusted": [
                 "Ajustat"
+            ],
+            "Adjusted (all)": [
+                "Ajustat (totes)"
+            ],
+            "Adjusted (all): for every measured variable. Adjusted (DAG): each variable only for the measured variables it does not cause (its confounders), not for its mediators; compare it with the total effect.": [
+                "Ajustat (totes): per totes les variables mesurades. Ajustat (DAG): cada variable només per les variables mesurades que no causa (els seus confusors), no pels seus mediadors; compareu-lo amb l'efecte total."
+            ],
+            "Adjusted (DAG)": [
+                "Ajustat (DAG)"
             ],
             "Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate.": [
                 "Ajustat per totes les variables mesurades (i la intervenció); interval de confiança del 95% de l'estimació ajustada."
@@ -76,14 +124,26 @@
             "Adjusted: {method} on {n} rows with the outcome; Complete cases: the same model on the {c} complete rows.": [
                 "Ajustat: {method} en {n} files amb la resposta; Casos complets: el mateix model en les {c} files completes."
             ],
+            "admitted is a collider (caused by the outcome and the exposure): Adjusted (all) includes it and is biased; Adjusted (DAG) leaves it out.": [
+                "ingres és un col·lisionador (el causen el resultat i l'exposició): Ajustat (totes) l'inclou i està esbiaixat; Ajustat (DAG) el deixa fora."
+            ],
             "All designs sample the same superpopulation (same seed and student key); each study has its own participants.": [
                 "Tots els dissenys mostregen la mateixa superpoblació (mateixa llavor i clau d'estudiant); cada estudi té els seus propis participants."
+            ],
+            "An event outcome needs a time variable: choose the follow-up time.": [
+                "Un resultat de tipus esdeveniment necessita una variable de temps: trieu el temps de seguiment."
             ],
             "Answer key": [
                 "Clau de respostes"
             ],
             "Answer key report": [
                 "Informe de la clau de respostes"
+            ],
+            "Answer key: absolute effects in the trial": [
+                "Clau de respostes: efectes absoluts en l'assaig"
+            ],
+            "Answer key: accuracy at a cut-off": [
+                "Clau de respostes: exactitud en un punt de tall"
             ],
             "Answer key: markers": [
                 "Clau de respostes: marcadors"
@@ -109,17 +169,26 @@
             "baseline and {k} follow-up visits; participants seen at each visit: {n}": [
                 "visita basal i {k} visites de seguiment; participants vistos a cada visita: {n}"
             ],
-            "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years": [
-                "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} anys"
+            "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}": [
+                "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} {units}"
             ],
             "Before-after (single group)": [
                 "Abans-després (un sol grup)"
             ],
+            "Bias": [
+                "Biaix"
+            ],
             "Bias of method B": [
                 "Biaix del mètode B"
             ],
+            "Biases": [
+                "Biaixos"
+            ],
             "Binary": [
                 "Binària"
+            ],
+            "Boxes: adjusted estimates of the replicate studies (ratios beyond 1/100 or 100 left out); dashed line: true value.": [
+                "Caixes: estimacions ajustades dels estudis replicats (s'ometen les raons per sota de 1/100 o per sobre de 100); línia discontínua: valor veritable."
             ],
             "breast_cancer_risk": [
                 ""
@@ -172,6 +241,9 @@
             "Choose the outcome and the variables of the scenario (and the follow-up time for an event outcome).": [
                 "Trieu la resposta i les variables de l'escenari (i el temps de seguiment si la resposta és un esdeveniment)."
             ],
+            "CI coverage %": [
+                "Cobertura IC %"
+            ],
             "Cluster randomised trial": [
                 "Assaig aleatoritzat per conglomerats"
             ],
@@ -217,6 +289,12 @@
             "Controls per case": [
                 "Controls per cas"
             ],
+            "controls selected by exposure ({vars}): odds of selection x{or}": [
+                "controls seleccionats segons l'exposició ({vars}): odds de selecció x{or}"
+            ],
+            "Controls selected by exposure (odds ratio)": [
+                "Controls seleccionats per exposició (odds ratio)"
+            ],
             "correlation": [
                 "correlació"
             ],
@@ -244,8 +322,14 @@
             "Custom only": [
                 "Només la pròpia"
             ],
+            "Cut points are empty: write e.g. 18.5, 25, 30 or 10%, 90%.": [
+                "Els punts de tall són buits: escriviu p. ex. 18.5, 25, 30 o 10%, 90%."
+            ],
             "Cut points of {var}: {msg}": [
                 "Punts de tall de {var}: {msg}"
+            ],
+            "Cut-off": [
+                "Punt de tall"
             ],
             "cuts": [
                 "talls"
@@ -307,6 +391,21 @@
             "Differences between regions (outcome)": [
                 "Diferències entre regions (resposta)"
             ],
+            "Direct (conditional)": [
+                "Directe (condicional)"
+            ],
+            "Direct: the effect with every other variable of the scenario fixed (how the data were generated).": [
+                "Directe: l'efecte amb totes les altres variables de l'escenari fixes (com es van generar les dades)."
+            ],
+            "Direct: the effect with every other variable of the scenario fixed (how the data were generated). Total: the effect of changing the variable while what it causes changes too, given the variables it does not cause; estimated in a simulated population of {n}.": [
+                "Directe: l'efecte amb totes les altres variables de l'escenari fixes (com es van generar les dades). Total: l'efecte de canviar la variable deixant que canviï també el que causa, donades les variables que no causa; estimat en una població simulada de {n}."
+            ],
+            "disease status verified in {n} people: everybody positive on {m} and a share of the negatives (the others are missing)": [
+                "estat de malaltia verificat en {n} persones: tots els positius en {m} i una part dels negatius (en els altres falta)"
+            ],
+            "Diseased only among the most severe (%)": [
+                "Malalts només entre els més greus (%)"
+            ],
             "Distribution": [
                 "Distribució"
             ],
@@ -327,6 +426,12 @@
             ],
             "Effects on the outcomes": [
                 "Efectes sobre les variables resposta"
+            ],
+            "Empty boxes keep the scenario's values": [
+                "Les caselles buides mantenen els valors de l'escenari"
+            ],
+            "Empty boxes keep the scenario's values (listed under Study)": [
+                "Les caselles buides mantenen els valors de l'escenari (llistats a Estudi)"
             ],
             "Enrol only above percentile": [
                 "Incloure només per sobre del percentil"
@@ -370,11 +475,20 @@
             "Expected values (large studies)": [
                 "Valors esperats (estudis grans)"
             ],
+            "Expected values: crude and adjusted estimates averaged over {k} simulated studies of {n} rows with this design; adjusted for {vars}.": [
+                "Valors esperats: estimacions crues i ajustades fent la mitjana de {k} estudis simulats de {n} files amb aquest disseny; ajustades per {vars}."
+            ],
             "Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}.": [
                 "Valors esperats: estimacions crues i ajustades d'un estudi simulat de {n} files amb aquest disseny; ajustat per {vars}."
             ],
             "Export": [
                 "Exportar"
+            ],
+            "Export class (zip)": [
+                "Exportar classe (zip)"
+            ],
+            "Export codebook": [
+                "Exportar llibre de codis"
             ],
             "Export CSV": [
                 "Exportar CSV"
@@ -385,14 +499,20 @@
             "Export scenario": [
                 "Exportar escenari"
             ],
+            "Exposure": [
+                "Exposició"
+            ],
             "Extra variables with no effect": [
                 "Variables addicionals sense efecte"
+            ],
+            "File": [
+                "Fitxer"
             ],
             "Filled dot and bar: adjusted estimate and 95% CI; open red circle: crude estimate; cross: large study; dashed line: true value.": [
                 "Punt ple i barra: estimació ajustada i IC del 95%; cercle vermell buit: estimació crua; creu: estudi gran; línia discontínua: valor veritable."
             ],
-            "Follow-up (years)": [
-                "Seguiment (anys)"
+            "Follow-up": [
+                "Seguiment"
             ],
             "Follow-up time (event outcomes)": [
                 "Temps de seguiment (esdeveniments)"
@@ -409,8 +529,14 @@
             "From": [
                 "Des de"
             ],
+            "From the potential outcomes of {n} people, each one under every arm. The crude comparison of a trial estimates the marginal (population) ratio, which is closer to 1 than the conditional one of the true model even without confounding (non-collapsibility); adjusting for prognostic variables moves it towards the conditional one.": [
+                "A partir dels resultats potencials de {n} persones, cadascuna en tots els braços. La comparació crua d'un assaig estima la raó marginal (poblacional), més propera a 1 que la condicional del model veritable fins i tot sense confusió (no col·lapsabilitat); ajustar per variables pronòstiques l'acosta a la condicional."
+            ],
             "Id": [
                 "Id"
+            ],
+            "Immortal time: treated people had to survive until their treatment started, so a baseline comparison makes a useless treatment look protective; a time-dependent analysis (treated from treatment_start on) or a landmark analysis gives about 1.": [
+                "Temps immortal: els tractats van haver de sobreviure fins a començar el tractament, de manera que una comparació basal fa que un tractament inútil sembli protector; una anàlisi dependent del temps (tractat des d'inici_tractament) o una anàlisi landmark dona prop d'1."
             ],
             "Import, check, explore and export scenarios": [
                 "Importar, comprovar, explorar i exportar escenaris"
@@ -420,6 +546,12 @@
             ],
             "In scenario": [
                 "A l'escenari"
+            ],
+            "Informative loss to follow-up (hazard ratio)": [
+                "Pèrdues de seguiment informatives (hazard ratio)"
+            ],
+            "Informative loss to follow-up: the Kaplan-Meier risk by {t} {units} is {km} in the large study and {true} in the population.": [
+                "Pèrdues de seguiment informatives: el risc de Kaplan-Meier a {t} {units} és {km} en l'estudi gran i {true} en la població."
             ],
             "integer": [
                 "entera"
@@ -481,11 +613,20 @@
             "log2": [
                 "log2"
             ],
+            "Long (one row per measurement)": [
+                "Llarg (una fila per mesura)"
+            ],
             "Longitudinal trial (repeated visits)": [
                 "Assaig longitudinal (visites repetides)"
             ],
-            "Loss to follow-up (% per year)": [
-                "Pèrdues de seguiment (% anual)"
+            "Loss to follow-up": [
+                "Pèrdues de seguiment"
+            ],
+            "Loss to follow-up (% per time unit)": [
+                "Pèrdues de seguiment (% per unitat de temps)"
+            ],
+            "loss to follow-up depends on the risk of the outcome (hazard ratio {hr} per SD)": [
+                "les pèrdues de seguiment depenen del risc del resultat (hazard ratio {hr} per DE)"
             ],
             "Lower": [
                 "Inferior"
@@ -516,6 +657,9 @@
             ],
             "mean / most frequent value imputation": [
                 "imputació per la mitjana / valor més freqüent"
+            ],
+            "Mean estimate": [
+                "Estimació mitjana"
             ],
             "Measure": [
                 "Mesura"
@@ -556,6 +700,9 @@
             "multiple imputation ({m} imputations, Rubin's rules)": [
                 "imputació múltiple ({m} imputacions, regles de Rubin)"
             ],
+            "Negative predictive value": [
+                "Valor predictiu negatiu"
+            ],
             "Nested case-control": [
                 "Casos i controls niat"
             ],
@@ -571,6 +718,12 @@
             "nominal": [
                 "nominal"
             ],
+            "Non-adherence to treatment (%)": [
+                "No adherència al tractament (%)"
+            ],
+            "Non-adherence: the rows without a label compare the arms as randomised (intention to treat), which dilutes the effect; as treated compares the treatment received and per protocol only those who received what they were assigned: both are biased because those who stopped had a different prognosis.": [
+                "No adherència: les files sense etiqueta comparen els braços tal com es van aleatoritzar (intenció de tractar), cosa que dilueix l'efecte; segons tractament rebut compara el tractament rebut i per protocol només els qui van rebre l'assignat: tots dos estan esbiaixats perquè els qui el van deixar tenien un altre pronòstic."
+            ],
             "not measured (they still act): {vars}": [
                 "no mesurades (però actuen): {vars}"
             ],
@@ -582,6 +735,12 @@
             ],
             "One scenario, several designs, same population": [
                 "Un escenari, diversos dissenys, la mateixa població"
+            ],
+            "only {r} events per parameter of the adjusted model": [
+                "només {r} esdeveniments per paràmetre del model ajustat"
+            ],
+            "only the most severe {p}% of the diseased are in the study (spectrum)": [
+                "a l'estudi només hi ha el {p}% més greu dels malalts (espectre)"
             ],
             "Open dataset": [
                 "Obrir dades"
@@ -610,6 +769,9 @@
             "Output": [
                 "Sortida"
             ],
+            "Partial verification: the large study, like the dataset, has the disease status only for the verified people; analysing them alone overstates sensitivity and understates specificity.": [
+                "Verificació parcial: l'estudi gran, com les dades, només té l'estat de malaltia de les persones verificades; analitzar-les soles sobreestima la sensibilitat i infraestima l'especificitat."
+            ],
             "path": [
                 "camí"
             ],
@@ -618,6 +780,12 @@
             ],
             "Period effect": [
                 "Efecte període"
+            ],
+            "Positive predictive value": [
+                "Valor predictiu positiu"
+            ],
+            "Power %": [
+                "Potència %"
             ],
             "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them.": [
                 "Premeu <b>Obrir dades</b> per obrir les dades en una finestra nova, o <b>Exportar CSV</b> per desar-les."
@@ -661,8 +829,23 @@
             "Realism": [
                 "Realisme"
             ],
-            "Recruitment period (years)": [
-                "Període de reclutament (anys)"
+            "Recall bias (% of cases)": [
+                "Biaix de memòria (% de casos)"
+            ],
+            "Recall bias and selection of controls by exposure distort the odds ratios of the exposure; the true values are what an unbiased study would estimate.": [
+                "El biaix de memòria i la selecció de controls segons l'exposició distorsionen les odds ratios de l'exposició; els valors veritables són el que estimaria un estudi sense biaix."
+            ],
+            "Recall bias, control selection and the collider act on an exposure: tick it in the Exposure column of the Variables list.": [
+                "El biaix de memòria, la selecció de controls i el col·lisionador actuen sobre una exposició: marqueu-la a la columna Exposició de la llista de Variables."
+            ],
+            "recall bias: {p}% of the unexposed cases report the exposure ({vars})": [
+                "biaix de memòria: el {p}% dels casos no exposats declara l'exposició ({vars})"
+            ],
+            "Recall, control selection and the collider act on the variables ticked in the Exposure column": [
+                "La memòria, la selecció de controls i el col·lisionador actuen sobre les variables marcades a la columna Exposició"
+            ],
+            "Recruitment period": [
+                "Període de reclutament"
             ],
             "Red: raises the outcome, blue: lowers it; * the effect depends on another variable.": [
                 "Vermell: augmenta la resposta, blau: la redueix; * l'efecte depèn d'una altra variable."
@@ -676,11 +859,20 @@
             "Reliability of numeric measures": [
                 "Fiabilitat de les mesures numèriques"
             ],
+            "Repeated measures": [
+                "Mesures repetides"
+            ],
             "Replaced by LOD/2": [
                 "Substituïts per LOD/2"
             ],
             "Replaced by the LOD": [
                 "Substituïts pel LOD"
+            ],
+            "Replicate studies": [
+                "Estudis replicats"
+            ],
+            "Replicate studies per design": [
+                "Estudis replicats per disseny"
             ],
             "Reported as missing": [
                 "S'informen com a faltants"
@@ -693,6 +885,9 @@
             ],
             "Sample size": [
                 "Mida mostral"
+            ],
+            "Sampling distribution by design": [
+                "Distribució mostral per disseny"
             ],
             "scale": [
                 "escala"
@@ -715,6 +910,12 @@
             "Scenarios for design": [
                 "Escenaris per al disseny"
             ],
+            "SE (model)": [
+                "EE (model)"
+            ],
+            "SE (spread)": [
+                "EE (dispersió)"
+            ],
             "Seed": [
                 "Llavor"
             ],
@@ -726,6 +927,9 @@
             ],
             "Selected scenario": [
                 "Escenari seleccionat"
+            ],
+            "Sensitivity": [
+                "Sensibilitat"
             ],
             "sequences: {a} and {b} participants": [
                 "seqüències: {a} i {b} participants"
@@ -766,6 +970,12 @@
             "Sources of the parameters": [
                 "Fonts dels paràmetres"
             ],
+            "Specificity": [
+                "Especificitat"
+            ],
+            "Spectrum bias: only the most severe diseased are in the study, so sensitivity and the AUC are higher than in the population.": [
+                "Biaix d'espectre: a l'estudi només hi ha els malalts més greus, de manera que la sensibilitat i l'AUC són més altes que a la població."
+            ],
             "Status 2 is a competing event: a Cox model that censors it estimates the true cause-specific hazard ratios; 1 - Kaplan-Meier then overstates the cumulative incidence of the event (use the cumulative incidence function).": [
                 "L'estat 2 és un esdeveniment competitiu: un model de Cox que el censura estima els hazard ratios específics de causa veritables; 1 - Kaplan-Meier sobreestima llavors la incidència acumulada de l'esdeveniment (feu servir la funció d'incidència acumulada)."
             ],
@@ -780,6 +990,9 @@
             ],
             "Student key": [
                 "Clau d'estudiant"
+            ],
+            "Student keys of the class": [
+                "Claus d'alumne de la classe"
             ],
             "Studies": [
                 "Estudis"
@@ -802,17 +1015,47 @@
             "Summary": [
                 "Resum"
             ],
+            "Teacher code": [
+                "Codi de professor"
+            ],
             "Teaching note": [
                 "Nota docent"
             ],
             "tertiles": [
                 "terços"
             ],
+            "Test positive beyond the cut-off (the scenario's, or the point that maximises sensitivity + specificity). True: a population of 100,000 without selection or verification bias; PPV and NPV at the prevalence of each.": [
+                "Prova positiva més enllà del punt de tall (el de l'escenari, o el que maximitza sensibilitat + especificitat). Veritable: una població de 100.000 sense biaix de selecció ni de verificació; VPP i VPN amb la prevalença de cadascun."
+            ],
+            "Test-negatives verified (%)": [
+                "Negatius verificats (%)"
+            ],
             "The {design} design does not fit this outcome. Possible designs: {list}.": [
                 "El disseny {design} no encaixa amb aquesta variable resposta. Dissenys possibles: {list}."
             ],
+            "The answer key could not be computed for these options:": [
+                "No s'ha pogut calcular la clau de respostes amb aquestes opcions:"
+            ],
+            "The calculation failed for these options. R said:": [
+                "El càlcul ha fallat amb aquestes opcions. R diu:"
+            ],
+            "the column admitted is caused by the outcome and by the exposure": [
+                "la columna ingres la causen el resultat i l'exposició"
+            ],
             "The correlations are undirected: before teaching with this scenario, decide which variables cause which (structure), add rules for impossible combinations, labels and a teaching note. Export it and edit the file, or give it to an AI with the prompt in the module's documentation.": [
                 "Les correlacions no tenen direcció: abans d'usar aquest escenari en docència, decidiu quines variables causen quines (estructura), afegiu regles per a combinacions impossibles, etiquetes i una nota docent. Exporteu-lo i editeu el fitxer, o doneu-lo a una IA amb el prompt de la documentació del mòdul."
+            ],
+            "The custom library could not be read: load it again with Browse…": [
+                "No s'ha pogut llegir la biblioteca pròpia: carregueu-la de nou amb Browse…"
+            ],
+            "The expected values come from simulation: their 95% Monte Carlo uncertainty is up to ±{d} for the differences.": [
+                "Els valors esperats provenen de la simulació: la seva incertesa de Monte Carlo (95%) arriba a ±{d} en les diferències."
+            ],
+            "The expected values come from simulation: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios.": [
+                "Els valors esperats provenen de la simulació: la seva incertesa de Monte Carlo (95%) arriba a ±{pct}% en les raons."
+            ],
+            "The library has no scenario '{id}'. Choose another scenario, or load the library that has it.": [
+                "La biblioteca no té l'escenari '{id}'. Trieu un altre escenari o carregueu la biblioteca que el conté."
             ],
             "The library has no scenarios. Press Browse… to read a custom library.": [
                 "La biblioteca no té escenaris. Premeu Browse… per llegir una biblioteca pròpia."
@@ -820,11 +1063,23 @@
             "The measured variables have measurement error, also in this large study: the estimates are diluted towards no effect, and confounding is only partly removed.": [
                 "Les variables mesurades tenen error de mesura, també en aquest estudi gran: les estimacions es dilueixen cap a l'absència d'efecte i la confusió només s'elimina en part."
             ],
+            "The outcome is too rare: {n} cases in {pop} people. Ask for fewer cases, or raise its frequency.": [
+                "El resultat és massa rar: {n} casos en {pop} persones. Demaneu menys casos o augmenteu-ne la freqüència."
+            ],
+            "The outcome is too rare: too few events among {pop} people. Ask for a smaller study, or raise its frequency.": [
+                "El resultat és massa rar: massa pocs esdeveniments entre {pop} persones. Demaneu un estudi més petit o augmenteu-ne la freqüència."
+            ],
             "the outcome measured twice in each person, by methods A and B": [
                 "la resposta mesurada dues vegades en cada persona, amb els mètodes A i B"
             ],
+            "The scenario '{id}' has problems in its library definition (check it with Library):": [
+                "L'escenari '{id}' té problemes en la seva definició de la biblioteca (comproveu-ho amb Biblioteca):"
+            ],
             "There is no scenario '{id}' in this library; choose one listed under Scenarios.": [
                 "No hi ha cap escenari '{id}' en aquesta biblioteca; trieu-ne un dels llistats a Escenaris."
+            ],
+            "This library is locked by a teacher code: the answer key, the true values and the effect sizes need the code (Teacher code, under Output).": [
+                "Aquesta biblioteca està bloquejada amb un codi de professor: la clau de respostes, els valors veritables i les mides d'efecte necessiten el codi (Codi de professor, a Sortida)."
             ],
             "Tick at least one design that fits this outcome: {list}.": [
                 "Marqueu almenys un disseny que encaixi amb aquesta resposta: {list}."
@@ -835,14 +1090,29 @@
             "To": [
                 "Cap a"
             ],
+            "Too few people above the entry threshold: lower it.": [
+                "Massa poques persones per sobre del llindar d'entrada: rebaixeu-lo."
+            ],
+            "Total": [
+                "Total"
+            ],
+            "Treatment started during follow-up (immortal time)": [
+                "Tractament iniciat durant el seguiment (temps immortal)"
+            ],
+            "treatment started during follow-up: columns treated and treatment_start (the treatment has no effect)": [
+                "tractament iniciat durant el seguiment: columnes tractat i inici_tractament (el tractament no té efecte)"
+            ],
             "True": [
                 "Veritable"
             ],
+            "True (direct)": [
+                "Veritable (directe)"
+            ],
+            "True (total)": [
+                "Veritable (total)"
+            ],
             "True AUC": [
                 "AUC veritable"
-            ],
-            "True value": [
-                "Valor veritable"
             ],
             "True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare.": [
                 "Els valors veritables són {true}, la mesura amb què es van generar les dades (una cohort seguida en el temps); aquest disseny estima {est}, que s'hi acosten quan la resposta és rara."
@@ -883,8 +1153,17 @@
             "Whole library": [
                 "Tota la biblioteca"
             ],
+            "Wide (one row per person)": [
+                "Ample (una fila per persona)"
+            ],
             "With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level.": [
                 "Amb una interacció, un model amb els dos efectes principals estima l'efecte de cada intervenció mitjanat sobre l'altra; els valors veritables valen quan l'altra intervenció és al seu nivell de referència."
+            ],
+            "Write the divisor in Cuts, a positive number such as 10.": [
+                "Escriviu el divisor a Talls, un nombre positiu com 10."
+            ],
+            "Write the student keys of the class (separated by commas) before exporting it.": [
+                "Escriviu les claus d'alumne de la classe (separades per comes) abans d'exportar-la."
             ],
             "YAML (for an AI or a library)": [
                 "YAML (per a una IA o una biblioteca)"
@@ -894,27 +1173,6 @@
             ],
             "yes": [
                 "sí"
-            ],
-            "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios.": [
-                "Els valors esperats provenen d'un únic estudi simulat: la seva incertesa de Monte Carlo (95%) arriba a ±{pct}% en les raons."
-            ],
-            "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{d} for the differences.": [
-                "Els valors esperats provenen d'un únic estudi simulat: la seva incertesa de Monte Carlo (95%) arriba a ±{d} en les diferències."
-            ],
-            "The answer key could not be computed for these options:": [
-                "No s'ha pogut calcular la clau de respostes amb aquestes opcions:"
-            ],
-            "{events} events in {pt} person-months": [
-                "{events} esdeveniments en {pt} persones-mes"
-            ],
-            "{events} events in {pt} person-weeks": [
-                "{events} esdeveniments en {pt} persones-setmana"
-            ],
-            "{events} events in {pt} person-days": [
-                "{events} esdeveniments en {pt} persones-dia"
-            ],
-            "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}": [
-                "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} {units}"
             ]
         }
     }
