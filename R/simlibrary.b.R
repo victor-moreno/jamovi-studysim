@@ -155,7 +155,7 @@ simLibraryClass <- R6::R6Class(
                 }
                 switch(o$exportFormat,
                     xlsx = { write_library_xlsx(lib, action$params$fullPath); list(filename = paste0(base, ".xlsx")) },
-                    json = { writeLines(library_to_json(lib, pretty = TRUE), action$params$fullPath, useBytes = TRUE)
+                    json = { writeLines(library_to_json(lib, pretty = TRUE, compatible = TRUE), action$params$fullPath, useBytes = TRUE)
                              list(filename = paste0(base, ".json")) },
                     yaml = { write_library_yaml_zip(lib, action$params$fullPath); list(filename = paste0(base, ".zip")) })
             })

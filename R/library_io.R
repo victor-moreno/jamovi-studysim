@@ -342,9 +342,20 @@ read_library_xlsx <- function(path) {
     tables_to_library(t)
 }
 
-library_to_json <- function(lib, pretty = FALSE)
-    jsonlite::toJSON(list(variables = lib$dictionary, scenarios = lib$scenarios, i18n = lib$i18n %||% list()), auto_unbox = TRUE,
+# With compatible = TRUE each outcome carries `_compatible`, the designs that
+# fit it computed by compatible_designs(), so the panel never re-implements
+# that rule (it falls back to its own copy for JSON files written without it)
+library_to_json <- function(lib, pretty = FALSE, compatible = FALSE) {
+    sc <- lib$scenarios
+    if (compatible) for (id in names(sc)) {
+        s <- tryCatch(load_scenario(lib, id), error = function(e) NULL)
+        if (is.null(s)) next
+        for (o in intersect(names(sc[[id]]$outcomes), names(s$outcomes)))
+            sc[[id]]$outcomes[[o]][["_compatible"]] <- I(compatible_designs(s, o))
+    }
+    jsonlite::toJSON(list(variables = lib$dictionary, scenarios = sc, i18n = lib$i18n %||% list()), auto_unbox = TRUE,
                      pretty = pretty, null = "null", digits = NA)
+}
 
 library_from_json <- function(text) {
     doc <- jsonlite::fromJSON(text, simplifyVector = FALSE)

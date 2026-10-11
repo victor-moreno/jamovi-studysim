@@ -132,7 +132,7 @@ simDeriveClass <- R6::R6Class(
                     yaml = { writeLines(yaml::as.yaml(sc), action$params$fullPath, useBytes = TRUE)
                              list(filename = paste0(sc$id, ".yaml")) },
                     xlsx = { write_library_xlsx(lib, action$params$fullPath); list(filename = paste0(sc$id, ".xlsx")) },
-                    json = { writeLines(library_to_json(lib, pretty = TRUE), action$params$fullPath, useBytes = TRUE)
+                    json = { writeLines(library_to_json(lib, pretty = TRUE, compatible = TRUE), action$params$fullPath, useBytes = TRUE)
                              list(filename = paste0(sc$id, ".json")) })
             })
             st$setRow(rowNo = 1, values = list(fired = "yes"))

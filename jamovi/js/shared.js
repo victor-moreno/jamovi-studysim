@@ -143,8 +143,10 @@ function library(ui) {
     return lib;
 }
 
-// same rule as compatible_designs() in R/engine_scenario.R
+// the designs computed in R (`_compatible`, written by library_to_json);
+// for a JSON file without them, the same rule as compatible_designs()
 function designsFor(sc, oc) {
+    if (oc._compatible) return [].concat(oc._compatible).filter(function(d) { return DESIGNS.indexOf(d) >= 0; });
     if (oc.designs) return [].concat(oc.designs).filter(function(d) { return DESIGNS.indexOf(d) >= 0; });
     var effects = Object.keys(oc.effects || {});
     var ivs = sc.interventions || {};

@@ -49,3 +49,12 @@ test_that("a continuous outcome with a range is truncated, not piled at the boun
   expect_true(all(y >= 0 & y <= 100))
   expect_gt(stats::cor(y, simulate_study(sc, "y", "cross_sectional", 3000, key = FALSE)$data_raw$x), 0.1)
 })
+
+test_that("the panel catalogue carries the designs computed in R", {
+  lib <- builtin_library()
+  j <- jsonlite::fromJSON(library_to_json(library_subset(lib, "colon_adjuvant"), compatible = TRUE), simplifyVector = FALSE)
+  sc <- load_scenario(lib, "colon_adjuvant")
+  expect_identical(unlist(j$scenarios$colon_adjuvant$outcomes$death[["_compatible"]]), compatible_designs(sc, "death"))
+  back <- library_from_json(library_to_json(library_subset(lib, "colon_adjuvant"), compatible = TRUE))
+  expect_equal(nrow(check_library(back)), 0)
+})
