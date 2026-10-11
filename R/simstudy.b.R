@@ -117,6 +117,12 @@ simStudyClass <- R6::R6Class(
                     for (r in private$.expectedRows(ctx, oc2, pre))
                         self$results$keyExpected$addRow(rowKey = r$key, values = list(outcome = olab, variable = dname(r$variable, ctx$lang), contrast = r$contrast))
                 }
+                # total effects and the diagram's adjustment only where they differ from the rest
+                ivp <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$opt))
+                med <- any(vapply(private$.keyOutcomes(ctx), function(o) any_mediated(ctx$sc, ctx$sc$outcomes[[o]]), TRUE))
+                self$results$keyEffects$getColumn("total")$setVisible(med)
+                self$results$keyExpected$getColumn("total")$setVisible(!length(ivp) && any_mediated(ctx$sc, ctx$oc, ctx$factors))
+                self$results$keyExpected$getColumn("dag")$setVisible(dag_differs(ctx$sc, ctx$design, ctx$factors, length(ivp) > 0))
                 if (ctx$design == "diagnostic") {
                     for (m in ctx$oc$markers) {
                         cols <- marker_cols(m)
@@ -220,7 +226,7 @@ simStudyClass <- R6::R6Class(
             num <- function(x) ifelse(is.na(x), "", formatC(signif(x, 3), format = "fg", digits = 3))
             tab <- function(head, rows) paste0("<table><tr>", paste0("<th>", esc(head), "</th>", collapse = ""), "</tr>",
                 paste0(apply(rows, 1, function(r) paste0("<tr>", paste0("<td>", esc(r), "</td>", collapse = ""), "</tr>")), collapse = ""), "</table>")
-            te <- true_effects(sc, oc, l)
+            te <- (self$results$keyEffects$state %||% list())[[oc$id]] %||% true_effects(sc, oc, l, total = TRUE)
             ex <- self$results$keyExpected$state %||% expected_all(sc, oc, ctx$design, opt, ctx$factors, l, ctx$cats)
             if (!is.data.frame(ex)) ex <- do.call(rbind, lapply(names(ex), function(o) { e <- ex[[o]]
                 if (length(ex) > 1) e$contrast <- sprintf("%s: %s", tr_text(sc$outcomes[[o]]$label, l), e$contrast); e }))
@@ -243,11 +249,12 @@ simStudyClass <- R6::R6Class(
                       "th{background:#f3f3f3}h1{font-size:22px}h2{font-size:17px;margin-top:26px}img{max-width:100%}</style></head><body>",
                       "<h1>", esc(.("Answer key")), ": ", esc(tr_text(sc$label, l)), "</h1><ul>", paste0("<li>", esc(facts), "</li>", collapse = ""), "</ul>",
                       "<h2>", esc(.("Answer key: true model")), "</h2>",
-                      tab(c(.("Variable"), .("Contrast"), .("Measure"), .("True value"), .("Note")),
-                          cbind(dname(te$variable, l), te$contrast, te$measure, num(te$value), te$note)))
+                      tab(c(.("Variable"), .("Contrast"), .("Measure"), .("Direct (conditional)"), .("Total"), .("Note")),
+                          cbind(dname(te$variable, l), te$contrast, te$measure, num(te$value), num(te$total), te$note)))
             if (!is.null(ex) && nrow(ex)) html <- c(html, "<h2>", esc(.("Answer key: what this design should estimate")), "</h2>",
-                tab(c(.("Variable"), .("Contrast"), .("True"), .("Crude"), .("Adjusted"), .("Estimate"), .("Note")),
-                    cbind(dname(ex$variable, l), ex$contrast, num(ex$true), num(ex$crude), num(ex$adjusted), ex$measure, ex$note)))
+                tab(c(.("Variable"), .("Contrast"), .("True (direct)"), .("True (total)"), .("Crude"), .("Adjusted (all)"), .("Adjusted (DAG)"), .("Estimate"), .("Note")),
+                    cbind(dname(ex$variable, l), ex$contrast, num(ex$true), num(ex$total %||% NA), num(ex$crude), num(ex$adjusted), num(ex$dag %||% NA),
+                          ex$measure, ex$note)))
             mc <- mc_note(list(ex), self)
             if (nzchar(mc)) html <- c(html, "<p>", esc(mc), "</p>")
             if (ctx$design == "diagnostic") {
@@ -351,12 +358,25 @@ simStudyClass <- R6::R6Class(
         },
 
         .fillKey = function(ctx, cal, opt) {
-            for (o in private$.keyOutcomes(ctx)) {
-                pre <- if (o == ctx$oc$id) "" else paste0(o, "|")
-                te <- true_effects(ctx$sc, ctx$sc$outcomes[[o]], ctx$lang)
-                for (i in seq_len(nrow(te))) if (paste0(pre, i) %in% self$results$keyEffects$rowKeys)
-                    self$results$keyEffects$setRow(rowKey = paste0(pre, i), values = list(measure = te$measure[i], value = te$value[i], note = te$note[i]))
+            # total effects take a simulated population: kept in the table's state
+            tel <- self$results$keyEffects$state
+            if (is.null(tel)) {
+                tel <- lapply(stats::setNames(private$.keyOutcomes(ctx), private$.keyOutcomes(ctx)),
+                              function(o) true_effects(ctx$sc, ctx$sc$outcomes[[o]], ctx$lang, total = TRUE))
+                self$results$keyEffects$setState(tel)
             }
+            blank <- function(x) if (is.na(x)) "" else x
+            for (o in names(tel)) {
+                pre <- if (o == ctx$oc$id) "" else paste0(o, "|")
+                te <- tel[[o]]
+                for (i in seq_len(nrow(te))) if (paste0(pre, i) %in% self$results$keyEffects$rowKeys)
+                    self$results$keyEffects$setRow(rowKey = paste0(pre, i), values = list(measure = te$measure[i], value = te$value[i],
+                                                                                          total = blank(te$total[i]), note = te$note[i]))
+            }
+            nt <- max(0, unlist(lapply(tel, attr, "n_total")))
+            if (nt > 0) self$results$keyEffects$setNote("estimands", jmvcore::format(.("Direct: the effect with every other variable of the scenario fixed (how the data were generated). Total: the effect of changing the variable while what it causes changes too, given the variables it does not cause; estimated in a simulated population of {n}."),
+                                                                                     n = base::format(nt, big.mark = ",")))
+            else self$results$keyEffects$setNote("estimands", .("Direct: the effect with every other variable of the scenario fixed (how the data were generated)."))
             tbl <- self$results$keyExpected
             exl <- tbl$state
             if (is.data.frame(exl)) exl <- stats::setNames(list(exl), ctx$oc$id)   # a state saved by v0.3
@@ -365,7 +385,6 @@ simStudyClass <- R6::R6Class(
                 tbl$setState(exl)
             }
             ex <- exl[[ctx$oc$id]]
-            blank <- function(x) if (is.na(x)) "" else x
             for (o in names(exl)) {
                 e <- exl[[o]]; pre <- if (o == ctx$oc$id) "" else paste0(o, "|")
                 for (i in seq_len(NROW(e))) {
@@ -373,13 +392,17 @@ simStudyClass <- R6::R6Class(
                     if (!k %in% tbl$rowKeys) next
                     # no single true value (categorised or modified effect), or a
                     # coefficient the model dropped: an empty cell, not NaN
-                    tbl$setRow(rowKey = k, values = list(truth = blank(e$true[i]), crude = blank(e$crude[i]), adjusted = blank(e$adjusted[i]),
+                    tbl$setRow(rowKey = k, values = list(truth = blank(e$true[i]), total = blank(e$total[i] %||% NA), crude = blank(e$crude[i]),
+                                                         adjusted = blank(e$adjusted[i]), dag = blank(e$dag[i] %||% NA),
                                                          measure = e$measure[i], note = e$note[i]))
                 }
             }
             if (!is.null(ex)) {
                 tbl$setNote("n", jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
+                ivp <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$opt))
+                if (dag_differs(ctx$sc, ctx$design, ctx$factors, length(ivp) > 0))
+                    tbl$setNote("dag", .("Adjusted (all): for every measured variable. Adjusted (DAG): each variable only for the measured variables it does not cause (its confounders), not for its mediators; compare it with the total effect."))
                 note <- mc_note(exl, self)
                 if (nzchar(note)) tbl$setNote("mc", note)
                 if (ctx$design == "factorial" && opt$interaction != 0)

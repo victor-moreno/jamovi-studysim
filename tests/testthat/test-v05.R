@@ -80,3 +80,29 @@ test_that("engine errors reach the user translated, R's own errors with a prefac
   r <- simStudy(data = data.frame(), scenario = "breast_cancer_risk", design = "cohort", n = 100, measured = m)
   expect_match(r$notice$content, "Cut points of age: 'a, b' is not a list of numbers.")
 })
+
+test_that("the key separates direct and total effects and adjusts as the diagram says", {
+  sc <- load_scenario(builtin_library(), "chd_incidence")
+  oc <- sc$outcomes$chd
+  expect_true("hdl" %in% mediators(sc, oc, "sex"))
+  expect_false("hdl" %in% adjustment_set(sc, "sex", sc$order))
+  te <- true_effects(sc, oc, total = TRUE)
+  edu <- te[te$variable == "education", ]
+  expect_match(edu$note[1], "no direct effect; acts through")
+  expect_true(all(edu$value == 1) && all(edu$total < 1))
+  expect_equal(te$total[te$variable == "sbp"], te$value[te$variable == "sbp"])
+  expect_gt(te$total[te$variable == "sex"], te$value[te$variable == "sex"])
+  ex <- expected_estimates(sc, oc, "cohort", design_defaults("cohort", oc, sc), sc$order)
+  s <- ex[ex$variable == "sex", ]
+  expect_lt(abs(log(s$dag / s$total)), abs(log(s$adjusted / s$total)))
+  expect_equal(ex$dag[ex$variable == "sbp"], ex$adjusted[ex$variable == "sbp"])
+})
+
+test_that("a variable acting only through others gets a row of its own", {
+  sc <- load_scenario(builtin_library(), "breast_cancer_risk")
+  te <- true_effects(sc, sc$outcomes$breast_cancer, total = TRUE)
+  m <- te[te$variable == "menopause", ]
+  expect_equal(nrow(m), 1)
+  expect_match(m$note, "acts through hrt")
+  expect_gt(m$total, 1.05)
+})

@@ -824,7 +824,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="text"),
                     list(
                         `name`="value", 
-                        `title`="True value", 
+                        `title`="Direct (conditional)", 
+                        `type`="number"),
+                    list(
+                        `name`="total", 
+                        `title`="Total", 
                         `type`="number"),
                     list(
                         `name`="note", 
@@ -884,7 +888,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="text"),
                     list(
                         `name`="truth", 
-                        `title`="True", 
+                        `title`="True (direct)", 
+                        `type`="number"),
+                    list(
+                        `name`="total", 
+                        `title`="True (total)", 
                         `type`="number"),
                     list(
                         `name`="crude", 
@@ -892,7 +900,11 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="number"),
                     list(
                         `name`="adjusted", 
-                        `title`="Adjusted", 
+                        `title`="Adjusted (all)", 
+                        `type`="number"),
+                    list(
+                        `name`="dag", 
+                        `title`="Adjusted (DAG)", 
                         `type`="number"),
                     list(
                         `name`="measure", 

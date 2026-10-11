@@ -79,6 +79,9 @@ GENERIC <- list(
     log_zero = list(en = "the outcome has zeros: analysed as log(y + %s), which pulls the ratio towards 1",
                     es = "el resultado tiene ceros: analizado como log(y + %s), lo que acerca la razón a 1",
                     ca = "el resultat té zeros: analitzat com a log(y + %s), cosa que acosta la raó a 1"),
+    null_var = list(en = "no effect (null variable)", es = "sin efecto (variable nula)", ca = "sense efecte (variable nul·la)"),
+    no_direct = list(en = "no direct effect; acts through %s", es = "sin efecto directo; actúa a través de %s", ca = "sense efecte directe; actua a través de %s"),
+    also_through = list(en = "also acts through %s", es = "también actúa a través de %s", ca = "també actua a través de %s"),
     at_center = list(en = "at %s = %s", es = "con %s = %s", ca = "amb %s = %s"),
     mediqr = list(en = "median [IQR]", es = "mediana [RIC]", ca = "mediana [RIQ]"),
     vs = list(en = "vs", es = "frente a", ca = "enfront de"))

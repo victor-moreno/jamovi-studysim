@@ -52,7 +52,12 @@ center_note <- function(oc, v, lang = "en") {
     paste(vapply(at, function(e) sprintf(gtext("at_center", lang), dname(e$var, lang), base::format(e$center)), ""), collapse = "; ")
 }
 
-true_effects <- function(sc, oc, lang = "en") {
+# The true model: one row per contrast of each variable with a direct effect,
+# each null variable and each variable that acts only through others. `value`
+# is the direct (conditional) effect; `total` the total effect, equal to the
+# direct one unless the variable acts through mediators, where it is NA unless
+# total = TRUE (computed by simulation, total_effects()).
+true_effects <- function(sc, oc, lang = "en", total = FALSE) {
     # illness-death: the effects of the two transitions (death without the
     # first event, and after it); there is no single hazard ratio
     if (!is.null(oc[["after"]])) {   # [[ ]]: $ would partially match after_event
@@ -61,29 +66,39 @@ true_effects <- function(sc, oc, lang = "en") {
         base$after <- NULL   # its own target: the plain outcome, or this recurses
         a <- true_effects(sc, base, lang); a$note <- rep_len(sprintf(gtext("without_x", lang), tr_text(ox$label, lang)), nrow(a))
         b <- true_effects(sc, oc$after_event, lang); b$note <- rep_len(sprintf(gtext("after_x", lang), tr_text(ox$label, lang)), nrow(b))
-        return(rbind(a[a$variable %in% names(base$effects), ], b[b$variable %in% names(oc$after_event$effects), ]))
+        out <- rbind(a[a$variable %in% names(base$effects), ], b[b$variable %in% names(oc$after_event$effects), ])
+        out$total <- out$value
+        return(out)
     }
-    vars <- unique(c(names(oc$effects), intersect(sc$null_variables, names(sc$variables))))
+    medvars <- Filter(function(v) length(mediators(sc, oc, v)) > 0, setdiff(sc$order, names(oc$effects)))
+    vars <- unique(c(names(oc$effects), intersect(sc$null_variables, names(sc$variables)), medvars))
+    tot <- if (total) total_effects(sc, oc) else NULL
     rows <- lapply(vars, function(v) {
         cr <- contrast_rows(sc, oc, v, lang)
         eff <- oc$effects[[v]]
+        med <- mediators(sc, oc, v)
         note <- ""
         if (!is.null(eff$by)) {
             mv <- sc$variables[[eff$by$var]]
             back <- function(b) if (eff$log) exp(b) else b
             note <- paste(sprintf("%s=%s: %.3g", dname(eff$by$var, lang), dlevel(mv$levels, lang), back(eff$by$coef)), collapse = "; ")
         }
-        if (is.null(eff)) note <- "no effect (null variable)"
+        medtxt <- paste(dname(med, lang), collapse = ", ")
+        if (is.null(eff)) note <- if (length(med)) sprintf(gtext("no_direct", lang), medtxt) else gtext("null_var", lang)
+        else if (length(med)) note <- trimws(paste(note, sprintf(gtext("also_through", lang), medtxt)))
         note <- trimws(paste(note, center_note(oc, v, lang)))
+        value <- if (is.null(eff)) rep(null_value(oc), nrow(cr)) else vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0)
+        total_v <- if (!length(med)) value else if (!is.null(tot) && any(tot$variable == v)) tot$total[tot$variable == v] else rep(NA_real_, nrow(cr))
         data.frame(variable = v, contrast = cr$contrast,
                    measure = if (is.null(eff)) null_measure(oc) else eff$measure,
-                   value = if (is.null(eff)) null_value(oc) else vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0),
-                   note = note, stringsAsFactors = FALSE)
+                   value = value, total = total_v, note = note, stringsAsFactors = FALSE)
     })
     # no effects at all (e.g. a transition without covariates): an empty table
     if (!length(rows)) return(data.frame(variable = character(), contrast = character(), measure = character(),
-                                         value = numeric(), note = character(), stringsAsFactors = FALSE))
-    do.call(rbind, rows)
+                                         value = numeric(), total = numeric(), note = character(), stringsAsFactors = FALSE))
+    out <- do.call(rbind, rows)
+    attr(out, "n_total") <- attr(tot, "n")
+    out
 }
 
 # Fit the model a student would fit for this design on formatted data `fd`.
@@ -244,7 +259,20 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     fd <- measurement_error(fd, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed("truth", "measurement"))
     fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
     # ci: the large study's own interval is the Monte Carlo uncertainty of the expectation
-    estimate_table(sc, oc, design, fd, factors, lang, categorize, ci = TRUE, opt = opt)
+    out <- estimate_table(sc, oc, design, fd, factors, lang, categorize, ci = TRUE, opt = opt)
+    add_total(out, sc, oc, lang)
+}
+
+# the true total effect of each row of an expected table (NA where the row is
+# not one of the true model's contrasts: categorised, transformed, special)
+add_total <- function(ex, sc, oc, lang = "en") {
+    if (is.null(ex) || !nrow(ex)) return(ex)
+    te <- true_effects(sc, oc, lang, total = TRUE)
+    k <- match(paste(ex$variable, ex$contrast), paste(te$variable, te$contrast))
+    ex$total <- te$total[k]
+    ex$total[is.na(ex$true)] <- NA_real_
+    attr(ex, "n_total") <- attr(te, "n_total")
+    ex
 }
 
 # Crude and adjusted estimates of the main contrasts (the intervention, or
@@ -270,7 +298,7 @@ special_table <- function(design, sc, oc, fd, lang, opt) {
         ch <- ch[!is.na(ch)]
         m <- mean(ch); se <- stats::sd(ch) / sqrt(length(ch))
         eff <- oc$effects[[rows$variable]]
-        out <- data.frame(rows, true = eff$coef[length(eff$coef)], true_measure = "beta", crude = m, adjusted = NA_real_,
+        out <- data.frame(rows, true = eff$coef[length(eff$coef)], true_measure = "beta", crude = m, adjusted = NA_real_, dag = NA_real_,
                           lower = m - z * se, upper = m + z * se, measure = "beta", note = gtext("prepost_note", lang),
                           stringsAsFactors = FALSE)
     } else {
@@ -280,7 +308,7 @@ special_table <- function(design, sc, oc, fd, lang, opt) {
         f <- stats::lm(b ~ a); sl <- stats::coef(f)[[2]]; sse <- sqrt(stats::vcov(f)[2, 2])
         out <- data.frame(rows,
             true = c(opt$bias + (opt$slope - 1) * mean(a), NA, NA, opt$slope), true_measure = "beta",
-            crude = c(md, md - z * sdd, md + z * sdd, sl), adjusted = NA_real_,
+            crude = c(md, md - z * sdd, md + z * sdd, sl), adjusted = NA_real_, dag = NA_real_,
             lower = c(md - z * sdd / sqrt(n), NA, NA, sl - z * sse), upper = c(md + z * sdd / sqrt(n), NA, NA, sl + z * sse),
             measure = "", note = c("", "", "", gtext("mc_note", lang)), stringsAsFactors = FALSE)
     }
@@ -319,9 +347,15 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
         }
         crude <- fit_design_model(design, sc, oc, fd, v, full = FALSE)
         get <- function(fit, z = 0) {
+            if (is.null(fit)) return(rep(NA_real_, nrow(cr)))
             b <- (fit$coef[cr$coefname] + z * fit$se[cr$coefname]) * cr$per
             if (fit$log) exp(b) else b
         }
+        # adjusted as the diagram says: for the measured variables v does not
+        # cause (confounders), not for its mediators or colliders (Table 2 fallacy)
+        dag_terms <- if (v %in% iv || design == "crossover") adj_terms else unique(c(iv, v, adjustment_set(sc, v, factors)))
+        dagfit <- if (setequal(dag_terms, adj_terms)) adj
+                  else tryCatch(fit_design_model(design, sc, oc, fd, dag_terms), error = function(e) NULL)
         eff <- oc$effects[[v]]
         tv <- vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0)
         note <- ""
@@ -339,7 +373,7 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
         data.frame(variable = v, contrast = cr$contrast,
                    true = tv,
                    true_measure = if (is.null(eff)) null_measure(oc) else eff$measure,
-                   crude = unname(get(crude)), adjusted = unname(get(adj)),
+                   crude = unname(get(crude)), adjusted = unname(get(adj)), dag = unname(get(dagfit)),
                    lower = if (ci) unname(get(adj, -stats::qnorm(0.975))) else NA_real_,
                    upper = if (ci) unname(get(adj, stats::qnorm(0.975))) else NA_real_,
                    measure = adj$measure, note = note, stringsAsFactors = FALSE)
@@ -401,7 +435,7 @@ expected_all <- function(sc, oc, design, opt, factors, lang = "en", categorize =
         fd2 <- fd
         # the secondary outcome's own follow-up, or none
         fd2$time <- fd[[paste0("time_", o)]]
-        out[[o]] <- estimate_table(sc, sc$outcomes[[o]], design, fd2, factors, lang, categorize, ci = TRUE, opt = opt)
+        out[[o]] <- add_total(estimate_table(sc, sc$outcomes[[o]], design, fd2, factors, lang, categorize, ci = TRUE, opt = opt), sc, sc$outcomes[[o]], lang)
     }
     out
 }
@@ -409,7 +443,7 @@ expected_all <- function(sc, oc, design, opt, factors, lang = "en", categorize =
 answer_key <- function(sc, oc, design, opt, factors, lang = "en", categorize = list()) {
     cal <- calibrate(sc, oc)
     unmeasured <- setdiff(names(oc$effects), c(factors, names(sc$interventions)))
-    list(effects = true_effects(sc, oc, lang),
+    list(effects = true_effects(sc, oc, lang, total = TRUE),
          markers = if (design == "diagnostic") expected_markers(sc, oc, opt),
          expected = expected_estimates(sc, oc, design, opt, factors, lang, categorize),
          calibration = cal,

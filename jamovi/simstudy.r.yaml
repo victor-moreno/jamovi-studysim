@@ -85,7 +85,10 @@ items:
             title: Measure
             type: text
           - name: value
-            title: True value
+            title: Direct (conditional)
+            type: number
+          - name: total
+            title: Total
             type: number
           - name: note
             title: Note
@@ -112,13 +115,19 @@ items:
             title: Contrast
             type: text
           - name: truth
-            title: 'True'
+            title: True (direct)
+            type: number
+          - name: total
+            title: True (total)
             type: number
           - name: crude
             title: Crude
             type: number
           - name: adjusted
-            title: Adjusted
+            title: Adjusted (all)
+            type: number
+          - name: dag
+            title: Adjusted (DAG)
             type: number
           - name: measure
             title: Estimate
