@@ -1,0 +1,161 @@
+id: msi_crc_pathology
+label: {en: Pathology predictors of microsatellite instability in colorectal cancer, es: Predictores histológicos de inestabilidad de microsatélites en el cáncer colorrectal, ca: Predictors histològics d'inestabilitat de microsatèl·lits en el càncer colorectal}
+domain: oncology
+population:
+  en: Invasive colorectal cancers from a population-based study in northern Israel, reviewed by one pathologist
+  es: Cánceres colorrectales invasivos de un estudio poblacional del norte de Israel, revisados por un solo patólogo
+  ca: Càncers colorectals invasius d'un estudi poblacional del nord d'Israel, revisats per un sol patòleg
+
+# Estimated with studysim Derive from the analysis dataset of the paper (1,344
+# tumours with complete data), which reproduces its Table 3 and both models
+# (AUC 0.854 with log2 TIL, 0.850 with TIL > 2). Effects: model 1 of the paper.
+variables:
+  age: {from: dictionary, dist: "normal(70.6, 11.3)", range: [23, 97]}
+  age_under_50:
+    type: binary
+    levels: ["no", "yes"]
+    formula: age < 50
+    label: {en: Age under 50, es: Edad menor de 50, ca: Edat inferior a 50}
+  sex: {from: dictionary, p: 0.513}
+  til_count:
+    type: count
+    dist: negbin(13.7, 0.3)
+    range: [0, 380]
+    units: {en: cells, es: células, ca: cèl·lules}
+    label: {en: Tumour-infiltrating lymphocytes counted in 5 high-power fields, es: Linfocitos intratumorales contados en 5 campos de gran aumento, ca: Limfòcits intratumorals comptats en 5 camps de gran augment}
+  til:
+    type: continuous
+    formula: til_count / 5
+    round: 1
+    units: {en: cells/HPF, es: células/campo, ca: cèl·lules/camp}
+    label: {en: Tumour-infiltrating lymphocytes per high-power field, es: Linfocitos intratumorales por campo de gran aumento, ca: Limfòcits intratumorals per camp de gran augment}
+  til_log2:
+    type: continuous
+    formula: log(til + 1) / log(2)
+    round: 2
+    label: {en: "log2(TIL per HPF + 1)", es: "log2(linfocitos por campo + 1)", ca: "log2(limfòcits per camp + 1)"}
+  til_high:
+    type: binary
+    levels: ["no", "yes"]
+    formula: til > 2
+    label: {en: More than 2 TIL per HPF, es: Más de 2 linfocitos por campo, ca: Més de 2 limfòcits per camp}
+  grade:
+    type: binary
+    levels: [moderate, well_or_poor]
+    p: 0.253
+    label: {en: Differentiation, es: Diferenciación, ca: Diferenciació}
+  crohn:
+    type: binary
+    levels: [absent, present]
+    p: 0.49
+    label: {en: Crohn-like lymphoid reaction, es: Reacción linfoide tipo Crohn, ca: Reacció limfoide tipus Crohn}
+  necrosis:
+    type: binary
+    levels: [present, absent]
+    p: 0.263
+    label: {en: Dirty necrosis (absent is the MSI feature), es: Necrosis sucia (ausente es el rasgo de MSI), ca: Necrosi bruta (absent és el tret de MSI)}
+  mucin:
+    type: binary
+    levels: [none, any]
+    p: 0.24
+    label: {en: Mucinous differentiation (mucinous or focal), es: Diferenciación mucinosa (mucinoso o focal), ca: Diferenciació mucinosa (mucinós o focal)}
+  site:
+    type: binary
+    levels: [left, right]
+    p: 0.415
+    label: {en: Tumour side (right = caecum to transverse), es: Lado del tumor (derecho = ciego a transverso), ca: Costat del tumor (dret = cec a transvers)}
+
+# latent correlations from the data (the features go together: they share the
+# MSI phenotype and the poorly differentiated, mucinous tumours)
+correlations:
+  - [necrosis, grade, 0.75]
+  - [necrosis, mucin, 0.70]
+  - [mucin, grade, 0.51]
+  - [til_count, grade, 0.40]
+  - [til_count, necrosis, 0.34]
+  - [site, grade, 0.35]
+  - [mucin, site, 0.31]
+  - [necrosis, site, 0.25]
+  - [til_count, site, 0.21]
+  - [crohn, site, 0.18]
+  - [til_count, crohn, 0.15]
+  - [til_count, mucin, 0.14]
+  - [crohn, mucin, 0.12]
+  - [age, site, 0.11]
+  - [sex, mucin, -0.10]
+  - [sex, site, -0.10]
+  - [sex, grade, -0.10]
+
+outcomes:
+  msi:
+    type: binary
+    label: {en: High microsatellite instability (MSI-H), es: Inestabilidad de microsatélites alta (MSI-H), ca: Inestabilitat de microsatèl·lits alta (MSI-H)}
+    levels: [stable, high]
+    prevalence: 0.128
+    designs: [cross_sectional, case_control]
+    effects:
+      age_under_50: {OR: 3.02}
+      til_log2: {OR: 1.71, per: 1}
+      grade: {OR: 3.02}
+      crohn: {OR: 2.03}
+      site: {OR: 2.09}
+      necrosis: {OR: 1.69}
+      mucin: {OR: 1.99}
+
+null_variables: [age, sex, til_high]
+
+i18n:
+  en:
+    names: {age_under_50: age_under_50, til_count: til_count, til: til, til_log2: til_log2, til_high: til_high, grade: grade, crohn: crohn, necrosis: necrosis, mucin: mucin, site: site, msi: msi}
+    levels: {moderate: moderate, well_or_poor: well_or_poor, absent: absent, present: present, none: none, any: any, left: left, right: right, stable: stable, high: high}
+  es:
+    names: {age_under_50: menor_50, til_count: recuento_til, til: til, til_log2: til_log2, til_high: til_alto, grade: diferenciacion, crohn: crohn, necrosis: necrosis, mucin: mucina, site: lado, msi: msi}
+    levels: {moderate: moderada, well_or_poor: buena_o_pobre, absent: ausente, present: presente, none: ninguna, any: alguna, left: izquierdo, right: derecho, stable: estable, high: alta}
+  ca:
+    names: {age_under_50: menor_50, til_count: recompte_til, til: til, til_log2: til_log2, til_high: til_alt, grade: diferenciacio, crohn: crohn, necrosis: necrosi, mucin: mucina, site: costat, msi: msi}
+    levels: {moderate: moderada, well_or_poor: bona_o_pobra, absent: absent, present: present, none: cap, any: alguna, left: esquerre, right: dret, stable: estable, high: alta}
+
+references:
+  - "Data: Molecular Epidemiology of Colorectal Cancer study, analysis dataset of Greenson et al. 2009 (1344 tumours; V Moreno)."
+  - "Greenson JK, Huang SC, Herron C, Moreno V et al. Pathologic predictors of microsatellite instability in colorectal cancer. Am J Surg Pathol 2009;33:126-33."
+
+teaching:
+  en: >
+    One tumour in eight is MSI-high. Seven features seen on the slide predict
+    it with an AUC near 0.85: tumour-infiltrating lymphocytes, well or poor
+    differentiation, age under 50, a Crohn-like reaction, right side, no dirty
+    necrosis and any mucin. The features are consequences of the instability,
+    not causes: the odds ratios describe prediction, not effects. Lymphocytes
+    enter as log2(count + 1); the paper's simpler model cuts them at more than 2
+    per field and loses a little accuracy (compare the two models' AUC and
+    calibration). Necrosis, mucin and grade go together (latent correlations
+    up to 0.75), so each one's crude odds ratio is far larger than its adjusted
+    one. Turn the adjusted coefficients into a bedside score, as the paper did,
+    and find the score below which testing could be skipped.
+  es: >
+    Uno de cada ocho tumores es MSI alto. Siete rasgos visibles en la
+    preparación lo predicen con un AUC cercano a 0,85: linfocitos intratumorales,
+    diferenciación buena o pobre, edad menor de 50, reacción tipo Crohn, lado
+    derecho, ausencia de necrosis sucia y cualquier mucina. Los rasgos son
+    consecuencias de la inestabilidad, no causas: las odds ratios describen
+    predicción, no efectos. Los linfocitos entran como log2(recuento + 1); el
+    modelo más simple del artículo los corta en más de 2 por campo y pierde algo
+    de exactitud (comparad el AUC y la calibración de los dos modelos). La
+    necrosis, la mucina y la diferenciación van juntas (correlaciones latentes de
+    hasta 0,75), así que la odds ratio cruda de cada una es mucho mayor que la
+    ajustada. Convertid los coeficientes ajustados en una puntuación de consulta,
+    como hizo el artículo, y buscad el valor por debajo del cual se podría no
+    hacer la prueba.
+  ca: >
+    Un de cada vuit tumors és MSI alt. Set trets visibles a la preparació el
+    prediuen amb un AUC proper a 0,85: limfòcits intratumorals, diferenciació
+    bona o pobra, edat inferior a 50, reacció tipus Crohn, costat dret, absència
+    de necrosi bruta i qualsevol mucina. Els trets són conseqüències de la
+    inestabilitat, no causes: les odds ratios descriuen predicció, no efectes.
+    Els limfòcits hi entren com a log2(recompte + 1); el model més simple de
+    l'article els talla en més de 2 per camp i perd una mica d'exactitud
+    (compareu l'AUC i el calibratge dels dos models). La necrosi, la mucina i la
+    diferenciació van juntes (correlacions latents de fins a 0,75), de manera que
+    l'odds ratio crua de cadascuna és molt més gran que l'ajustada. Convertiu els
+    coeficients ajustats en una puntuació de consulta, com va fer l'article, i
+    busqueu el valor per sota del qual es podria no fer la prova.
