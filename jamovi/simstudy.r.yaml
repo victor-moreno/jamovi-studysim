@@ -136,6 +136,20 @@ items:
             title: Note
             type: text
 
+    - name: keyTrial
+      title: 'Answer key: absolute effects in the trial'
+      type: Table
+      visible: (showKey)
+      rows: 0
+      clearWith: [libContent, scenario, outcome, design, followup]
+      columns:
+          - name: quantity
+            title: ''
+            type: text
+          - name: value
+            title: Value
+            type: number
+
     - name: keyMarkers
       title: 'Answer key: markers'
       type: Table

@@ -94,7 +94,7 @@ simStudyClass <- R6::R6Class(
             ctx <- private$.context()
             if (!is.null(ctx$error)) {
                 private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(ctx$error)))
-                for (nm in c("summary", "dictionary", "keyEffects", "keyExpected", "keyMarkers", "keyNotes"))
+                for (nm in c("summary", "dictionary", "keyEffects", "keyExpected", "keyTrial", "keyMarkers", "keyNotes"))
                     self$results[[nm]]$setVisible(FALSE)
                 return()
             }
@@ -123,6 +123,9 @@ simStudyClass <- R6::R6Class(
                 self$results$keyEffects$getColumn("total")$setVisible(med)
                 self$results$keyExpected$getColumn("total")$setVisible(!length(ivp) && any_mediated(ctx$sc, ctx$oc, ctx$factors))
                 self$results$keyExpected$getColumn("dag")$setVisible(dag_differs(ctx$sc, ctx$design, ctx$factors, length(ivp) > 0))
+                ta <- trial_absolute_rows(ctx$sc, ctx$oc, ctx$design, ctx$lang)
+                for (k in ta) self$results$keyTrial$addRow(rowKey = k, values = list(quantity = ""))
+                if (!length(ta)) self$results$keyTrial$setVisible(FALSE)
                 if (ctx$design == "diagnostic") {
                     for (m in ctx$oc$markers) {
                         cols <- marker_cols(m)
@@ -257,6 +260,9 @@ simStudyClass <- R6::R6Class(
                           ex$measure, ex$note)))
             mc <- mc_note(list(ex), self)
             if (nzchar(mc)) html <- c(html, "<p>", esc(mc), "</p>")
+            ta <- self$results$keyTrial$state %||% trial_absolute(sc, oc, ctx$design, opt, l)
+            if (!is.null(ta)) html <- c(html, "<h2>", esc(.("Answer key: absolute effects in the trial")), "</h2>",
+                                        tab(c("", .("Value")), cbind(ta$quantity, num(ta$value))))
             if (ctx$design == "diagnostic") {
                 mt <- self$results$keyMarkers$state %||% expected_markers(sc, oc, opt)
                 html <- c(html, "<h2>", esc(.("Answer key: markers")), "</h2>",
@@ -421,6 +427,15 @@ simStudyClass <- R6::R6Class(
                 if (length(mm))
                     tbl$setNote("measure", jmvcore::format(.("True values are {true}s, the measure the data were generated with (a cohort followed over time); this design estimates {est}s, which approach them when the outcome is rare."),
                                                           true = paste(mm, collapse = "/"), est = ex$measure[1]))
+            }
+            if (length(self$results$keyTrial$rowKeys)) {
+                kt <- self$results$keyTrial
+                ta <- kt$state
+                if (is.null(ta)) { ta <- trial_absolute(ctx$sc, ctx$oc, ctx$design, opt, ctx$lang); kt$setState(ta) }
+                for (i in seq_len(nrow(ta))) if (ta$key[i] %in% kt$rowKeys)
+                    kt$setRow(rowKey = ta$key[i], values = list(quantity = ta$quantity[i], value = if (is.na(ta$value[i])) "" else ta$value[i]))
+                kt$setNote("po", jmvcore::format(.("From the potential outcomes of {n} people, each one under every arm. The crude comparison of a trial estimates the marginal (population) ratio, which is closer to 1 than the conditional one of the true model even without confounding (non-collapsibility); adjusting for prognostic variables moves it towards the conditional one."),
+                                                 n = base::format(attr(ta, "n"), big.mark = ",")))
             }
             if (ctx$design == "diagnostic") {
                 mk <- self$results$keyMarkers

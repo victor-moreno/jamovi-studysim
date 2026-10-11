@@ -536,6 +536,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         dag = function() private$.items[["dag"]],
         keyEffects = function() private$.items[["keyEffects"]],
         keyExpected = function() private$.items[["keyExpected"]],
+        keyTrial = function() private$.items[["keyTrial"]],
         keyMarkers = function() private$.items[["keyMarkers"]],
         keyNotes = function() private$.items[["keyNotes"]],
         openState = function() private$.items[["openState"]],
@@ -916,6 +917,27 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="text"))))
             self$add(jmvcore::Table$new(
                 options=options,
+                name="keyTrial",
+                title="Answer key: absolute effects in the trial",
+                visible="(showKey)",
+                rows=0,
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "design",
+                    "followup"),
+                columns=list(
+                    list(
+                        `name`="quantity", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="value", 
+                        `title`="Value", 
+                        `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
                 name="keyMarkers",
                 title="Answer key: markers",
                 visible="(showKey)",
@@ -1285,6 +1307,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$dag} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$keyEffects} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyExpected} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$keyTrial} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyMarkers} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyNotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$openState} \tab \tab \tab \tab \tab a table \cr

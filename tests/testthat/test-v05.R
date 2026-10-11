@@ -106,3 +106,16 @@ test_that("a variable acting only through others gets a row of its own", {
   expect_match(m$note, "acts through hrt")
   expect_gt(m$total, 1.05)
 })
+
+test_that("trials report absolute effects and the marginal ratio is closer to 1", {
+  sc <- load_scenario(builtin_library(), "streptomycin_tb")
+  oc <- sc$outcomes[[1]]
+  a <- trial_absolute(sc, oc, "rct", design_defaults("rct", oc, sc), n = 40000)
+  v <- stats::setNames(a$value, sub(" [0-9]+$", "", sub("^[^ ]+ ", "", a$key)))
+  expect_equal(v[["rd"]], diff(a$value[1:2]))
+  expect_equal(v[["nnt"]], 1 / abs(v[["rd"]]))
+  expect_lt(v[["or_m"]], v[["or_c"]])
+  expect_gt(v[["or_m"]], 1)
+  expect_identical(a$key, trial_absolute_rows(sc, oc, "rct"))
+  expect_null(trial_absolute(sc, oc, "cohort", list()))
+})

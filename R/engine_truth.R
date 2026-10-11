@@ -452,3 +452,60 @@ answer_key <- function(sc, oc, design, opt, factors, lang = "en", categorize = l
          teaching = tr_text(sc$teaching, lang),
          references = sc$references)
 }
+
+# Trials with a binary or event outcome: what the randomised comparison
+# estimates in absolute terms, from the potential outcomes of a large
+# population (everybody under each arm, the other interventions at their
+# reference): risk per arm, risk difference, NNT, risk ratio, and the marginal
+# (population) odds or hazard ratio next to the conditional one the data were
+# generated with -- they differ without any confounding (non-collapsibility).
+trial_absolute <- function(sc, oc, design, opt, lang = "en", n = 100000L) {
+    if (!design %in% c("rct", "cluster_rct", "factorial") || !oc$type %in% c("binary", "event") || !is.null(oc[["after"]])) return(NULL)
+    ivs <- if (design == "factorial") factorial_ivs(sc, oc) else list(trial_iv(sc, oc))
+    cal <- calibrate(sc, oc)
+    pop <- population(sc, oc$id, derive_seed("potential outcomes", sc$id), n)
+    fu <- opt$followup %||% oc$followup
+    rows <- list()
+    add <- function(key, quantity, value) rows[[length(rows) + 1]] <<- data.frame(key = key, quantity = quantity, value = value, stringsAsFactors = FALSE)
+    for (iv in ivs) {
+        lv <- iv$levels; tl <- dlevel(lv, lang)
+        out <- lapply(seq_along(lv), function(k) {
+            lp <- linear_predictor(oc, pop$cov, stats::setNames(list(rep(k, n)), iv$id))
+            if (oc$type == "binary") return(list(risk = mean(stats::plogis(cal$a + lp))))
+            t1 <- draw_outcome(oc, cal, lp, pop$noise)
+            t2 <- competing_time(oc, cal, pop$noise, pop$cov, stats::setNames(list(rep(k, n)), iv$id))
+            list(risk = mean(t1 <= fu & t1 < t2), time = pmin(t1, t2, fu), event = as.integer(t1 <= fu & t1 < t2))
+        })
+        when <- if (oc$type == "event") sprintf(" (%s %s %s)", gtext("by", lang), base::format(fu), unit_text(oc$time_units, lang)) else ""
+        for (k in seq_along(lv)) add(paste(iv$id, "risk", k), sprintf("%s: %s%s", gtext("risk", lang), tl[k], when), out[[k]]$risk)
+        eff <- oc$effects[[iv$id]]
+        for (k in seq_along(lv)[-1]) {
+            r0 <- out[[1]]$risk; r1 <- out[[k]]$risk
+            vs <- sprintf("%s %s %s", tl[k], gtext("vs", lang), tl[1])
+            add(paste(iv$id, "rd", k), sprintf("%s, %s", gtext("rd", lang), vs), r1 - r0)
+            add(paste(iv$id, "nnt", k), sprintf("%s, %s", gtext(if (r1 < r0) "nnt" else "nnh", lang), vs), if (r1 != r0) 1 / abs(r1 - r0) else NA_real_)
+            add(paste(iv$id, "rr", k), sprintf("%s, %s", gtext("rr", lang), vs), r1 / r0)
+            if (oc$type == "binary") {
+                add(paste(iv$id, "or_m", k), sprintf("%s, %s", gtext("or_marg", lang), vs), (r1 / (1 - r1)) / (r0 / (1 - r0)))
+                add(paste(iv$id, "or_c", k), sprintf("%s, %s", gtext("or_cond", lang), vs), if (is.null(eff)) 1 else exp(eff$coef[k]))
+            } else {
+                # marginal hazard ratio: Cox on everybody's two potential outcomes, the arm the only term
+                d <- data.frame(time = c(out[[1]]$time, out[[k]]$time), event = c(out[[1]]$event, out[[k]]$event), arm = rep(0:1, each = n))
+                hr <- exp(stats::coef(survival::coxph(survival::Surv(time, event) ~ arm, data = d))[[1]])
+                add(paste(iv$id, "hr_m", k), sprintf("%s, %s", gtext("hr_marg", lang), vs), hr)
+                add(paste(iv$id, "hr_c", k), sprintf("%s, %s", gtext("hr_cond", lang), vs), if (is.null(eff)) 1 else exp(eff$coef[k]))
+            }
+        }
+    }
+    structure(do.call(rbind, rows), n = n)
+}
+
+# row keys and labels of trial_absolute(), known before any simulation
+trial_absolute_rows <- function(sc, oc, design, lang = "en") {
+    if (!design %in% c("rct", "cluster_rct", "factorial") || !oc$type %in% c("binary", "event") || !is.null(oc[["after"]])) return(character())
+    ivs <- if (design == "factorial") factorial_ivs(sc, oc) else list(trial_iv(sc, oc))
+    unname(unlist(lapply(ivs, function(iv) {
+        k <- seq_along(iv$levels)
+        c(paste(iv$id, "risk", k), unlist(lapply(k[-1], function(j) paste(iv$id, c("rd", "nnt", "rr", if (oc$type == "binary") c("or_m", "or_c") else c("hr_m", "hr_c")), j))))
+    })))
+}
