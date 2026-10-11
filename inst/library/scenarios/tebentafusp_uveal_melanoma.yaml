@@ -1,0 +1,149 @@
+id: tebentafusp_uveal_melanoma
+label: {en: Tebentafusp in metastatic uveal melanoma (survival trial), es: Tebentafusp en el melanoma uveal metastásico (ensayo de supervivencia), ca: Tebentafusp en el melanoma uveal metastàtic (assaig de supervivència)}
+domain: oncology
+population:
+  en: HLA-A*02:01-positive adults with previously untreated metastatic uveal melanoma, randomised 2:1, 2017-2020
+  es: Adultos HLA-A*02:01 positivos con melanoma uveal metastásico sin tratamiento previo, aleatorizados 2:1, 2017-2020
+  ca: Adults HLA-A*02:01 positius amb melanoma uveal metastàtic sense tractament previ, aleatoritzats 2:1, 2017-2020
+
+# From the 3-year analysis (Hassel et al. 2023): 378 patients, 252 tebentafusp
+# and 126 investigator's choice; LDH above normal 36%, largest metastasis over
+# 3 cm 45%, extrahepatic disease 50%. Survival in the control arm: 60%, 30% and
+# 18% at 1, 2 and 3 years (median 16.9 months). The
+# prognostic hazard ratios are teaching values (the paper lists the factors,
+# not their size); the treatment HR is conditional on them and set so that the
+# unadjusted HR is close to the published 0.68.
+variables:
+  age: {from: dictionary, dist: "normal(64, 11)", range: [25, 90]}
+  sex: {from: dictionary, p: 0.50}
+  ecog:
+    type: binary
+    levels: ["0", "1"]
+    p: 0.27
+    label: {en: ECOG performance status, es: Estado funcional ECOG, ca: Estat funcional ECOG}
+  ldh:
+    type: binary
+    levels: [normal, high]
+    p: 0.36
+    label: {en: Lactate dehydrogenase above the upper limit of normal, es: Lactato deshidrogenasa por encima del límite superior normal, ca: Lactat deshidrogenasa per sobre del límit superior normal}
+  lesion_gt3:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.45
+    label: {en: Largest metastatic lesion over 3 cm, es: Mayor lesión metastásica de más de 3 cm, ca: Lesió metastàtica més gran de més de 3 cm}
+  extrahepatic:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.50
+    label: {en: Extrahepatic metastases, es: Metástasis extrahepáticas, ca: Metàstasis extrahepàtiques}
+
+correlations:
+  - [ldh, lesion_gt3, 0.50]
+  - [ldh, ecog, 0.25]
+  - [ldh, extrahepatic, 0.15]
+  - [lesion_gt3, ecog, 0.15]
+
+interventions:
+  treatment:
+    levels: [control, tebentafusp]
+    ratio: [1, 2]
+    label: {en: "Randomised treatment (control = pembrolizumab, ipilimumab or dacarbazine)", es: "Tratamiento aleatorizado (control = pembrolizumab, ipilimumab o dacarbacina)", ca: "Tractament aleatoritzat (control = pembrolizumab, ipilimumab o dacarbazina)"}
+
+outcomes:
+  os:
+    type: event
+    label: {en: Death (overall survival), es: Muerte (supervivencia global), ca: Mort (supervivència global)}
+    time_units: months
+    median: 16.9
+    shape: 1.5                    # steeper than the control curve alone: the prognostic factors spread the tail
+    followup: 43
+    designs: [rct]
+    effects:
+      treatment: {HR: [1, 0.62]}
+      ldh: {HR: 2.5}
+      lesion_gt3: {HR: 1.6}
+      ecog: {HR: 1.6}
+      extrahepatic: {HR: 1.2}
+  pfs:
+    type: event
+    label: {en: Progression or death (progression-free survival), es: Progresión o muerte (supervivencia libre de progresión), ca: Progressió o mort (supervivència lliure de progressió)}
+    time_units: months
+    median: 2.9
+    shape: 1.0
+    followup: 43
+    link: {outcome: os, rho: 0.6}
+    designs: [rct]
+    effects:
+      treatment: {HR: [1, 0.72]}
+      ldh: {HR: 1.8}
+      lesion_gt3: {HR: 1.4}
+      ecog: {HR: 1.3}
+  response:
+    type: binary
+    label: {en: Objective response, es: Respuesta objetiva, ca: Resposta objectiva}
+    levels: ["no", "yes"]
+    prevalence: 0.05
+    designs: [rct]
+    effects:
+      treatment: {OR: [1, 2.4]}
+      ldh: {OR: 0.6}
+
+null_variables: [age, sex]
+
+designs:
+  rct: {followup: 43, loss: 0.003}
+
+i18n:
+  en:
+    names: {age: age, sex: sex, ecog: ecog, ldh: ldh, lesion_gt3: lesion_gt3, extrahepatic: extrahepatic, treatment: treatment, os: death, pfs: progression, response: response}
+    levels: {normal: normal, high: high, "no": "no", "yes": "yes", control: control, tebentafusp: tebentafusp}
+  es:
+    names: {age: edad, sex: sexo, ecog: ecog, ldh: ldh, lesion_gt3: lesion_gt3, extrahepatic: extrahepatica, treatment: tratamiento, os: muerte, pfs: progresion, response: respuesta}
+    levels: {normal: normal, high: alta, "no": "no", "yes": sí, control: control, tebentafusp: tebentafusp}
+  ca:
+    names: {age: edat, sex: sexe, ecog: ecog, ldh: ldh, lesion_gt3: lesio_gt3, extrahepatic: extrahepatica, treatment: tractament, os: mort, pfs: progressio, response: resposta}
+    levels: {normal: normal, high: alta, "no": "no", "yes": sí, control: control, tebentafusp: tebentafusp}
+
+references:
+  - "Hassel JC, Piperno-Neumann S, Rutkowski P et al. Three-year overall survival with tebentafusp in metastatic uveal melanoma. N Engl J Med 2023;389:2256-66."
+  - "Nathan P, Hassel JC, Rutkowski P et al. Overall survival benefit with tebentafusp in metastatic uveal melanoma. N Engl J Med 2021;385:1196-206."
+
+teaching:
+  en: >
+    A 2:1 randomised trial with overall survival as primary end point. The
+    hazard ratio summarises the whole curve (0.68), the medians differ by under
+    five months, and the survival at 3 years is 27% vs 18%: compare the three
+    summaries, and the restricted mean survival time. Progression-free survival
+    barely differs (medians 3.4 vs 2.9 months) and few patients respond (11% vs
+    5%), yet survival improves: surrogate end points can miss a real benefit.
+    Randomisation was stratified by LDH, a strong prognostic factor: adjusting
+    the Cox model for LDH and the other baseline factors moves the hazard ratio
+    away from 1 (non-collapsibility) and narrows its interval, without any
+    confounding. The trial was open-label and only for HLA-A*02:01-positive
+    patients: think about to whom the result applies.
+  es: >
+    Un ensayo aleatorizado 2:1 con la supervivencia global como objetivo
+    principal. El hazard ratio resume toda la curva (0,68), las medianas
+    difieren en menos de cinco meses y la supervivencia a 3 años es del 27%
+    frente al 18%: comparad los tres resúmenes y el tiempo medio de
+    supervivencia restringido. La supervivencia libre de progresión apenas
+    cambia (medianas de 3,4 y 2,9 meses) y responden pocos pacientes (11% frente
+    a 5%), pero la supervivencia mejora: las variables subrogadas pueden no ver
+    un beneficio real. La aleatorización se estratificó por la LDH, un factor
+    pronóstico fuerte: ajustar el modelo de Cox por la LDH y los otros factores
+    basales aleja el hazard ratio de 1 (no colapsabilidad) y estrecha su
+    intervalo, sin que haya confusión. El ensayo era abierto y solo para
+    pacientes HLA-A*02:01 positivos: pensad a quién se aplica el resultado.
+  ca: >
+    Un assaig aleatoritzat 2:1 amb la supervivència global com a objectiu
+    principal. El hazard ratio resumeix tota la corba (0,68), les medianes
+    difereixen menys de cinc mesos i la supervivència a 3 anys és del 27% davant
+    del 18%: compareu els tres resums i el temps mitjà de supervivència
+    restringit. La supervivència lliure de progressió gairebé no canvia
+    (medianes de 3,4 i 2,9 mesos) i responen pocs pacients (11% davant de 5%),
+    però la supervivència millora: les variables subrogades poden no veure un
+    benefici real. L'aleatorització es va estratificar per la LDH, un factor
+    pronòstic fort: ajustar el model de Cox per la LDH i els altres factors
+    basals allunya el hazard ratio d'1 (no col·lapsabilitat) i n'estreny
+    l'interval, sense que hi hagi confusió. L'assaig era obert i només per a
+    pacients HLA-A*02:01 positius: penseu a qui s'aplica el resultat.

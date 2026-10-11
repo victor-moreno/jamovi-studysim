@@ -40,7 +40,7 @@ parameters and what crude and adjusted analyses of that design should find.
 
 ## Scenarios
 
-62 scenarios, most replicating a real study: their parameters were estimated
+65 scenarios, most replicating a real study: their parameters were estimated
 with the module's own *Derive* engine from open patient-level data (R
 packages survival, MASS, datasets, HSAUR3, TH.data, pROC, medicaldata,
 aplore3, NHANES; the UCI repository) or from the author's teaching datasets,

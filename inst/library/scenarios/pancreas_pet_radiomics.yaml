@@ -1,0 +1,188 @@
+id: pancreas_pet_radiomics
+label: {en: FDG-PET radiomics and survival in pancreatic cancer (a paper to criticise), es: Radiómica de la PET con FDG y supervivencia en el cáncer de páncreas (un artículo para criticar), ca: Radiòmica de la PET amb FDG i supervivència en el càncer de pàncrees (un article per criticar)}
+domain: oncology
+population:
+  en: Patients with pancreatic ductal adenocarcinoma and a pretreatment FDG-PET/CT at one Japanese hospital, 2010-2018
+  es: Pacientes con adenocarcinoma ductal de páncreas y PET/TC con FDG antes del tratamiento en un hospital japonés, 2010-2018
+  ca: Pacients amb adenocarcinoma ductal de pàncrees i PET/TC amb FDG abans del tractament en un hospital japonès, 2010-2018
+
+# Margins from Tables 1-2 of Toyama et al. 2020 (161 patients, median
+# survival 16.9 months). The texture features are teaching values: in this
+# scenario only stage, surgery, tumour volume and CA19-9 change survival;
+# the texture features follow the volume (latent correlations 0.75-0.9),
+# as non-normalised non-uniformity features do, and have no effect of their
+# own. Add extra null variables in the panel to reach the paper's 42.
+variables:
+  age:
+    type: continuous
+    dist: normal(66, 10)
+    range: [35, 90]
+    round: 0
+    units: {en: years, es: años, ca: anys}
+    label: {en: Age, es: Edad, ca: Edat}
+  sex:
+    type: binary
+    levels: [female, male]
+    p: 0.55
+    label: {en: Sex, es: Sexo, ca: Sexe}
+  stage:
+    type: binary
+    levels: [I_II, III_IV]
+    p: 0.40
+    label: {en: Clinical stage, es: Estadio clínico, ca: Estadi clínic}
+  surgery:
+    type: binary
+    levels: ["no", "yes"]
+    p: ifelse(stage == "III_IV", 0.10, 0.72)
+    label: {en: Surgical treatment (decided after the PET), es: Tratamiento quirúrgico (decidido después de la PET), ca: Tractament quirúrgic (decidit després de la PET)}
+  ca199:
+    type: continuous
+    dist: lognormal(600, 1500)
+    range: [1, 20000]
+    round: 1
+    units: U/mL
+    label: {en: CA 19-9, es: CA 19-9, ca: CA 19-9}
+  ca199_log2:
+    type: continuous
+    formula: log(ca199) / log(2)
+    round: 2
+    label: {en: "log2(CA 19-9)", es: "log2(CA 19-9)", ca: "log2(CA 19-9)"}
+  suvmax:
+    type: continuous
+    dist: lognormal(6.5, 3)
+    range: [2.5, 30]
+    round: 1
+    label: {en: SUVmax, es: SUVmax, ca: SUVmax}
+  mtv:
+    type: continuous
+    dist: lognormal(18, 20)
+    range: [1, 300]
+    round: 1
+    units: mL
+    label: {en: Metabolic tumour volume (MTV), es: Volumen metabólico tumoral (MTV), ca: Volum metabòlic tumoral (MTV)}
+  mtv_log2:
+    type: continuous
+    formula: log(mtv) / log(2)
+    round: 2
+    label: {en: "log2(MTV)", es: "log2(MTV)", ca: "log2(MTV)"}
+  tlg:
+    type: continuous
+    formula: mtv * suvmax * 0.6
+    round: 1
+    label: {en: Total lesion glycolysis (TLG), es: Glucólisis total de la lesión (TLG), ca: Glucòlisi total de la lesió (TLG)}
+  glnu:
+    type: continuous
+    dist: lognormal(16, 12)
+    range: [1, 150]
+    round: 1
+    label: {en: GLZLM grey-level non-uniformity (GLNU), es: GLZLM no uniformidad de niveles de gris (GLNU), ca: GLZLM no uniformitat de nivells de gris (GLNU)}
+  rlnu:
+    type: continuous
+    dist: lognormal(250, 200)
+    range: [10, 2500]
+    round: 0
+    label: {en: GLRLM run-length non-uniformity (RLNU), es: GLRLM no uniformidad de longitud de series (RLNU), ca: GLRLM no uniformitat de longitud de sèries (RLNU)}
+  coarseness:
+    type: continuous
+    dist: lognormal(20, 12)
+    range: [1, 100]
+    round: 1
+    label: {en: NGLDM coarseness (x1000), es: NGLDM aspereza (x1000), ca: NGLDM aspror (x1000)}
+  sphericity:
+    type: continuous
+    dist: beta(0.90, 0.05)
+    round: 3
+    label: {en: Sphericity, es: Esfericidad, ca: Esfericitat}
+  entropy:
+    type: continuous
+    dist: normal(2.1, 0.4)
+    range: [0.5, 4]
+    round: 2
+    label: {en: Histogram entropy, es: Entropía del histograma, ca: Entropia de l'histograma}
+  lgze:
+    type: continuous
+    dist: lognormal(12, 4)
+    range: [2, 50]
+    round: 1
+    label: {en: GLZLM low grey-level zone emphasis (LGZE x1000), es: GLZLM énfasis en zonas de nivel de gris bajo (LGZE x1000), ca: GLZLM èmfasi en zones de nivell de gris baix (LGZE x1000)}
+
+# textures follow the volume (and LGZE the SUVmax) as DAG edges, so the
+# implied correlations are consistent
+structure:
+  - [mtv, glnu, 0.85]
+  - [mtv, rlnu, 0.90]
+  - [mtv, coarseness, -0.75]
+  - [mtv, sphericity, -0.45]
+  - [mtv, entropy, 0.30]
+  - [suvmax, lgze, -0.55]
+
+correlations:
+  - [mtv, suvmax, 0.40]
+  - [stage, mtv, 0.30]
+  - [stage, ca199, 0.25]
+
+outcomes:
+  death:
+    type: event
+    label: {en: Death, es: Muerte, ca: Mort}
+    median: 17
+    shape: 1.2
+    followup: 24
+    time_units: months
+    designs: [prognosis, cohort]
+    effects:
+      stage: {HR: 1.8}
+      surgery: {HR: 0.35}
+      mtv_log2: {HR: 1.25, per: 1}
+      ca199_log2: {HR: 1.08, per: 1}
+
+null_variables: [age, sex, suvmax, glnu, rlnu, coarseness, sphericity, entropy, lgze]
+
+designs:
+  prognosis: {accrual: 96, followup: 6, loss: 0.01}
+
+i18n:
+  en:
+    names: {age: age, sex: sex, stage: stage, surgery: surgery, ca199: ca199, ca199_log2: ca199_log2, suvmax: suvmax, mtv: mtv, mtv_log2: mtv_log2, tlg: tlg, glnu: glnu, rlnu: rlnu, coarseness: coarseness, sphericity: sphericity, entropy: entropy, lgze: lgze, death: death}
+    levels: {"no": "no", "yes": "yes", female: female, male: male}
+  es:
+    names: {age: edad, sex: sexo, stage: estadio, surgery: cirugia, ca199: ca199, ca199_log2: ca199_log2, suvmax: suvmax, mtv: mtv, mtv_log2: mtv_log2, tlg: tlg, glnu: glnu, rlnu: rlnu, coarseness: aspereza, sphericity: esfericidad, entropy: entropia, lgze: lgze, death: muerte}
+    levels: {"no": "no", "yes": sí, female: mujer, male: hombre}
+  ca:
+    names: {age: edat, sex: sexe, stage: estadi, surgery: cirurgia, ca199: ca199, ca199_log2: ca199_log2, suvmax: suvmax, mtv: mtv, mtv_log2: mtv_log2, tlg: tlg, glnu: glnu, rlnu: rlnu, coarseness: aspror, sphericity: esfericitat, entropy: entropia, lgze: lgze, death: mort}
+    levels: {"no": "no", "yes": sí, female: dona, male: home}
+
+references:
+  - "Toyama Y, Hotta M, Motoi F, Takanami K, Minamimoto R, Takase K. Prognostic value of FDG-PET radiomics with machine learning in pancreatic cancer. Sci Rep 2020;10:17024. doi:10.1038/s41598-020-73237-3"
+
+teaching:
+  en: >
+    Many image features, one cohort, no validation. Here only stage,
+    surgery, tumour volume and CA19-9 affect survival; the texture features
+    (GLNU, RLNU, coarseness) are close companions of the volume and have no
+    effect of their own. Search each feature for its 'optimal' cut-off with
+    the log-rank test, as the paper did, and several look strongly
+    prognostic; add 30 extra null variables and some of them will pass too.
+    Put log2(MTV) in the Cox model and GLNU loses its effect. Surgery is
+    decided after the scan and depends on stage: it is not a baseline
+    prognostic factor. Dropping patients censored before one year, as the
+    random forest analysis did, keeps the deaths and loses the survivors.
+  es: >
+    Muchos rasgos de imagen, una sola cohorte y ninguna validación. Aquí
+    solo el estadio, la cirugía, el volumen tumoral y el CA 19-9 cambian la
+    supervivencia; las texturas (GLNU, RLNU, aspereza) acompañan de cerca al
+    volumen y no tienen efecto propio. Buscad para cada rasgo su punto de
+    corte «óptimo» con la prueba de log-rank, como hizo el artículo, y
+    varios parecerán muy pronósticos; añadid 30 variables nulas y alguna
+    también pasará. Meted log2(MTV) en el modelo de Cox y la GLNU pierde su
+    efecto. La cirugía se decide después de la PET y depende del estadio: no
+    es un factor pronóstico basal. Quitar a los censurados antes del año,
+    como hizo el análisis de random forest, conserva las muertes y pierde a
+    los supervivientes.
+  ca: >
+    Molts trets d'imatge, una sola cohort i cap validació. Aquí només
+    l'estadi, la cirurgia, el volum tumoral i el CA 19-9 canvien la
+    supervivència; les textures acompanyen de prop el volum i no tenen efecte
+    propi. Busqueu per a cada tret el punt de tall «òptim» amb el log-rank i
+    diversos semblaran molt pronòstics. Poseu log2(MTV) al model de Cox i la
+    GLNU perd l'efecte.

@@ -1,0 +1,150 @@
+id: robocer_recurrence
+label: {en: Recurrence after robotic radical hysterectomy (ROBOCER; a paper to criticise), es: Recidiva tras histerectomía radical robótica (ROBOCER; un artículo para criticar), ca: Recidiva després d'histerectomia radical robòtica (ROBOCER; un article per criticar)}
+domain: oncology
+population:
+  en: Women with early cervical cancer operated with the da Vinci robot in ten Iberian hospitals, 2009-2018
+  es: Mujeres con cáncer de cuello uterino inicial operadas con el robot da Vinci en diez hospitales ibéricos, 2009-2018
+  ca: Dones amb càncer de coll uterí inicial operades amb el robot da Vinci en deu hospitals ibèrics, 2009-2018
+
+# From Tables 1-3 of Ponce et al. 2020 (239 women, 26 recurrences, median
+# follow-up 51 months). The period of surgery is NOT in the paper: it is
+# added as a teaching hypothesis (learning curve; sentinel node biopsy came
+# into use in the later years), so that the sentinel node has no effect of
+# its own and its crude hazard ratio comes from the period.
+variables:
+  age:
+    type: continuous
+    dist: normal(48, 11)
+    range: [25, 81]
+    round: 0
+    units: {en: years, es: años, ca: anys}
+    label: {en: Age, es: Edad, ca: Edat}
+  bmi:
+    type: continuous
+    dist: lognormal(26.5, 4.5)
+    range: [17, 45]
+    round: 1
+    units: kg/m2
+    label: {en: Body mass index, es: Índice de masa corporal, ca: Índex de massa corporal}
+  size_mm:
+    type: continuous
+    dist: gamma(17, 8.5)
+    range: [1, 40]
+    round: 0
+    units: mm
+    label: {en: Clinical tumour size, es: Tamaño tumoral clínico, ca: Mida tumoral clínica}
+  size_gt20:
+    type: binary
+    levels: ["no", "yes"]
+    formula: size_mm > 20
+    label: {en: Clinical tumour size over 20 mm, es: Tamaño clínico mayor de 20 mm, ca: Mida clínica superior a 20 mm}
+  histology:
+    type: nominal
+    levels: [squamous, adenocarcinoma, other]
+    probs: [0.58, 0.38, 0.04]
+    label: {en: Histological type, es: Tipo histológico, ca: Tipus histològic}
+  grade:
+    type: ordinal
+    levels: [G1, G2, G3]
+    probs: [0.30, 0.53, 0.17]
+    label: {en: Tumour grade, es: Grado tumoral, ca: Grau tumoral}
+  lvsi:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.19
+    label: {en: Lymphovascular space invasion, es: Invasión del espacio linfovascular, ca: Invasió de l'espai limfovascular}
+  nodes:
+    type: binary
+    levels: [negative, positive]
+    p: 0.06
+    label: {en: Pelvic lymph nodes, es: Ganglios pélvicos, ca: Ganglis pèlvics}
+  manipulator:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.69
+    label: {en: Uterine manipulator used, es: Uso de manipulador uterino, ca: Ús de manipulador uterí}
+  era:
+    type: binary
+    levels: [recent, early]
+    p: 0.40
+    label: {en: Period of surgery (not in the paper; teaching hypothesis), es: Periodo de la cirugía (no publicado; hipótesis docente), ca: Període de la cirurgia (no publicat; hipòtesi docent)}
+  slnb:
+    type: binary
+    levels: [performed, not_performed]
+    p: ifelse(era == "early", 0.90, 0.25)
+    label: {en: Sentinel lymph node biopsy, es: Biopsia del ganglio centinela, ca: Biòpsia del gangli sentinella}
+
+correlations:
+  - [size_mm, grade, 0.20]
+  - [size_mm, lvsi, 0.25]
+  - [lvsi, nodes, 0.45]
+  - [size_mm, nodes, 0.25]
+  - [grade, lvsi, 0.20]
+
+outcomes:
+  recurrence:
+    type: event
+    label: {en: Recurrence, es: Recidiva, ca: Recidiva}
+    risk: {value: 0.13, at: 60}
+    shape: 0.9
+    followup: 60
+    time_units: months
+    designs: [prognosis, cohort]
+    effects:
+      size_mm: {HR: 1.04, per: 1}
+      histology: {HR: [1, 1.8, 3.0]}
+      grade: {HR: [1, 2.5, 4.0]}
+      lvsi: {HR: 1.3}
+      nodes: {HR: 3.0}
+      era: {HR: 3.0}
+
+null_variables: [age, bmi, manipulator, slnb]
+
+designs:
+  prognosis: {accrual: 96, followup: 6, loss: 0.002}
+
+i18n:
+  en:
+    names: {age: age, bmi: bmi, size_mm: size_mm, size_gt20: size_gt20, histology: histology, grade: grade, lvsi: lvsi, nodes: nodes, manipulator: manipulator, era: era, slnb: slnb, recurrence: recurrence}
+    levels: {"no": "no", "yes": "yes", squamous: squamous, adenocarcinoma: adenocarcinoma, other: other, negative: negative, positive: positive, recent: "2014_2018", early: "2009_2013", performed: performed, not_performed: not_performed}
+  es:
+    names: {age: edad, bmi: imc, size_mm: tamano_mm, size_gt20: tamano_gt20, histology: histologia, grade: grado, lvsi: ilv, nodes: ganglios, manipulator: manipulador, era: periodo_cirugia, slnb: bgc, recurrence: recidiva}
+    levels: {"no": "no", "yes": sí, squamous: escamoso, adenocarcinoma: adenocarcinoma, other: otro, negative: negativos, positive: positivos, recent: "2014_2018", early: "2009_2013", performed: realizada, not_performed: no_realizada}
+  ca:
+    names: {age: edat, bmi: imc, size_mm: mida_mm, size_gt20: mida_gt20, histology: histologia, grade: grau, lvsi: ilv, nodes: ganglis, manipulator: manipulador, era: periode_cirurgia, slnb: bgs, recurrence: recidiva}
+    levels: {"no": "no", "yes": sí, squamous: escamos, adenocarcinoma: adenocarcinoma, other: altre, negative: negatius, positive: positius, recent: "2014_2018", early: "2009_2013", performed: feta, not_performed: no_feta}
+
+references:
+  - "Ponce J, Fernandez-Gonzalez S, Gil-Moreno A et al. Risk factors for recurrence after robot-assisted radical hysterectomy for early-stage cervical cancer: a multicenter retrospective study. Cancers 2020;12:3387. doi:10.3390/cancers12113387"
+
+teaching:
+  en: >
+    A prognostic-factor study with 26 recurrences and seven terms in the
+    final Cox model: fewer than four events per term. Simulate the study
+    with several student keys and watch the hazard ratios of grade, nodes
+    and histology jump from sample to sample; their confidence intervals
+    are as wide as the paper's. Not doing the sentinel node biopsy has no
+    effect of its own in this scenario: it was simply less used in the early
+    years, when recurrence was more frequent (a teaching hypothesis, since
+    the paper does not give the year of surgery). Its crude hazard ratio
+    disappears when the period enters the model. Compare also the
+    dichotomised tumour size (over 20 mm) with size in millimetres.
+  es: >
+    Un estudio de factores pronósticos con 26 recidivas y siete términos en
+    el modelo de Cox final: menos de cuatro eventos por término. Simulad el
+    estudio con varias claves de alumno y mirad cómo saltan de una muestra a
+    otra los HR del grado, los ganglios y la histología; sus intervalos son
+    tan anchos como los del artículo. No hacer la biopsia del ganglio
+    centinela no tiene efecto propio en este escenario: simplemente se usó
+    menos en los primeros años, cuando la recidiva era más frecuente (una
+    hipótesis docente, porque el artículo no da el año de la cirugía). Su HR
+    crudo desaparece cuando el periodo entra en el modelo. Comparad también
+    el tamaño dicotomizado (más de 20 mm) con el tamaño en milímetros.
+  ca: >
+    Un estudi de factors pronòstics amb 26 recidives i set termes en el model
+    de Cox final: menys de quatre esdeveniments per terme. Simuleu l'estudi
+    amb diverses claus d'alumne i mireu com salten d'una mostra a l'altra els
+    HR del grau, els ganglis i la histologia. No fer la biòpsia del gangli
+    sentinella no té efecte propi en aquest escenari: simplement es va fer
+    servir menys els primers anys, quan la recidiva era més freqüent (una
+    hipòtesi docent). El seu HR cru desapareix quan el període entra al model.
