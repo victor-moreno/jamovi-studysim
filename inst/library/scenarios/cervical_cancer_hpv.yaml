@@ -1,0 +1,190 @@
+id: cervical_cancer_hpv
+label: {en: "HPV and cofactors of cervical cancer (IARC multicentric)", es: "VPH y cofactores del cáncer de cuello uterino (multicéntrico IARC)", ca: "VPH i cofactors del càncer de coll uterí (multicèntric IARC)"}
+domain: oncology
+population:
+  en: Women aged 20-80 from seven countries (Brazil, Colombia, Morocco, Peru, the Philippines, Spain, Thailand)
+  es: Mujeres de 20 a 80 años de siete países (Brasil, Colombia, Marruecos, Perú, Filipinas, España, Tailandia)
+  ca: Dones de 20 a 80 anys de set països (Brasil, Colòmbia, el Marroc, el Perú, les Filipines, Espanya, Tailàndia)
+
+# Marginals and latent correlations from the 1,421 controls of the teaching
+# dataset (a sample of the population), with studysim Derive; effects from the
+# logistic model of the 2,910 women (HPV and the cofactors mutually adjusted).
+variables:
+  country:
+    type: nominal
+    levels: [Brazil, Colombia, Morocco, Peru, Philippines, Spain, Thailand]
+    probs: [0.132, 0.101, 0.118, 0.106, 0.220, 0.128, 0.196]
+    label: {en: Country, es: País, ca: País}
+  age: {from: dictionary, dist: "normal(48.2, 12)", range: [20, 82]}
+  education:
+    type: ordinal
+    levels: [none, primary, secondary]
+    probs: [0.187, 0.478, 0.335]
+    label: {en: Education, es: Nivel de estudios, ca: Nivell d'estudis}
+  smoking: {from: dictionary, probs: [0.859, 0.065, 0.076]}
+  age_first_sex:
+    type: continuous
+    dist: lognormal(20.8, 4.9)
+    range: [12, 46]
+    round: 0
+    units: {en: years, es: años, ca: anys}
+    label: {en: Age at first sexual intercourse, es: Edad de la primera relación sexual, ca: Edat de la primera relació sexual}
+  partners:
+    type: continuous
+    dist: lognormal(1.23, 0.55)
+    range: [1, 6]
+    round: 0
+    units: {en: partners, es: parejas, ca: parelles}
+    label: {en: Lifetime sexual partners, es: Parejas sexuales a lo largo de la vida, ca: Parelles sexuals al llarg de la vida}
+  std:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.31
+    label: {en: Past sexually transmitted disease, es: Enfermedad de transmisión sexual previa, ca: Malaltia de transmissió sexual prèvia}
+  oc:
+    type: binary
+    levels: [never, ever]
+    p: 0.31
+    label: {en: Oral contraceptive use, es: Uso de anticonceptivos orales, ca: Ús d'anticonceptius orals}
+  oc_years:
+    type: count
+    dist: negbin(5.5, 1.0)
+    range: [0, 34]
+    only_if: oc == "ever"          # structural zero: no years of use without use
+    otherwise: 0
+    units: {en: years, es: años, ca: anys}
+    label: {en: Years of oral contraceptive use, es: Años de uso de anticonceptivos orales, ca: Anys d'ús d'anticonceptius orals}
+  condom:
+    type: binary
+    levels: [never, ever]
+    p: 0.13
+    label: {en: Condom use, es: Uso de preservativo, ca: Ús de preservatiu}
+  parity:
+    type: count
+    dist: negbin(4.8, 4.0)
+    range: [0, 20]
+    units: {en: pregnancies, es: embarazos, ca: embarassos}
+    label: {en: Number of pregnancies, es: Número de embarazos, ca: Nombre d'embarassos}
+  pap:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.51
+    label: {en: Ever had a Pap smear, es: Alguna citología (Papanicolaou), ca: Alguna citologia (Papanicolau)}
+  hpv:
+    type: binary
+    levels: [negative, positive]
+    p: 0.144
+    label: {en: Cervical HPV DNA, es: ADN de VPH cervical, ca: ADN de VPH cervical}
+
+structure:
+  - [age, education, -0.36]
+  - [age, oc, -0.45]              # older women had less access to the pill
+  - [age, parity, 0.38]
+  - [education, age_first_sex, 0.30]
+  - [education, parity, -0.32]
+  - [age_first_sex, parity, -0.43]
+  - [age_first_sex, partners, -0.33]
+  - [partners, hpv, 0.18]         # HPV is sexually transmitted
+  - [age_first_sex, hpv, -0.11]
+  - [smoking, partners, 0.23]
+  - [education, pap, 0.22]
+  - [partners, pap, 0.18]
+  - [oc, pap, 0.18]               # contraception visits include a smear test
+  - [age, oc_years, 0.16]
+  - [std, hpv, 0.14]
+  - [std, condom, 0.22]           # a past infection leads to condom use
+  - [oc, condom, 0.24]
+  - [education, condom, 0.20]
+
+outcomes:
+  cervical_cancer:
+    type: event
+    label: {en: Invasive cervical cancer, es: Cáncer invasivo de cuello uterino, ca: Càncer invasiu de coll uterí}
+    rate: 0.3/1000
+    window: 10
+    followup: 10
+    designs: [case_control, matched_cc]
+    levels: ["no", "yes"]
+    effects:
+      # at 0 pregnancies and no pill use; with the cofactors, the average
+      # HPV-positive woman has an OR near 100 (data: 108)
+      hpv: {HR: 60}
+      country: {HR: [1, 1.36, 1.46, 1.65, 5.0, 4.7, 2.4]}
+      age: {HR: 1.1, per: 10}
+      education: {HR: [1, 0.72, 0.33]}
+      smoking: {HR: [1, 2.0, 2.1]}
+      age_first_sex: {HR: 0.95, per: 1}
+      partners: {HR: 1.33, per: 1}
+      std: {HR: 1.4}
+      # cofactors that act only with HPV (data: per year of use 1.12 in HPV
+      # positive women, 0.95 in negative ones); parity between the data (1.03
+      # per pregnancy) and the pooled IARC analysis (OR 3.8, 7+ vs none)
+      oc_years: {HR: 1.12, per: 1, by: {hpv: {negative: 1, positive: 1.12}}}
+      parity: {HR: 1.08, per: 1, by: {hpv: {negative: 1, positive: 1.08}}}
+      # the smears include the one that found the cancer (see the teaching note)
+      pap: {HR: 1.45}
+
+null_variables: [oc, condom]
+
+designs:
+  case_control: {ratio: 1}
+  matched_cc: {ratio: 1}
+
+i18n:
+  en:
+    names: {country: country, education: education, age_first_sex: age_first_sex, partners: partners, std: std, oc: oc, oc_years: oc_years, condom: condom, parity: parity, pap: pap, hpv: hpv, cervical_cancer: cervical_cancer}
+    levels: {Brazil: Brazil, Colombia: Colombia, Morocco: Morocco, Peru: Peru, Philippines: Philippines, Spain: Spain, Thailand: Thailand, none: none, primary: primary, secondary: secondary, never: never, ever: ever, negative: negative, positive: positive}
+  es:
+    names: {country: pais, education: estudios, age_first_sex: edad_1a_relacion, partners: parejas, std: ets, oc: anticonceptivos, oc_years: anos_anticonceptivos, condom: preservativo, parity: embarazos, pap: citologia, hpv: vph, cervical_cancer: cancer_cervix}
+    levels: {Brazil: Brasil, Colombia: Colombia, Morocco: Marruecos, Peru: Perú, Philippines: Filipinas, Spain: España, Thailand: Tailandia, none: ninguno, primary: primarios, secondary: secundarios, never: nunca, ever: alguna_vez, negative: negativo, positive: positivo}
+  ca:
+    names: {country: pais, education: estudis, age_first_sex: edat_1a_relacio, partners: parelles, std: mts, oc: anticonceptius, oc_years: anys_anticonceptius, condom: preservatiu, parity: embarassos, pap: citologia, hpv: vph, cervical_cancer: cancer_cervix}
+    levels: {Brazil: Brasil, Colombia: Colòmbia, Morocco: Marroc, Peru: Perú, Philippines: Filipines, Spain: Espanya, Thailand: Tailàndia, none: cap, primary: primaris, secondary: secundaris, never: mai, ever: alguna_vegada, negative: negatiu, positive: positiu}
+
+references:
+  - "Data: IARC multicentric case-control study of cervical cancer (teaching dataset of 2910 women from seven countries; V Moreno)."
+  - "Moreno V, Bosch FX, Muñoz N et al. Effect of oral contraceptives on risk of cervical cancer in women with human papillomavirus infection: the IARC multicentric case-control study. Lancet 2002;359:1085-92."
+  - "Muñoz N, Franceschi S, Bosetti C et al. Role of parity and human papillomavirus in cervical cancer: the IARC multicentric case-control study. Lancet 2002;359:1093-101."
+  - "Plummer M, Herrero R, Franceschi S et al. Smoking and cervical cancer: pooled analysis of the IARC multi-centric case-control study. Cancer Causes Control 2003;14:805-14."
+
+teaching:
+  en: >
+    Cervical HPV DNA is found in almost every case (94%) and in 14% of the
+    controls: an odds ratio near 100, a necessary cause. Sexual behaviour
+    (partners, early first intercourse) raises the risk mainly through HPV:
+    adjusting for HPV shrinks their effects, which is mediation, not confounding.
+    Oral contraceptives and pregnancies are cofactors that act only in
+    HPV-positive women: their odds ratios in all women are diluted by the
+    HPV-negative ones; estimate them by HPV status or with an interaction. Years
+    of pill use exist only for users (a structural zero for the others), so
+    "ever used" and "years of use" must be read together. Having had a smear
+    test raises the odds here because the cases' smears include the one that
+    found the cancer: a variable partly measured after the disease. Condom use
+    has no effect.
+  es: >
+    El ADN de VPH cervical aparece en casi todos los casos (94%) y en el 14% de
+    los controles: una odds ratio cercana a 100, una causa necesaria. La conducta
+    sexual (parejas, primera relación precoz) aumenta el riesgo sobre todo a
+    través del VPH: ajustar por el VPH reduce sus efectos, y eso es mediación, no
+    confusión. Los anticonceptivos orales y los embarazos son cofactores que solo
+    actúan en mujeres VPH positivas: sus odds ratios en todas las mujeres quedan
+    diluidas por las VPH negativas; estimadlas según el VPH o con una
+    interacción. Los años de uso de la píldora solo existen para las usuarias (un
+    cero estructural para las demás), así que "alguna vez" y "años de uso" deben
+    leerse juntos. Haberse hecho una citología aumenta la odds aquí porque las
+    citologías de los casos incluyen la que encontró el cáncer: una variable
+    medida en parte después de la enfermedad. El preservativo no tiene efecto.
+  ca: >
+    L'ADN de VPH cervical apareix en gairebé tots els casos (94%) i en el 14%
+    dels controls: una odds ratio propera a 100, una causa necessària. La
+    conducta sexual (parelles, primera relació precoç) augmenta el risc sobretot
+    a través del VPH: ajustar pel VPH en redueix els efectes, i això és mediació,
+    no confusió. Els anticonceptius orals i els embarassos són cofactors que
+    només actuen en dones VPH positives: les seves odds ratios en totes les dones
+    queden diluïdes per les VPH negatives; estimeu-les segons el VPH o amb una
+    interacció. Els anys d'ús de la píndola només existeixen per a les usuàries
+    (un zero estructural per a les altres), de manera que "alguna vegada" i "anys
+    d'ús" s'han de llegir junts. Haver-se fet una citologia augmenta l'odds aquí
+    perquè les citologies dels casos inclouen la que va trobar el càncer: una
+    variable mesurada en part després de la malaltia. El preservatiu no té
+    efecte.

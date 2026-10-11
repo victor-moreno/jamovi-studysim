@@ -58,7 +58,7 @@ outcomes:
     rate: 2.5/1000               # per person-year, exponential
     window: 10                   # years at risk behind a case-control status
     followup: 10
-    designs: [case_control, matched_cc, cohort]
+    designs: [case_control, matched_cc, cohort, nested_cc, case_cohort, ecological]
     effects:
       age: {HR: 1.04, per: 1}
       menarche: {HR: 0.95, per: 1}

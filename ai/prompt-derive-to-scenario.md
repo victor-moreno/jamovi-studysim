@@ -78,7 +78,14 @@ lack, without drifting from what the data say. Do the following, in order:
    combination is impossible or a value is structural (menopause and age,
    pregnancy and sex, cigarettes per day only for current smokers, BMI from
    weight and height, …). Rules may use only the operators and functions listed
-   in `schema.md`. Strong exclusivity involving a rare category (two mutually
+   in `schema.md`. *Derive* already wrote `only_if`/`otherwise` for the
+   structural values it found (`derivation: structural`: a variable missing or
+   constant in one level of another); keep them, and check that `otherwise` is
+   sensible (a 0 written for "not applicable" ages may be better as a duration).
+   It also lists in `warnings` the codes it read as missing (99, impossible
+   zeros) and the orders the data never break (start age <= end age <= age):
+   the engine cannot keep an order, so write one variable from the other with
+   `formula:` or leave one out. Strong exclusivity involving a rare category (two mutually
    exclusive mutations, one with p < 0.05) is better written as a rule than as
    a latent edge. An edge acts on the whole latent scale, so it also shifts
    people who do not carry the rare category, and it distorts the other

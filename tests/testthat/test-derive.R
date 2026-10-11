@@ -112,3 +112,13 @@ test_that("Derive finds codes, structural values and orders", {
   b <- exp(coef(glm(y ~ years, binomial, s)))[["years"]]
   expect_equal(b, exp(0.1), tolerance = 0.05)
 })
+
+test_that("Derive reads zeros far below the other values as missing, not real zeros", {
+  set.seed(3)
+  d <- data.frame(dbp = round(rnorm(400, 72, 12)), births = rpois(400, 2))
+  d$dbp[1:30] <- 0
+  out <- recode_codes(d, c("dbp", "births"))
+  expect_identical(names(out$codes), "dbp")
+  expect_equal(sum(is.na(out$df$dbp)), 30)
+  expect_false(anyNA(out$df$births))
+})

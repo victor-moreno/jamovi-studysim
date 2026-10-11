@@ -2,7 +2,8 @@
 # estimates anything:
 # - codes for "unknown / not applicable" written as numbers (99, 999): an
 #   all-nines value at the top of the range, far more frequent than the values
-#   just below it, is read as missing;
+#   just below it, is read as missing; so is a 0 far below every other value
+#   (an impossible blood pressure or BMI of 0 that stands for "not measured");
 # - structural values: a variable that does not apply in some level of another
 #   one (age at first oral contraceptive use when never used) is missing, or
 #   one constant, in those rows. The scenario writes it with only_if/otherwise,
@@ -21,13 +22,22 @@ recode_codes <- function(df, cols) {
         y <- x[is.finite(x)]
         if (length(y) < 20) next
         top <- max(y)
-        if (top < 9 || !grepl("^9+$", format(top, scientific = FALSE))) next
+        nines <- top >= 9 && grepl("^9+$", format(top, scientific = FALSE))
         n_top <- sum(y == top)
-        below <- sort(unique(y[y < top]), decreasing = TRUE)[1:5]
+        below <- sort(unique(y[y < top]), decreasing = TRUE)[1:5]   # its neighbours
         n_below <- max(vapply(below[!is.na(below)], function(b) sum(y == b), 0), 0)
-        if (n_top >= 5 && n_top >= 0.02 * length(y) && n_top > 3 * n_below) {
+        if (nines && n_top >= 5 && n_top >= 0.02 * length(y) && n_top > 3 * n_below) {
             df[[v]][!is.na(x) & x == top] <- NA
             codes[[v]] <- list(value = top, n = n_top)
+            next
+        }
+        # zeros: the jump from 0 to the smallest positive value is >= 5 times the
+        # usual step between consecutive values (0, 24, 30, 38... for a pressure)
+        pos <- sort(unique(y[y > 0]))
+        n0 <- sum(y == 0)
+        if (n0 >= 2 && length(pos) >= 10 && min(y) == 0 && pos[1] >= 5 * stats::median(diff(pos))) {
+            df[[v]][!is.na(x) & x == 0] <- NA
+            codes[[v]] <- list(value = 0, n = n0)
         }
     }
     list(df = df, codes = codes)

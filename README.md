@@ -33,12 +33,14 @@ parameters and what crude and adjusted analyses of that design should find.
   libraries in YAML, Excel or JSON.
 - **Derive scenario**: estimates a scenario from a real dataset (marginals, latent
   correlations, conditional effects; missing covariates by complete cases, mean,
-  single or multiple imputation) and checks it by simulation; an AI prompt and
+  single or multiple imputation; codes such as 99 or impossible zeros read as
+  missing; values that do not apply in some people written as rules) and checks
+  it by simulation; an AI prompt and
   a Claude skill in `ai/` turn it into a teaching scenario.
 
 ## Scenarios
 
-50 scenarios, most replicating a real study: their parameters were estimated
+51 scenarios, most replicating a real study: their parameters were estimated
 with the module's own *Derive* engine from open patient-level data (R
 packages survival, MASS, datasets, HSAUR3, TH.data, pROC, medicaldata,
 aplore3, NHANES), or taken from the published tables of the study; each was
@@ -85,6 +87,7 @@ explains the method and filters the scenarios by domain, design and topic.
 |  | Chemotherapy for advanced lung cancer (`veterans_lung`) | rct, prognosis | R dataset veteran (survival package) |
 |  | Dietary fat and breast cancer (`dietary_fat_breast`) | ecological, case_control, cohort | published studies |
 |  | Hormonal therapy in node-positive breast cancer (`gbsg2_breast`) | rct, prognosis | R dataset GBSG2 (TH.data package) |
+|  | HPV and cofactors of cervical cancer (IARC multicentric) (`cervical_cancer_hpv`) | case_control, matched_cc | IARC multicentric case-control study of cervical cancer (teaching dataset of 2910 women from seven countries; V Moreno). |
 |  | Lung cancer and smoking (`lung_cancer_smoking`) | case_control, matched_cc, cohort, nested_cc | Doll & Hill 1950 smoking tables |
 |  | Oesophageal cancer: alcohol and tobacco (`esoph_cancer`) | case_control, matched_cc, cohort | R dataset esoph (datasets package) |
 |  | PSA and prostate cancer (`prostate_cancer_psa`) | diagnostic, cross_sectional, case_control | published studies |

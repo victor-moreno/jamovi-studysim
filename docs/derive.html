@@ -338,6 +338,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-it-estimates" id="toc-what-it-estimates" class="nav-link active" data-scroll-target="#what-it-estimates">What it estimates</a>
   <ul class="collapse">
   <li><a href="#missing-values" id="toc-missing-values" class="nav-link" data-scroll-target="#missing-values">Missing values</a></li>
+  <li><a href="#values-that-do-not-apply" id="toc-values-that-do-not-apply" class="nav-link" data-scroll-target="#values-that-do-not-apply">Values that do not apply</a></li>
   </ul></li>
   <li><a href="#finishing-it-with-an-ai" id="toc-finishing-it-with-an-ai" class="nav-link" data-scroll-target="#finishing-it-with-an-ai">Finishing it with an AI</a></li>
   </ul>
@@ -427,6 +428,15 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 <p>With an imputation method the table also shows the complete-case estimate. <em>Derive</em> also warns when few rows are complete, when a variable is missing mostly in one outcome group (probably recorded after the outcome), when there are fewer than 10 events per coefficient (with a shrinkage factor), when an effect is not estimable, and when times look like days or months.</p>
+</section>
+<section id="values-that-do-not-apply" class="level3">
+<h3 class="anchored" data-anchor-id="values-that-do-not-apply">Values that do not apply</h3>
+<p>Real datasets record some variables only for some people: the age at first oral contraceptive use is blank for women who never used them, the years of use are 0, the age at the first smear test is coded 99 when there was none. Before estimating anything, <em>Derive</em>:</p>
+<ul>
+<li>reads an all-nines value at the top of a variable’s range (99, 999), far more frequent than the values just below it, as <strong>missing</strong>, and so a 0 far below every other value (a blood pressure or a BMI of 0 that meant “not measured”, as in the Pima data);</li>
+<li>finds variables that are missing, or one constant, in a level of another variable and observed elsewhere (<strong>structural values</strong>). The scenario writes them with <code>only_if</code>/<code>otherwise</code> (e.g.&nbsp;<code>only_if: co == "sí"</code>, <code>otherwise: 0</code>), their distribution comes from the people they apply to, their correlations with that variable are left out (it is a rule), and the model gives the other rows the <code>otherwise</code> value, so no rows are lost: the effect of the variable is among those it applies to, and the effect of the other variable is at the <code>otherwise</code> value;</li>
+<li>reports pairs of numbers whose order the data never break (start age ≤ end age ≤ age): the scenario cannot keep such an order, so write one from the other with a <code>formula</code> or leave one out.</li>
+</ul>
 <p>Columns that jamovi read as nominal but hold numbers (integers from a CSV) are read as numbers. Try it with <a href="screenshots/chd_sim.csv">chd_sim.csv</a>, a simulated cohort.</p>
 </section>
 </section>

@@ -50,7 +50,9 @@ are 0, the age at the first smear test is coded 99 when there was none. Before
 estimating anything, *Derive*:
 
 - reads an all-nines value at the top of a variable's range (99, 999), far more
-  frequent than the values just below it, as **missing**;
+  frequent than the values just below it, as **missing**, and so a 0 far below
+  every other value (a blood pressure or a BMI of 0 that meant "not measured",
+  as in the Pima data);
 - finds variables that are missing, or one constant, in a level of another
   variable and observed elsewhere (**structural values**). The scenario writes
   them with `only_if`/`otherwise` (e.g. `only_if: co == "sí"`, `otherwise: 0`),
