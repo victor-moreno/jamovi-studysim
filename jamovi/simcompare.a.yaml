@@ -191,6 +191,18 @@ options:
       description:
           R: any text (e.g. a student ID); each key gives a different dataset (capitals and surrounding spaces are ignored)
 
+    - name: replicates
+      title: Replicate studies per design
+      type: Integer
+      default: 0
+      min: 0
+      max: 2000
+      description:
+          R: >
+              0 = none; otherwise this many studies of each design (same scenario, size and options,
+              different people): their mean estimate, bias, standard error, power and coverage of the
+              confidence interval
+
     - name: teacherCode
       title: Teacher code
       type: String

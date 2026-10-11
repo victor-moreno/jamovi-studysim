@@ -21,6 +21,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             loss = "",
             seed = 1,
             studentKey = "",
+            replicates = 0,
             teacherCode = "",
             showExpected = FALSE,
             showPlot = TRUE,
@@ -145,6 +146,12 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "studentKey",
                 studentKey,
                 default="")
+            private$..replicates <- jmvcore::OptionInteger$new(
+                "replicates",
+                replicates,
+                default=0,
+                min=0,
+                max=2000)
             private$..teacherCode <- jmvcore::OptionString$new(
                 "teacherCode",
                 teacherCode,
@@ -186,6 +193,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..loss)
             self$.addOption(private$..seed)
             self$.addOption(private$..studentKey)
+            self$.addOption(private$..replicates)
             self$.addOption(private$..teacherCode)
             self$.addOption(private$..showExpected)
             self$.addOption(private$..showPlot)
@@ -207,6 +215,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         loss = function() private$..loss$value,
         seed = function() private$..seed$value,
         studentKey = function() private$..studentKey$value,
+        replicates = function() private$..replicates$value,
         teacherCode = function() private$..teacherCode$value,
         showExpected = function() private$..showExpected$value,
         showPlot = function() private$..showPlot$value,
@@ -227,6 +236,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..loss = NA,
         ..seed = NA,
         ..studentKey = NA,
+        ..replicates = NA,
         ..teacherCode = NA,
         ..showExpected = NA,
         ..showPlot = NA,
@@ -245,6 +255,8 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         estimates = function() private$.items[["estimates"]],
         dag = function() private$.items[["dag"]],
         plot = function() private$.items[["plot"]],
+        replicateTable = function() private$.items[["replicateTable"]],
+        replicatePlot = function() private$.items[["replicatePlot"]],
         openState = function() private$.items[["openState"]],
         csvState = function() private$.items[["csvState"]]),
     private = list(),
@@ -407,6 +419,92 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "teacherCode")))
             self$add(jmvcore::Table$new(
                 options=options,
+                name="replicateTable",
+                title="Replicate studies",
+                visible="(replicates)",
+                rows=0,
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "designs",
+                    "measured",
+                    "n",
+                    "ccRatio",
+                    "followup",
+                    "loss",
+                    "seed",
+                    "studentKey",
+                    "replicates",
+                    "teacherCode"),
+                columns=list(
+                    list(
+                        `name`="design", 
+                        `title`="Design", 
+                        `type`="text", 
+                        `combineBelow`=TRUE),
+                    list(
+                        `name`="variable", 
+                        `title`="Variable", 
+                        `type`="text"),
+                    list(
+                        `name`="contrast", 
+                        `title`="Contrast", 
+                        `type`="text"),
+                    list(
+                        `name`="truth", 
+                        `title`="True", 
+                        `type`="number"),
+                    list(
+                        `name`="mean", 
+                        `title`="Mean estimate", 
+                        `type`="number"),
+                    list(
+                        `name`="bias", 
+                        `title`="Bias", 
+                        `type`="text"),
+                    list(
+                        `name`="seEmp", 
+                        `title`="SE (spread)", 
+                        `type`="number"),
+                    list(
+                        `name`="seModel", 
+                        `title`="SE (model)", 
+                        `type`="number"),
+                    list(
+                        `name`="power", 
+                        `title`="Power %", 
+                        `type`="number", 
+                        `format`="zto"),
+                    list(
+                        `name`="coverage", 
+                        `title`="CI coverage %", 
+                        `type`="number", 
+                        `format`="zto"))))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="replicatePlot",
+                title="Sampling distribution by design",
+                visible="(replicates)",
+                width=700,
+                height=400,
+                renderFun=".plotReplicates",
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "designs",
+                    "measured",
+                    "n",
+                    "ccRatio",
+                    "followup",
+                    "loss",
+                    "seed",
+                    "studentKey",
+                    "replicates",
+                    "teacherCode")))
+            self$add(jmvcore::Table$new(
+                options=options,
                 name="openState",
                 title="",
                 visible=FALSE,
@@ -514,6 +612,9 @@ simCompareBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param seed .
 #' @param studentKey any text (e.g. a student ID); each key gives a different
 #'   dataset (capitals and surrounding spaces are ignored)
+#' @param replicates 0 = none; otherwise this many studies of each design
+#'   (same scenario, size and options, different people): their mean estimate,
+#'   bias, standard error, power and coverage of the confidence interval
 #' @param teacherCode unlocks the true values, the large-study estimates and
 #'   the effect sizes of a library locked with this code
 #' @param showExpected also simulate one large study per design and show its
@@ -530,6 +631,8 @@ simCompareBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$estimates} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$dag} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$plot} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$replicateTable} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$replicatePlot} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$openState} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$csvState} \tab \tab \tab \tab \tab a table \cr
 #' }
@@ -558,6 +661,7 @@ simCompare <- function(
     loss = "",
     seed = 1,
     studentKey = "",
+    replicates = 0,
     teacherCode = "",
     showExpected = FALSE,
     showPlot = TRUE,
@@ -587,6 +691,7 @@ simCompare <- function(
         loss = loss,
         seed = seed,
         studentKey = studentKey,
+        replicates = replicates,
         teacherCode = teacherCode,
         showExpected = showExpected,
         showPlot = showPlot,

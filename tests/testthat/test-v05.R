@@ -260,3 +260,17 @@ test_that("a library locked by a teacher code hides the key until the code is gi
   l <- simLibrary(data = data.frame(), libContent = b64, libName = "class.json", scenario = "chd_incidence", showDetails = TRUE)
   expect_false(l$effects$visible)
 })
+
+test_that("replicate studies give bias, power and coverage", {
+  sc <- load_scenario(builtin_library(), "indomethacin_ercp")
+  reps <- compare_replicates(sc, "pancreatitis", "rct", 600, sc$order, 60)
+  expect_equal(nrow(reps), 60)
+  sm <- summarise_replicates(reps)
+  expect_gt(sm$coverage, 85)
+  expect_gt(sm$power, 60)
+  expect_lt(abs(sm$bias), 15)
+  expect_equal(sm$se_emp, sm$se_model, tolerance = 0.3)
+  c2 <- simCompare(data = data.frame(), scenario = "indomethacin_ercp", designs = "rct", n = 300, replicates = 20)
+  expect_equal(nrow(c2$replicateTable$asDF), 1)
+  expect_true(c2$replicatePlot$visible)
+})

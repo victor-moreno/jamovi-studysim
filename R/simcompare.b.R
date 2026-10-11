@@ -90,6 +90,13 @@ simCompareClass <- R6::R6Class(
             # one panel per contrast, two columns
             np <- length(unique(vapply(rows, function(r) paste(r$variable, r$contrast), "")))
             self$results$plot$setSize(760, max(260, 60 + ceiling(np / 2) * (50 + 28 * length(ctx$designs))))
+            # replicates: the same rows, filled in .run()
+            if (self$options$replicates > 0) {
+                for (r in rows) self$results$replicateTable$addRow(rowKey = r$key, values = list(
+                    design = design_title(r$design, self), variable = dname(r$variable, ctx$lang), contrast = r$contrast))
+                self$results$replicatePlot$setSize(760, max(260, 60 + ceiling(np / 2) * (50 + 28 * length(ctx$designs))))
+                if (isTRUE(ctx$locked)) self$results$replicateTable$getColumn("truth")$setVisible(FALSE)
+            }
         },
 
         .run = function() {
@@ -117,6 +124,46 @@ simCompareClass <- R6::R6Class(
             if (o$showPlot && !is.null(res$estimates) && is.null(self$results$plot$state))
                 self$results$plot$setState(list(est = res$estimates, expected = res$expected, titles = titles, lang = ctx$lang))
             private$.actions(ctx, res)
+            if (o$replicates > 0) private$.replicates(ctx, titles)
+        },
+
+        # replicate studies: kept in the table's state (they take a while)
+        .replicates = function(ctx, titles) {
+            o <- self$options
+            tbl <- self$results$replicateTable
+            st <- tbl$state
+            if (is.null(st)) {
+                reps <- tryCatch(compare_replicates(ctx$sc, ctx$oc$id, ctx$designs, o$n, ctx$factors, o$replicates, seed = o$seed,
+                                                    student_key = o$studentKey, options = ctx$opts, lang = ctx$lang, categorize = ctx$cats,
+                                                    tick = function() private$.checkpoint(flush = FALSE)),
+                                 error = function(e) e)
+                if (inherits(reps, "error")) { private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(friendly_error(reps, self)))); return() }
+                if (isTRUE(ctx$locked) && !is.null(reps)) reps$true <- NA_real_
+                st <- list(reps = reps, summary = summarise_replicates(reps))
+                tbl$setState(st)
+            }
+            sm <- st$summary
+            blank <- function(v) if (is.na(v) || !is.finite(v)) "" else v
+            for (i in seq_len(NROW(sm))) {
+                k <- paste(sm$design[i], sm$variable[i], sm$contrast[i])
+                if (!k %in% tbl$rowKeys) next
+                lg <- sm$measure[i] %in% c("OR", "HR", "RR", "ratio")
+                tbl$setRow(rowKey = k, values = list(truth = blank(sm$true[i]), mean = blank(sm$mean[i]),
+                    bias = if (is.na(sm$bias[i])) "" else if (lg) sprintf("%+.1f%%", sm$bias[i]) else formatC(sm$bias[i], format = "fg", digits = 3, flag = "+"),
+                    seEmp = blank(sm$se_emp[i]), seModel = blank(sm$se_model[i]), power = blank(sm$power[i]), coverage = blank(sm$coverage[i])))
+            }
+            tbl$setNote("rep", jmvcore::format(.("{r} studies of {n} per design, each adjusted for all the measured variables. Bias: of the mean estimate (geometric for ratios) against the true value. SE (spread): standard deviation of the estimates (log scale for ratios); SE (model): the mean of the reported ones. Power: confidence intervals that exclude no effect; coverage: intervals that contain the true value (95% expected)."),
+                                               r = o$replicates, n = o$n))
+            img <- self$results$replicatePlot
+            if (is.null(img$state) && !is.null(st$reps)) img$setState(list(reps = st$reps, titles = titles, lang = ctx$lang))
+        },
+
+        .plotReplicates = function(image, ggtheme, theme, ...) {
+            st <- image$state
+            if (is.null(st)) return(FALSE)
+            print(replicates_plot(st$reps, st$titles, st$lang) +
+                  ggplot2::labs(caption = .("Boxes: adjusted estimates of the replicate studies (ratios beyond 1/100 or 100 left out); dashed line: true value.")))
+            TRUE
         },
 
         .fillStudies = function(ctx, res) {

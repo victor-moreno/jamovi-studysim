@@ -132,6 +132,9 @@ children:
       - type: TextBox
         name: n
         format: number
+      - type: TextBox
+        name: replicates
+        format: number
       - type: ActionButton
         name: openData
       - type: ActionButton

@@ -89,6 +89,35 @@ items:
       clearWith: [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
                   seed, studentKey, showExpected, teacherCode]
 
+    - name: replicateTable
+      title: Replicate studies
+      type: Table
+      visible: (replicates)
+      rows: 0
+      clearWith: [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
+                  seed, studentKey, replicates, teacherCode]
+      columns:
+          - {name: design, title: Design, type: text, combineBelow: true}
+          - {name: variable, title: Variable, type: text}
+          - {name: contrast, title: Contrast, type: text}
+          - {name: truth, title: 'True', type: number}
+          - {name: mean, title: Mean estimate, type: number}
+          - {name: bias, title: Bias, type: text}
+          - {name: seEmp, title: SE (spread), type: number}
+          - {name: seModel, title: SE (model), type: number}
+          - {name: power, title: 'Power %', type: number, format: zto}
+          - {name: coverage, title: 'CI coverage %', type: number, format: zto}
+
+    - name: replicatePlot
+      title: Sampling distribution by design
+      type: Image
+      visible: (replicates)
+      width: 700
+      height: 400
+      renderFun: .plotReplicates
+      clearWith: [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
+                  seed, studentKey, replicates, teacherCode]
+
     # once-only guards for the two buttons (see simstudy.r.yaml)
     - name: openState
       title: ''
