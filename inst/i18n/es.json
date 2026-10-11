@@ -903,6 +903,18 @@
             ],
             "The answer key could not be computed for these options:": [
                 "No se ha podido calcular la clave de respuestas con estas opciones:"
+            ],
+            "{events} events in {pt} person-months": [
+                "{events} eventos en {pt} personas-mes"
+            ],
+            "{events} events in {pt} person-weeks": [
+                "{events} eventos en {pt} personas-semana"
+            ],
+            "{events} events in {pt} person-days": [
+                "{events} eventos en {pt} personas-día"
+            ],
+            "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}": [
+                "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} {units}"
             ]
         }
     }
