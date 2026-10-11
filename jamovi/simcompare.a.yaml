@@ -207,7 +207,7 @@ options:
     - name: dagValues
       title: Effect sizes on the diagram
       type: Bool
-      default: true
+      default: false
 
     - name: openData
       title: Open dataset

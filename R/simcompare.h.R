@@ -24,7 +24,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             showExpected = FALSE,
             showPlot = TRUE,
             showDag = TRUE,
-            dagValues = TRUE,
+            dagValues = FALSE,
             openData = FALSE,
             exportCsv = FALSE, ...) {
 
@@ -161,7 +161,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..dagValues <- jmvcore::OptionBool$new(
                 "dagValues",
                 dagValues,
-                default=TRUE)
+                default=FALSE)
             private$..openData <- jmvcore::OptionAction$new(
                 "openData",
                 openData,
@@ -545,7 +545,7 @@ simCompare <- function(
     showExpected = FALSE,
     showPlot = TRUE,
     showDag = TRUE,
-    dagValues = TRUE,
+    dagValues = FALSE,
     openData = FALSE,
     exportCsv = FALSE) {
 

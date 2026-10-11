@@ -52,7 +52,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             showDictionary = TRUE,
             showDescriptives = TRUE,
             showDag = TRUE,
-            dagValues = TRUE,
+            dagValues = FALSE,
             showKey = FALSE,
             openData = FALSE,
             exportCsv = FALSE,
@@ -383,7 +383,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..dagValues <- jmvcore::OptionBool$new(
                 "dagValues",
                 dagValues,
-                default=TRUE)
+                default=FALSE)
             private$..showKey <- jmvcore::OptionBool$new(
                 "showKey",
                 showKey,
@@ -1361,7 +1361,7 @@ simStudy <- function(
     showDictionary = TRUE,
     showDescriptives = TRUE,
     showDag = TRUE,
-    dagValues = TRUE,
+    dagValues = FALSE,
     showKey = FALSE,
     openData = FALSE,
     exportCsv = FALSE,
