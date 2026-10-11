@@ -124,6 +124,10 @@ simCompareClass <- R6::R6Class(
                     if (!is.null(f$arms)) paste(sprintf("%s: %s", dlevel(names(f$arms), ctx$lang), unlist(f$arms)), collapse = ", "),
                     if (!is.null(f$regions)) jmvcore::format(.("{k} regions of {m} people"), k = num(f$regions), m = num(f$region_size)),
                     if (!is.null(f$sequences)) jmvcore::format(.("sequences: {a} and {b} participants"), a = f$sequences[1], b = f$sequences[2]))
+                ep <- events_per_parameter(ctx$sc, ctx$oc, d, res$runs[[d]]$data_raw,
+                                           c(intersect(names(ctx$sc$interventions), names(res$runs[[d]]$data_raw)), ctx$factors))
+                if (!is.null(ep) && ep$epv < 10)
+                    det <- c(det, jmvcore::format(.("only {r} events per parameter of the adjusted model"), r = formatC(ep$epv, format = "f", digits = 1)))
                 self$results$studies$setRow(rowKey = d, values = list(rows = nrow(res$runs[[d]]$data), detail = paste(det, collapse = "; ")))
             }
             self$results$studies$setNote("pop", .("All designs sample the same superpopulation (same seed and student key); each study has its own participants."))

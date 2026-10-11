@@ -386,6 +386,12 @@ simStudyClass <- R6::R6Class(
             li <- c(li, seedtxt)
             if (length(ctx$factors) == 0)
                 li <- c(li, paste0("<b>", .("No variables measured yet: tick them under Measured."), "</b>"))
+            # too few events for a model adjusted for everything measured
+            ep <- events_per_parameter(sc, ctx$oc, ctx$design, res$data_raw,
+                                       c(intersect(names(sc$interventions), names(res$data_raw)), ctx$factors, "admitted", "treated"))
+            if (!is.null(ep) && ep$epv < 10)
+                li <- c(li, paste0("<b>", jmvcore::format(.("{e} events for {p} parameters of a model adjusted for every measured variable ({r} per parameter, fewer than 10): its estimates will be unstable and pushed away from the null; adjust only for the confounders the diagram points to, or simulate a larger study."),
+                                                          e = ep$events, p = ep$params, r = formatC(ep$epv, format = "f", digits = 1)), "</b>"))
             self$results$summary$setContent(paste0(
                 "<ul>", paste0("<li>", li, "</li>", collapse = ""), "</ul>",
                 "<p>", .("Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them."), "</p>"))

@@ -579,3 +579,19 @@ trial_absolute_rows <- function(sc, oc, design, lang = "en") {
         c(paste(iv$id, "risk", k), unlist(lapply(k[-1], function(j) paste(iv$id, c("rd", "nnt", "rr", if (oc$type == "binary") c("or_m", "or_c") else c("hr_m", "hr_c")), j))))
     })))
 }
+
+# Events per parameter of the model adjusted for `terms` in a formatted study
+# (binary and event outcomes): the smaller of events and non-events (cases and
+# controls), and the model's coefficients; NULL for other outcomes
+events_per_parameter <- function(sc, oc, design, fd, terms) {
+    y <- if (design %in% CASE_DESIGNS) fd$case == "case"
+         else if (!is.null(fd$time) && is.numeric(fd[[oc$id]])) fd[[oc$id]] == 1
+         else if (is.factor(fd[[oc$id]])) as.integer(fd[[oc$id]]) == 2L else NULL
+    if (is.null(y) || design %in% c("ecological", "crossover", "longitudinal", "pre_post", "method_comparison")) return(NULL)
+    y <- y[!is.na(y)]
+    ev <- if (!is.null(fd$time) && !design %in% CASE_DESIGNS) sum(y) else min(sum(y), sum(!y))
+    terms <- intersect(terms, names(fd))
+    p <- sum(vapply(terms, function(v) if (is.factor(fd[[v]])) max(0L, nlevels(droplevels(fd[[v]])) - 1L) else 1L, 1L))
+    if (p == 0) return(NULL)
+    list(events = ev, params = p, epv = ev / p)
+}

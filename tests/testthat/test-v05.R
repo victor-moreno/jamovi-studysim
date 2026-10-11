@@ -202,3 +202,10 @@ test_that("expected values average several large studies and report their uncert
   expect_equal(cmb$adjusted, 4)
   expect_equal(log(cmb$upper / cmb$adjusted), log(2) * sqrt(2) / 2, tolerance = 1e-8)
 })
+
+test_that("too few events per parameter are flagged", {
+  r <- simStudy(data = data.frame(), scenario = "breast_cancer_risk", design = "cohort", n = 500)
+  expect_match(r$summary$content, "fewer than 10")
+  r2 <- simStudy(data = data.frame(), scenario = "breast_cancer_risk", design = "case_control", n = 600)
+  expect_false(grepl("fewer than 10", r2$summary$content))
+})
