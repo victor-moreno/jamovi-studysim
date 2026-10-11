@@ -253,20 +253,59 @@ expected_estimates <- function(sc, oc, design, opt, factors, lang = "en", catego
     # clusters; many clusters keep the cluster effects from blurring it
     if (design == "cluster_rct") opt$clusters <- max(opt$clusters, 400)
     if (design == "ecological") opt$regions <- 200
-    big <- run_design(design, sc, oc, cal, derive_seed("truth", sc$id, oc$id), n_big, opt)
-    fd <- format_study(sc, oc, design, big, sc$order, "en")
-    # the measured variables with the same measurement error as the student's data
-    fd <- measurement_error(fd, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, derive_seed("truth", "measurement"))
-    fd <- apply_biases(fd, sc, oc, design, opt, derive_seed("truth", "biases"), "en")
-    fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
-    # ci: the large study's own interval is the Monte Carlo uncertainty of the expectation
-    out <- estimate_table(sc, oc, design, fd, factors, lang, categorize, ci = TRUE, opt = opt)
-    out <- add_total(out, sc, oc, lang)
-    # informative loss: the Kaplan-Meier risk by the end of follow-up, to set against the true one
-    if (!is.null(out) && isTRUE(opt$informative != 1) && !is.null(fd$time) && !design %in% CASE_DESIGNS) {
-        km <- survival::survfit(survival::Surv(fd$time, fd[[oc$id]] == 1) ~ 1)
-        attr(out, "km") <- 1 - utils::tail(km$surv[km$time <= opt$followup], 1)
+    # several large studies, averaged: their Monte Carlo error shrinks by
+    # sqrt(K) (one for matched case-control, whose matching is slow)
+    K <- expected_reps(design)
+    tabs <- lapply(seq_len(K), function(k) {
+        sk <- if (k == 1) list() else list(k)   # the first study is the one keys before v0.5 used
+        big <- run_design(design, sc, oc, cal, do.call(derive_seed, c(list("truth", sc$id, oc$id), sk)), n_big, opt)
+        fd <- format_study(sc, oc, design, big, sc$order, "en")
+        # the measured variables with the same measurement error as the student's data
+        fd <- measurement_error(fd, sc, factors, opt$reliability %||% 1, opt$misclass %||% 0, do.call(derive_seed, c(list("truth", "measurement"), sk)))
+        fd <- apply_biases(fd, sc, oc, design, opt, do.call(derive_seed, c(list("truth", "biases"), sk)), "en")
+        fd <- categorize_study(fd, sc, categorize[intersect(names(categorize), factors)], "en")
+        # ci: the large study's own interval is the Monte Carlo uncertainty of the expectation
+        out <- estimate_table(sc, oc, design, fd, factors, lang, categorize, ci = TRUE, opt = opt)
+        # informative loss: the Kaplan-Meier risk by the end of follow-up, to set against the true one
+        if (!is.null(out) && isTRUE(opt$informative != 1) && !is.null(fd$time) && !design %in% CASE_DESIGNS) {
+            km <- survival::survfit(survival::Surv(fd$time, fd[[oc$id]] == 1) ~ 1)
+            attr(out, "km") <- 1 - utils::tail(km$surv[km$time <= opt$followup], 1)
+        }
+        out
+    })
+    add_total(combine_expected(tabs), sc, oc, lang)
+}
+
+expected_reps <- function(design) if (design == "matched_cc") 1L else 3L
+
+# Average of expected tables from independent large studies: estimates on the
+# log scale for ratios, their 95% interval from the studies' own standard
+# errors (sqrt(sum se^2) / K): the Monte Carlo uncertainty of the average
+combine_expected <- function(tabs) {
+    tabs <- Filter(Negate(is.null), tabs)
+    if (length(tabs) <= 1) { if (length(tabs)) attr(tabs[[1]], "reps") <- 1L; return(if (length(tabs)) tabs[[1]]) }
+    out <- tabs[[1]]
+    key <- paste(out$variable, out$contrast)
+    z <- stats::qnorm(0.975)
+    lg <- out$measure %in% c("OR", "HR", "RR", "ratio")
+    tf <- function(x) ifelse(lg, log(x), x)
+    pick <- function(t, col) { x <- t[[col]][match(key, paste(t$variable, t$contrast))]; if (is.null(x)) rep(NA_real_, length(key)) else x }
+    avg <- function(col) {
+        m <- sapply(tabs, function(t) tf(pick(t, col)))
+        m <- matrix(m, nrow = length(key))
+        v <- apply(m, 1, function(r) if (all(!is.finite(r))) NA_real_ else mean(r[is.finite(r)]))
+        ifelse(lg, exp(v), v)
     }
+    for (col in c("crude", "adjusted", "dag")) if (!is.null(out[[col]])) out[[col]] <- avg(col)
+    se <- sapply(tabs, function(t) (tf(pick(t, "upper")) - tf(pick(t, "lower"))) / (2 * z))
+    se <- matrix(se, nrow = length(key))
+    se_c <- apply(se, 1, function(r) if (all(!is.finite(r))) NA_real_ else sqrt(sum(r[is.finite(r)]^2)) / sum(is.finite(r)))
+    ctr <- ifelse(is.finite(tf(out$adjusted)), tf(out$adjusted), tf(out$crude))   # special designs: the estimate is the crude one
+    out$lower <- ifelse(lg, exp(ctr - z * se_c), ctr - z * se_c)
+    out$upper <- ifelse(lg, exp(ctr + z * se_c), ctr + z * se_c)
+    km <- unlist(lapply(tabs, attr, "km"))
+    if (length(km)) attr(out, "km") <- mean(km)
+    attr(out, "reps") <- length(tabs)
     out
 }
 

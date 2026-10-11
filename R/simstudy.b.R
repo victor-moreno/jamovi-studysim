@@ -444,7 +444,10 @@ simStudyClass <- R6::R6Class(
                 }
             }
             if (!is.null(ex)) {
-                tbl$setNote("n", jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
+                k <- attr(ex, "reps") %||% 1L
+                tbl$setNote("n", if (k > 1) jmvcore::format(.("Expected values: crude and adjusted estimates averaged over {k} simulated studies of {n} rows with this design; adjusted for {vars}."),
+                                         k = k, n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", "))
+                                 else jmvcore::format(.("Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."),
                                          n = base::format(attr(ex, "n"), big.mark = ","), vars = paste(dname(attr(ex, "adjusted_for"), ctx$lang), collapse = ", ")))
                 ivp <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$opt))
                 if (dag_differs(ctx$sc, ctx$design, ctx$factors, length(ivp) > 0))
@@ -683,9 +686,9 @@ mc_note <- function(tables, self) {
     tables <- Filter(function(e) !is.null(e$lower), tables)
     if (!length(tables)) return("")
     mc <- mc_halfwidth(do.call(rbind, lapply(tables, function(e) e[, c("lower", "upper", "measure")])))
-    out <- c(if (!is.na(mc$pct)) jmvcore::format(.("The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios."),
+    out <- c(if (!is.na(mc$pct)) jmvcore::format(.("The expected values come from simulation: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios."),
                                                  pct = formatC(mc$pct, format = "f", digits = 1)),
-             if (!is.na(mc$diff)) jmvcore::format(.("The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{d} for the differences."),
+             if (!is.na(mc$diff)) jmvcore::format(.("The expected values come from simulation: their 95% Monte Carlo uncertainty is up to ±{d} for the differences."),
                                                   d = formatC(signif(mc$diff, 2), format = "fg")))
     paste(out, collapse = " ")
 }

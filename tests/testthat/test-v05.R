@@ -188,3 +188,17 @@ test_that("non-adherence, informative loss and immortal time", {
   inf <- expected_estimates(sc, oc, "cohort", c(design_defaults("cohort", oc, sc), list(informative = 3, loss = 0.05)), c("age", "sex"))
   expect_lt(attr(inf, "km"), calibrate(sc, oc)$achieved$risk_followup - 0.01)
 })
+
+test_that("expected values average several large studies and report their uncertainty", {
+  sc <- load_scenario(builtin_library(), "indomethacin_ercp")
+  oc <- sc$outcomes[[1]]
+  ex <- expected_estimates(sc, oc, "rct", design_defaults("rct", oc, sc), sc$order)
+  expect_equal(attr(ex, "reps"), 3L)
+  expect_true(ex$lower < ex$adjusted && ex$adjusted < ex$upper)
+  expect_lt(abs(log(ex$adjusted / 0.47)), 0.05)
+  a <- data.frame(variable = "x", contrast = "c", crude = 2, adjusted = 2, dag = 2, lower = 1, upper = 4, measure = "OR")
+  b <- a; b$crude <- b$adjusted <- b$dag <- 8; b$lower <- 4; b$upper <- 16
+  cmb <- combine_expected(list(a, b))
+  expect_equal(cmb$adjusted, 4)
+  expect_equal(log(cmb$upper / cmb$adjusted), log(2) * sqrt(2) / 2, tolerance = 1e-8)
+})
