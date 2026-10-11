@@ -1280,7 +1280,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param noiseVars .
 #' @param seed .
 #' @param studentKey any text (e.g. a student ID); each key gives a different
-#'   dataset
+#'   dataset (capitals and surrounding spaces are ignored)
 #' @param showDictionary .
 #' @param showDescriptives .
 #' @param showDag .

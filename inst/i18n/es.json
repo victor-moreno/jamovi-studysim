@@ -894,6 +894,15 @@
             ],
             "yes": [
                 "sí"
+            ],
+            "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios.": [
+                "Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{pct}% en las razones."
+            ],
+            "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{d} for the differences.": [
+                "Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{d} en las diferencias."
+            ],
+            "The answer key could not be computed for these options:": [
+                "No se ha podido calcular la clave de respuestas con estas opciones:"
             ]
         }
     }

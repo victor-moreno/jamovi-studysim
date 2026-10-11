@@ -499,7 +499,7 @@ simCompareBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param loss .
 #' @param seed .
 #' @param studentKey any text (e.g. a student ID); each key gives a different
-#'   dataset
+#'   dataset (capitals and surrounding spaces are ignored)
 #' @param showExpected also simulate one large study per design and show its
 #'   estimates
 #' @param showPlot .
