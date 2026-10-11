@@ -1,0 +1,190 @@
+id: early_af_cryoablation
+label: {en: "Cryoablation or drugs as first treatment of atrial fibrillation (EARLY-AF)", es: "Crioablación o fármacos como primer tratamiento de la fibrilación auricular (EARLY-AF)", ca: "Crioablació o fàrmacs com a primer tractament de la fibril·lació auricular (EARLY-AF)"}
+domain: cardiovascular
+population:
+  en: Adults with symptomatic, paroxysmal, untreated atrial fibrillation at 18 Canadian centres, 2017-18, all with an implantable cardiac monitor
+  es: Adultos con fibrilación auricular paroxística sintomática no tratada en 18 centros de Canadá, 2017-18, todos con un monitor cardíaco implantable
+  ca: Adults amb fibril·lació auricular paroxística simptomàtica no tractada en 18 centres del Canadà, 2017-18, tots amb un monitor cardíac implantable
+
+# From the published tables (303 patients). Time counts from the end of the
+# 90-day blanking period, so the year of the trial is 0.75 years of follow-up.
+# Drug arm: 67.8% recurrence (any atrial tachyarrhythmia), 26.2% symptomatic;
+# hazard ratios 0.48 and 0.39. The Kaplan-Meier curves fall steeply in the
+# first month after blanking (Weibull shape about 0.4). Covariate effects are
+# teaching values; baseline characteristics from Table 1.
+variables:
+  age: {from: dictionary, dist: "normal(58.6, 11.5)", range: [19, 85]}
+  sex: {from: dictionary, p: 0.706}
+  bmi: {from: dictionary, dist: "lognormal(30.3, 6)", range: [18, 55]}
+  hypertension:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.37
+    label: {en: Hypertension, es: Hipertensión, ca: Hipertensió}
+  sleep_apnea:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.21
+    label: {en: Sleep apnoea, es: Apnea del sueño, ca: Apnea del son}
+  af_years:
+    type: count
+    dist: negbin(2.3, 0.8)
+    range: [0, 25]
+    units: {en: years, es: años, ca: anys}
+    label: {en: Years since the diagnosis of atrial fibrillation, es: Años desde el diagnóstico de la fibrilación auricular, ca: Anys des del diagnòstic de la fibril·lació auricular}
+  la_diameter:
+    type: continuous
+    dist: normal(38.8, 5.8)
+    range: [25, 60]
+    round: 0
+    units: mm
+    label: {en: Left atrial diameter, es: Diámetro de la aurícula izquierda, ca: Diàmetre de l'aurícula esquerra}
+  afeqt0:
+    type: continuous
+    dist: normal(59.4, 20.2)
+    range: [0, 100]
+    round: 0
+    label: {en: Quality of life at entry (AFEQT 0-100), es: Calidad de vida al inicio (AFEQT 0-100), ca: Qualitat de vida a l'inici (AFEQT 0-100)}
+
+structure:
+  - [age, hypertension, 0.35]
+  - [bmi, hypertension, 0.25]
+  - [bmi, sleep_apnea, 0.40]
+  - [age, la_diameter, 0.20]
+  - [bmi, la_diameter, 0.25]
+  - [af_years, la_diameter, 0.15]
+
+interventions:
+  strategy:
+    levels: [drugs, ablation]
+    label: {en: Initial rhythm control (antiarrhythmic drugs or cryoballoon ablation), es: Control inicial del ritmo (antiarrítmicos o ablación con criobalón), ca: Control inicial del ritme (antiarítmics o ablació amb criobaló)}
+
+outcomes:
+  recurrence:
+    type: event
+    label: {en: Recurrence of atrial tachyarrhythmia (after the 90-day blanking period), es: Recurrencia de taquiarritmia auricular (tras el periodo de blanqueo de 90 días), ca: Recurrència de taquiarítmia auricular (després del període de blanqueig de 90 dies)}
+    risk: {value: 0.678, at: 0.75}
+    shape: 0.4
+    window: 0.75
+    followup: 0.75
+    levels: ["no", "yes"]
+    designs: [rct]
+    effects:
+      strategy: {HR: [1, 0.48]}
+      la_diameter: {HR: 1.04, per: 1}
+      af_years: {HR: 1.05, per: 1}
+      sleep_apnea: {HR: 1.3}
+      age: {HR: 1.1, per: 10}
+  symptomatic:
+    type: event
+    label: {en: Recurrence of symptomatic atrial tachyarrhythmia, es: Recurrencia de taquiarritmia auricular sintomática, ca: Recurrència de taquiarítmia auricular simptomàtica}
+    risk: {value: 0.262, at: 0.75}
+    shape: 0.4
+    window: 0.75
+    followup: 0.75
+    levels: ["no", "yes"]
+    link: {outcome: recurrence, rho: 0.6}
+    designs: [rct]
+    effects:
+      strategy: {HR: [1, 0.39]}
+      la_diameter: {HR: 1.03, per: 1}
+      sleep_apnea: {HR: 1.3}
+  af_burden:
+    type: continuous
+    scale: log
+    label: {en: Atrial fibrillation burden (% of time in atrial fibrillation), es: Carga de fibrilación auricular (% del tiempo en fibrilación), ca: Càrrega de fibril·lació auricular (% del temps en fibril·lació)}
+    units: "%"
+    # geometric mean 0.13% in the drug arm with a huge spread on the log scale:
+    # median 0.13, upper quartile about 1.6, most ablation patients near 0
+    mean: 0.13
+    sd: 3.7
+    range: [0, 100]
+    round: 2
+    link: {outcome: recurrence, rho: 0.7}
+    designs: [rct]
+    effects:
+      strategy: {ratio: [1, 0.05]}
+  afeqt_change:
+    type: continuous
+    label: {en: Change in quality of life at 12 months (AFEQT points), es: Cambio de la calidad de vida a los 12 meses (puntos AFEQT), ca: Canvi de la qualitat de vida als 12 mesos (punts AFEQT)}
+    mean: 22.9
+    sd: 22
+    round: 1
+    link: {outcome: recurrence, rho: -0.4}
+    designs: [rct, pre_post]
+    effects:
+      strategy: {beta: [0, 6.5]}   # 8 points in total: the link to recurrence adds the rest
+      afeqt0: {beta: -0.5, per: 1}
+  serious_adverse:
+    type: binary
+    label: {en: Serious adverse event related to the treatment, es: Efecto adverso grave relacionado con el tratamiento, ca: Efecte advers greu relacionat amb el tractament}
+    levels: ["no", "yes"]
+    prevalence: 0.04
+    designs: [rct]
+    effects:
+      strategy: {OR: [1, 0.80]}
+
+null_variables: [sex, bmi, hypertension]
+
+designs:
+  rct: {loss: 0.0}
+
+i18n:
+  en:
+    names: {hypertension: hypertension, sleep_apnea: sleep_apnea, af_years: af_years, la_diameter: la_diameter, afeqt0: afeqt0, strategy: strategy, recurrence: recurrence, symptomatic: symptomatic, af_burden: af_burden, afeqt_change: afeqt_change, serious_adverse: serious_adverse}
+    levels: {drugs: drugs, ablation: ablation}
+  es:
+    names: {hypertension: hipertension, sleep_apnea: apnea_sueno, af_years: anos_fa, la_diameter: diametro_ai, afeqt0: afeqt_basal, strategy: estrategia, recurrence: recurrencia, symptomatic: sintomatica, af_burden: carga_fa, afeqt_change: cambio_afeqt, serious_adverse: adverso_grave}
+    levels: {drugs: farmacos, ablation: ablacion}
+  ca:
+    names: {hypertension: hipertensio, sleep_apnea: apnea_son, af_years: anys_fa, la_diameter: diametre_ai, afeqt0: afeqt_basal, strategy: estrategia, recurrence: recurrencia, symptomatic: simptomatica, af_burden: carrega_fa, afeqt_change: canvi_afeqt, serious_adverse: advers_greu}
+    levels: {drugs: farmacs, ablation: ablacio}
+
+references:
+  - "Andrade JG, Wells GA, Deyell MW et al. Cryoablation or drug therapy for initial treatment of atrial fibrillation. N Engl J Med 2021;384:305-15."
+
+teaching:
+  en: >
+    First-line cryoablation halves the hazard of a recurrence detected by an
+    implanted monitor (HR 0.48; 42.9% vs 67.8% at one year, a number needed to
+    treat of 4), and the hazard of a symptomatic one (HR 0.39). Recurrences
+    pile up just after the 90-day blanking period, so the hazards are far from
+    constant: compare the hazard ratio with the risk difference and the risk
+    ratio at one year. The time in atrial fibrillation tells another story: its
+    median is 0% with ablation and 0.13% with drugs, the mean difference only
+    3.3 percentage points, and a t test on such skewed data is misleading;
+    compare medians, logs or the share of patients with any burden. The trial
+    is open-label and quality of life is self-reported: the 8-point gain is
+    from a model adjusted for the baseline score, larger than the raw
+    difference of the published means. Five secondary outcomes, none adjusted
+    for multiplicity.
+  es: >
+    La crioablación como primer tratamiento reduce a la mitad el riesgo
+    instantáneo de una recurrencia detectada por un monitor implantado (HR 0,48;
+    42,9% frente a 67,8% al año, un número necesario a tratar de 4) y el de una
+    sintomática (HR 0,39). Las recurrencias se acumulan justo después del
+    periodo de blanqueo de 90 días, así que los riesgos instantáneos distan de
+    ser constantes: comparad el hazard ratio con la diferencia de riesgos y el
+    riesgo relativo al año. El tiempo en fibrilación cuenta otra historia: su
+    mediana es 0% con ablación y 0,13% con fármacos, la diferencia de medias solo
+    3,3 puntos porcentuales, y una prueba t con datos tan asimétricos engaña;
+    comparad medianas, logaritmos o la proporción de pacientes con alguna carga.
+    El ensayo es abierto y la calidad de vida, autoinformada: la ganancia de 8
+    puntos viene de un modelo ajustado por la puntuación basal, mayor que la
+    diferencia bruta de las medias publicadas. Cinco variables secundarias,
+    ninguna ajustada por multiplicidad.
+  ca: >
+    La crioablació com a primer tractament redueix a la meitat el risc
+    instantani d'una recurrència detectada per un monitor implantat (HR 0,48;
+    42,9% enfront de 67,8% a l'any, un nombre necessari a tractar de 4) i el
+    d'una de simptomàtica (HR 0,39). Les recurrències s'acumulen just després del
+    període de blanqueig de 90 dies, de manera que els riscos instantanis estan
+    lluny de ser constants: compareu el hazard ratio amb la diferència de riscos
+    i el risc relatiu a l'any. El temps en fibril·lació explica una altra
+    història: la seva mediana és 0% amb ablació i 0,13% amb fàrmacs, la
+    diferència de mitjanes només 3,3 punts percentuals, i una prova t amb dades
+    tan asimètriques enganya; compareu medianes, logaritmes o la proporció de
+    pacients amb alguna càrrega. L'assaig és obert i la qualitat de vida,
+    autoinformada: el guany de 8 punts ve d'un model ajustat per la puntuació
+    basal, més gran que la diferència bruta de les mitjanes publicades. Cinc
+    variables secundàries, cap ajustada per multiplicitat.
