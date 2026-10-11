@@ -22,11 +22,18 @@ recode_codes <- function(df, cols) {
         y <- x[is.finite(x)]
         if (length(y) < 20) next
         top <- max(y)
-        nines <- top >= 9 && grepl("^9+$", format(top, scientific = FALSE))
+        nines <- top >= 9 && grepl("^9+(\\.9+)?$", format(top, scientific = FALSE))   # 99, 999.99
         n_top <- sum(y == top)
         below <- sort(unique(y[y < top]), decreasing = TRUE)[1:5]   # its neighbours
         n_below <- max(vapply(below[!is.na(below)], function(b) sum(y == b), 0), 0)
-        if (nines && n_top >= 5 && n_top >= 0.02 * length(y) && n_top > 3 * n_below) {
+        others <- y[y < top]
+        steps <- diff(sort(unique(others)))
+        # a code: far above every real value (999.99 for a weight), or frequent
+        # and apart from the others (9 = unknown after levels 1-6), or far more
+        # frequent than its neighbours (99 for an age at first test)
+        far <- length(others) && top >= 2 * max(others)
+        apart <- length(steps) && n_top >= 0.05 * length(y) && top - max(others) >= 3 * stats::median(steps)
+        if (nines && (far || apart || (n_top >= 5 && n_top >= 0.02 * length(y) && n_top > 3 * n_below))) {
             df[[v]][!is.na(x) & x == top] <- NA
             codes[[v]] <- list(value = top, n = n_top)
             next

@@ -1,0 +1,187 @@
+id: cardiac_surgery_mortality
+label: {en: 30-day mortality after heart surgery (a risk score), es: Mortalidad a 30 días tras cirugía cardíaca (una escala de riesgo), ca: Mortalitat a 30 dies després de cirurgia cardíaca (una escala de risc)}
+domain: cardiovascular
+population:
+  en: Adults undergoing heart surgery in a hospital series of 500 patients
+  es: Adultos operados del corazón en una serie hospitalaria de 500 pacientes
+  ca: Adults operats del cor en una sèrie hospitalària de 500 pacients
+
+# Estimated with studysim Derive from a teaching dataset (500 patients, 61
+# deaths at 30 days; codes 9, 99.9, 99.99, 999, 999.99 meant "unknown").
+# Effects: logistic model of age, functional class and eight risk factors,
+# log odds ratios shrunk by the heuristic factor 0.86.
+variables:
+  age: {from: dictionary, dist: "normal(60.7, 11)", range: [19, 83]}
+  sex: {from: dictionary, p: 0.696}
+  education:
+    type: ordinal
+    levels: [none, primary_incomplete, primary, secondary_lower, secondary_upper, university]
+    probs: [0.033, 0.407, 0.231, 0.137, 0.103, 0.088]
+    label: {en: Education, es: Nivel de estudios, ca: Nivell d'estudis}
+  bmi: {from: dictionary, dist: "gamma(26.1, 3.75)", range: [16, 43]}
+  nyha:
+    type: ordinal
+    levels: [II, III, IV]
+    probs: [0.308, 0.502, 0.190]
+    label: {en: Functional class (NYHA), es: Clase funcional (NYHA), ca: Classe funcional (NYHA)}
+  diabetes: {from: dictionary, p: 0.168}
+  hypertension:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.422
+    label: {en: Hypertension, es: Hipertensión, ca: Hipertensió}
+  renal_chronic:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.088
+    label: {en: Chronic renal failure, es: Insuficiencia renal crónica, ca: Insuficiència renal crònica}
+  creatinine:
+    type: continuous
+    dist: lognormal(1.16, 0.53)
+    range: [0.37, 6.8]
+    round: 2
+    units: mg/dL
+    label: {en: Creatinine, es: Creatinina, ca: Creatinina}
+  hb:
+    type: continuous
+    dist: normal(13.5, 2.0)
+    range: [5, 19.7]
+    round: 1
+    units: g/dL
+    label: {en: Haemoglobin, es: Hemoglobina, ca: Hemoglobina}
+  stroke:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.082
+    label: {en: Previous stroke, es: Ictus previo, ca: Ictus previ}
+  vascular_surgery:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.028
+    label: {en: Previous vascular surgery, es: Cirugía vascular previa, ca: Cirurgia vascular prèvia}
+  respiratory_failure:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.144
+    label: {en: Respiratory failure, es: Insuficiencia respiratoria, ca: Insuficiència respiratòria}
+  recent_mi:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.072
+    label: {en: Recent myocardial infarction, es: Infarto reciente, ca: Infart recent}
+  unstable_angina:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.254
+    label: {en: Unstable angina, es: Angina inestable, ca: Angina inestable}
+  aneurysm:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.032
+    label: {en: Ventricular aneurysm, es: Aneurisma ventricular, ca: Aneurisma ventricular}
+  shock:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.036
+    label: {en: Cardiogenic shock, es: Shock cardiogénico, ca: Xoc cardiogènic}
+  renal_acute:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.032
+    label: {en: Acute renal failure, es: Insuficiencia renal aguda, ca: Insuficiència renal aguda}
+
+structure:
+  - [age, hypertension, 0.27]
+  - [age, diabetes, 0.20]
+  - [bmi, diabetes, 0.15]
+  - [age, renal_chronic, 0.28]
+  - [bmi, hypertension, 0.25]
+  - [age, education, -0.21]
+  - [sex, education, 0.36]
+  - [sex, hb, 0.50]
+  - [renal_chronic, creatinine, 0.85]
+  - [renal_chronic, hb, -0.30]
+  - [renal_chronic, respiratory_failure, 0.40]
+  - [recent_mi, shock, 0.55]
+  - [shock, renal_acute, 0.70]
+  - [renal_chronic, renal_acute, 0.35]
+  - [recent_mi, nyha, 0.30]
+  - [shock, nyha, 0.55]
+  - [unstable_angina, nyha, 0.25]
+  - [stroke, vascular_surgery, 0.50]
+
+correlations:
+  - [recent_mi, unstable_angina, 0.49]
+
+outcomes:
+  death30:
+    type: binary
+    label: {en: Death within 30 days of surgery, es: Muerte en los 30 días tras la cirugía, ca: Mort en els 30 dies després de la cirurgia}
+    levels: ["no", "yes"]
+    prevalence: 0.122
+    designs: [cross_sectional, case_control]
+    effects:
+      age: {OR: 1.65, per: 10}
+      nyha: {OR: [1, 1.9, 5.3]}
+      shock: {OR: 4.7}
+      renal_acute: {OR: 1.8}
+      recent_mi: {OR: 1.4}
+      stroke: {OR: 1.7}
+      vascular_surgery: {OR: 1.5}
+      respiratory_failure: {OR: 0.8}
+
+null_variables: [sex, education, bmi, diabetes, hypertension, renal_chronic, creatinine, hb, unstable_angina, aneurysm]
+
+i18n:
+  en:
+    names: {education: education, nyha: nyha, hypertension: hypertension, renal_chronic: renal_chronic, creatinine: creatinine, hb: hb, stroke: stroke, vascular_surgery: vascular_surgery, respiratory_failure: respiratory_failure, recent_mi: recent_mi, unstable_angina: unstable_angina, aneurysm: aneurysm, shock: shock, renal_acute: renal_acute, death30: death30}
+    levels: {none: none, primary_incomplete: primary_incomplete, primary: primary, secondary_lower: secondary_lower, secondary_upper: secondary_upper, university: university}
+  es:
+    names: {education: estudios, nyha: nyha, hypertension: hipertension, renal_chronic: ir_cronica, creatinine: creatinina, hb: hb, stroke: ictus, vascular_surgery: cir_vascular, respiratory_failure: insuf_respiratoria, recent_mi: infarto_reciente, unstable_angina: angina_inestable, aneurysm: aneurisma, shock: shock, renal_acute: ir_aguda, death30: muerte30}
+    levels: {none: sin_estudios, primary_incomplete: primaria_incompleta, primary: primaria, secondary_lower: bachiller_elemental, secondary_upper: bachiller_superior, university: universitarios}
+  ca:
+    names: {education: estudis, nyha: nyha, hypertension: hipertensio, renal_chronic: ir_cronica, creatinine: creatinina, hb: hb, stroke: ictus, vascular_surgery: cir_vascular, respiratory_failure: insuf_respiratoria, recent_mi: infart_recent, unstable_angina: angina_inestable, aneurysm: aneurisma, shock: xoc, renal_acute: ir_aguda, death30: mort30}
+    levels: {none: sense_estudis, primary_incomplete: primaria_incompleta, primary: primaria, secondary_lower: batxillerat_elemental, secondary_upper: batxillerat_superior, university: universitaris}
+
+references:
+  - "Data: 30-day mortality after heart surgery, teaching dataset (500 patients; V Moreno)."
+  - "Nashef SA, Roques F, Michel P et al. European system for cardiac operative risk evaluation (EuroSCORE). Eur J Cardiothorac Surg 1999;16:9-13."
+
+teaching:
+  en: >
+    One patient in eight dies within 30 days. A risk score needs few, strong,
+    routinely recorded predictors: age, functional class and the acute state at
+    surgery (cardiogenic shock, acute renal failure, recent infarction). With
+    about 60 deaths and 18 candidate variables the full model is overfitted:
+    rare factors (shock and acute renal failure in fewer than 4% of patients,
+    almost always together) give huge, unstable odds ratios. Chronic renal
+    failure and creatinine matter only through the acute state; check whether
+    adding them improves the AUC once the score is in. Compare variable
+    selection, shrinkage and a penalised model, and validate the score in a
+    new sample. Codes such as 999.99 for an unknown weight must be removed
+    before any analysis.
+  es: >
+    Uno de cada ocho pacientes muere en 30 días. Una escala de riesgo necesita
+    pocos predictores, fuertes y registrados de rutina: la edad, la clase
+    funcional y el estado agudo en la cirugía (shock cardiogénico, insuficiencia
+    renal aguda, infarto reciente). Con unas 60 muertes y 18 variables
+    candidatas, el modelo completo se sobreajusta: los factores raros (shock e
+    insuficiencia renal aguda en menos del 4% de los pacientes, casi siempre
+    juntos) dan odds ratios enormes e inestables. La insuficiencia renal crónica
+    y la creatinina solo cuentan a través del estado agudo; comprobad si mejoran
+    el AUC cuando la escala ya está en el modelo. Comparad selección de
+    variables, encogimiento y un modelo penalizado, y validad la escala en una
+    muestra nueva. Códigos como 999,99 para un peso desconocido deben eliminarse
+    antes de cualquier análisis.
+  ca: >
+    Un de cada vuit pacients mor en 30 dies. Una escala de risc necessita pocs
+    predictors, forts i registrats de rutina: l'edat, la classe funcional i
+    l'estat agut a la cirurgia (xoc cardiogènic, insuficiència renal aguda,
+    infart recent). Amb unes 60 morts i 18 variables candidates, el model
+    complet se sobreajusta: els factors rars (xoc i insuficiència renal aguda en
+    menys del 4% dels pacients, gairebé sempre junts) donen odds ratios enormes
+    i inestables. La insuficiència renal crònica i la creatinina només compten a
+    través de l'estat agut; comproveu si milloren l'AUC quan l'escala ja és al
+    model. Compareu selecció de variables, encongiment i un model penalitzat, i
+    valideu l'escala en una mostra nova. Codis com 999,99 per a un pes
+    desconegut s'han d'eliminar abans de qualsevol anàlisi.
