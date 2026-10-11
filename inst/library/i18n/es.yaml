@@ -10,6 +10,10 @@ names:
   sequence: secuencia
   period: periodo
   batch: lote
+  received: recibido
+  admitted: ingreso
+  treated: tratado
+  treatment_start: inicio_tratamiento
   subcohort: subcohorte
   design: diseno
   cluster: conglomerado

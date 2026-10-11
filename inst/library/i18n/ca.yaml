@@ -3,6 +3,10 @@
 # canvia el que veu l'estudiant (columnes, categories, taules, diagrama).
 # Els noms comencen per una lletra i només fan servir lletres, xifres i _.
 names:
+  received: rebut
+  admitted: ingres
+  treated: tractat
+  treatment_start: inici_tractament
   id: id
   set: grup
   case: cas

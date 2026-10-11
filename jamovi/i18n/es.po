@@ -11,12 +11,43 @@ msgstr ""
 msgid ", cases and controls in separate batches"
 msgstr ", casos y controles en lotes distintos"
 
+#: R/errors.R
+msgid "'{cuts}' is not a list of numbers."
+msgstr "'{cuts}' no es una lista de números."
+
+#: R/errors.R
+msgid "'{cuts}': percentiles must be between 0 and 100."
+msgstr "'{cuts}': los percentiles deben estar entre 0 y 100."
+
+#: R/errors.R
+msgid "'{cuts}': use either values or percentiles, not both."
+msgstr "'{cuts}': use valores o percentiles, no ambos."
+
+#: R/errors.R
+msgid "'{file}' is not a library: use a .yaml, .yml, .json, .xlsx or .zip file."
+msgstr "'{file}' no es una biblioteca: use un fichero .yaml, .yml, .json, .xlsx o .zip."
+
 #: R/simcompare.b.R
 #: R/simstudy.b.R
 msgid "{cases} cases and {controls} controls"
 msgstr "{cases} casos y {controls} controles"
 
-#: R/simcompare.b.R
+#: R/simstudy.b.R
+msgid "{e} events for {p} parameters of a model adjusted for every measured variable ({r} per parameter, fewer than 10): its estimates will be unstable and pushed away from the null; adjust only for the confounders the diagram points to, or simulate a larger study."
+msgstr "{e} eventos para {p} parámetros de un modelo ajustado por todas las variables medidas ({r} por parámetro, menos de 10): sus estimaciones serán inestables y se alejarán del nulo; ajuste solo por los confusores que señala el diagrama, o simule un estudio mayor."
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-days"
+msgstr "{events} eventos en {pt} personas-día"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-months"
+msgstr "{events} eventos en {pt} personas-mes"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-weeks"
+msgstr "{events} eventos en {pt} personas-semana"
+
 #: R/simstudy.b.R
 msgid "{events} events in {pt} person-years"
 msgstr "{events} eventos en {pt} personas-año"
@@ -58,12 +89,24 @@ msgid "{n} of {total} scenarios fit the {design} design."
 msgstr "{n} de {total} escenarios encajan con el diseño {design}."
 
 #: R/simstudy.b.R
+msgid "{n} participants stopped their assigned treatment (column received)"
+msgstr "{n} participantes dejaron el tratamiento asignado (columna recibido)"
+
+#: R/simstudy.b.R
 msgid "{n} rows"
 msgstr "{n} filas"
 
 #: R/simderive.b.R
 msgid "{n} rows, {c} complete for the model"
 msgstr "{n} filas, {c} completas para el modelo"
+
+#: R/simcompare.b.R
+msgid "{r} studies of {n} per design, each adjusted for all the measured variables. Bias: of the mean estimate (geometric for ratios) against the true value. SE (spread): standard deviation of the estimates (log scale for ratios); SE (model): the mean of the reported ones. Power: confidence intervals that exclude no effect; coverage: intervals that contain the true value (95% expected)."
+msgstr "{r} estudios de {n} por diseño, cada uno ajustado por todas las variables medidas. Sesgo: de la estimación media (geométrica para las razones) respecto al valor verdadero. EE (dispersión): desviación estándar de las estimaciones (escala logarítmica para las razones); EE (modelo): la media de los obtenidos. Potencia: intervalos de confianza que excluyen la ausencia de efecto; cobertura: intervalos que contienen el valor verdadero (se espera un 95%)."
+
+#: R/simstudy.b.R
+msgid "{title}: write a number between {lo} and {hi}, or leave it empty for the scenario's value."
+msgstr "{title}: escriba un número entre {lo} y {hi}, o déjelo vacío para usar el valor del escenario."
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/crossover.title
@@ -90,6 +133,10 @@ msgstr "Factorial 2x2: {a} y {b} aleatorizados de forma independiente; {cells} p
 msgid "95% CI"
 msgstr "IC 95%"
 
+#: R/errors.R
+msgid "A cluster trial needs at least 4 clusters and 2 people per cluster: raise the sample size or lower the number of clusters."
+msgstr "Un ensayo por conglomerados necesita al menos 4 conglomerados y 2 personas por conglomerado: aumente el tamaño de muestra o reduzca el número de conglomerados."
+
 #: R/simstudy.b.R
 msgid "a random subcohort of {sub} people from a cohort of {n}, plus every case: {cases} cases, {insub} of them in the subcohort"
 msgstr "una subcohorte aleatoria de {sub} personas de una cohorte de {n}, más todos los casos: {cases} casos, {insub} de ellos en la subcohorte"
@@ -98,12 +145,28 @@ msgstr "una subcohorte aleatoria de {sub} personas de una cohorte de {n}, más t
 msgid "About the scenario"
 msgstr "Sobre el escenario"
 
-#: R/simstudy.b.R
+#: simStudy/options/collider.title
+msgid "Add a variable caused by outcome and exposure"
+msgstr "Añadir una variable causada por el resultado y la exposición"
+
 #: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
-#: simStudy/results/keyExpected.columns.title
 msgid "Adjusted"
 msgstr "Ajustado"
+
+#: R/simstudy.b.R
+#: simStudy/results/keyExpected.columns.title
+msgid "Adjusted (all)"
+msgstr "Ajustado (todas)"
+
+#: R/simstudy.b.R
+msgid "Adjusted (all): for every measured variable. Adjusted (DAG): each variable only for the measured variables it does not cause (its confounders), not for its mediators; compare it with the total effect."
+msgstr "Ajustado (todas): por todas las variables medidas. Ajustado (DAG): cada variable solo por las variables medidas que no causa (sus confusores), no por sus mediadores; compárelo con el efecto total."
+
+#: R/simstudy.b.R
+#: simStudy/results/keyExpected.columns.title
+msgid "Adjusted (DAG)"
+msgstr "Ajustado (DAG)"
 
 #: R/simcompare.b.R
 msgid "Adjusted for all the measured variables (and the intervention); 95% confidence interval of the adjusted estimate."
@@ -113,9 +176,17 @@ msgstr "Ajustado por todas las variables medidas (y la intervención); intervalo
 msgid "Adjusted: {method} on {n} rows with the outcome; Complete cases: the same model on the {c} complete rows."
 msgstr "Ajustado: {method} en {n} filas con la respuesta; Casos completos: el mismo modelo en las {c} filas completas."
 
+#: R/simstudy.b.R
+msgid "admitted is a collider (caused by the outcome and the exposure): Adjusted (all) includes it and is biased; Adjusted (DAG) leaves it out."
+msgstr "ingreso es un colisionador (lo causan el resultado y la exposición): Ajustado (todas) lo incluye y está sesgado; Ajustado (DAG) lo deja fuera."
+
 #: R/simcompare.b.R
 msgid "All designs sample the same superpopulation (same seed and student key); each study has its own participants."
 msgstr "Todos los diseños muestrean la misma superpoblación (misma semilla y clave de estudiante); cada estudio tiene sus propios participantes."
+
+#: R/errors.R
+msgid "An event outcome needs a time variable: choose the follow-up time."
+msgstr "Un resultado de tipo evento necesita una variable de tiempo: elija el tiempo de seguimiento."
 
 #: R/simstudy.b.R
 #: simStudy/options/showKey.title
@@ -125,6 +196,16 @@ msgstr "Clave de respuestas"
 #: simStudy/options/exportKey.title
 msgid "Answer key report"
 msgstr "Informe de la clave de respuestas"
+
+#: R/simstudy.b.R
+#: simStudy/results/keyTrial.title
+msgid "Answer key: absolute effects in the trial"
+msgstr "Clave de respuestas: efectos absolutos en el ensayo"
+
+#: R/simstudy.b.R
+#: simStudy/results/keyAccuracy.title
+msgid "Answer key: accuracy at a cut-off"
+msgstr "Clave de respuestas: exactitud en un punto de corte"
 
 #: R/simstudy.b.R
 #: simStudy/results/keyMarkers.title
@@ -163,8 +244,8 @@ msgid "baseline and {k} follow-up visits; participants seen at each visit: {n}"
 msgstr "visita basal y {k} visitas de seguimiento; participantes vistos en cada visita: {n}"
 
 #: R/simstudy.b.R
-msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"
-msgstr "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} años"
+msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}"
+msgstr "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} {units}"
 
 #: R/simstudy.b.R
 #: simCompare/options/designs/pre_post.title
@@ -174,13 +255,26 @@ msgstr "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, ries
 msgid "Before-after (single group)"
 msgstr "Antes-después (un solo grupo)"
 
+#: simCompare/results/replicateTable.columns.title
+msgid "Bias"
+msgstr "Sesgo"
+
+#: R/simstudy.b.R
 #: simStudy/options/mcBias.title
 msgid "Bias of method B"
 msgstr "Sesgo del método B"
 
+#: simStudy/ui[4].label
+msgid "Biases"
+msgstr "Sesgos"
+
 #: simDerive/options/outcomeType/binary.title
 msgid "Binary"
 msgstr "Binaria"
+
+#: R/simcompare.b.R
+msgid "Boxes: adjusted estimates of the replicate studies (ratios beyond 1/100 or 100 left out); dashed line: true value."
+msgstr "Cajas: estimaciones ajustadas de los estudios replicados (se omiten las razones por debajo de 1/100 o por encima de 100); línea discontinua: valor verdadero."
 
 #: simCompare/options/scenario.default
 #: simLibrary/options/scenario.default
@@ -204,6 +298,7 @@ msgstr "Solo la incluida"
 msgid "Calibration"
 msgstr "Calibración"
 
+#: R/simstudy.b.R
 #: simStudy/options/carryover.title
 msgid "Carryover effect"
 msgstr "Efecto residual (carryover)"
@@ -263,6 +358,10 @@ msgstr "Comprobar simulando desde el escenario"
 msgid "Choose the outcome and the variables of the scenario (and the follow-up time for an event outcome)."
 msgstr "Elija la respuesta y las variables del escenario (y el tiempo de seguimiento si la respuesta es un evento)."
 
+#: simCompare/results/replicateTable.columns.title
+msgid "CI coverage %"
+msgstr "Cobertura IC %"
+
 #: R/simstudy.b.R
 #: simCompare/options/designs/cluster_rct.title
 #: simLibrary/options/designFilter/cluster_rct.title
@@ -271,6 +370,7 @@ msgstr "Elija la respuesta y las variables del escenario (y el tiempo de seguimi
 msgid "Cluster randomised trial"
 msgstr "Ensayo aleatorizado por conglomerados"
 
+#: R/simstudy.b.R
 #: simStudy/options/clusters.title
 msgid "Clusters"
 msgstr "Conglomerados"
@@ -331,6 +431,7 @@ msgstr "Respuesta continua en escala logarítmica"
 
 #: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
+#: simCompare/results/replicateTable.columns.title
 #: simDerive/results/effects.columns.title
 #: simLibrary/results/effects.columns.title
 #: simStudy/results/keyEffects.columns.title
@@ -342,10 +443,20 @@ msgstr "Contraste"
 msgid "controls drawn from each case's risk set: a person can be a control more than once, and a control can later be a case"
 msgstr "controles extraídos del conjunto de riesgo de cada caso: una persona puede ser control más de una vez, y un control puede ser caso más tarde"
 
+#: R/simcompare.b.R
+#: R/simstudy.b.R
 #: simCompare/options/ccRatio.title
 #: simStudy/options/ccRatio.title
 msgid "Controls per case"
 msgstr "Controles por caso"
+
+#: R/simstudy.b.R
+msgid "controls selected by exposure ({vars}): odds of selection x{or}"
+msgstr "controles seleccionados según la exposición ({vars}): odds de selección x{or}"
+
+#: simStudy/options/ctrlSelect.title
+msgid "Controls selected by exposure (odds ratio)"
+msgstr "Controles seleccionados por exposición (odds ratio)"
 
 #: R/simlibrary.b.R
 msgid "correlation"
@@ -397,9 +508,18 @@ msgstr "Contenido de la biblioteca propia"
 msgid "Custom only"
 msgstr "Solo la propia"
 
+#: R/errors.R
+msgid "Cut points are empty: write e.g. 18.5, 25, 30 or 10%, 90%."
+msgstr "Los puntos de corte están vacíos: escriba p. ej. 18.5, 25, 30 o 10%, 90%."
+
 #: R/simstudy.b.R
 msgid "Cut points of {var}: {msg}"
 msgstr "Puntos de corte de {var}: {msg}"
+
+#: R/simstudy.b.R
+#: simStudy/results/keyAccuracy.columns.title
+msgid "Cut-off"
+msgstr "Punto de corte"
 
 #: simCompare/options/measured.template/form/cuts.title
 #: simStudy/options/measured.template/form/cuts.title
@@ -448,6 +568,7 @@ msgstr "Derivar escenario de los datos"
 msgid "derived_scenario"
 msgstr ""
 
+#: R/simstudy.b.R
 #: simStudy/results/dictionary.columns.title
 msgid "Description"
 msgstr "Descripción"
@@ -460,6 +581,7 @@ msgstr "Descriptivos"
 #: R/simstudy.b.R
 #: simCompare/results/studies.columns.title
 #: simCompare/results/estimates.columns.title
+#: simCompare/results/replicateTable.columns.title
 #: simStudy/options/design.title
 msgid "Design"
 msgstr "Diseño"
@@ -491,19 +613,43 @@ msgstr "Detectar"
 msgid "Diagnostic accuracy"
 msgstr "Exactitud diagnóstica"
 
+#: R/simstudy.b.R
 #: simStudy/options/regionSd.title
 msgid "Differences between regions (exposures)"
 msgstr "Diferencias entre regiones (exposiciones)"
 
+#: R/simstudy.b.R
 #: simStudy/options/contextSd.title
 msgid "Differences between regions (outcome)"
 msgstr "Diferencias entre regiones (respuesta)"
+
+#: R/simstudy.b.R
+#: simStudy/results/keyEffects.columns.title
+msgid "Direct (conditional)"
+msgstr "Directo (condicional)"
+
+#: R/simstudy.b.R
+msgid "Direct: the effect with every other variable of the scenario fixed (how the data were generated)."
+msgstr "Directo: el efecto con todas las demás variables del escenario fijas (como se generaron los datos)."
+
+#: R/simstudy.b.R
+msgid "Direct: the effect with every other variable of the scenario fixed (how the data were generated). Total: the effect of changing the variable while what it causes changes too, given the variables it does not cause; estimated in a simulated population of {n}."
+msgstr "Directo: el efecto con todas las demás variables del escenario fijas (como se generaron los datos). Total: el efecto de cambiar la variable dejando que cambie también lo que causa, dadas las variables que no causa; estimado en una población simulada de {n}."
+
+#: R/simstudy.b.R
+msgid "disease status verified in {n} people: everybody positive on {m} and a share of the negatives (the others are missing)"
+msgstr "estado de enfermedad verificado en {n} personas: todos los positivos en {m} y una parte de los negativos (en los demás falta)"
+
+#: simStudy/options/spectrum.title
+msgid "Diseased only among the most severe (%)"
+msgstr "Enfermos solo entre los más graves (%)"
 
 #: simDerive/results/variables.columns.title
 #: simLibrary/results/variables.columns.title
 msgid "Distribution"
 msgstr "Distribución"
 
+#: R/simstudy.b.R
 #: simStudy/options/dropout.title
 msgid "Dropout by the last visit (%)"
 msgstr "Abandonos en la última visita (%)"
@@ -533,14 +679,25 @@ msgstr "Los efectos son valores plausibles para la docencia, basados en la liter
 msgid "Effects on the outcomes"
 msgstr "Efectos sobre las variables respuesta"
 
+#: simCompare/ui[4][0][0].label
+msgid "Empty boxes keep the scenario's values"
+msgstr "Las casillas vacías mantienen los valores del escenario"
+
+#: simStudy/ui[3][0][0].label
+msgid "Empty boxes keep the scenario's values (listed under Study)"
+msgstr "Las casillas vacías mantienen los valores del escenario (listados en Estudio)"
+
+#: R/simstudy.b.R
 #: simStudy/options/threshold.title
 msgid "Enrol only above percentile"
 msgstr "Incluir solo por encima del percentil"
 
+#: R/simstudy.b.R
 #: simStudy/options/mcErrorA.title
 msgid "Error of method A (% of SD)"
 msgstr "Error del método A (% de la DE)"
 
+#: R/simstudy.b.R
 #: simStudy/options/mcErrorB.title
 msgid "Error of method B (% of SD)"
 msgstr "Error del método B (% de la DE)"
@@ -596,6 +753,10 @@ msgid "Expected values (large studies)"
 msgstr "Valores esperados (estudios grandes)"
 
 #: R/simstudy.b.R
+msgid "Expected values: crude and adjusted estimates averaged over {k} simulated studies of {n} rows with this design; adjusted for {vars}."
+msgstr "Valores esperados: estimaciones crudas y ajustadas promediadas en {k} estudios simulados de {n} filas con este diseño; ajustadas por {vars}."
+
+#: R/simstudy.b.R
 msgid "Expected values: crude and adjusted estimates from one simulated study of {n} rows with this design; adjusted for {vars}."
 msgstr "Valores esperados: estimaciones crudas y ajustadas de un estudio simulado de {n} filas con este diseño; ajustado por {vars}."
 
@@ -604,6 +765,14 @@ msgstr "Valores esperados: estimaciones crudas y ajustadas de un estudio simulad
 #: simLibrary/ui[2].label
 msgid "Export"
 msgstr "Exportar"
+
+#: simStudy/options/exportClass.title
+msgid "Export class (zip)"
+msgstr "Exportar clase (zip)"
+
+#: simStudy/options/exportCodebook.title
+msgid "Export codebook"
+msgstr "Exportar libro de códigos"
 
 #: simCompare/options/exportCsv.title
 #: simStudy/options/exportCsv.title
@@ -618,24 +787,35 @@ msgstr "Exportar biblioteca"
 msgid "Export scenario"
 msgstr "Exportar escenario"
 
+#: simStudy/ui/measured.columns.label
+msgid "Exposure"
+msgstr "Exposición"
+
 #: simStudy/options/noiseVars.title
 msgid "Extra variables with no effect"
 msgstr "Variables adicionales sin efecto"
+
+#: R/simstudy.b.R
+msgid "File"
+msgstr "Fichero"
 
 #: R/simcompare.b.R
 msgid "Filled dot and bar: adjusted estimate and 95% CI; open red circle: crude estimate; cross: large study; dashed line: true value."
 msgstr "Punto lleno y barra: estimación ajustada e IC del 95%; círculo rojo vacío: estimación cruda; cruz: estudio grande; línea discontinua: valor verdadero."
 
+#: R/simcompare.b.R
+#: R/simstudy.b.R
 #: simCompare/options/followup.title
 #: simStudy/options/followup.title
-msgid "Follow-up (years)"
-msgstr "Seguimiento (años)"
+msgid "Follow-up"
+msgstr "Seguimiento"
 
 #: simDerive/options/time.title
 #: simDerive/ui[0][1].label
 msgid "Follow-up time (event outcomes)"
 msgstr "Tiempo de seguimiento (eventos)"
 
+#: R/simstudy.b.R
 #: simStudy/options/visits.title
 msgid "Follow-up visits"
 msgstr "Visitas de seguimiento"
@@ -654,9 +834,17 @@ msgstr "Formato"
 msgid "From"
 msgstr "Desde"
 
+#: R/simstudy.b.R
+msgid "From the potential outcomes of {n} people, each one under every arm. The crude comparison of a trial estimates the marginal (population) ratio, which is closer to 1 than the conditional one of the true model even without confounding (non-collapsibility); adjusting for prognostic variables moves it towards the conditional one."
+msgstr "A partir de los resultados potenciales de {n} personas, cada una en todos los brazos. La comparación cruda de un ensayo estima la razón marginal (poblacional), más próxima a 1 que la condicional del modelo verdadero aun sin confusión (no colapsabilidad); ajustar por variables pronósticas la acerca a la condicional."
+
 #: simDerive/results/variables.columns.title
 msgid "Id"
 msgstr "Id"
+
+#: R/simstudy.b.R
+msgid "Immortal time: treated people had to survive until their treatment started, so a baseline comparison makes a useless treatment look protective; a time-dependent analysis (treated from treatment_start on) or a landmark analysis gives about 1."
+msgstr "Tiempo inmortal: los tratados tuvieron que sobrevivir hasta empezar el tratamiento, así que una comparación basal hace que un tratamiento inútil parezca protector; un análisis dependiente del tiempo (tratado desde inicio_tratamiento) o un análisis landmark da cerca de 1."
 
 #: package/analyses/simLibrary.menuSubtitle
 #: simLibrary/options.menuSubtitle
@@ -671,10 +859,19 @@ msgstr "Imputaciones"
 msgid "In scenario"
 msgstr "En el escenario"
 
+#: simStudy/options/informative.title
+msgid "Informative loss to follow-up (hazard ratio)"
+msgstr "Pérdidas de seguimiento informativas (hazard ratio)"
+
+#: R/simstudy.b.R
+msgid "Informative loss to follow-up: the Kaplan-Meier risk by {t} {units} is {km} in the large study and {true} in the population."
+msgstr "Pérdidas de seguimiento informativas: el riesgo de Kaplan-Meier a {t} {units} es {km} en el estudio grande y {true} en la población."
+
 #: R/simstudy.b.R
 msgid "integer"
 msgstr "entera"
 
+#: R/simstudy.b.R
 #: simStudy/options/interaction.title
 msgid "Interaction of the two interventions"
 msgstr "Interacción de las dos intervenciones"
@@ -695,6 +892,7 @@ msgstr "Análisis intermedios"
 msgid "intervention"
 msgstr "intervención"
 
+#: R/simstudy.b.R
 #: simStudy/options/icc.title
 msgid "Intraclass correlation"
 msgstr "Correlación intraclase"
@@ -719,6 +917,7 @@ msgstr "Etiqueta"
 #: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
 #: simStudy/results/keyMarkers.columns.title
+#: simStudy/results/keyAccuracy.columns.title
 msgid "Large study"
 msgstr "Estudio grande"
 
@@ -762,6 +961,10 @@ msgstr "log10"
 msgid "log2"
 msgstr "log2"
 
+#: simStudy/options/layout/long.title
+msgid "Long (one row per measurement)"
+msgstr "Largo (una fila por medición)"
+
 #: R/simstudy.b.R
 #: simCompare/options/designs/longitudinal.title
 #: simLibrary/options/designFilter/longitudinal.title
@@ -770,10 +973,20 @@ msgstr "log2"
 msgid "Longitudinal trial (repeated visits)"
 msgstr "Ensayo longitudinal (visitas repetidas)"
 
+#: R/simstudy.b.R
+msgid "Loss to follow-up"
+msgstr "Pérdidas de seguimiento"
+
+#: R/simcompare.b.R
+#: R/simstudy.b.R
 #: simCompare/options/loss.title
 #: simStudy/options/loss.title
-msgid "Loss to follow-up (% per year)"
-msgstr "Pérdidas de seguimiento (% anual)"
+msgid "Loss to follow-up (% per time unit)"
+msgstr "Pérdidas de seguimiento (% por unidad de tiempo)"
+
+#: R/simstudy.b.R
+msgid "loss to follow-up depends on the risk of the outcome (hazard ratio {hr} per SD)"
+msgstr "las pérdidas de seguimiento dependen del riesgo del resultado (hazard ratio {hr} por DE)"
 
 #: simCompare/results/estimates.columns.title
 #: simDerive/results/effects.columns.title
@@ -787,6 +1000,7 @@ msgstr "Gestiona la biblioteca de escenarios del Simulador de estudios: lee una 
 
 #: R/simstudy.b.R
 #: simStudy/results/keyMarkers.columns.title
+#: simStudy/results/keyAccuracy.columns.title
 msgid "Marker"
 msgstr "Marcador"
 
@@ -825,6 +1039,10 @@ msgstr "Media / valor más frecuente"
 msgid "mean / most frequent value imputation"
 msgstr "imputación por la media / valor más frecuente"
 
+#: simCompare/results/replicateTable.columns.title
+msgid "Mean estimate"
+msgstr "Estimación media"
+
 #: R/simstudy.b.R
 #: simDerive/results/effects.columns.title
 #: simLibrary/results/effects.columns.title
@@ -862,6 +1080,7 @@ msgstr "Comparación de métodos"
 msgid "Misclassified categories (%)"
 msgstr "Categorías mal clasificadas (%)"
 
+#: R/simstudy.b.R
 #: simDerive/results/variables.columns.title
 #: simStudy/results/dictionary.columns.title
 #: simStudy/results/descriptives.columns.title
@@ -889,6 +1108,10 @@ msgid "multiple imputation ({m} imputations, Rubin's rules)"
 msgstr "imputación múltiple ({m} imputaciones, reglas de Rubin)"
 
 #: R/simstudy.b.R
+msgid "Negative predictive value"
+msgstr "Valor predictivo negativo"
+
+#: R/simstudy.b.R
 #: simCompare/options/designs/nested_cc.title
 #: simLibrary/options/designFilter/nested_cc.title
 #: simStudy/options/designFilter/nested_cc.title
@@ -913,6 +1136,14 @@ msgstr "Aún no hay variables medidas: márquelas en la columna Medida."
 msgid "nominal"
 msgstr "nominal"
 
+#: simStudy/options/nonadherence.title
+msgid "Non-adherence to treatment (%)"
+msgstr "No adherencia al tratamiento (%)"
+
+#: R/simstudy.b.R
+msgid "Non-adherence: the rows without a label compare the arms as randomised (intention to treat), which dilutes the effect; as treated compares the treatment received and per protocol only those who received what they were assigned: both are biased because those who stopped had a different prognosis."
+msgstr "No adherencia: las filas sin etiqueta comparan los brazos tal como se aleatorizaron (intención de tratar), lo que diluye el efecto; según tratamiento recibido compara el tratamiento recibido y por protocolo solo a quienes recibieron el asignado: ambos están sesgados porque quienes lo dejaron tenían otro pronóstico."
+
 #: R/simstudy.b.R
 msgid "not measured (they still act): {vars}"
 msgstr "no medidas (pero actúan): {vars}"
@@ -932,6 +1163,14 @@ msgstr "r observada"
 #: simCompare/options.menuSubtitle
 msgid "One scenario, several designs, same population"
 msgstr "Un escenario, varios diseños, la misma población"
+
+#: R/simcompare.b.R
+msgid "only {r} events per parameter of the adjusted model"
+msgstr "solo {r} eventos por parámetro del modelo ajustado"
+
+#: R/simstudy.b.R
+msgid "only the most severe {p}% of the diseased are in the study (spectrum)"
+msgstr "en el estudio solo está el {p}% más grave de los enfermos (espectro)"
 
 #: simCompare/options/openData.title
 #: simStudy/options/openData.title
@@ -974,21 +1213,35 @@ msgid "Outcomes"
 msgstr "Variables respuesta"
 
 #: simCompare/ui[5].label
-#: simStudy/ui[5].label
+#: simStudy/ui[6].label
 msgid "Output"
 msgstr "Salida"
+
+#: R/simstudy.b.R
+msgid "Partial verification: the large study, like the dataset, has the disease status only for the verified people; analysing them alone overstates sensitivity and understates specificity."
+msgstr "Verificación parcial: el estudio grande, como los datos, solo tiene el estado de enfermedad de las personas verificadas; analizarlas solas sobrestima la sensibilidad e infraestima la especificidad."
 
 #: R/simlibrary.b.R
 msgid "path"
 msgstr "camino"
 
+#: R/simstudy.b.R
 #: simStudy/options/regionSize.title
 msgid "People per region"
 msgstr "Personas por región"
 
+#: R/simstudy.b.R
 #: simStudy/options/period.title
 msgid "Period effect"
 msgstr "Efecto periodo"
+
+#: R/simstudy.b.R
+msgid "Positive predictive value"
+msgstr "Valor predictivo positivo"
+
+#: simCompare/results/replicateTable.columns.title
+msgid "Power %"
+msgstr "Potencia %"
 
 #: R/simstudy.b.R
 msgid "Press <b>Open dataset</b> to open the data in a new window, or <b>Export CSV</b> to save them."
@@ -1015,6 +1268,7 @@ msgstr "Problema"
 msgid "Prognosis (patient cohort)"
 msgstr "Pronóstico (cohorte de pacientes)"
 
+#: R/simstudy.b.R
 #: simStudy/options/mcSlope.title
 msgid "Proportional bias of method B (slope)"
 msgstr "Sesgo proporcional del método B (pendiente)"
@@ -1053,13 +1307,34 @@ msgstr "Re-estimado: el mismo modelo ajustado a un estudio de {n} filas simulado
 msgid "read as numbers although their type is nominal: {vars}"
 msgstr "leídas como números aunque su tipo es nominal: {vars}"
 
-#: simStudy/ui[4].label
+#: simStudy/ui[5].label
 msgid "Realism"
 msgstr "Realismo"
 
+#: simStudy/options/recall.title
+msgid "Recall bias (% of cases)"
+msgstr "Sesgo de memoria (% de casos)"
+
+#: R/simstudy.b.R
+msgid "Recall bias and selection of controls by exposure distort the odds ratios of the exposure; the true values are what an unbiased study would estimate."
+msgstr "El sesgo de memoria y la selección de controles según la exposición distorsionan las odds ratios de la exposición; los valores verdaderos son lo que estimaría un estudio sin sesgo."
+
+#: R/simstudy.b.R
+msgid "Recall bias, control selection and the collider act on an exposure: tick it in the Exposure column of the Variables list."
+msgstr "El sesgo de memoria, la selección de controles y el colisionador actúan sobre una exposición: márquela en la columna Exposición de la lista de Variables."
+
+#: R/simstudy.b.R
+msgid "recall bias: {p}% of the unexposed cases report the exposure ({vars})"
+msgstr "sesgo de memoria: el {p}% de los casos no expuestos declara la exposición ({vars})"
+
+#: simStudy/ui[4][0][0].label
+msgid "Recall, control selection and the collider act on the variables ticked in the Exposure column"
+msgstr "La memoria, la selección de controles y el colisionador actúan sobre las variables marcadas en la columna Exposición"
+
+#: R/simstudy.b.R
 #: simStudy/options/accrual.title
-msgid "Recruitment period (years)"
-msgstr "Periodo de reclutamiento (años)"
+msgid "Recruitment period"
+msgstr "Periodo de reclutamiento"
 
 #: R/simstudy.b.R
 msgid "Red: raises the outcome, blue: lowers it; * the effect depends on another variable."
@@ -1069,6 +1344,7 @@ msgstr "Rojo: aumenta la respuesta, azul: la reduce; * el efecto depende de otra
 msgid "References"
 msgstr "Referencias"
 
+#: R/simstudy.b.R
 #: simStudy/options/regions.title
 msgid "Regions"
 msgstr "Regiones"
@@ -1077,6 +1353,10 @@ msgstr "Regiones"
 msgid "Reliability of numeric measures"
 msgstr "Fiabilidad de las medidas numéricas"
 
+#: simStudy/options/layout.title
+msgid "Repeated measures"
+msgstr "Medidas repetidas"
+
 #: simStudy/options/lodHandling/half.title
 msgid "Replaced by LOD/2"
 msgstr "Sustituidos por LOD/2"
@@ -1084,6 +1364,14 @@ msgstr "Sustituidos por LOD/2"
 #: simStudy/options/lodHandling/lod.title
 msgid "Replaced by the LOD"
 msgstr "Sustituidos por el LOD"
+
+#: simCompare/results/replicateTable.title
+msgid "Replicate studies"
+msgstr "Estudios replicados"
+
+#: simCompare/options/replicates.title
+msgid "Replicate studies per design"
+msgstr "Estudios replicados por diseño"
 
 #: simStudy/options/lodHandling/missing.title
 msgid "Reported as missing"
@@ -1094,6 +1382,7 @@ msgstr "Se informan como faltantes"
 msgid "risk {r} at {t} years"
 msgstr "riesgo {r} a {t} años"
 
+#: R/simstudy.b.R
 #: simCompare/results/studies.columns.title
 msgid "Rows"
 msgstr "Filas"
@@ -1103,6 +1392,10 @@ msgstr "Filas"
 #: simStudy/options/n.title
 msgid "Sample size"
 msgstr "Tamaño muestral"
+
+#: simCompare/results/replicatePlot.title
+msgid "Sampling distribution by design"
+msgstr "Distribución muestral por diseño"
 
 #: simCompare/options/measured.template/form/scale.title
 #: simStudy/options/measured.template/form/scale.title
@@ -1142,6 +1435,14 @@ msgstr "Escenarios"
 msgid "Scenarios for design"
 msgstr "Escenarios para el diseño"
 
+#: simCompare/results/replicateTable.columns.title
+msgid "SE (model)"
+msgstr "EE (modelo)"
+
+#: simCompare/results/replicateTable.columns.title
+msgid "SE (spread)"
+msgstr "EE (dispersión)"
+
 #: R/simstudy.b.R
 #: simCompare/options/seed.title
 #: simStudy/options/seed.title
@@ -1160,6 +1461,10 @@ msgstr "semilla {seed} con clave de estudiante \"{key}\""
 #: simLibrary/options/exportScope/scenario.title
 msgid "Selected scenario"
 msgstr "Escenario seleccionado"
+
+#: R/simstudy.b.R
+msgid "Sensitivity"
+msgstr "Sensibilidad"
 
 #: R/simcompare.b.R
 #: R/simstudy.b.R
@@ -1229,6 +1534,14 @@ msgid "Sources of the parameters"
 msgstr "Fuentes de los parámetros"
 
 #: R/simstudy.b.R
+msgid "Specificity"
+msgstr "Especificidad"
+
+#: R/simstudy.b.R
+msgid "Spectrum bias: only the most severe diseased are in the study, so sensitivity and the AUC are higher than in the population."
+msgstr "Sesgo de espectro: en el estudio solo están los enfermos más graves, así que la sensibilidad y el AUC son mayores que en la población."
+
+#: R/simstudy.b.R
 msgid "Status 2 is a competing event: a Cox model that censors it estimates the true cause-specific hazard ratios; 1 - Kaplan-Meier then overstates the cumulative incidence of the event (use the cumulative incidence function)."
 msgstr "El estado 2 es un evento competitivo: un modelo de Cox que lo censura estima los hazard ratios específicos de causa verdaderos; 1 - Kaplan-Meier sobrestima entonces la incidencia acumulada del evento (use la función de incidencia acumulada)."
 
@@ -1244,10 +1557,16 @@ msgstr "Estructura entre variables"
 msgid "Structure among variables (latent paths)"
 msgstr "Estructura entre variables (caminos latentes)"
 
+#: R/simstudy.b.R
 #: simCompare/options/studentKey.title
 #: simStudy/options/studentKey.title
 msgid "Student key"
 msgstr "Clave de estudiante"
+
+#: R/simstudy.b.R
+#: simStudy/options/classKeys.title
+msgid "Student keys of the class"
+msgstr "Claves de alumno de la clase"
 
 #: simCompare/results/studies.title
 msgid "Studies"
@@ -1265,6 +1584,7 @@ msgstr "Simulador de estudios"
 msgid "studysim-language-code"
 msgstr "es"
 
+#: R/simstudy.b.R
 #: simStudy/options/subcohort.title
 msgid "Subcohort (% of the cohort)"
 msgstr "Subcohorte (% de la cohorte)"
@@ -1277,6 +1597,12 @@ msgstr "subcohorte de {sub} de una cohorte de {n}; {cases} casos"
 msgid "Summary"
 msgstr "Resumen"
 
+#: simCompare/options/teacherCode.title
+#: simLibrary/options/teacherCode.title
+#: simStudy/options/teacherCode.title
+msgid "Teacher code"
+msgstr "Código de profesor"
+
 #: R/simlibrary.b.R
 #: R/simstudy.b.R
 msgid "Teaching note"
@@ -1288,12 +1614,48 @@ msgid "tertiles"
 msgstr "terciles"
 
 #: R/simstudy.b.R
+msgid "Test positive beyond the cut-off (the scenario's, or the point that maximises sensitivity + specificity). True: a population of 100,000 without selection or verification bias; PPV and NPV at the prevalence of each."
+msgstr "Prueba positiva más allá del punto de corte (el del escenario, o el que maximiza sensibilidad + especificidad). Verdadero: una población de 100.000 sin sesgo de selección ni de verificación; VPP y VPN con la prevalencia de cada uno."
+
+#: simStudy/options/verification.title
+msgid "Test-negatives verified (%)"
+msgstr "Negativos verificados (%)"
+
+#: R/simstudy.b.R
 msgid "The {design} design does not fit this outcome. Possible designs: {list}."
 msgstr "El diseño {design} no encaja con esta variable respuesta. Diseños posibles: {list}."
+
+#: R/simstudy.b.R
+msgid "The answer key could not be computed for these options:"
+msgstr "No se ha podido calcular la clave de respuestas con estas opciones:"
+
+#: R/errors.R
+msgid "The calculation failed for these options. R said:"
+msgstr "El cálculo ha fallado con estas opciones. R dice:"
+
+#: R/simstudy.b.R
+msgid "the column admitted is caused by the outcome and by the exposure"
+msgstr "la columna ingreso la causan el resultado y la exposición"
 
 #: R/simderive.b.R
 msgid "The correlations are undirected: before teaching with this scenario, decide which variables cause which (structure), add rules for impossible combinations, labels and a teaching note. Export it and edit the file, or give it to an AI with the prompt in the module's documentation."
 msgstr "Las correlaciones no tienen dirección: antes de usar este escenario en docencia, decida qué variables causan cuáles (estructura), añada reglas para combinaciones imposibles, etiquetas y una nota docente. Expórtelo y edite el fichero, o déselo a una IA con el prompt de la documentación del módulo."
+
+#: R/errors.R
+msgid "The custom library could not be read: load it again with Browse…"
+msgstr "No se ha podido leer la biblioteca propia: cárguela de nuevo con Browse…"
+
+#: R/simstudy.b.R
+msgid "The expected values come from simulation: their 95% Monte Carlo uncertainty is up to ±{d} for the differences."
+msgstr "Los valores esperados proceden de la simulación: su incertidumbre de Monte Carlo (95%) llega a ±{d} en las diferencias."
+
+#: R/simstudy.b.R
+msgid "The expected values come from simulation: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios."
+msgstr "Los valores esperados proceden de la simulación: su incertidumbre de Monte Carlo (95%) llega a ±{pct}% en las razones."
+
+#: R/errors.R
+msgid "The library has no scenario '{id}'. Choose another scenario, or load the library that has it."
+msgstr "La biblioteca no tiene el escenario '{id}'. Elija otro escenario o cargue la biblioteca que lo contiene."
 
 #: R/simlibrary.b.R
 msgid "The library has no scenarios. Press Browse… to read a custom library."
@@ -1303,13 +1665,29 @@ msgstr "La biblioteca no tiene escenarios. Pulse Browse… para leer una bibliot
 msgid "The measured variables have measurement error, also in this large study: the estimates are diluted towards no effect, and confounding is only partly removed."
 msgstr "Las variables medidas tienen error de medida, también en este estudio grande: las estimaciones se diluyen hacia la ausencia de efecto y la confusión solo se elimina en parte."
 
+#: R/errors.R
+msgid "The outcome is too rare: {n} cases in {pop} people. Ask for fewer cases, or raise its frequency."
+msgstr "El resultado es demasiado raro: {n} casos en {pop} personas. Pida menos casos o aumente su frecuencia."
+
+#: R/errors.R
+msgid "The outcome is too rare: too few events among {pop} people. Ask for a smaller study, or raise its frequency."
+msgstr "El resultado es demasiado raro: muy pocos eventos entre {pop} personas. Pida un estudio menor o aumente su frecuencia."
+
 #: R/simstudy.b.R
 msgid "the outcome measured twice in each person, by methods A and B"
 msgstr "la respuesta medida dos veces en cada persona, con los métodos A y B"
 
+#: R/errors.R
+msgid "The scenario '{id}' has problems in its library definition (check it with Library):"
+msgstr "El escenario '{id}' tiene problemas en su definición de la biblioteca (compruébelo con Biblioteca):"
+
 #: R/simlibrary.b.R
 msgid "There is no scenario '{id}' in this library; choose one listed under Scenarios."
 msgstr "No hay ningún escenario '{id}' en esta biblioteca; elija uno de los listados en Escenarios."
+
+#: R/simstudy.b.R
+msgid "This library is locked by a teacher code: the answer key, the true values and the effect sizes need the code (Teacher code, under Output)."
+msgstr "Esta biblioteca está bloqueada con un código de profesor: la clave de respuestas, los valores verdaderos y los tamaños de efecto necesitan el código (Código de profesor, en Salida)."
 
 #: R/simcompare.b.R
 msgid "Tick at least one design that fits this outcome: {list}."
@@ -1324,21 +1702,44 @@ msgstr "Título"
 msgid "To"
 msgstr "Hacia"
 
+#: R/errors.R
+msgid "Too few people above the entry threshold: lower it."
+msgstr "Muy pocas personas por encima del umbral de entrada: rebájelo."
+
+#: R/simstudy.b.R
+#: simStudy/results/keyEffects.columns.title
+msgid "Total"
+msgstr "Total"
+
+#: simStudy/options/immortal.title
+msgid "Treatment started during follow-up (immortal time)"
+msgstr "Tratamiento iniciado durante el seguimiento (tiempo inmortal)"
+
+#: R/simstudy.b.R
+msgid "treatment started during follow-up: columns treated and treatment_start (the treatment has no effect)"
+msgstr "tratamiento iniciado durante el seguimiento: columnas tratado e inicio_tratamiento (el tratamiento no tiene efecto)"
+
 #: R/simstudy.b.R
 #: simCompare/results/estimates.columns.title
-#: simStudy/results/keyExpected.columns.title
+#: simCompare/results/replicateTable.columns.title
+#: simStudy/results/keyAccuracy.columns.title
 msgid "True"
 msgstr "Verdadero"
+
+#: R/simstudy.b.R
+#: simStudy/results/keyExpected.columns.title
+msgid "True (direct)"
+msgstr "Verdadero (directo)"
+
+#: R/simstudy.b.R
+#: simStudy/results/keyExpected.columns.title
+msgid "True (total)"
+msgstr "Verdadero (total)"
 
 #: R/simstudy.b.R
 #: simStudy/results/keyMarkers.columns.title
 msgid "True AUC"
 msgstr "AUC verdadera"
-
-#: R/simstudy.b.R
-#: simStudy/results/keyEffects.columns.title
-msgid "True value"
-msgstr "Valor verdadero"
 
 #: R/simcompare.b.R
 #: R/simstudy.b.R
@@ -1349,6 +1750,7 @@ msgstr "Los valores verdaderos son {true}, la medida con que se generaron los da
 msgid "True values are conditional on the cluster; a model that ignores the clusters estimates a population-average effect (closer to the null for OR and HR) and needs cluster-robust standard errors."
 msgstr "Los valores verdaderos son condicionales al conglomerado; un modelo que ignora los conglomerados estima un efecto promedio poblacional (más cercano al nulo para OR y HR) y necesita errores estándar robustos por conglomerado."
 
+#: R/simstudy.b.R
 #: simDerive/results/variables.columns.title
 #: simLibrary/results/variables.columns.title
 #: simStudy/results/dictionary.columns.title
@@ -1365,10 +1767,13 @@ msgstr "Unidades o categorías"
 msgid "Upper"
 msgstr "Superior"
 
+#: R/simstudy.b.R
 #: simLibrary/results/effects.columns.title
+#: simStudy/results/keyTrial.columns.title
 msgid "Value"
 msgstr "Valor"
 
+#: R/simstudy.b.R
 #: simStudy/results/dictionary.columns.title
 msgid "Values"
 msgstr "Valores"
@@ -1380,6 +1785,7 @@ msgstr "Valores por debajo del límite de detección"
 #: R/simstudy.b.R
 #: simCompare/ui/measured.columns.label
 #: simCompare/results/estimates.columns.title
+#: simCompare/results/replicateTable.columns.title
 #: simDerive/results/effects.columns.title
 #: simDerive/results/correlations.columns.title
 #: simLibrary/results/variables.columns.title
@@ -1415,9 +1821,21 @@ msgstr "Dónde"
 msgid "Whole library"
 msgstr "Toda la biblioteca"
 
+#: simStudy/options/layout/wide.title
+msgid "Wide (one row per person)"
+msgstr "Ancho (una fila por persona)"
+
 #: R/simstudy.b.R
 msgid "With an interaction, a model of the two main effects estimates each intervention's effect averaged over the other; the true values hold when the other intervention is at its reference level."
 msgstr "Con una interacción, un modelo con los dos efectos principales estima el efecto de cada intervención promediado sobre la otra; los valores verdaderos valen cuando la otra intervención está en su nivel de referencia."
+
+#: R/errors.R
+msgid "Write the divisor in Cuts, a positive number such as 10."
+msgstr "Escriba el divisor en Cortes, un número positivo como 10."
+
+#: R/simstudy.b.R
+msgid "Write the student keys of the class (separated by commas) before exporting it."
+msgstr "Escriba las claves de alumno de la clase (separadas por comas) antes de exportarla."
 
 #: simDerive/options/exportFormat/yaml.title
 msgid "YAML (for an AI or a library)"
@@ -1430,31 +1848,3 @@ msgstr "Ficheros YAML (zip)"
 #: R/simderive.b.R
 msgid "yes"
 msgstr "sí"
-
-#: R/simstudy.b.R
-msgid "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios."
-msgstr "Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{pct}% en las razones."
-
-#: R/simstudy.b.R
-msgid "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{d} for the differences."
-msgstr "Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{d} en las diferencias."
-
-#: R/simstudy.b.R
-msgid "The answer key could not be computed for these options:"
-msgstr "No se ha podido calcular la clave de respuestas con estas opciones:"
-
-#: R/simstudy.b.R
-msgid "{events} events in {pt} person-months"
-msgstr "{events} eventos en {pt} personas-mes"
-
-#: R/simstudy.b.R
-msgid "{events} events in {pt} person-weeks"
-msgstr "{events} eventos en {pt} personas-semana"
-
-#: R/simstudy.b.R
-msgid "{events} events in {pt} person-days"
-msgstr "{events} eventos en {pt} personas-día"
-
-#: R/simstudy.b.R
-msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}"
-msgstr "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} {units}"
