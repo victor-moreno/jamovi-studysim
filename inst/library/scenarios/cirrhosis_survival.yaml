@@ -1,6 +1,6 @@
 id: cirrhosis_survival
 label: {en: Survival in liver cirrhosis (Child-Pugh score), es: Supervivencia en la cirrosis hepática (puntuación de Child-Pugh), ca: Supervivència en la cirrosi hepàtica (puntuació de Child-Pugh)}
-domain: gastroenterology
+domain: hepatology
 population:
   en: Patients with liver cirrhosis followed from evaluation (a hospital series of 105 patients)
   es: Pacientes con cirrosis hepática seguidos desde la evaluación (una serie hospitalaria de 105 pacientes)

@@ -35,7 +35,8 @@ recs <- lapply(names(lib$scenarios), function(id) {
          outcomes = unname(lapply(sc$outcomes, function(o) list(label = tr_text(o$label, "en"), type = type_names[[o$type]]))),
          types = unique(unname(vapply(sc$outcomes, function(o) type_names[[o$type]], ""))),
          designs = unname(design_names[des]),
-         source = if (length(data)) "open data" else "published study",
+         # a teaching dataset (the author's own studies) is not open data
+         source = if (!length(data)) "published study" else if (grepl("teaching dataset|V Moreno", data[1])) "teaching dataset" else "open data",
          dataset = if (length(data)) sub("^Data: *", "", data[1]) else "",
          nvars = length(sc$variables),
          features = feats,
@@ -43,12 +44,14 @@ recs <- lapply(names(lib$scenarios), function(id) {
          teaching = gsub("\\s+", " ", trimws(tr_text(raw$teaching, "en"))))
 })
 n_open <- sum(vapply(recs, function(r) r$source == "open data", TRUE))
+n_teach <- sum(vapply(recs, function(r) r$source == "teaching dataset", TRUE))
 json <- jsonlite::toJSON(recs, auto_unbox = TRUE)
 ```
 
 The module ships with **`r length(recs)` scenarios**, one clinical question
 each. Most replicate a real study: `r n_open` were estimated from open
-patient-level data and the others from the published tables of the study. Use the
+patient-level data, `r n_teach` from teaching datasets of the author's own
+studies, and the others from the published tables of the study. Use the
 catalogue below to find one for a domain, a study design or a teaching point. In
 jamovi, all of them are in the scenario picker of *Simulated study* and *Compare
 designs*, grouped by domain.
@@ -69,9 +72,16 @@ estimated:
 When a study had few events for its number of variables, the effects were shrunk
 towards no effect by one common factor, so the confounding between them is kept.
 
+**From teaching datasets.** Several come from datasets of the author's own
+studies used for years in teaching (cervical cancer and HPV, microsatellite
+instability, colorectal cancer and diet, dyspepsia, cardiac surgery, cirrhosis),
+estimated the same way; the scenario keeps their parameters, not their data.
+
 **From a published paper.** When no data are open, the parameters come from the
 paper's tables: the baseline characteristics (Table 1), the frequency of the
-outcome, and the adjusted estimates of the main analysis.
+outcome, and the adjusted estimates of the main analysis. A few papers were
+chosen for critical reading: their scenarios reproduce what the paper reports,
+errors included, and the teaching note points the errors out.
 
 **Finishing by hand.** Data cannot tell causes from correlates, so each scenario
 was then given:

@@ -40,10 +40,12 @@ parameters and what crude and adjusted analyses of that design should find.
 
 ## Scenarios
 
-51 scenarios, most replicating a real study: their parameters were estimated
+61 scenarios, most replicating a real study: their parameters were estimated
 with the module's own *Derive* engine from open patient-level data (R
 packages survival, MASS, datasets, HSAUR3, TH.data, pROC, medicaldata,
-aplore3, NHANES), or taken from the published tables of the study; each was
+aplore3, NHANES; the UCI repository) or from the author's teaching datasets,
+or taken from the published tables of the study (including papers chosen for
+critical reading); each was
 then given a causal structure and a teaching note (English, Spanish, Catalan).
 The files store parameters only, never data. The format is in
 `inst/library/schema.md`. Effect sizes reproduce the source's main estimates
@@ -53,26 +55,33 @@ explains the method and filters the scenarios by domain, design and topic.
 
 | domain | scenario | designs | parameters from |
 |---|---|---|---|
-| Cardiovascular | Antihypertensive drug vs placebo (`antihypertensive_trial`) | rct, crossover, cluster_rct, factorial, longitudinal, pre_post, method_comparison | published studies |
+| Cardiovascular | 30-day mortality after heart surgery (a risk score) (`cardiac_surgery_mortality`) | cross_sectional, case_control | 30-day mortality after heart surgery |
+|  | Abnormal ECG from global ECG measurements (arrhythmia) (`arrhythmia_ecg`) | cross_sectional, case_control | Arrhythmia database |
+|  | Antihypertensive drug vs placebo (`antihypertensive_trial`) | rct, crossover, cluster_rct, factorial, longitudinal, pre_post, method_comparison | published studies |
 |  | Aspirin and beta-carotene in male physicians (`physicians_health`) | factorial, rct | published studies |
 |  | Blood pressure in US adults (`nhanes_blood_pressure`) | cross_sectional, case_control, method_comparison | NHANESraw (R package NHANES) |
 |  | Coronary heart disease incidence (`chd_incidence`) | cohort, case_control, matched_cc, nested_cc, case_cohort, ecological | published studies |
+|  | Cryoablation or drugs as first treatment of atrial fibrillation (EARLY-AF) (`early_af_cryoablation`) | rct, pre_post | published studies |
 |  | High-sensitivity troponin for myocardial infarction (`troponin_mi`) | diagnostic, cross_sectional | published studies |
 |  | Intensive blood-pressure control (SPRINT) (`sprint_blood_pressure`) | rct | published studies |
 |  | Streptokinase and aspirin after myocardial infarction (`isis2`) | factorial, rct | published studies |
 | Child Health | Vitamin A and child mortality (`vitamin_a_aceh`) | cluster_rct, rct | published studies |
+| Dermatology | Psoriasis among erythemato-squamous diseases (clinical signs) (`psoriasis_diagnosis`) | cross_sectional, case_control | Dermatology database |
 | Environmental | Succimer for lead-exposed children (`lead_succimer`) | longitudinal, rct, method_comparison | published studies |
 |  | Water hardness and mortality (`water_hardness`) | ecological, cohort | R dataset water (HSAUR3 package) |
-| Gastroenterology | Rectal indomethacin to prevent post-ERCP pancreatitis (`indomethacin_ercp`) | rct, cluster_rct | indo_rct (R package medicaldata) |
+| Gastroenterology | Organic dyspepsia from symptoms (a diagnostic score) (`dyspepsia_organic`) | cross_sectional, case_control | dyspepsia and endoscopy |
+|  | Rectal indomethacin to prevent post-ERCP pancreatitis (`indomethacin_ercp`) | rct, cluster_rct | indo_rct (R package medicaldata) |
 | Haematology | Progression of MGUS (`mgus_progression`) | prognosis, cohort | R dataset mgus2 (survival package) |
 |  | Serum free light chains and mortality (`free_light_chain`) | cohort, case_cohort, nested_cc | R dataset flchain (survival package) |
 | Hepatology | Primary biliary cholangitis (`pbc_mayo`) | prognosis, rct | R dataset pbc (survival package) |
+|  | Survival in liver cirrhosis (Child-Pugh score) (`cirrhosis_survival`) | prognosis, cohort | cirrhosis survival teaching dataset (105 patients; V Moreno |
 | Infectious | Dexamethasone in hospitalised COVID-19 (`recovery_dexamethasone`) | rct | published studies |
 |  | Handwashing and childhood pneumonia (`handwashing_karachi`) | cluster_rct, rct | published studies |
 |  | Salk polio vaccine field trial (`polio_vaccine`) | rct, cluster_rct | published studies |
 |  | Streptomycin for pulmonary tuberculosis (`streptomycin_tb`) | rct | strep_tb (R package medicaldata) |
 | Mental Health | Computerised CBT for depression (`beat_the_blues`) | longitudinal, rct, pre_post | R dataset BtheB (HSAUR3 package) |
-| Metabolic | Diabetes in Pima women (`pima_diabetes`) | cross_sectional, diagnostic, case_control | R datasets Pima.tr and Pima.te (MASS package) |
+| Metabolic | Diabetes and obesity in rural Virginia (Vanderbilt) (`vanderbilt_diabetes`) | cross_sectional, diagnostic, case_control | Vanderbilt diabetes dataset (Willems JP et al.; distributed by FE Harrell |
+|  | Diabetes in Pima women (`pima_diabetes`) | cross_sectional, diagnostic, case_control | R datasets Pima.tr and Pima.te (MASS package) |
 |  | Metformin vs placebo on HbA1c (`metformin_hba1c`) | rct, cluster_rct, longitudinal, pre_post, method_comparison | published studies |
 | Musculoskeletal | Fracture in older women (`glow_fracture`) | cohort, case_control | GLOW500 (R package aplore3) |
 | Neurology | Biomarkers after subarachnoid haemorrhage (`subarachnoid_haemorrhage`) | diagnostic, cohort | R dataset aSAH (pROC package) |
@@ -90,9 +99,11 @@ explains the method and filters the scenarios by domain, design and topic.
 |  | HPV and cofactors of cervical cancer (IARC multicentric) (`cervical_cancer_hpv`) | case_control, matched_cc | IARC multicentric case-control study of cervical cancer (teaching dataset of 2910 women from seven countries; V Moreno). |
 |  | Lung cancer and smoking (`lung_cancer_smoking`) | case_control, matched_cc, cohort, nested_cc | Doll & Hill 1950 smoking tables |
 |  | Oesophageal cancer: alcohol and tobacco (`esoph_cancer`) | case_control, matched_cc, cohort | R dataset esoph (datasets package) |
+|  | Pathology predictors of microsatellite instability in colorectal cancer (`msi_crc_pathology`) | cross_sectional, case_control | Molecular Epidemiology of Colorectal Cancer study |
 |  | PSA and prostate cancer (`prostate_cancer_psa`) | diagnostic, cross_sectional, case_control | published studies |
 |  | Relapse of Wilms tumour (`wilms_tumour`) | cohort, case_cohort, nested_cc, case_control | R dataset nwtco (survival package) |
 |  | Survival in advanced lung cancer (`lung_ncctg`) | prognosis | R dataset lung (survival package) |
+| Oncology / Nutrition | Diet and colorectal cancer in Majorca (energy adjustment) (`colorectal_diet_mallorca`) | case_control, matched_cc, cohort | Majorca colorectal cancer case-control study |
 | Ophthalmology | Glaucoma by laser scanning tomography (`glaucoma_hrt`) | diagnostic | R dataset GlaucomaM (TH.data package) |
 |  | Myopia in children (`myopia`) | cohort, case_control | myopia (R package aplore3) |
 | Perinatal | Low birth weight (`low_birth_weight`) | cross_sectional, case_control, cohort | R dataset birthwt (MASS package) |
@@ -103,7 +114,8 @@ explains the method and filters the scenarios by domain, design and topic.
 |  | Foot ulceration in diabetes (`diabetic_foot_ulcer`) | cohort, prognosis, case_control, nested_cc | published studies |
 |  | Terbinafine vs itraconazole for toenail onychomycosis (`onychomycosis_terbinafine`) | rct | published studies |
 | Reproductive | Secondary infertility after abortion (`infertility_abortion`) | matched_cc, case_control, cross_sectional | R dataset infert (datasets package) |
-| Respiratory | Formoterol vs salbutamol in asthma (`asthma_formoterol`) | crossover, rct | published studies |
+| Respiratory | Catalase -262 C/T polymorphism and childhood asthma (a paper to criticise) (`catalase_asthma`) | case_control, cross_sectional, diagnostic | published studies |
+|  | Formoterol vs salbutamol in asthma (`asthma_formoterol`) | crossover, rct | published studies |
 
 ## Install
 

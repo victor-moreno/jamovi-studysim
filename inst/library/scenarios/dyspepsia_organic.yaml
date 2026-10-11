@@ -120,7 +120,7 @@ outcomes:
     label: {en: Organic cause at endoscopy (oesophagitis or peptic ulcer), es: Causa orgánica en la endoscopia (esofagitis o úlcera péptica), ca: Causa orgànica a l'endoscòpia (esofagitis o úlcera pèptica)}
     levels: ["no", "yes"]
     prevalence: 0.441
-    designs: [cross_sectional, diagnostic, case_control]
+    designs: [cross_sectional, case_control]
     effects:
       age: {OR: 1.21, per: 10}
       sex: {OR: 2.77}
