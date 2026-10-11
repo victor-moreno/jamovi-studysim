@@ -40,6 +40,18 @@ def wait_text(page, text, secs=40):
         page.wait_for_timeout(1000)
     return False
 
+def widen_data(dp):
+    """Drag the splitter between the spreadsheet and the (empty) results panel
+    to the right edge, so the dataset shows all its columns."""
+    vw = dp.viewport_size["width"]
+    sp = dp.locator(".silky-splitpanel-splitter:not(.hidden-panel)").first
+    box = sp.bounding_box() if sp.count() else None
+    x0 = box["x"] + box["width"] / 2 if box else 0.42 * vw
+    y0 = box["y"] + min(box["height"] / 2, 300) if box else 400
+    dp.mouse.move(x0, y0); dp.mouse.down()
+    dp.mouse.move(vw - 8, y0, steps=12); dp.mouse.up()
+    dp.wait_for_timeout(1500)
+
 with sync_playwright() as p:
     browser = p.chromium.launch()
     ctx = browser.new_context(viewport={"width": 1440, "height": 1000}, accept_downloads=True, device_scale_factor=2)
@@ -92,6 +104,7 @@ with sync_playwright() as p:
         if len(ctx.pages) > n: break
     if len(ctx.pages) > n:
         dp = ctx.pages[-1]; dp.set_viewport_size({"width": 1440, "height": 700}); dp.wait_for_timeout(12000)
+        widen_data(dp)
         dp.screenshot(path=out("s10-dataset.png")); dp.close()
 
     # Several outcomes: SPRINT, with the other outcomes of the same people
