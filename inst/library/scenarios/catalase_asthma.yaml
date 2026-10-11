@@ -1,0 +1,161 @@
+id: catalase_asthma
+label: {en: Catalase -262 C/T polymorphism and childhood asthma (a paper to criticise), es: Polimorfismo -262 C/T de la catalasa y asma infantil (un artículo para criticar), ca: Polimorfisme -262 C/T de la catalasa i asma infantil (un article per criticar)}
+domain: respiratory
+population:
+  en: Slovak children aged 5-19, asthmatic patients from a university hospital and healthy children from routine check-ups
+  es: Niños eslovacos de 5 a 19 años, asmáticos de un hospital universitario y sanos de revisiones rutinarias
+  ca: Nens eslovacs de 5 a 19 anys, asmàtics d'un hospital universitari i sans de revisions rutinàries
+
+# From the published tables (248 cases, 249 controls). Genotype frequencies of
+# the controls (Table 2) and the odds ratios those percentages imply (0.44 and
+# 4.47; the paper prints 0.36 and 5.63). Markers: means and SEM of Tables 1 and
+# 4 turned into SD (SEM x sqrt(n)); the asthmatics' sulfhydryl groups from the
+# text (18.8% lower), because Table 4 repeats another cell. Population
+# frequencies = controls x 0.93 + cases x 0.07, so that the controls (children
+# without asthma) have the published ones.
+variables:
+  age: {from: dictionary, dist: "uniform(5, 19)", round: 0}
+  sex: {from: dictionary, p: 0.477}
+  catalase:
+    type: nominal
+    levels: [CC, CT, TT]
+    probs: [0.596, 0.343, 0.061]
+    label: {en: Catalase -262 C/T genotype (rs1001179), es: Genotipo -262 C/T de la catalasa (rs1001179), ca: Genotip -262 C/T de la catalasa (rs1001179)}
+  family_asthma:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.097
+    label: {en: Family history of asthma, es: Antecedentes familiares de asma, ca: Antecedents familiars d'asma}
+  family_atopy:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.176
+    label: {en: Family history of atopy, es: Antecedentes familiares de atopia, ca: Antecedents familiars d'atòpia}
+
+correlations:
+  - [family_asthma, family_atopy, 0.60]
+
+outcomes:
+  asthma:
+    type: binary
+    label: {en: Bronchial asthma, es: Asma bronquial, ca: Asma bronquial}
+    levels: ["no", "yes"]
+    prevalence: 0.07
+    designs: [case_control, cross_sectional, diagnostic]
+    effects:
+      # conditional odds ratios, a little larger than the crude ones the
+      # percentages give (0.44, 4.47): the odds ratio is not collapsible
+      catalase: {OR: [1, 0.42, 5.6]}
+      sex: {OR: 1.49}
+      # conditional on each other: the crude odds ratios are 7.2 and 6.6
+      family_asthma: {OR: 4.8}
+      family_atopy: {OR: 4.3}
+    markers:
+      feno:
+        label: {en: Fractional exhaled nitric oxide, es: Fracción de óxido nítrico exhalado, ca: Fracció d'òxid nítric exhalat}
+        units: ppb
+        dist: lognormal(12.6, 11.5)
+        range: [2, 200]
+        round: 0
+        auc: 0.71
+        direction: higher
+      eco:
+        label: {en: Exhaled carbon monoxide, es: Monóxido de carbono exhalado, ca: Monòxid de carboni exhalat}
+        units: ppm
+        dist: gamma(0.91, 1.74)
+        range: [0, 15]
+        round: 1
+        auc: 0.58
+        direction: higher
+      fev1:
+        label: {en: FEV1 (% of predicted), es: FEV1 (% del teórico), ca: FEV1 (% del teòric)}
+        units: "%"
+        dist: normal(98, 24)
+        range: [40, 160]
+        round: 0
+        auc: 0.55
+        direction: lower
+      sulfhydryl:
+        label: {en: Plasma sulfhydryl groups, es: Grupos sulfhidrilo plasmáticos, ca: Grups sulfhidril plasmàtics}
+        units: mmol/g
+        dist: normal(0.122, 0.030)
+        range: [0.01, 0.25]
+        round: 3
+        auc: 0.70
+        direction: lower
+      tbars:
+        label: {en: Thiobarbituric acid-reactive substances, es: Sustancias reactivas al ácido tiobarbitúrico, ca: Substàncies reactives a l'àcid tiobarbitúric}
+        units: nmol/mg
+        dist: normal(0.062, 0.032)
+        range: [0.001, 0.2]
+        round: 3
+        auc: 0.66
+        direction: higher
+
+null_variables: [age]
+
+designs:
+  case_control: {ratio: 1}
+
+i18n:
+  en:
+    names: {catalase: catalase, family_asthma: family_asthma, family_atopy: family_atopy, asthma: asthma, feno: feno, eco: eco, fev1: fev1, sulfhydryl: sulfhydryl, tbars: tbars}
+  es:
+    names: {catalase: catalasa, family_asthma: antec_asma, family_atopy: antec_atopia, asthma: asma, feno: feno, eco: eco, fev1: fev1, sulfhydryl: sulfhidrilo, tbars: tbars}
+  ca:
+    names: {catalase: catalasa, family_asthma: antec_asma, family_atopy: antec_atopia, asthma: asma, feno: feno, eco: eco, fev1: fev1, sulfhydryl: sulfhidril, tbars: tbars}
+
+references:
+  - "Babusikova E, Jesenak M, Evinova A, Banovcin P, Dobrota D. Frecuencia del polimorfismo -262 C/T en el gen de la catalasa y lesión oxidativa en niños eslovacos con asma bronquial. Arch Bronconeumol 2013;49:507-12."
+
+teaching:
+  en: >
+    A small genetic case-control study that reports a large effect, to read
+    critically. The TT genotype is found in 22.6% of the asthmatic children and
+    4.9% of the controls; the heterozygotes would be protected (odds ratio below
+    0.5), which no biological model explains. The controls are in Hardy-Weinberg
+    equilibrium but the cases are far from it (inbreeding coefficient 0.61, as
+    the paper itself says): the signature of a genotyping error that turns
+    heterozygotes into homozygotes, more likely in cases genotyped in other
+    batches. The odds ratios printed (0.36, 5.63) are not those of the printed
+    percentages (0.44, 4.47), the T allele frequency of the controls does not
+    follow from their genotypes, and sex is called non-significant with p = 0.03.
+    Means are given with their standard error, which makes the spread look 15
+    times smaller than it is: simulate the markers and compare SD and SEM. The
+    oxidative markers were measured in treated asthmatics: they may be a
+    consequence of the disease, not a cause. Check the genotypes against
+    Hardy-Weinberg and the reported odds ratios against the counts.
+  es: >
+    Un pequeño estudio genético de casos y controles con un efecto grande, para
+    leer con espíritu crítico. El genotipo TT aparece en el 22,6% de los niños
+    asmáticos y el 4,9% de los controles; los heterocigotos estarían protegidos
+    (odds ratio por debajo de 0,5), algo que ningún modelo biológico explica. Los
+    controles están en equilibrio de Hardy-Weinberg, pero los casos están muy
+    lejos (coeficiente de endogamia 0,61, como dice el propio artículo): la firma
+    de un error de genotipado que convierte heterocigotos en homocigotos, más
+    probable si los casos se genotiparon en otras tandas. Las odds ratios
+    publicadas (0,36 y 5,63) no son las de los porcentajes publicados (0,44 y
+    4,47), la frecuencia del alelo T en los controles no sale de sus genotipos y
+    el sexo se declara no significativo con p = 0,03. Las medias se dan con su
+    error estándar, que hace parecer la dispersión 15 veces menor de lo que es:
+    simulad los marcadores y comparad la DE con el EEM. Los marcadores oxidativos
+    se midieron en asmáticos tratados: pueden ser consecuencia de la enfermedad,
+    no causa. Comprobad los genotipos frente a Hardy-Weinberg y las odds ratios
+    publicadas frente a los recuentos.
+  ca: >
+    Un petit estudi genètic de casos i controls amb un efecte gran, per llegir
+    amb esperit crític. El genotip TT apareix en el 22,6% dels nens asmàtics i el
+    4,9% dels controls; els heterozigots estarien protegits (odds ratio per sota
+    de 0,5), cosa que cap model biològic explica. Els controls estan en equilibri
+    de Hardy-Weinberg, però els casos en són molt lluny (coeficient
+    d'endogàmia 0,61, com diu el mateix article): la signatura d'un error de
+    genotipatge que converteix heterozigots en homozigots, més probable si els
+    casos es van genotipar en altres tandes. Les odds ratios publicades (0,36 i
+    5,63) no són les dels percentatges publicats (0,44 i 4,47), la freqüència de
+    l'al·lel T en els controls no surt dels seus genotips i el sexe es declara no
+    significatiu amb p = 0,03. Les mitjanes es donen amb l'error estàndard, que fa
+    semblar la dispersió 15 vegades menor del que és: simuleu els marcadors i
+    compareu la DE amb l'EEM. Els marcadors oxidatius es van mesurar en asmàtics
+    tractats: poden ser conseqüència de la malaltia, no causa. Comproveu els
+    genotips davant de Hardy-Weinberg i les odds ratios publicades davant dels
+    recomptes.
