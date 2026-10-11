@@ -1442,3 +1442,19 @@ msgstr "Els valors esperats provenen d'un únic estudi simulat: la seva incertes
 #: R/simstudy.b.R
 msgid "The answer key could not be computed for these options:"
 msgstr "No s'ha pogut calcular la clau de respostes amb aquestes opcions:"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-months"
+msgstr "{events} esdeveniments en {pt} persones-mes"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-weeks"
+msgstr "{events} esdeveniments en {pt} persones-setmana"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-days"
+msgstr "{events} esdeveniments en {pt} persones-dia"
+
+#: R/simstudy.b.R
+msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}"
+msgstr "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} {units}"

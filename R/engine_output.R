@@ -84,6 +84,11 @@ GENERIC <- list(
 
 gtext <- function(key, lang) tr_text(GENERIC[[key]], lang)
 
+# time units in the student's language (the library writes them in English)
+TIME_UNITS <- list(years = list(en = "years", es = "años", ca = "anys"), months = list(en = "months", es = "meses", ca = "mesos"),
+                   weeks = list(en = "weeks", es = "semanas", ca = "setmanes"), days = list(en = "days", es = "días", ca = "dies"))
+unit_text <- function(u, lang) if (is.null(TIME_UNITS[[u %||% "years"]])) u else tr_text(TIME_UNITS[[u %||% "years"]], lang)
+
 with_desc <- function(x, desc) { attr(x, "jmv-desc") <- desc; x }
 
 var_desc <- function(v, lang) {
@@ -169,9 +174,9 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
     if (design %in% CASE_DESIGNS) {
         lv <- c("control", "case")   # shown in the student's language by localise_data()
         out$case <- with_desc(factor(lv[d$.y + 1L], levels = lv), sprintf("%s: %s", gtext("case", lang), tr_text(oc$label, lang)))
-        if (design == "nested_cc") out$time <- with_desc(round(d$.at, 3), sprintf("%s (%s)", gtext("settime", lang), oc$time_units))
+        if (design == "nested_cc") out$time <- with_desc(round(d$.at, 3), sprintf("%s (%s)", gtext("settime", lang), unit_text(oc$time_units, lang)))
     } else if (!is.null(d$.time)) {
-        out$time <- with_desc(round(d$.time, 3), sprintf("%s (%s)", gtext("time", lang), oc$time_units))
+        out$time <- with_desc(round(d$.time, 3), sprintf("%s (%s)", gtext("time", lang), unit_text(oc$time_units, lang)))
         ev <- if (is.null(oc$competing) || design %in% c("case_cohort")) gtext("event", lang)
               else sub("{c}", tr_text(oc$competing$label, lang), gtext("event2", lang), fixed = TRUE)
         out[[oc$id]] <- with_desc(as.integer(d$.status), sprintf("%s: %s", tr_text(oc$label, lang), ev))
@@ -187,7 +192,7 @@ format_study <- function(sc, oc, design, res, factors, lang = "en") {
         o2 <- sc$outcomes[[o]]
         st <- d[[paste0(".sec_", o)]]
         if (!is.null(d[[paste0(".sec_time_", o)]])) {
-            out[[paste0("time_", o)]] <- with_desc(round(d[[paste0(".sec_time_", o)]], 3), sprintf("%s (%s): %s", gtext("time", lang), o2$time_units, tr_text(o2$label, lang)))
+            out[[paste0("time_", o)]] <- with_desc(round(d[[paste0(".sec_time_", o)]], 3), sprintf("%s (%s): %s", gtext("time", lang), unit_text(o2$time_units, lang), tr_text(o2$label, lang)))
             ev <- if (is.null(o2$competing)) gtext("event", lang) else sub("{c}", tr_text(o2$competing$label, lang), gtext("event2", lang), fixed = TRUE)
             out[[o]] <- with_desc(as.integer(st), sprintf("%s: %s", tr_text(o2$label, lang), ev))
         } else if (o2$type %in% c("binary", "event")) out[[o]] <- with_desc(factor(o2$levels[st + 1L], levels = o2$levels), var_desc(o2, lang))

@@ -116,7 +116,7 @@ simCompareClass <- R6::R6Class(
                     if (!is.null(f$controls)) jmvcore::format(.("{cases} cases and {controls} controls"), cases = num(f$cases), controls = num(f$controls)),
                     if (!is.null(f$subcohort)) jmvcore::format(.("subcohort {sub} of a cohort of {n}; {cases} cases"), sub = num(f$subcohort), n = num(f$cohort), cases = num(f$cases)),
                     if (!is.null(f$matched_on)) jmvcore::format(.("matched on {vars}"), vars = paste(dname(f$matched_on, ctx$lang), collapse = ", ")),
-                    if (!is.null(f$events)) jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)),
+                    if (!is.null(f$events)) person_time_text(f, ctx$oc$time_units, self, num),
                     if (!is.null(f$arms)) paste(sprintf("%s: %s", dlevel(names(f$arms), ctx$lang), unlist(f$arms)), collapse = ", "),
                     if (!is.null(f$regions)) jmvcore::format(.("{k} regions of {m} people"), k = num(f$regions), m = num(f$region_size)),
                     if (!is.null(f$sequences)) jmvcore::format(.("sequences: {a} and {b} participants"), a = f$sequences[1], b = f$sequences[2]))

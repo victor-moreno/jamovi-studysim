@@ -1442,3 +1442,19 @@ msgstr "Los valores esperados proceden de un único estudio simulado: su incerti
 #: R/simstudy.b.R
 msgid "The answer key could not be computed for these options:"
 msgstr "No se ha podido calcular la clave de respuestas con estas opciones:"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-months"
+msgstr "{events} eventos en {pt} personas-mes"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-weeks"
+msgstr "{events} eventos en {pt} personas-semana"
+
+#: R/simstudy.b.R
+msgid "{events} events in {pt} person-days"
+msgstr "{events} eventos en {pt} personas-día"
+
+#: R/simstudy.b.R
+msgid "baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}"
+msgstr "escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} {units}"

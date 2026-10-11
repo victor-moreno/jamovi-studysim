@@ -453,6 +453,10 @@ NEW.update(V02)
 NEW.update({
 "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{pct}% for the ratios.": ("Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{pct}% en las razones.", "Els valors esperats provenen d'un únic estudi simulat: la seva incertesa de Monte Carlo (95%) arriba a ±{pct}% en les raons."),
 "The expected values come from one simulated study: their 95% Monte Carlo uncertainty is up to ±{d} for the differences.": ("Los valores esperados proceden de un único estudio simulado: su incertidumbre de Monte Carlo (95%) llega a ±{d} en las diferencias.", "Els valors esperats provenen d'un únic estudi simulat: la seva incertesa de Monte Carlo (95%) arriba a ±{d} en les diferències."),
+"{events} events in {pt} person-months": ("{events} eventos en {pt} personas-mes", "{events} esdeveniments en {pt} persones-mes"),
+"{events} events in {pt} person-weeks": ("{events} eventos en {pt} personas-semana", "{events} esdeveniments en {pt} persones-setmana"),
+"{events} events in {pt} person-days": ("{events} eventos en {pt} personas-día", "{events} esdeveniments en {pt} persones-dia"),
+"baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}": ("escala Weibull basal {l}, forma {s}: riesgo instantáneo medio {r}, riesgo {q} en {t} {units}", "escala Weibull basal {l}, forma {s}: risc instantani mitjà {r}, risc {q} en {t} {units}"),
 "The answer key could not be computed for these options:": ("No se ha podido calcular la clave de respuestas con estas opciones:", "No s'ha pogut calcular la clau de respostes amb aquestes opcions:"),
 })
 for k, v in NEW.items():

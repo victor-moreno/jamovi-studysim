@@ -284,7 +284,7 @@ simStudyClass <- R6::R6Class(
             if (ctx$design == "nested_cc") li <- c(li, .("controls drawn from each case's risk set: a person can be a control more than once, and a control can later be a case"))
             if (!is.null(f$matched_on)) li <- c(li, jmvcore::format(.("matched on {vars}"), vars = paste(dname(f$matched_on, l), collapse = ", ")))
             if (isTRUE(f$incomplete_sets > 0)) li <- c(li, jmvcore::format(.("{n} cases have fewer controls than asked"), n = f$incomplete_sets))
-            if (!is.null(f$events)) li <- c(li, jmvcore::format(.("{events} events in {pt} person-years"), events = num(f$events), pt = num(f$person_time)))
+            if (!is.null(f$events)) li <- c(li, person_time_text(f, ctx$oc$time_units, self, num))
             if (!is.null(f$competing)) li <- c(li, jmvcore::format(.("{n} competing events ({label}), status 2"), n = num(f$competing),
                                                           label = htmlEscape(tr_text(ctx$oc$competing$label, l))))
             if (!is.null(f$arms)) li <- c(li, paste(sprintf("%s: %s", dlevel(names(f$arms), l), unlist(f$arms)), collapse = ", "))
@@ -407,9 +407,9 @@ simStudyClass <- R6::R6Class(
                 binary = jmvcore::format(.("intercept {a} gives a prevalence of {p}"), a = round(cal$a, 4), p = round(cal$achieved, 4)),
                 continuous = jmvcore::format(.("intercept {a}"), a = round(cal$a, 4)),
                 count = jmvcore::format(.("log intercept {a}"), a = round(cal$a, 4)),
-                event = jmvcore::format(.("baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} years"),
+                event = jmvcore::format(.("baseline Weibull scale {l}, shape {s}: average hazard {r}, risk {q} over {t} {units}"),
                                 l = signif(cal$lambda, 4), s = cal$shape, r = signif(cal$achieved$rate, 3),
-                                q = round(cal$achieved$risk_followup, 4), t = ctx$oc$followup))
+                                q = round(cal$achieved$risk_followup, 4), t = ctx$oc$followup, units = unit_text(ctx$oc$time_units, l)))
             ed <- ctx$sc$edges
             st <- if (nrow(ed)) paste(sprintf("%s → %s (%s)", ed$from, ed$to, ed$b), collapse = "; ") else "-"
             html <- paste0(
@@ -522,6 +522,13 @@ parse_measured <- function(measured, sc, self) {
         cats[[id]] <- spec
     }
     list(factors = intersect(sc$order, fac), cats = cats)
+}
+
+# "{events} events in {pt} person-years", in the outcome's time units
+person_time_text <- function(f, units, self, num) {
+    msg <- switch(units %||% "years", months = .("{events} events in {pt} person-months"), weeks = .("{events} events in {pt} person-weeks"),
+                  days = .("{events} events in {pt} person-days"), .("{events} events in {pt} person-years"))
+    jmvcore::format(msg, events = num(f$events), pt = num(f$person_time))
 }
 
 # Note on the Monte Carlo uncertainty of the expected values (a list of

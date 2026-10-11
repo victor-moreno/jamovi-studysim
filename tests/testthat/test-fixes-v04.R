@@ -42,3 +42,11 @@ test_that("expected values carry their Monte Carlo uncertainty", {
   expect_true(mc$pct > 0 && mc$pct < 20)
   expect_true(is.na(mc$diff))
 })
+
+test_that("follow-up time is labelled in the outcome's own units and language", {
+  sc <- load_scenario(builtin_library(), "tebentafusp_uveal_melanoma")
+  r <- simulate_study(sc, "os", "rct", 100, sc$order, seed = 1, lang = "es", key = FALSE)
+  expect_match(attr(r$data_raw$time, "jmv-desc"), "\\(meses\\)")
+  expect_identical(unit_text("years", "ca"), "anys")
+  expect_identical(unit_text("fortnights", "es"), "fortnights")
+})
