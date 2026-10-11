@@ -223,3 +223,17 @@ test_that("crossover and longitudinal data can come one row per person", {
   expect_true("plomo_sangre_v3" %in% names(w$data))
   expect_match(attr(w$data$plomo_sangre_v2, "jmv-desc"), "visita 2$")
 })
+
+test_that("a class export writes one dataset and codebook per student key and a register", {
+  expect_identical(class_keys("Anna, ben; anna\n 1234 ,"), c("Anna", "ben", "1234"))
+  sc <- load_scenario(builtin_library(), "chd_incidence")
+  d <- tempfile("class"); dir.create(d)
+  reg <- write_class(c("Anna", "Ben"), d, function(k) simulate_study(sc, "chd", "cohort", 40, student_key = k, key = FALSE),
+                     function(res) codebook(res$dictionary))
+  expect_setequal(list.files(d), c("Anna.csv", "Anna_codebook.csv", "Ben.csv", "Ben_codebook.csv", "register.csv"))
+  a <- utils::read.csv(file.path(d, "Anna.csv"))
+  expect_equal(nrow(a), 40)
+  expect_equal(reg$seed[1], derive_seed(1, "anna"))
+  expect_false(identical(a, utils::read.csv(file.path(d, "Ben.csv"))))
+  unlink(d, recursive = TRUE)
+})

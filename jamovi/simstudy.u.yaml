@@ -276,6 +276,12 @@ children:
             name: studentKey
             format: string
             width: large
+          - type: TextBox
+            name: classKeys
+            format: string
+            width: large
+          - type: ActionButton
+            name: exportClass
           - type: CheckBox
             name: showDictionary
           - type: CheckBox

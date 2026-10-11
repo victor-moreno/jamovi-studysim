@@ -578,6 +578,15 @@ options:
       description:
           R: any text (e.g. a student ID); each key gives a different dataset (capitals and surrounding spaces are ignored)
 
+    - name: classKeys
+      title: Student keys of the class
+      type: String
+      default: ""
+      description:
+          R: >
+              the keys of a class (e.g. student IDs) separated by commas, semicolons or new lines; Export
+              class writes one dataset per key
+
     - name: showDictionary
       title: Data dictionary
       type: Bool
@@ -619,6 +628,15 @@ options:
       action: openExternal
       description:
           R: saves the data dictionary (name, description, type, values, missing) as a CSV file
+
+    - name: exportClass
+      title: Export class (zip)
+      type: Action
+      action: openExternal
+      description:
+          R: >
+              a zip with one CSV and one codebook per student key, a register of keys and seeds and one
+              answer key report, so students get only their data
 
     - name: exportKey
       title: Answer key report

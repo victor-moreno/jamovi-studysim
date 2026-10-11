@@ -101,7 +101,7 @@ simStudyClass <- R6::R6Class(
         },
 
         .init = function() {
-            for (nm in c("openState", "csvState", "codebookState", "keyState"))
+            for (nm in c("openState", "csvState", "codebookState", "classState", "keyState"))
                 if (self$results[[nm]]$rowCount == 0)
                     self$results[[nm]]$addRow(rowKey = 1, values = list(fired = ""))
             ctx <- private$.context()
@@ -210,11 +210,7 @@ simStudyClass <- R6::R6Class(
                 (o$showDescriptives && !filled(self$results$descriptives, "stat")) ||
                 private$.wants("openState", "openData") || private$.wants("csvState", "exportCsv") || private$.wants("codebookState", "exportCodebook")
             if (needData) {
-                res <- tryCatch(simulate_study(ctx$sc, ctx$oc$id, ctx$design, o$n, ctx$factors, seed = o$seed,
-                                               student_key = o$studentKey, options = ctx$opt,
-                                               missing = o$missing / 100, missing_mech = o$missingMech, lang = ctx$lang,
-                                               key = FALSE, categorize = ctx$cats, noise = o$noiseVars, entry = o$entryErrors / 100),
-                                error = function(e) e)
+                res <- tryCatch(private$.simulate(ctx, o$studentKey), error = function(e) e)
                 if (inherits(res, "error")) {
                     private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(friendly_error(res, self))))
                     return()
@@ -238,15 +234,37 @@ simStudyClass <- R6::R6Class(
             if (o$showKey) tryCatch(private$.fillKey(ctx, calibrate(ctx$sc, ctx$oc), opt), error = function(e)
                 private$.notice(sprintf("<p><b>%s</b> %s</p>", .("The answer key could not be computed for these options:"),
                                         htmlEscape(friendly_error(e, self)))))
+            # the class: one dataset per student key, and one answer key
+            private$.once("classState", "exportClass", function(action) {
+                keys <- class_keys(o$classKeys)
+                if (!length(keys)) stop(.("Write the student keys of the class (separated by commas) before exporting it."), call. = FALSE)
+                dir <- tempfile("class"); dir.create(dir)
+                reg <- write_class(keys, dir, function(k) private$.simulate(ctx, k), function(res) private$.codebook(res),
+                                   c(.("Student key"), .("File"), .("Rows"), .("Seed")))
+                writeLines(private$.keyReport(ctx, opt, keys), file.path(dir, "answer_key.html"), useBytes = TRUE)
+                zip::zip(action$params$fullPath, files = list.files(dir), root = dir)
+                unlink(dir, recursive = TRUE)
+                list(filename = sprintf("%s_%s_class.zip", ctx$sc$id, ctx$design))
+            })
             private$.once("keyState", "exportKey", function(action) {
                 writeLines(private$.keyReport(ctx, opt), action$params$fullPath, useBytes = TRUE)
                 list(filename = sprintf("%s_%s_answer_key.html", ctx$sc$id, ctx$design))
             })
         },
 
+        # one simulated study as the panel asks for it, for a student key
+        .simulate = function(ctx, key) {
+            o <- self$options
+            simulate_study(ctx$sc, ctx$oc$id, ctx$design, o$n, ctx$factors, seed = o$seed,
+                           student_key = key, options = ctx$opt,
+                           missing = o$missing / 100, missing_mech = o$missingMech, lang = ctx$lang,
+                           key = FALSE, categorize = ctx$cats, noise = o$noiseVars, entry = o$entryErrors / 100)
+        },
+
         # Teacher's answer key as one self-contained HTML page: study, true
-        # model, what the design should estimate, markers, diagram, notes
-        .keyReport = function(ctx, opt) {
+        # model, what the design should estimate, markers, diagram, notes;
+        # `keys`: the student keys of a class export
+        .keyReport = function(ctx, opt, keys = NULL) {
             l <- ctx$lang; sc <- ctx$sc; oc <- ctx$oc
             esc <- htmlEscape
             num <- function(x) ifelse(is.na(x), "", formatC(signif(x, 3), format = "fg", digits = 3))
@@ -267,7 +285,8 @@ simStudyClass <- R6::R6Class(
             o <- self$options
             facts <- c(sprintf("%s: %s", .("Scenario"), tr_text(sc$label, l)), sprintf("%s: %s", .("Outcome"), tr_text(oc$label, l)),
                        sprintf("%s: %s", .("Design"), design_title(ctx$design, self)), sprintf("%s: %s", .("Sample size"), o$n),
-                       sprintf("%s: %s%s", .("Seed"), o$seed, if (nzchar(trimws(o$studentKey))) paste0(" / ", trimws(o$studentKey)) else ""),
+                       if (length(keys)) sprintf("%s: %s; %s: %s", .("Seed"), o$seed, .("Student keys of the class"), paste(keys, collapse = ", "))
+                       else sprintf("%s: %s%s", .("Seed"), o$seed, if (nzchar(trimws(o$studentKey))) paste0(" / ", trimws(o$studentKey)) else ""),
                        sprintf("%s: %s", .("Variables"), paste(dname(ctx$factors, l), collapse = ", ")))
             html <- c("<!doctype html><html><head><meta charset='utf-8'><title>", esc(.("Answer key")), "</title><style>",
                       "body{font:14px/1.45 system-ui,sans-serif;max-width:960px;margin:24px auto;padding:0 16px;color:#222}",
