@@ -69,3 +69,14 @@ test_that("empty design options keep the scenario's values, typed ones override 
   r4 <- simStudy(data = data.frame(), scenario = "breast_cancer_risk", design = "cohort", n = 200, loss = "1,5")
   expect_match(r4$summary$content, "Loss to follow-up: 1.5% per year")
 })
+
+test_that("engine errors reach the user translated, R's own errors with a preface", {
+  fake <- list(options = list(translate = function(x, n = 1) paste0("[", x, "]")))
+  expect_match(friendly_error(simpleError("the outcome is too rare: 3 cases in 2,000,000 people. Ask"), fake),
+               "^\\[The outcome is too rare: 3 cases in 2,000,000 people")
+  expect_match(friendly_error(simpleError("boom", call = quote(uniroot(f))), fake), "^\\[The calculation failed.*\\] boom$")
+  expect_identical(friendly_error(simpleError("Ya traducido"), fake), "Ya traducido")
+  m <- list(list(var = "age", include = TRUE, form = "cuts", cuts = "a, b"))
+  r <- simStudy(data = data.frame(), scenario = "breast_cancer_risk", design = "cohort", n = 100, measured = m)
+  expect_match(r$notice$content, "Cut points of age: 'a, b' is not a list of numbers.")
+})

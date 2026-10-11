@@ -47,7 +47,7 @@ simDeriveClass <- R6::R6Class(
                                               missing = o$missingMethod, m = o$imputations),
                               error = function(e) e)
                 if (inherits(d, "error")) {
-                    private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(conditionMessage(d))))
+                    private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(friendly_error(d, self))))
                     return()
                 }
                 d$as_numeric <- asnum

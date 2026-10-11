@@ -36,7 +36,7 @@ simStudyClass <- R6::R6Class(
                             factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats)
                 ctx$opt <- private$.designOptions(ctx)   # a mistyped number stops here, as a notice
                 ctx
-            }, error = function(e) list(error = conditionMessage(e)))
+            }, error = function(e) list(error = friendly_error(e, self)))
             private$.ctx <- ctx
             ctx
         },
@@ -184,7 +184,7 @@ simStudyClass <- R6::R6Class(
                                                key = FALSE, categorize = ctx$cats, noise = o$noiseVars, entry = o$entryErrors / 100),
                                 error = function(e) e)
                 if (inherits(res, "error")) {
-                    private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(conditionMessage(res))))
+                    private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(friendly_error(res, self))))
                     return()
                 }
                 opt <- res$options
@@ -205,7 +205,7 @@ simStudyClass <- R6::R6Class(
             # a key that cannot be computed explains itself instead of showing R's message
             if (o$showKey) tryCatch(private$.fillKey(ctx, calibrate(ctx$sc, ctx$oc), opt), error = function(e)
                 private$.notice(sprintf("<p><b>%s</b> %s</p>", .("The answer key could not be computed for these options:"),
-                                        htmlEscape(conditionMessage(e)))))
+                                        htmlEscape(friendly_error(e, self)))))
             private$.once("keyState", "exportKey", function(action) {
                 writeLines(private$.keyReport(ctx, opt), action$params$fullPath, useBytes = TRUE)
                 list(filename = sprintf("%s_%s_answer_key.html", ctx$sc$id, ctx$design))
@@ -558,7 +558,7 @@ parse_measured <- function(measured, sc, self) {
         if (!sc$variables[[id]]$type %in% c("continuous", "count")) next
         spec <- list(form = m$form, cuts = m$cuts %||% "")
         tryCatch(cat_groups(spec), error = function(e)
-            stop(jmvcore::format(.("Cut points of {var}: {msg}"), var = m$var, msg = conditionMessage(e)), call. = FALSE))
+            stop(jmvcore::format(.("Cut points of {var}: {msg}"), var = m$var, msg = friendly_error(e, self)), call. = FALSE))
         cats[[id]] <- spec
     }
     list(factors = intersect(sc$order, fac), cats = cats)

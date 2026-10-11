@@ -33,7 +33,7 @@ simCompareClass <- R6::R6Class(
                     followup = num_opt(self, "followup", .("Follow-up"), 0.01, 100)))
                 list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], designs = designs, factors = m$factors, cats = m$cats,
                      lang = private$.lang(), skipped = setdiff(unlist(o$designs), ok), opts = opts)
-            }, error = function(e) list(error = conditionMessage(e)))
+            }, error = function(e) list(error = friendly_error(e, self)))
             private$.ctx <- ctx
             ctx
         },
@@ -102,7 +102,7 @@ simCompareClass <- R6::R6Class(
                                             categorize = ctx$cats, expected = o$showExpected, titles = titles),
                             error = function(e) e)
             if (inherits(res, "error")) {
-                private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(conditionMessage(res))))
+                private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(friendly_error(res, self))))
                 return()
             }
             private$.fillStudies(ctx, res)

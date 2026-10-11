@@ -26,7 +26,7 @@ simLibraryClass <- R6::R6Class(
                 if (length(lib$scenarios) == 0)
                     stop(.("The library has no scenarios. Press Browse… to read a custom library."), call. = FALSE)
                 list(lib = lib, custom = names(custom$scenarios))
-            }, error = function(e) list(error = conditionMessage(e)))
+            }, error = function(e) list(error = friendly_error(e, self)))
             private$.state <- st
             st
         },
