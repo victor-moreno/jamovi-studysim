@@ -16,6 +16,8 @@ effect_contrib <- function(eff, cov, trt = NULL) {
     }
     x <- cov[[eff$var]]
     if (eff$type %in% c("nominal", "ordinal")) return(eff$coef[x])
+    # centred when modified (`center`, engine_scenario.R): the modifier's effect is the one at x = center
+    if (!is.null(eff$center)) x <- x - eff$center
     base <- switch(eff$type,
         continuous = x / eff$per,
         count = x / eff$per,

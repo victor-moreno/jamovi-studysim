@@ -101,6 +101,13 @@ outcomes:
       fgfr2: {HR: 1.26, model: additive}         # genotype: additive, dominant or recessive
 ```
 
+A numeric effect modified by another variable (`by:`) acts on `x - center`:
+the modifier's own effect (none, unless it has an effect of its own) holds at
+`x = center`. The default `center` is the population mean of x, so an
+unmodified-looking modifier does not pick up a large effect at x = 0; write
+`center: 0` when 0 is a meaningful value (never used, no births). The check
+warns when a center lies outside the variable's values.
+
 | type | target | effects | analysed with |
 |---|---|---|---|
 | `binary` | `prevalence` | `OR` (logistic) | logistic regression |
@@ -246,7 +253,7 @@ followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`.
 | `interventions` | intervention | scenario, intervention, levels, ratio, label_* |
 | `outcomes` | outcome | scenario, outcome, type, scale, prevalence, rate, median, shape, mean, sd, within_cor, size, window, followup, round, time_units, risk, risk_at, levels, range, designs, units_*, label_*, description_* |
 | `structure` | edge | scenario, from, to, strength, kind (`path` or `correlation`) |
-| `effects` | effect | scenario, outcome, variable, measure, value, per, model, modifier, modifier_values (`pre: 0.93, post: 1.12`) |
+| `effects` | effect | scenario, outcome, variable, measure, value, per, model, center, modifier, modifier_values (`pre: 0.93, post: 1.12`) |
 | `markers` | marker | scenario, outcome, marker, dist, round, auc, direction, block, informative, rho, range, units_*, label_* |
 | `designs` | design option | scenario, design, option, value |
 | `references` | reference | scenario, reference |

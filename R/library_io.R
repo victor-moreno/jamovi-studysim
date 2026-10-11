@@ -173,6 +173,7 @@ library_to_tables <- function(lib) {
             mod <- if (is.null(e$by)) NA else names(e$by)[1]
             list(scenario = s$id, outcome = o, variable = v, measure = m, value = csv1(e[[m]]),
                  per = if (is.null(e$per)) NA else as.character(e$per), model = e$model %||% NA,
+                 center = if (is.null(e$center)) NA else as.character(e$center),
                  modifier = mod,
                  modifier_values = if (is.na(mod)) NA else paste(sprintf("%s: %s", names(e$by[[mod]]), unlist(e$by[[mod]])), collapse = LIST_SEP))
         })
@@ -276,6 +277,7 @@ tables_to_library <- function(t) {
                 x <- list(); x[[e$measure]] <- uncsv(cell(e, "value"))
                 if (!is.null(cell(e, "per"))) x$per <- cell(e, "per")
                 if (!is.null(cell(e, "model"))) x$model <- cell(e, "model")
+                if (!is.null(cell(e, "center"))) x$center <- cell(e, "center")
                 if (!is.null(cell(e, "modifier"))) {
                     kv <- uncsv(cell(e, "modifier_values"))
                     vals <- stats::setNames(as.list(trimws(sub("^[^:]*:", "", kv))), trimws(sub(":.*$", "", kv)))

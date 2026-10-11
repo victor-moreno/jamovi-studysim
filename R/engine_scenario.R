@@ -233,9 +233,45 @@ normalize_effect <- function(oc_id, var_id, e, vars, interventions, pr) {
                 co[lv] <- tf(x)
             }
             out$by <- list(var = mod, coef = unname(co), binary = mv$type == "binary")
+            # a numeric effect modified by another variable acts on (x - center):
+            # the modifier's own effect is then the one at x = center, not at
+            # x = 0 (default: the population mean, filled by normalize_scenario)
+            if (type %in% c("continuous", "count") && !is.null(e$center))
+                out$center <- try_at(pr, where, num_expr(e$center))
         }
     }
     out
+}
+
+# Default `center` of the numeric effects with `by:` (the population mean of
+# x, 3 significant digits) and a warning when a center lies outside x's values
+fill_centers <- function(sc, pr) {
+    need <- function(oc) Filter(function(e) !is.null(e$by) && e$type %in% c("continuous", "count"),
+                                c(oc$effects, oc$competing$effects, oc$after_event$effects))
+    effs <- unlist(lapply(sc$outcomes, need), recursive = FALSE)
+    if (!length(effs)) return(sc)
+    cov <- tryCatch(with_seed(derive_seed("center", sc$id), gen_covariates(sc, 20000L)), error = function(e) NULL)
+    if (is.null(cov)) return(sc)
+    fix <- function(oc) {
+        for (k in c("effects", "competing", "after_event")) {
+            if (k != "effects") { if (!is.null(oc[[k]])) oc[[k]] <- fix(oc[[k]]); next }
+            for (v in names(oc$effects)) {
+                e <- oc$effects[[v]]
+                if (is.null(e$by) || !e$type %in% c("continuous", "count")) next
+                x <- cov[[v]]
+                if (is.null(e$center)) e$center <- signif(mean(x), 3)
+                else if (e$center < min(x) || e$center > max(x))
+                    add_problem(pr, sprintf("outcome '%s', effect of '%s'", oc$id, v), sprintf(
+                        "center %s is outside the values of '%s' (%s to %s): '%s' gets a large implied effect of its own; use a typical value such as %s",
+                        base::format(e$center), v, base::format(signif(min(x), 3)), base::format(signif(max(x), 3)),
+                        e$by$var, base::format(signif(mean(x), 3))), "warning")
+                oc$effects[[v]] <- e
+            }
+        }
+        oc
+    }
+    sc$outcomes <- lapply(sc$outcomes, fix)
+    sc
 }
 
 # A marker of a binary outcome (diagnostic design): binormal, i.e. a latent
@@ -507,6 +543,7 @@ normalize_scenario <- function(raw, dictionary = list(), strict = TRUE) {
                null_variables = unlist(raw$null_variables), references = unlist(raw$references),
                teaching = raw$teaching, design_defaults = normalize_design_defaults(raw$designs, pr),
                problems = pr$items)
+    if (!any(pr$items$level == "error")) { sc <- fill_centers(sc, pr); sc$problems <- pr$items }
     class(sc) <- "studysim_scenario"
     errs <- pr$items[pr$items$level == "error", ]
     if (strict && nrow(errs))

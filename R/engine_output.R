@@ -79,6 +79,7 @@ GENERIC <- list(
     log_zero = list(en = "the outcome has zeros: analysed as log(y + %s), which pulls the ratio towards 1",
                     es = "el resultado tiene ceros: analizado como log(y + %s), lo que acerca la razón a 1",
                     ca = "el resultat té zeros: analitzat com a log(y + %s), cosa que acosta la raó a 1"),
+    at_center = list(en = "at %s = %s", es = "con %s = %s", ca = "amb %s = %s"),
     mediqr = list(en = "median [IQR]", es = "mediana [RIC]", ca = "mediana [RIQ]"),
     vs = list(en = "vs", es = "frente a", ca = "enfront de"))
 

@@ -44,6 +44,14 @@ null_measure <- function(oc) switch(oc$type, binary = "OR", event = "HR", count 
                                     continuous = if (isTRUE(oc$log)) "ratio" else "beta")
 null_value <- function(oc) if (null_measure(oc) == "beta") 0 else 1
 
+# a modifier's effect holds where the numeric effects it modifies are centred:
+# "at bmi = 26.5" (engine_scenario.R, fill_centers)
+center_note <- function(oc, v, lang = "en") {
+    at <- Filter(function(e) !is.null(e$center) && identical(e$by$var, v), oc$effects)
+    if (!length(at)) return("")
+    paste(vapply(at, function(e) sprintf(gtext("at_center", lang), dname(e$var, lang), base::format(e$center)), ""), collapse = "; ")
+}
+
 true_effects <- function(sc, oc, lang = "en") {
     # illness-death: the effects of the two transitions (death without the
     # first event, and after it); there is no single hazard ratio
@@ -65,10 +73,12 @@ true_effects <- function(sc, oc, lang = "en") {
             back <- function(b) if (eff$log) exp(b) else b
             note <- paste(sprintf("%s=%s: %.3g", dname(eff$by$var, lang), dlevel(mv$levels, lang), back(eff$by$coef)), collapse = "; ")
         }
+        if (is.null(eff)) note <- "no effect (null variable)"
+        note <- trimws(paste(note, center_note(oc, v, lang)))
         data.frame(variable = v, contrast = cr$contrast,
                    measure = if (is.null(eff)) null_measure(oc) else eff$measure,
                    value = if (is.null(eff)) null_value(oc) else vapply(seq_len(nrow(cr)), function(i) true_value(eff, cr[i, ]), 0),
-                   note = if (is.null(eff)) "no effect (null variable)" else note, stringsAsFactors = FALSE)
+                   note = note, stringsAsFactors = FALSE)
     })
     # no effects at all (e.g. a transition without covariates): an empty table
     if (!length(rows)) return(data.frame(variable = character(), contrast = character(), measure = character(),
@@ -339,6 +349,11 @@ estimate_table <- function(sc, oc, design, fd, factors, lang = "en", categorize 
     nul <- !out$variable %in% names(oc$effects)
     out$true[nul] <- if (adj$log) 1 else 0
     out$note[nul] <- ""
+    # a modifier's expected effect is the one where the modified effects are centred
+    for (v in unique(out$variable)) {
+        cn <- center_note(oc, v, lang)
+        if (nzchar(cn)) out$note[out$variable == v] <- trimws(paste(out$note[out$variable == v], cn))
+    }
     if (!is.null(oc[["after"]])) { out$true <- NA_real_; out$note <- gtext("illness_death", lang) }
     # not estimable: matched on (constant within sets) or aliased with other measured variables
     na <- is.na(out$adjusted) & out$note == ""

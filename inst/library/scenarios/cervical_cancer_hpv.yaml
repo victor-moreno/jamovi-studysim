@@ -119,8 +119,8 @@ outcomes:
       # cofactors that act only with HPV (data: per year of use 1.12 in HPV
       # positive women, 0.95 in negative ones); parity between the data (1.03
       # per pregnancy) and the pooled IARC analysis (OR 3.8, 7+ vs none)
-      oc_years: {HR: 1.12, per: 1, by: {hpv: {negative: 1, positive: 1.12}}}
-      parity: {HR: 1.08, per: 1, by: {hpv: {negative: 1, positive: 1.08}}}
+      oc_years: {HR: 1.12, per: 1, center: 0, by: {hpv: {negative: 1, positive: 1.12}}}
+      parity: {HR: 1.08, per: 1, center: 0, by: {hpv: {negative: 1, positive: 1.08}}}
       # the smears include the one that found the cancer (see the teaching note)
       pap: {HR: 1.45}
 
