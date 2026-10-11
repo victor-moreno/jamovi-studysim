@@ -32,8 +32,10 @@ simStudyClass <- R6::R6Class(
                                  list = paste(vapply(ok, private$.designTitle, ""), collapse = ", ")), call. = FALSE)
                 m <- parse_measured(o$measured, sc, self)
                 fac <- m$factors; cats <- m$cats
-                list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
-                     factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats)
+                ctx <- list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
+                            factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats)
+                ctx$opt <- private$.designOptions(ctx)   # a mistyped number stops here, as a notice
+                ctx
             }, error = function(e) list(error = conditionMessage(e)))
             private$.ctx <- ctx
             ctx
@@ -42,38 +44,42 @@ simStudyClass <- R6::R6Class(
         .designOptions = function(ctx) {
             o <- self$options
             d <- ctx$design
+            # empty text boxes keep the scenario's (or the design's) value
+            num <- function(nm, title, lo, hi, int = FALSE, scale = 1) num_opt(self, nm, title, lo, hi, int, scale)
             opt <- list()
-            if (d %in% CASE_DESIGNS) opt$ratio <- o$ccRatio
+            if (d %in% CASE_DESIGNS) opt$ratio <- num("ccRatio", .("Controls per case"), 1, 10, TRUE)
             opt$secondary <- isTRUE(o$secondary)
             if (d %in% c("cohort", "prognosis", "rct", "nested_cc", "case_cohort", "cluster_rct", "factorial")) {
-                if (o$followup > 0) opt$followup <- o$followup
-                opt$loss <- o$loss / 100
+                opt$followup <- num("followup", .("Follow-up"), 0.01, 100)
+                opt$loss <- num("loss", .("Loss to follow-up (% per time unit)"), 0, 50, scale = 100)
             }
-            if (d %in% c("cohort", "prognosis") && o$accrual > 0) opt$accrual <- o$accrual
+            if (d %in% c("cohort", "prognosis", "nested_cc", "case_cohort")) opt$accrual <- num("accrual", .("Recruitment period"), 0, 100)
             # realism that also shapes the answer key (measurement error) or the columns (noise)
             opt$reliability <- o$reliability; opt$misclass <- o$misclass / 100; opt$noise <- o$noiseVars
             opt$lod_handling <- o$lodHandling
             if (d == "diagnostic") { opt$batches <- o$batches; opt$batch_cv <- o$batchCv / 100; opt$batch_confounded <- o$batchConfounded }
-            if (d == "case_cohort") opt$subcohort <- o$subcohort / 100
+            if (d == "case_cohort") opt$subcohort <- num("subcohort", .("Subcohort (% of the cohort)"), 0.1, 90, scale = 100)
             if (d == "rct") opt$looks <- o$looks
-            if (d == "cluster_rct") { opt$clusters <- o$clusters; opt$icc <- o$icc }
-            if (d == "factorial") opt$interaction <- o$interaction
-            if (d == "longitudinal") { opt$visits <- o$visits; opt$dropout <- o$dropout / 100 }
-            if (d == "pre_post" && o$threshold > 0) opt$threshold <- o$threshold
-            # method comparison: the panel's neutral values keep the scenario's own
+            if (d == "cluster_rct") { opt$clusters <- num("clusters", .("Clusters"), 4, 1000, TRUE); opt$icc <- num("icc", .("Intraclass correlation"), 0, 0.9) }
+            if (d == "factorial") opt$interaction <- num("interaction", .("Interaction of the two interventions"), -10, 10)
+            if (d == "longitudinal") { opt$visits <- num("visits", .("Follow-up visits"), 1, 12, TRUE)
+                                       opt$dropout <- num("dropout", .("Dropout by the last visit (%)"), 0, 80, scale = 100) }
+            if (d == "pre_post") opt$threshold <- num("threshold", .("Enrol only above percentile"), 0, 95)
             if (d == "method_comparison") {
-                if (o$mcBias != 0) opt$bias <- o$mcBias
-                if (o$mcSlope != 1) opt$slope <- o$mcSlope
-                if (o$mcErrorA > 0) opt$error_a <- o$mcErrorA / 100
-                if (o$mcErrorB > 0) opt$error_b <- o$mcErrorB / 100
+                opt$bias <- num("mcBias", .("Bias of method B"), -Inf, Inf)
+                opt$slope <- num("mcSlope", .("Proportional bias of method B (slope)"), 0.2, 5)
+                opt$error_a <- num("mcErrorA", .("Error of method A (% of SD)"), 0, 100, scale = 100)
+                opt$error_b <- num("mcErrorB", .("Error of method B (% of SD)"), 0, 100, scale = 100)
             }
-            if (d == "ecological") { opt$regions <- o$regions; opt$region_size <- o$regionSize
-                                     opt$region_sd <- o$regionSd; opt$context_sd <- o$contextSd }
+            if (d == "ecological") { opt$regions <- num("regions", .("Regions"), 3, 500, TRUE)
+                                     opt$region_size <- num("regionSize", .("People per region"), 10, 100000, TRUE)
+                                     opt$region_sd <- num("regionSd", .("Differences between regions (exposures)"), 0, 3)
+                                     opt$context_sd <- num("contextSd", .("Differences between regions (outcome)"), 0, 3) }
             if (d == "crossover") {
-                if (o$period != 0) opt$period <- o$period
-                if (o$carryover != 0) opt$carryover <- o$carryover
+                opt$period <- num("period", .("Period effect"), -Inf, Inf)
+                opt$carryover <- num("carryover", .("Carryover effect"), -Inf, Inf)
             }
-            opt
+            Filter(Negate(is.null), opt)
         },
 
         .notice = function(html) {
@@ -93,10 +99,10 @@ simStudyClass <- R6::R6Class(
                 return()
             }
             dic <- self$results$dictionary
-            for (nm in planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors, private$.designOptions(ctx)))
+            for (nm in planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$opt))
                 dic$addRow(rowKey = nm, values = list(name = dname(nm, ctx$lang)))
             if (self$options$showDescriptives) {
-                for (r in describe_plan(planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats, private$.designOptions(ctx)), ctx$lang))
+                for (r in describe_plan(planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats, ctx$opt), ctx$lang))
                     self$results$descriptives$addRow(rowKey = r$key, values = list(variable = r$variable, level = r$level))
             }
             if (self$options$showDag) private$.initDag(ctx)
@@ -161,7 +167,7 @@ simStudyClass <- R6::R6Class(
             ctx <- private$.context()
             if (!is.null(ctx$error)) return()
             o <- self$options
-            opt <- utils::modifyList(design_defaults(ctx$design, ctx$oc, ctx$sc), private$.designOptions(ctx))
+            opt <- utils::modifyList(design_defaults(ctx$design, ctx$oc, ctx$sc), ctx$opt)
             # The study is drawn again only when something built from the data
             # was cleared (an option it depends on changed) or a button asks
             # for the data; showing the key, the DAG or a table that is already
@@ -173,7 +179,7 @@ simStudyClass <- R6::R6Class(
                 private$.wants("openState", "openData") || private$.wants("csvState", "exportCsv")
             if (needData) {
                 res <- tryCatch(simulate_study(ctx$sc, ctx$oc$id, ctx$design, o$n, ctx$factors, seed = o$seed,
-                                               student_key = o$studentKey, options = private$.designOptions(ctx),
+                                               student_key = o$studentKey, options = ctx$opt,
                                                missing = o$missing / 100, missing_mech = o$missingMech, lang = ctx$lang,
                                                key = FALSE, categorize = ctx$cats, noise = o$noiseVars, entry = o$entryErrors / 100),
                                 error = function(e) e)
@@ -186,7 +192,7 @@ simStudyClass <- R6::R6Class(
                 private$.fillDictionary(res)
                 if (o$showDescriptives) {
                     tbl <- self$results$descriptives
-                    for (r in describe_data(res$data_raw, planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats, private$.designOptions(ctx)), ctx$lang))
+                    for (r in describe_data(res$data_raw, planned_kinds(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$lang, ctx$cats, ctx$opt), ctx$lang))
                         if (r$key %in% tbl$rowKeys)
                             tbl$setRow(rowKey = r$key, values = list(level = dlevel(r$level, ctx$lang), stat = r$stat, missing = r$missing))
                 }
@@ -276,6 +282,8 @@ simStudyClass <- R6::R6Class(
                 sprintf("<b>%s</b>: %s", .("Outcome"), htmlEscape(tr_text(ctx$oc$label, l))),
                 sprintf("<b>%s</b>: %s, %s", .("Design"), private$.designTitle(ctx$design),
                         jmvcore::format(.("{n} rows"), n = num(nrow(res$data)))))
+            dot <- design_options_text(ctx$design, res$options, ctx$oc, self, l)
+            if (nzchar(dot)) li <- c(li, dot)
             if (!is.null(f$controls)) li <- c(li, jmvcore::format(.("{cases} cases and {controls} controls"), cases = num(f$cases), controls = num(f$controls)))
             if (!is.null(f$source_population)) li <- c(li, jmvcore::format(.("cases found among {n} people of the source population (risk {risk}%)"),
                                                                   n = num(f$source_population), risk = num(100 * f$risk_in_source, 2)))
@@ -485,6 +493,38 @@ dag_render <- function(image) {
     if (is.null(st)) return(FALSE)
     print(dag_plot(st$g, st$w, st$h, st$key, st$caption))
     TRUE
+}
+
+# The design options a study used (the scenario's unless typed in the panel),
+# for the summary: "Follow-up: 10 years; Loss to follow-up: 2% per year"
+design_options_text <- function(design, opt, oc, self, lang = "en") {
+    u <- unit_text(oc$time_units, lang)
+    f <- function(x) base::format(signif(x, 4))
+    it <- c(
+        if (!is.null(opt$followup) && design %in% c("cohort", "prognosis", "rct", "nested_cc", "case_cohort", "cluster_rct", "factorial"))
+            c(sprintf("%s: %s %s", .("Follow-up"), f(opt$followup), u), sprintf("%s: %s%% %s", .("Loss to follow-up"), f(100 * opt$loss), per_unit_text(oc$time_units, lang))),
+        if (!is.null(opt$accrual) && opt$accrual > 0 && design %in% c("cohort", "prognosis", "nested_cc", "case_cohort"))
+            sprintf("%s: %s %s", .("Recruitment period"), f(opt$accrual), u),
+        if (design == "factorial") sprintf("%s: %s", .("Interaction of the two interventions"), f(opt$interaction %||% 0)),
+        if (design == "longitudinal") sprintf("%s: %s%%", .("Dropout by the last visit (%)"), f(100 * opt$dropout)),
+        if (design == "ecological") c(sprintf("%s: %s", .("Differences between regions (exposures)"), f(opt$region_sd)),
+                                      sprintf("%s: %s", .("Differences between regions (outcome)"), f(opt$context_sd))),
+        if (design == "method_comparison") c(sprintf("%s: %s", .("Bias of method B"), f(opt$bias)), sprintf("%s: %s", .("Proportional bias of method B (slope)"), f(opt$slope)),
+                                             sprintf("%s: %s", .("Error of method A (% of SD)"), f(100 * opt$error_a)), sprintf("%s: %s", .("Error of method B (% of SD)"), f(100 * opt$error_b))),
+        if (design == "crossover") c(sprintf("%s: %s", .("Period effect"), f(opt$period)), sprintf("%s: %s", .("Carryover effect"), f(opt$carryover))))
+    paste(it, collapse = "; ")
+}
+
+# A design option typed in a text box: NULL when empty (the scenario's value),
+# else a number in [lo, hi] (a decimal comma is accepted) divided by `scale`
+num_opt <- function(self, name, title, lo, hi, int = FALSE, scale = 1) {
+    x <- self$options[[name]]
+    if (is.null(x) || (is.character(x) && !nzchar(trimws(x)))) return(NULL)
+    v <- suppressWarnings(as.numeric(gsub(",", ".", trimws(as.character(x)))))
+    if (length(v) != 1 || is.na(v) || v < lo || v > hi || (int && v != round(v)))
+        stop(jmvcore::format(.("{title}: write a number between {lo} and {hi}, or leave it empty for the scenario's value."),
+                             title = title, lo = if (is.finite(lo)) lo else "-", hi = if (is.finite(hi)) hi else "-"), call. = FALSE)
+    v / scale
 }
 
 # `self` is the calling analysis: .() translates through it

@@ -16,9 +16,9 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "cohort"),
             measured = list(),
             n = 500,
-            ccRatio = 1,
-            followup = 0,
-            loss = 2,
+            ccRatio = "",
+            followup = "",
+            loss = "",
             seed = 1,
             studentKey = "",
             showExpected = FALSE,
@@ -118,24 +118,18 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=500,
                 min=10,
                 max=200000)
-            private$..ccRatio <- jmvcore::OptionInteger$new(
+            private$..ccRatio <- jmvcore::OptionString$new(
                 "ccRatio",
                 ccRatio,
-                default=1,
-                min=1,
-                max=5)
-            private$..followup <- jmvcore::OptionNumber$new(
+                default="")
+            private$..followup <- jmvcore::OptionString$new(
                 "followup",
                 followup,
-                default=0,
-                min=0,
-                max=50)
-            private$..loss <- jmvcore::OptionNumber$new(
+                default="")
+            private$..loss <- jmvcore::OptionString$new(
                 "loss",
                 loss,
-                default=2,
-                min=0,
-                max=50)
+                default="")
             private$..seed <- jmvcore::OptionInteger$new(
                 "seed",
                 seed,
@@ -494,9 +488,10 @@ simCompareBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   sample)
 #' @param n number of participants (cases plus controls in case-control
 #'   designs)
-#' @param ccRatio .
-#' @param followup 0 uses the scenario's default
-#' @param loss .
+#' @param ccRatio case-control designs, controls per case (1 to 10); empty:
+#'   the scenario's value
+#' @param followup in the outcome's time units; empty: the scenario's value
+#' @param loss empty: the scenario's value (2\% by default)
 #' @param seed .
 #' @param studentKey any text (e.g. a student ID); each key gives a different
 #'   dataset (capitals and surrounding spaces are ignored)
@@ -537,9 +532,9 @@ simCompare <- function(
                 "cohort"),
     measured = list(),
     n = 500,
-    ccRatio = 1,
-    followup = 0,
-    loss = 2,
+    ccRatio = "",
+    followup = "",
+    loss = "",
     seed = 1,
     studentKey = "",
     showExpected = FALSE,

@@ -15,28 +15,28 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             secondary = FALSE,
             measured = list(),
             n = 500,
-            ccRatio = 1,
-            followup = 0,
-            loss = 2,
-            accrual = 0,
-            subcohort = 10,
+            ccRatio = "",
+            followup = "",
+            loss = "",
+            accrual = "",
+            subcohort = "",
             looks = 0,
-            clusters = 20,
-            icc = 0.05,
-            interaction = 0,
-            visits = 4,
-            dropout = 20,
-            regions = 30,
-            regionSize = 2000,
-            regionSd = 0.5,
-            contextSd = 0.2,
-            threshold = 0,
-            mcBias = 0,
-            mcSlope = 1,
-            mcErrorA = 0,
-            mcErrorB = 0,
-            period = 0,
-            carryover = 0,
+            clusters = "",
+            icc = "",
+            interaction = "",
+            visits = "",
+            dropout = "",
+            regions = "",
+            regionSize = "",
+            regionSd = "",
+            contextSd = "",
+            threshold = "",
+            mcBias = "",
+            mcSlope = "",
+            mcErrorA = "",
+            mcErrorB = "",
+            period = "",
+            carryover = "",
             missing = 0,
             missingMech = "mcar",
             reliability = 1,
@@ -171,130 +171,96 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=500,
                 min=10,
                 max=200000)
-            private$..ccRatio <- jmvcore::OptionInteger$new(
+            private$..ccRatio <- jmvcore::OptionString$new(
                 "ccRatio",
                 ccRatio,
-                default=1,
-                min=1,
-                max=5)
-            private$..followup <- jmvcore::OptionNumber$new(
+                default="")
+            private$..followup <- jmvcore::OptionString$new(
                 "followup",
                 followup,
-                default=0,
-                min=0,
-                max=50)
-            private$..loss <- jmvcore::OptionNumber$new(
+                default="")
+            private$..loss <- jmvcore::OptionString$new(
                 "loss",
                 loss,
-                default=2,
-                min=0,
-                max=50)
-            private$..accrual <- jmvcore::OptionNumber$new(
+                default="")
+            private$..accrual <- jmvcore::OptionString$new(
                 "accrual",
                 accrual,
-                default=0,
-                min=0,
-                max=20)
-            private$..subcohort <- jmvcore::OptionNumber$new(
+                default="")
+            private$..subcohort <- jmvcore::OptionString$new(
                 "subcohort",
                 subcohort,
-                default=10,
-                min=0.1,
-                max=90)
+                default="")
             private$..looks <- jmvcore::OptionInteger$new(
                 "looks",
                 looks,
                 default=0,
                 min=0,
                 max=5)
-            private$..clusters <- jmvcore::OptionInteger$new(
+            private$..clusters <- jmvcore::OptionString$new(
                 "clusters",
                 clusters,
-                default=20,
-                min=4,
-                max=1000)
-            private$..icc <- jmvcore::OptionNumber$new(
+                default="")
+            private$..icc <- jmvcore::OptionString$new(
                 "icc",
                 icc,
-                default=0.05,
-                min=0,
-                max=0.9)
-            private$..interaction <- jmvcore::OptionNumber$new(
+                default="")
+            private$..interaction <- jmvcore::OptionString$new(
                 "interaction",
                 interaction,
-                default=0)
-            private$..visits <- jmvcore::OptionInteger$new(
+                default="")
+            private$..visits <- jmvcore::OptionString$new(
                 "visits",
                 visits,
-                default=4,
-                min=1,
-                max=12)
-            private$..dropout <- jmvcore::OptionNumber$new(
+                default="")
+            private$..dropout <- jmvcore::OptionString$new(
                 "dropout",
                 dropout,
-                default=20,
-                min=0,
-                max=80)
-            private$..regions <- jmvcore::OptionInteger$new(
+                default="")
+            private$..regions <- jmvcore::OptionString$new(
                 "regions",
                 regions,
-                default=30,
-                min=3,
-                max=500)
-            private$..regionSize <- jmvcore::OptionInteger$new(
+                default="")
+            private$..regionSize <- jmvcore::OptionString$new(
                 "regionSize",
                 regionSize,
-                default=2000,
-                min=10,
-                max=100000)
-            private$..regionSd <- jmvcore::OptionNumber$new(
+                default="")
+            private$..regionSd <- jmvcore::OptionString$new(
                 "regionSd",
                 regionSd,
-                default=0.5,
-                min=0,
-                max=2)
-            private$..contextSd <- jmvcore::OptionNumber$new(
+                default="")
+            private$..contextSd <- jmvcore::OptionString$new(
                 "contextSd",
                 contextSd,
-                default=0.2,
-                min=0,
-                max=2)
-            private$..threshold <- jmvcore::OptionNumber$new(
+                default="")
+            private$..threshold <- jmvcore::OptionString$new(
                 "threshold",
                 threshold,
-                default=0,
-                min=0,
-                max=95)
-            private$..mcBias <- jmvcore::OptionNumber$new(
+                default="")
+            private$..mcBias <- jmvcore::OptionString$new(
                 "mcBias",
                 mcBias,
-                default=0)
-            private$..mcSlope <- jmvcore::OptionNumber$new(
+                default="")
+            private$..mcSlope <- jmvcore::OptionString$new(
                 "mcSlope",
                 mcSlope,
-                default=1,
-                min=0.5,
-                max=2)
-            private$..mcErrorA <- jmvcore::OptionNumber$new(
+                default="")
+            private$..mcErrorA <- jmvcore::OptionString$new(
                 "mcErrorA",
                 mcErrorA,
-                default=0,
-                min=0,
-                max=100)
-            private$..mcErrorB <- jmvcore::OptionNumber$new(
+                default="")
+            private$..mcErrorB <- jmvcore::OptionString$new(
                 "mcErrorB",
                 mcErrorB,
-                default=0,
-                min=0,
-                max=100)
-            private$..period <- jmvcore::OptionNumber$new(
+                default="")
+            private$..period <- jmvcore::OptionString$new(
                 "period",
                 period,
-                default=0)
-            private$..carryover <- jmvcore::OptionNumber$new(
+                default="")
+            private$..carryover <- jmvcore::OptionString$new(
                 "carryover",
                 carryover,
-                default=0)
+                default="")
             private$..missing <- jmvcore::OptionNumber$new(
                 "missing",
                 missing,
@@ -1231,41 +1197,49 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   sample)
 #' @param n number of participants (cases plus controls in case-control
 #'   designs)
-#' @param ccRatio .
-#' @param followup 0 uses the scenario's default
-#' @param loss .
-#' @param accrual 0 uses the design's default (staggered entry for prognosis)
+#' @param ccRatio case-control designs, controls per case (1 to 10); empty:
+#'   the scenario's value
+#' @param followup in the outcome's time units; empty: the scenario's value
+#' @param loss empty: the scenario's value (2\% by default)
+#' @param accrual staggered entry over this time; empty: the design's value
+#'   (prognosis 2)
 #' @param subcohort case-cohort design, the random subcohort as a percentage
-#'   of the cohort
+#'   of the cohort; empty: the scenario's value (10\%)
 #' @param looks randomised trial, number of equally spaced analyses (2 to 5; 0
 #'   or 1 = none); adds a look column
-#' @param clusters cluster randomised trial, number of clusters (randomised by
-#'   cluster)
-#' @param icc .
+#' @param clusters cluster randomised trial, number of clusters (4 to 1000);
+#'   empty: the scenario's value (20)
+#' @param icc cluster randomised trial (0 to 0.9); empty: the scenario's value
+#'   (0.05)
 #' @param interaction 2x2 factorial trial, added to the linear predictor of
-#'   those given both (beta, or log OR/HR/RR)
-#' @param visits longitudinal trial, number of visits after baseline (the last
-#'   one is the outcome's time)
-#' @param dropout longitudinal trial, participants missing the last visit;
-#'   dropout depends on the last value seen (missing at random)
-#' @param regions ecological study, number of regions (rows); the sample size
-#'   is not used
-#' @param regionSize .
+#'   those given both (beta, or log OR/HR/RR); empty: the scenario's value (0)
+#' @param visits longitudinal trial, visits after baseline (1 to 12); empty:
+#'   the scenario's value (4)
+#' @param dropout longitudinal trial, participants missing the last visit
+#'   (missing at random); empty: the scenario's value (20\%)
+#' @param regions ecological study, number of regions (3 to 500); empty: the
+#'   scenario's value (30)
+#' @param regionSize ecological study (10 to 100000); empty: the scenario's
+#'   value (2000)
 #' @param regionSd ecological study, SD of the regions' shifts of the
-#'   variables (latent standard-normal scale)
+#'   variables (latent scale, 0 to 3); empty: the scenario's value (0.5)
 #' @param contextSd ecological study, SD of an unexplained region effect on
-#'   the outcome (linear predictor scale)
-#' @param threshold before-after study, enrol only people whose value before
-#'   is above this percentile (0 = everybody)
+#'   the outcome (0 to 3); empty: the scenario's value (0.2)
+#' @param threshold before-after study, enrol only people above this
+#'   percentile of the value before (0 to 95); empty: the scenario's value (0 =
+#'   everybody)
 #' @param mcBias method comparison, constant difference B - A in the outcome's
-#'   units (0 = scenario's value)
-#' @param mcSlope method comparison, B per unit of the true value (1 =
-#'   scenario's value)
-#' @param mcErrorA method comparison, random error of A as a percentage of the
-#'   outcome's SD (0 = scenario's value)
-#' @param mcErrorB .
-#' @param period .
-#' @param carryover .
+#'   units; empty: the scenario's value
+#' @param mcSlope method comparison, B per unit of the true value (0.2 to 5);
+#'   empty: the scenario's value
+#' @param mcErrorA method comparison, random error of A (0 to 100); empty: the
+#'   scenario's value
+#' @param mcErrorB method comparison, random error of B (0 to 100); empty: the
+#'   scenario's value
+#' @param period crossover trial, change in the second period; empty: the
+#'   scenario's value
+#' @param carryover crossover trial, effect left by the first treatment;
+#'   empty: the scenario's value
 #' @param missing .
 #' @param missingMech .
 #' @param reliability share of the observed variance that is true variance (1
@@ -1324,28 +1298,28 @@ simStudy <- function(
     secondary = FALSE,
     measured = list(),
     n = 500,
-    ccRatio = 1,
-    followup = 0,
-    loss = 2,
-    accrual = 0,
-    subcohort = 10,
+    ccRatio = "",
+    followup = "",
+    loss = "",
+    accrual = "",
+    subcohort = "",
     looks = 0,
-    clusters = 20,
-    icc = 0.05,
-    interaction = 0,
-    visits = 4,
-    dropout = 20,
-    regions = 30,
-    regionSize = 2000,
-    regionSd = 0.5,
-    contextSd = 0.2,
-    threshold = 0,
-    mcBias = 0,
-    mcSlope = 1,
-    mcErrorA = 0,
-    mcErrorB = 0,
-    period = 0,
-    carryover = 0,
+    clusters = "",
+    icc = "",
+    interaction = "",
+    visits = "",
+    dropout = "",
+    regions = "",
+    regionSize = "",
+    regionSd = "",
+    contextSd = "",
+    threshold = "",
+    mcBias = "",
+    mcSlope = "",
+    mcErrorA = "",
+    mcErrorB = "",
+    period = "",
+    carryover = "",
     missing = 0,
     missingMech = "mcar",
     reliability = 1,

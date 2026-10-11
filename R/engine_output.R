@@ -89,6 +89,10 @@ gtext <- function(key, lang) tr_text(GENERIC[[key]], lang)
 TIME_UNITS <- list(years = list(en = "years", es = "años", ca = "anys"), months = list(en = "months", es = "meses", ca = "mesos"),
                    weeks = list(en = "weeks", es = "semanas", ca = "setmanes"), days = list(en = "days", es = "días", ca = "dies"))
 unit_text <- function(u, lang) if (is.null(TIME_UNITS[[u %||% "years"]])) u else tr_text(TIME_UNITS[[u %||% "years"]], lang)
+# "per year" in the student's language, for rates
+TIME_PER <- list(years = list(en = "per year", es = "al año", ca = "l'any"), months = list(en = "per month", es = "al mes", ca = "al mes"),
+                 weeks = list(en = "per week", es = "por semana", ca = "per setmana"), days = list(en = "per day", es = "al día", ca = "al dia"))
+per_unit_text <- function(u, lang) if (is.null(TIME_PER[[u %||% "years"]])) paste("/", u) else tr_text(TIME_PER[[u %||% "years"]], lang)
 
 with_desc <- function(x, desc) { attr(x, "jmv-desc") <- desc; x }
 

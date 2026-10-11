@@ -152,26 +152,27 @@ options:
 
     - name: ccRatio
       title: Controls per case
-      type: Integer
-      default: 1
-      min: 1
-      max: 5
+      type: String
+      default: ""
+      description:
+          R: >
+              case-control designs, controls per case (1 to 10); empty: the scenario's value
 
     - name: followup
-      title: Follow-up (years)
-      type: Number
-      default: 0
-      min: 0
-      max: 50
+      title: Follow-up
+      type: String
+      default: ""
       description:
-          R: 0 uses the scenario's default
+          R: >
+              in the outcome's time units; empty: the scenario's value
 
     - name: loss
-      title: Loss to follow-up (% per year)
-      type: Number
-      default: 2
-      min: 0
-      max: 50
+      title: Loss to follow-up (% per time unit)
+      type: String
+      default: ""
+      description:
+          R: >
+              empty: the scenario's value (2% by default)
 
     - name: seed
       title: Seed

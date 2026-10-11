@@ -201,44 +201,43 @@ options:
 
     - name: ccRatio
       title: Controls per case
-      type: Integer
-      default: 1
-      min: 1
-      max: 5
+      type: String
+      default: ""
+      description:
+          R: >
+              case-control designs, controls per case (1 to 10); empty: the scenario's value
 
     - name: followup
-      title: Follow-up (years)
-      type: Number
-      default: 0
-      min: 0
-      max: 50
+      title: Follow-up
+      type: String
+      default: ""
       description:
-          R: 0 uses the scenario's default
+          R: >
+              in the outcome's time units; empty: the scenario's value
 
     - name: loss
-      title: Loss to follow-up (% per year)
-      type: Number
-      default: 2
-      min: 0
-      max: 50
+      title: Loss to follow-up (% per time unit)
+      type: String
+      default: ""
+      description:
+          R: >
+              empty: the scenario's value (2% by default)
 
     - name: accrual
-      title: Recruitment period (years)
-      type: Number
-      default: 0
-      min: 0
-      max: 20
+      title: Recruitment period
+      type: String
+      default: ""
       description:
-          R: 0 uses the design's default (staggered entry for prognosis)
+          R: >
+              staggered entry over this time; empty: the design's value (prognosis 2)
 
     - name: subcohort
       title: Subcohort (% of the cohort)
-      type: Number
-      default: 10
-      min: 0.1
-      max: 90
+      type: String
+      default: ""
       description:
-          R: case-cohort design, the random subcohort as a percentage of the cohort
+          R: >
+              case-cohort design, the random subcohort as a percentage of the cohort; empty: the scenario's value (10%)
 
     - name: looks
       title: Interim looks
@@ -251,129 +250,131 @@ options:
 
     - name: clusters
       title: Clusters
-      type: Integer
-      default: 20
-      min: 4
-      max: 1000
+      type: String
+      default: ""
       description:
-          R: cluster randomised trial, number of clusters (randomised by cluster)
+          R: >
+              cluster randomised trial, number of clusters (4 to 1000); empty: the scenario's value (20)
 
     - name: icc
       title: Intraclass correlation
-      type: Number
-      default: 0.05
-      min: 0
-      max: 0.9
+      type: String
+      default: ""
+      description:
+          R: >
+              cluster randomised trial (0 to 0.9); empty: the scenario's value (0.05)
 
     - name: interaction
       title: Interaction of the two interventions
-      type: Number
-      default: 0
+      type: String
+      default: ""
       description:
-          R: 2x2 factorial trial, added to the linear predictor of those given both (beta, or log OR/HR/RR)
+          R: >
+              2x2 factorial trial, added to the linear predictor of those given both (beta, or log OR/HR/RR); empty: the scenario's value (0)
 
     - name: visits
       title: Follow-up visits
-      type: Integer
-      default: 4
-      min: 1
-      max: 12
+      type: String
+      default: ""
       description:
-          R: longitudinal trial, number of visits after baseline (the last one is the outcome's time)
+          R: >
+              longitudinal trial, visits after baseline (1 to 12); empty: the scenario's value (4)
 
     - name: dropout
       title: Dropout by the last visit (%)
-      type: Number
-      default: 20
-      min: 0
-      max: 80
+      type: String
+      default: ""
       description:
-          R: longitudinal trial, participants missing the last visit; dropout depends on the last value seen (missing at random)
+          R: >
+              longitudinal trial, participants missing the last visit (missing at random); empty: the scenario's value (20%)
 
     - name: regions
       title: Regions
-      type: Integer
-      default: 30
-      min: 3
-      max: 500
+      type: String
+      default: ""
       description:
-          R: ecological study, number of regions (rows); the sample size is not used
+          R: >
+              ecological study, number of regions (3 to 500); empty: the scenario's value (30)
 
     - name: regionSize
       title: People per region
-      type: Integer
-      default: 2000
-      min: 10
-      max: 100000
+      type: String
+      default: ""
+      description:
+          R: >
+              ecological study (10 to 100000); empty: the scenario's value (2000)
 
     - name: regionSd
       title: Differences between regions (exposures)
-      type: Number
-      default: 0.5
-      min: 0
-      max: 2
+      type: String
+      default: ""
       description:
-          R: ecological study, SD of the regions' shifts of the variables (latent standard-normal scale)
+          R: >
+              ecological study, SD of the regions' shifts of the variables (latent scale, 0 to 3); empty: the scenario's value (0.5)
 
     - name: contextSd
       title: Differences between regions (outcome)
-      type: Number
-      default: 0.2
-      min: 0
-      max: 2
+      type: String
+      default: ""
       description:
-          R: ecological study, SD of an unexplained region effect on the outcome (linear predictor scale)
+          R: >
+              ecological study, SD of an unexplained region effect on the outcome (0 to 3); empty: the scenario's value (0.2)
 
     - name: threshold
       title: Enrol only above percentile
-      type: Number
-      default: 0
-      min: 0
-      max: 95
+      type: String
+      default: ""
       description:
-          R: before-after study, enrol only people whose value before is above this percentile (0 = everybody)
+          R: >
+              before-after study, enrol only people above this percentile of the value before (0 to 95); empty: the scenario's value (0 = everybody)
 
     - name: mcBias
       title: Bias of method B
-      type: Number
-      default: 0
+      type: String
+      default: ""
       description:
-          R: method comparison, constant difference B - A in the outcome's units (0 = scenario's value)
+          R: >
+              method comparison, constant difference B - A in the outcome's units; empty: the scenario's value
 
     - name: mcSlope
       title: Proportional bias of method B (slope)
-      type: Number
-      default: 1
-      min: 0.5
-      max: 2
+      type: String
+      default: ""
       description:
-          R: method comparison, B per unit of the true value (1 = scenario's value)
+          R: >
+              method comparison, B per unit of the true value (0.2 to 5); empty: the scenario's value
 
     - name: mcErrorA
       title: Error of method A (% of SD)
-      type: Number
-      default: 0
-      min: 0
-      max: 100
+      type: String
+      default: ""
       description:
-          R: method comparison, random error of A as a percentage of the outcome's SD (0 = scenario's value)
+          R: >
+              method comparison, random error of A (0 to 100); empty: the scenario's value
 
     - name: mcErrorB
       title: Error of method B (% of SD)
-      type: Number
-      default: 0
-      min: 0
-      max: 100
+      type: String
+      default: ""
+      description:
+          R: >
+              method comparison, random error of B (0 to 100); empty: the scenario's value
 
     - name: period
       title: Period effect
-      type: Number
-      default: 0
+      type: String
+      default: ""
+      description:
+          R: >
+              crossover trial, change in the second period; empty: the scenario's value
 
     - name: carryover
       title: Carryover effect
-      type: Number
-      default: 0
+      type: String
+      default: ""
+      description:
+          R: >
+              crossover trial, effect left by the first treatment; empty: the scenario's value
 
     - name: missing
       title: Missing values (%)

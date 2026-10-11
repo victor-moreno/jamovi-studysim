@@ -26,8 +26,13 @@ simCompareClass <- R6::R6Class(
                     stop(jmvcore::format(.("Tick at least one design that fits this outcome: {list}."),
                                          list = paste(vapply(ok, design_title, "", self), collapse = ", ")), call. = FALSE)
                 m <- parse_measured(o$measured, sc, self)
+                # empty text boxes keep the scenario's values; a mistyped number stops here, as a notice
+                opts <- Filter(Negate(is.null), list(
+                    ratio = num_opt(self, "ccRatio", .("Controls per case"), 1, 10, TRUE),
+                    loss = num_opt(self, "loss", .("Loss to follow-up (% per time unit)"), 0, 50, scale = 100),
+                    followup = num_opt(self, "followup", .("Follow-up"), 0.01, 100)))
                 list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], designs = designs, factors = m$factors, cats = m$cats,
-                     lang = private$.lang(), skipped = setdiff(unlist(o$designs), ok))
+                     lang = private$.lang(), skipped = setdiff(unlist(o$designs), ok), opts = opts)
             }, error = function(e) list(error = conditionMessage(e)))
             private$.ctx <- ctx
             ctx
@@ -90,8 +95,7 @@ simCompareClass <- R6::R6Class(
             if (length(ctx$skipped))
                 private$.notice(sprintf("<p>%s</p>", htmlEscape(jmvcore::format(.("Skipped (they do not fit this outcome): {list}."),
                     list = paste(vapply(ctx$skipped, design_title, "", self), collapse = ", ")))))
-            opts <- list(ratio = o$ccRatio, loss = o$loss / 100)
-            if (o$followup > 0) opts$followup <- o$followup
+            opts <- ctx$opts
             titles <- vapply(ctx$designs, design_title, "", self)
             res <- tryCatch(compare_designs(ctx$sc, ctx$oc$id, ctx$designs, o$n, ctx$factors, seed = o$seed,
                                             student_key = o$studentKey, options = opts, lang = ctx$lang,

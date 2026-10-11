@@ -82,25 +82,27 @@ children:
       - type: LayoutBox
         margin: large
         children:
+          - type: Label
+            label: Empty boxes keep the scenario's values (listed under Study)
           - type: TextBox
             name: ccRatio
-            format: number
+            format: string
             enable: (design:case_control || design:matched_cc || design:nested_cc)
           - type: TextBox
             name: followup
-            format: number
+            format: string
             enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort || design:cluster_rct || design:factorial)
           - type: TextBox
             name: loss
-            format: number
+            format: string
             enable: (design:cohort || design:prognosis || design:rct || design:nested_cc || design:case_cohort || design:cluster_rct || design:factorial)
           - type: TextBox
             name: accrual
-            format: number
-            enable: (design:cohort || design:prognosis)
+            format: string
+            enable: (design:cohort || design:prognosis || design:nested_cc || design:case_cohort)
           - type: TextBox
             name: subcohort
-            format: number
+            format: string
             enable: (design:case_cohort)
           - type: TextBox
             name: looks
@@ -108,67 +110,67 @@ children:
             enable: (design:rct)
           - type: TextBox
             name: clusters
-            format: number
+            format: string
             enable: (design:cluster_rct)
           - type: TextBox
             name: icc
-            format: number
+            format: string
             enable: (design:cluster_rct)
           - type: TextBox
             name: interaction
-            format: number
+            format: string
             enable: (design:factorial)
           - type: TextBox
             name: visits
-            format: number
+            format: string
             enable: (design:longitudinal)
           - type: TextBox
             name: dropout
-            format: number
+            format: string
             enable: (design:longitudinal)
           - type: TextBox
             name: regions
-            format: number
+            format: string
             enable: (design:ecological)
           - type: TextBox
             name: regionSize
-            format: number
+            format: string
             enable: (design:ecological)
           - type: TextBox
             name: regionSd
-            format: number
+            format: string
             enable: (design:ecological)
           - type: TextBox
             name: contextSd
-            format: number
+            format: string
             enable: (design:ecological)
           - type: TextBox
             name: threshold
-            format: number
+            format: string
             enable: (design:pre_post)
           - type: TextBox
             name: mcBias
-            format: number
+            format: string
             enable: (design:method_comparison)
           - type: TextBox
             name: mcSlope
-            format: number
+            format: string
             enable: (design:method_comparison)
           - type: TextBox
             name: mcErrorA
-            format: number
+            format: string
             enable: (design:method_comparison)
           - type: TextBox
             name: mcErrorB
-            format: number
+            format: string
             enable: (design:method_comparison)
           - type: TextBox
             name: period
-            format: number
+            format: string
             enable: (design:crossover)
           - type: TextBox
             name: carryover
-            format: number
+            format: string
             enable: (design:crossover)
   - type: CollapseBox
     label: Realism

@@ -32,7 +32,7 @@ test_that("simCompare runs headlessly", {
 })
 
 test_that("Compare designs draws one causal diagram with effect sizes", {
-  r <- simCompare(data = data.frame(), scenario = "isis2", outcome = "vascular_death", designs = c("factorial", "rct"), n = 300)
+  r <- simCompare(data = data.frame(), scenario = "isis2", outcome = "vascular_death", designs = c("factorial", "rct"), n = 300, dagValues = TRUE)
   st <- r$dag$state
   expect_true(r$dag$visible)
   expect_true(st$key)

@@ -58,3 +58,14 @@ test_that("the panel catalogue carries the designs computed in R", {
   back <- library_from_json(library_to_json(library_subset(lib, "colon_adjuvant"), compatible = TRUE))
   expect_equal(nrow(check_library(back)), 0)
 })
+
+test_that("empty design options keep the scenario's values, typed ones override them", {
+  r <- simStudy(data = data.frame(), scenario = "esoph_cancer", design = "case_control", n = 300)
+  expect_match(r$summary$content, "60 cases and 240 controls")
+  r2 <- simStudy(data = data.frame(), scenario = "esoph_cancer", design = "case_control", n = 300, ccRatio = "1")
+  expect_match(r2$summary$content, "150 cases and 150 controls")
+  r3 <- simStudy(data = data.frame(), scenario = "lead_succimer", outcome = "blood_lead", design = "longitudinal", n = 40, dropout = "x")
+  expect_match(r3$notice$content, "Dropout by the last visit \\(%\\): write a number")
+  r4 <- simStudy(data = data.frame(), scenario = "breast_cancer_risk", design = "cohort", n = 200, loss = "1,5")
+  expect_match(r4$summary$content, "Loss to follow-up: 1.5% per year")
+})
