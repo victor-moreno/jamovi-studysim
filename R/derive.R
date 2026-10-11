@@ -101,17 +101,41 @@ derive_scenario <- function(df, outcome, type = c("auto", "binary", "continuous"
     }
     if (type == "event" && is.null(time)) stop("an event outcome needs a time variable", call. = FALSE)
 
-    # marginals
-    vars <- lapply(covs, function(v) derive_variable(df[[v]], v))
+    # numeric codes such as 99 -> missing; variables that do not apply in some
+    # rows (derive_structure.R)
+    rc <- recode_codes(df, covs); df <- rc$df
+    struct <- find_structural(df, covs)
+    # rows where a structural variable does not apply (its `by` variable observed)
+    na_rows <- lapply(struct, function(s) { z <- as.character(df[[s$by]]); !is.na(z) & z %in% s$levels })
+
+    # marginals (a structural variable: from the rows where it applies)
+    vars <- lapply(covs, function(v) derive_variable(if (is.null(struct[[v]])) df[[v]] else df[[v]][!na_rows[[v]]], v))
     names(vars) <- ids[covs]
+    for (v in names(struct)) {
+        s <- struct[[v]]; vv <- vars[[ids[v]]]
+        num <- vv$type %in% c("continuous", "count")
+        # a categorical constant must stay a level of the variable
+        if (!num && (is.na(s$value) || !s$value %in% vv$levels)) {
+            struct[[v]] <- NULL; vars[[ids[v]]] <- derive_variable(df[[v]], v); next
+        }
+        struct[[v]]$otherwise <- if (num) (if (is.na(s$value)) 0 else as.numeric(s$value)) else s$value
+        vars[[ids[v]]]$only_if <- structural_rule(s, ids, vars[[ids[s$by]]]$levels)
+        vars[[ids[v]]]$otherwise <- struct[[v]]$otherwise
+    }
+    na_rows <- na_rows[names(struct)]
+    orders <- find_orders(df, covs)
 
     # latent correlations, pairwise complete
-    codes <- as.data.frame(lapply(covs, function(v) code_of(df[[v]], vars[[ids[v]]])))
+    codes <- as.data.frame(lapply(covs, function(v) { x <- code_of(df[[v]], vars[[ids[v]]])
+                                                      if (!is.null(na_rows[[v]])) x[na_rows[[v]]] <- NA; x }))
     names(codes) <- ids[covs]
+    # a structural pair is a rule, not a correlation
+    rule_pair <- function(a, b) any(vapply(names(struct), function(v) setequal(c(ids[[v]], ids[[struct[[v]]$by]]), c(a, b)), TRUE))
     z <- with_seed(derive_seed("derive", id), list(z1 = stats::rnorm(10000), z2 = stats::rnorm(10000)))
     cors <- list()
     if (length(covs) > 1) for (i in seq_along(covs)[-length(covs)]) for (j in (i + 1):length(covs)) {
         a <- names(codes)[i]; b <- names(codes)[j]
+        if (rule_pair(a, b)) next
         ok <- stats::complete.cases(codes[, c(a, b)])
         r_obs <- if (sum(ok) > 10) stats::cor(codes[ok, a], codes[ok, b]) else NA
         r_lat <- if (is.na(r_obs) || abs(r_obs) < 0.01) 0 else latent_rho(r_obs, vars[[a]], vars[[b]], z$z1, z$z2)
@@ -130,7 +154,10 @@ derive_scenario <- function(df, outcome, type = c("auto", "binary", "continuous"
     # outcome model on complete cases
     md <- data.frame(lapply(covs, function(v) {
         x <- df[[v]]; vv <- vars[[ids[v]]]
-        if (vv$type %in% c("binary", "nominal", "ordinal")) factor(as.character(x), levels = vv$levels) else as.numeric(x)
+        x <- if (vv$type %in% c("binary", "nominal", "ordinal")) factor(as.character(x), levels = vv$levels) else as.numeric(x)
+        # where it does not apply: the value the scenario writes (no rows lost)
+        if (!is.null(struct[[v]])) x[na_rows[[v]]] <- struct[[v]]$otherwise
+        x
     }))
     names(md) <- ids[covs]
     oid <- ids[outcome]
@@ -240,7 +267,12 @@ derive_scenario <- function(df, outcome, type = c("auto", "binary", "continuous"
             if (missing != "complete") list(complete_case = sig(est$complete_case[i])))),
         correlations = lapply(seq_len(nrow(cors)), function(i) list(pair = c(cors$a[i], cors$b[i]),
             observed = round(cors$observed[i], 3), latent = round(cors$latent[i], 3))))
-    warns <- derive_warnings(df, md, out_cols, type, cc, adj_cc, est, ids[covs], time)
+    warns <- c(structure_messages(rc$codes, struct, na_rows, orders, df),
+               derive_warnings(df, md, out_cols, type, cc, adj_cc, est, ids[covs], time))
+    if (length(rc$codes)) sc$derivation$codes_as_missing <- lapply(rc$codes, function(k) list(value = k$value, rows = k$n))
+    if (length(struct)) sc$derivation$structural <- lapply(stats::setNames(names(struct), ids[names(struct)]), function(v)
+        list(not_applicable_when = sprintf("%s in (%s)", ids[[struct[[v]]$by]], paste(struct[[v]]$levels, collapse = ", ")),
+             rows = sum(na_rows[[v]]), recorded_as = if (is.na(struct[[v]]$value)) "missing" else struct[[v]]$value))
     if (length(warns)) sc$derivation$warnings <- warns
     list(scenario = sc, estimates = est, correlations = cors, type = type, outcome_id = unname(oid),
          ids = ids, complete = sum(cc), rows_model = nrow(md), missing = missing, warnings = warns)

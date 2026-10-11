@@ -42,6 +42,27 @@ mostly in one outcome group (probably recorded after the outcome), when there ar
 fewer than 10 events per coefficient (with a shrinkage factor), when an effect is
 not estimable, and when times look like days or months.
 
+### Values that do not apply
+
+Real datasets record some variables only for some people: the age at first
+oral contraceptive use is blank for women who never used them, the years of use
+are 0, the age at the first smear test is coded 99 when there was none. Before
+estimating anything, *Derive*:
+
+- reads an all-nines value at the top of a variable's range (99, 999), far more
+  frequent than the values just below it, as **missing**;
+- finds variables that are missing, or one constant, in a level of another
+  variable and observed elsewhere (**structural values**). The scenario writes
+  them with `only_if`/`otherwise` (e.g. `only_if: co == "sí"`, `otherwise: 0`),
+  their distribution comes from the people they apply to, their correlations
+  with that variable are left out (it is a rule), and the model gives the other
+  rows the `otherwise` value, so no rows are lost: the effect of the variable is
+  among those it applies to, and the effect of the other variable is at the
+  `otherwise` value;
+- reports pairs of numbers whose order the data never break (start age ≤ end
+  age ≤ age): the scenario cannot keep such an order, so write one from the
+  other with a `formula` or leave one out.
+
 Columns that jamovi read as nominal but hold numbers (integers from a CSV) are
 read as numbers. Try it with
 [chd_sim.csv](screenshots/chd_sim.csv), a simulated cohort.

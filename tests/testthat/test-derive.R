@@ -85,3 +85,30 @@ test_that("Derive warns about a variable recorded only after the outcome", {
   w <- suppressWarnings(derive_scenario(d, "y", "binary", c("x", "after")))$warnings
   expect_true(any(grepl("recorded after the outcome", w)))
 })
+
+test_that("Derive finds codes, structural values and orders", {
+  set.seed(2)
+  n <- 1500
+  d <- data.frame(age = round(runif(n, 25, 60)), user = sample(c("no", "yes"), n, TRUE, prob = c(0.6, 0.4)))
+  d$start <- ifelse(d$user == "yes", round(runif(n, 16, 24)), NA)
+  d$years <- ifelse(d$user == "yes", rpois(n, 6) + 1, 0)
+  d$screen <- sample(c("no", "yes"), n, TRUE)
+  d$age_screen <- ifelse(d$screen == "yes", pmin(d$age, round(runif(n, 20, 50))), 99)
+  d$y <- rbinom(n, 1, plogis(-1 + 0.1 * d$years))
+  r <- suppressWarnings(derive_scenario(d, "y", "binary", c("age", "user", "start", "years", "screen", "age_screen")))
+  v <- r$scenario$variables
+  expect_identical(v$start$only_if, "user == \"yes\"")
+  expect_identical(v$years$only_if, "user == \"yes\"")
+  expect_identical(v$age_screen$only_if, "screen == \"yes\"")
+  expect_equal(v$years$otherwise, 0)
+  expect_identical(r$rows_model, r$complete)
+  expect_true(any(grepl("values 99 read as missing", r$warnings)))
+  expect_true(any(grepl("'age_screen' <= 'age'", r$warnings)))
+  pairs <- apply(r$correlations[c("a", "b")], 1, function(p) paste(sort(p), collapse = "-"))
+  expect_false(any(c("start-user", "user-years") %in% pairs))
+  sc <- normalize_scenario(r$scenario, strict = TRUE)
+  s <- simulate_study(sc, "y", "cross_sectional", 2000, sc$order, key = FALSE)$data_raw
+  expect_true(all(s$years[s$user == "no"] == 0))
+  b <- exp(coef(glm(y ~ years, binomial, s)))[["years"]]
+  expect_equal(b, exp(0.1), tolerance = 0.05)
+})
