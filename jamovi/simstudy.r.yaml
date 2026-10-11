@@ -12,7 +12,7 @@ items:
                        accrual, subcohort, looks, clusters, icc, interaction, visits, dropout, regions, regionSize, regionSd, contextSd, threshold, mcBias, mcSlope, mcErrorA, mcErrorB,
                        period, carryover, missing, missingMech, reliability, misclass, entryErrors, noiseVars, lodHandling,
                        batches, batchCv, batchConfounded, spectrum, verification, recall, ctrlSelect, collider,
-                       nonadherence, informative, immortal, seed,
+                       nonadherence, informative, immortal, layout, seed,
                        studentKey]
 
     - name: summary

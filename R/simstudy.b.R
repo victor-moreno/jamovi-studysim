@@ -76,6 +76,7 @@ simStudyClass <- R6::R6Class(
                                      opt$region_size <- num("regionSize", .("People per region"), 10, 100000, TRUE)
                                      opt$region_sd <- num("regionSd", .("Differences between regions (exposures)"), 0, 3)
                                      opt$context_sd <- num("contextSd", .("Differences between regions (outcome)"), 0, 3) }
+            if (d %in% c("crossover", "longitudinal")) opt$layout <- o$layout
             if (d == "crossover") {
                 opt$period <- num("period", .("Period effect"), -Inf, Inf)
                 opt$carryover <- num("carryover", .("Carryover effect"), -Inf, Inf)

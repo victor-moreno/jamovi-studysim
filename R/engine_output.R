@@ -21,6 +21,7 @@ GENERIC <- list(
     cases_in = list(en = "Cases in {w} years", es = "Casos en {w} años", ca = "Casos en {w} anys"),
     mean_of = list(en = "Mean", es = "Media", ca = "Mitjana"),
     pct_of = list(en = "% with", es = "% con", ca = "% amb"),
+    visit_word = list(en = "visit", es = "visita", ca = "visita"),
     visit = list(en = "Visit (0 = baseline, before treatment)", es = "Visita (0 = basal, antes del tratamiento)", ca = "Visita (0 = basal, abans del tractament)"),
     cluster = list(en = "Cluster (unit of randomisation)", es = "Conglomerado (unidad de aleatorización)", ca = "Conglomerat (unitat d'aleatorització)"),
     look = list(en = "First interim look that includes the participant", es = "Primer análisis intermedio que incluye al participante",
@@ -293,6 +294,9 @@ apply_missing <- function(df, cols, pct, mech, seed, driver = NULL, unit = df$id
 planned_columns <- function(sc, oc, design, factors, opt = list()) {
     if (design == "ecological")
         return(c("region", "population", oc$id, unlist(lapply(intersect(sc$order, factors), function(v) eco_cols(sc, v)))))
+    if (isTRUE(opt$layout == "wide") && design %in% c("crossover", "longitudinal"))
+        return(c("id", if (design == "crossover") "sequence" else trial_iv(sc, oc)$id, wide_outcome_columns(sc, oc, design, opt),
+                 intersect(sc$order, factors), noise_names(opt$noise %||% 0)))
     iv <- if (design %in% c("rct", "crossover", "cluster_rct", "longitudinal")) trial_iv(sc, oc)$id
           else if (design == "factorial") names(factorial_ivs(sc, oc)) else character()
     looks <- design == "rct" && (opt$looks %||% 0) >= 2 && oc$type != "event"
@@ -349,6 +353,7 @@ planned_kinds <- function(sc, oc, design, factors, lang = "en", categorize = lis
         }
         else if (grepl("^extra_[0-9]+$", nm)) { if (as.integer(sub("extra_", "", nm)) %% 2 == 1) "cont" else c("no", "yes") }
         else if (nm == "time" || nm %in% unlist(lapply(oc$markers, marker_cols)) || nm %in% paste0(oc$id, c("_before", "_a", "_b"))) "cont"
+        else if (design %in% c("crossover", "longitudinal") && nm %in% wide_outcome_columns(sc, oc, design, opt)) "cont"
         else if (nm == oc$id) {
             if ("time" %in% cols) { if (!is.null(oc$competing) && design != "case_cohort") c("0", "1", "2") else c("0", "1") }
             else if (oc$type %in% c("binary", "event")) oc$levels else "cont"
@@ -514,4 +519,40 @@ cat_rows <- function(v, spec, lang = "en", sc = NULL) {
     k <- cat_groups(spec); p <- cat_prefix(spec)
     data.frame(variable = v, contrast = sprintf("%s%d %s %s1", p, 2:k, gtext("vs", lang), p), idx = 2:k,
                stringsAsFactors = FALSE)
+}
+
+# ---- wide layout (crossover and longitudinal trials) ----------------------------
+
+# the outcome's columns in the wide layout: one per treatment (crossover), one
+# per visit (longitudinal), named <outcome>_<level> or <outcome>_v<visit>
+wide_outcome_columns <- function(sc, oc, design, opt) {
+    if (design == "crossover") return(paste0(oc$id, "_", trial_iv(sc, oc)$levels))
+    K <- opt$visits %||% design_defaults("longitudinal", oc, sc)$visits
+    paste0(oc$id, "_v", 0:K)
+}
+
+# One row per person instead of one per measurement (jamovi's paired t-test
+# and repeated-measures ANOVA need it). df: a formatted study, engine names.
+to_wide <- function(df, sc, oc, design, opt, lang = "en") {
+    iv <- trial_iv(sc, oc)$id
+    by <- if (design == "crossover") iv else "visit"
+    keys <- if (design == "crossover") trial_iv(sc, oc)$levels else as.character(0:(opt$visits %||% max(df$visit)))
+    drop <- c(by, oc$id, if (design == "crossover") "period")
+    first <- !duplicated(df$id)
+    out <- df[first, setdiff(names(df), drop), drop = FALSE]
+    for (nm in names(out)) attr(out[[nm]], "jmv-desc") <- attr(df[[nm]], "jmv-desc")
+    ydesc <- attr(df[[oc$id]], "jmv-desc")
+    ycols <- wide_outcome_columns(sc, oc, design, opt)
+    for (j in seq_along(keys)) {
+        sel <- as.character(df[[by]]) == keys[j]
+        y <- df[[oc$id]][sel][match(out$id, df$id[sel])]
+        lab <- if (design == "crossover") dlevel(keys[j], lang) else sprintf("%s %s", gtext("visit_word", lang), keys[j])
+        out[[ycols[j]]] <- structure(with_desc(y, sprintf("%s, %s", ydesc, lab)), rename = c(oc$id, if (design == "crossover") keys[j] else paste0("v", keys[j])))
+    }
+    # the outcome's columns right after the design columns
+    lead <- intersect(c("id", "sequence", iv), names(out))
+    out <- out[, c(lead, ycols, setdiff(names(out), c(lead, ycols))), drop = FALSE]
+    for (nm in names(out)) if (is.null(attr(out[[nm]], "jmv-desc"))) attr(out[[nm]], "jmv-desc") <- attr(df[[nm]], "jmv-desc")
+    rownames(out) <- NULL
+    out
 }

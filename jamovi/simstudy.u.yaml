@@ -178,6 +178,9 @@ children:
             name: carryover
             format: string
             enable: (design:crossover)
+          - type: ComboBox
+            name: layout
+            enable: (design:crossover || design:longitudinal)
   - type: CollapseBox
     label: Biases
     collapsed: true

@@ -380,6 +380,20 @@ options:
           R: >
               crossover trial, effect left by the first treatment; empty: the scenario's value
 
+    - name: layout
+      title: Repeated measures
+      type: List
+      options:
+          - name: long
+            title: Long (one row per measurement)
+          - name: wide
+            title: Wide (one row per person)
+      default: long
+      description:
+          R: >
+              crossover and longitudinal trials: long (one row per period or visit, for mixed models) or
+              wide (one row per person, for a paired t-test or repeated-measures ANOVA)
+
     - name: spectrum
       title: Diseased only among the most severe (%)
       type: Number

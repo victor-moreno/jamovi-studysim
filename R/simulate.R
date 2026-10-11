@@ -33,6 +33,7 @@ simulate_study <- function(sc, outcome, design, n, factors = NULL, seed = 1, stu
     df <- apply_missing(df, mcols, missing, missing_mech, derive_seed(seed_eff, "missing"), driver, df$id %||% df$region)
     df <- entry_errors(df, intersect(mcols, names(df)), entry, derive_seed(seed_eff, "entry"))
     res$facts$entry_errors <- attr(df, "entry_errors")
+    if (isTRUE(opt$layout == "wide") && design %in% c("crossover", "longitudinal")) df <- to_wide(df, sc, oc, design, opt, lang)
     if (noise > 0) res$facts$noise <- noise
     ids <- names(df)
     raw <- df   # engine names and the library's levels, for the tables keyed by them

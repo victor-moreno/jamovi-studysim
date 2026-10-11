@@ -37,6 +37,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             mcErrorB = "",
             period = "",
             carryover = "",
+            layout = "long",
             spectrum = 100,
             verification = 100,
             recall = 0,
@@ -273,6 +274,13 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "carryover",
                 carryover,
                 default="")
+            private$..layout <- jmvcore::OptionList$new(
+                "layout",
+                layout,
+                options=list(
+                    "long",
+                    "wide"),
+                default="long")
             private$..spectrum <- jmvcore::OptionNumber$new(
                 "spectrum",
                 spectrum,
@@ -454,6 +462,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..mcErrorB)
             self$.addOption(private$..period)
             self$.addOption(private$..carryover)
+            self$.addOption(private$..layout)
             self$.addOption(private$..spectrum)
             self$.addOption(private$..verification)
             self$.addOption(private$..recall)
@@ -515,6 +524,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         mcErrorB = function() private$..mcErrorB$value,
         period = function() private$..period$value,
         carryover = function() private$..carryover$value,
+        layout = function() private$..layout$value,
         spectrum = function() private$..spectrum$value,
         verification = function() private$..verification$value,
         recall = function() private$..recall$value,
@@ -575,6 +585,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..mcErrorB = NA,
         ..period = NA,
         ..carryover = NA,
+        ..layout = NA,
         ..spectrum = NA,
         ..verification = NA,
         ..recall = NA,
@@ -683,6 +694,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nonadherence",
                     "informative",
                     "immortal",
+                    "layout",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Html$new(
@@ -737,6 +749,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nonadherence",
                     "informative",
                     "immortal",
+                    "layout",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -793,6 +806,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nonadherence",
                     "informative",
                     "immortal",
+                    "layout",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -870,6 +884,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nonadherence",
                     "informative",
                     "immortal",
+                    "layout",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1180,6 +1195,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nonadherence",
                     "informative",
                     "immortal",
+                    "layout",
                     "seed",
                     "studentKey")))
             self$add(jmvcore::Table$new(
@@ -1236,6 +1252,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nonadherence",
                     "informative",
                     "immortal",
+                    "layout",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1297,6 +1314,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nonadherence",
                     "informative",
                     "immortal",
+                    "layout",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1358,6 +1376,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "nonadherence",
                     "informative",
                     "immortal",
+                    "layout",
                     "seed",
                     "studentKey"),
                 columns=list(
@@ -1465,6 +1484,9 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   scenario's value
 #' @param carryover crossover trial, effect left by the first treatment;
 #'   empty: the scenario's value
+#' @param layout crossover and longitudinal trials: long (one row per period
+#'   or visit, for mixed models) or wide (one row per person, for a paired
+#'   t-test or repeated-measures ANOVA)
 #' @param spectrum diagnostic study, the diseased in the study come from this
 #'   most severe share (100 = all): spectrum bias
 #' @param verification diagnostic study, share of the people negative on the
@@ -1570,6 +1592,7 @@ simStudy <- function(
     mcErrorB = "",
     period = "",
     carryover = "",
+    layout = "long",
     spectrum = 100,
     verification = 100,
     recall = 0,
@@ -1639,6 +1662,7 @@ simStudy <- function(
         mcErrorB = mcErrorB,
         period = period,
         carryover = carryover,
+        layout = layout,
         spectrum = spectrum,
         verification = verification,
         recall = recall,

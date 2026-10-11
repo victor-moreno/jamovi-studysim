@@ -209,3 +209,17 @@ test_that("too few events per parameter are flagged", {
   r2 <- simStudy(data = data.frame(), scenario = "breast_cancer_risk", design = "case_control", n = 600)
   expect_false(grepl("fewer than 10", r2$summary$content))
 })
+
+test_that("crossover and longitudinal data can come one row per person", {
+  sc <- load_scenario(builtin_library(), "antihypertensive_trial")
+  r <- simulate_study(sc, "sbp", "crossover", 40, sc$order, options = list(layout = "wide"), key = FALSE)
+  expect_equal(nrow(r$data), 40)
+  expect_true(all(c("sbp_placebo", "sbp_amlodipine") %in% names(r$data)))
+  long <- simulate_study(sc, "sbp", "crossover", 40, sc$order, key = FALSE)$data
+  expect_equal(sort(r$data$sbp_placebo), sort(long$sbp[long$drug == "placebo"]))
+  expect_identical(names(r$data_raw), planned_columns(sc, sc$outcomes$sbp, "crossover", sc$order, list(layout = "wide")))
+  sl <- load_scenario(builtin_library(), "lead_succimer")
+  w <- simulate_study(sl, "blood_lead", "longitudinal", 60, sl$order, options = list(layout = "wide"), lang = "es", key = FALSE)
+  expect_true("plomo_sangre_v3" %in% names(w$data))
+  expect_match(attr(w$data$plomo_sangre_v2, "jmv-desc"), "visita 2$")
+})
