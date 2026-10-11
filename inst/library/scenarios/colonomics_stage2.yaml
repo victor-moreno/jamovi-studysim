@@ -1,0 +1,155 @@
+id: colonomics_stage2
+label: {en: Relapse of stage II colon cancer (Colonomics), es: Recaída del cáncer de colon estadio II (Colonomics), ca: Recaiguda del càncer de còlon estadi II (Colonomics)}
+domain: oncology
+population:
+  en: Patients with resected stage II colon cancer, followed for relapse and death after surgery
+  es: Pacientes con cáncer de colon estadio II resecado, seguidos tras la cirugía para recaída y muerte
+  ca: Pacients amb càncer de còlon estadi II ressecat, seguits després de la cirurgia per recaiguda i mort
+
+# Clinical and routine pathology variables only. The series also has tumour
+# expression data (consensus molecular subtype, stromal score): to be added
+# when the module supports omics.
+variables:
+  age: {from: dictionary, dist: "normal(70.6, 9)", range: [43, 90]}
+  sex: {from: dictionary, p: 0.72}
+  site:
+    type: binary
+    levels: [left, right]
+    p: 0.39
+    label: {en: Tumour side, es: Lateralidad del tumor, ca: Lateralitat del tumor}
+  stage:
+    type: binary
+    levels: [IIA, IIB]
+    p: 0.08
+    label: {en: "Stage (IIA = T3N0, IIB = T4N0)", es: "Estadio (IIA = T3N0, IIB = T4N0)", ca: "Estadi (IIA = T3N0, IIB = T4N0)"}
+  braf:
+    type: binary
+    levels: [wild_type, mutated]
+    p: 0.03
+    label: {en: BRAF V600E mutation, es: Mutación BRAF V600E, ca: Mutació BRAF V600E}
+  kras:
+    type: binary
+    levels: [wild_type, mutated]
+    p: 0.26
+    only_if: braf == "wild_type"     # BRAF V600E and KRAS mutations are (almost) mutually exclusive
+    otherwise: wild_type
+    label: {en: KRAS mutation, es: Mutación KRAS, ca: Mutació KRAS}
+
+structure:
+  - [site, braf, 0.60]            # BRAF V600E tumours are right-sided (all 3 in the data)
+  - [age, kras, 0.28]
+  - [site, kras, 0.13]
+
+correlations:
+  - [sex, site, -0.09]
+
+outcomes:
+  dfs:
+    type: event
+    label: {en: Relapse (disease-free survival), es: Recaída (supervivencia libre de enfermedad), ca: Recaiguda (supervivència lliure de malaltia)}
+    time_units: years
+    risk: {value: 0.21, at: 5}
+    shape: 0.85                   # relapse hazard falls with time since surgery
+    followup: 5
+    window: 5
+    designs: [prognosis, cohort, case_control]
+    levels: ["no", "yes"]
+    # Cox model of the data on the clinical variables (22 relapses, 5
+    # coefficients: stage 3.81, sex 1.73, age 0.974/year, right side 0.65,
+    # KRAS 5.41), log hazard ratios shrunk by (LR - df) / LR = 0.64
+    effects:
+      stage: {HR: 2.3}
+      sex: {HR: 1.4}
+      age: {HR: 0.85, per: 10}
+      site: {HR: 0.75}
+      kras: {HR: 3.0}
+  os:
+    type: event
+    label: {en: Death (overall survival), es: Muerte (supervivencia global), ca: Mort (supervivència global)}
+    time_units: years
+    # every death in the data followed a relapse (8 of 22 relapsed patients):
+    # overall survival is built from relapse (illness-death); after a relapse,
+    # death has a constant hazard (exponential median 4.6 years in the data).
+    # 8 deaths cannot estimate effects: the covariates act through relapse.
+    # No death without relapse among 78 patients (95% upper limit ~4%): 2%.
+    after: dfs
+    risk: {value: 0.02, at: 5}
+    shape: 1.0
+    followup: 5
+    window: 5
+    designs: [prognosis, cohort]
+    levels: ["no", "yes"]
+    after_event:
+      median: 4.6
+      shape: 1.0
+
+null_variables: [braf]
+
+designs:
+  prognosis: {accrual: 4, followup: 4, loss: 0.01}
+
+i18n:
+  en:
+    names: {site: site, stage: stage, braf: braf, kras: kras, dfs: relapse, os: death}
+    levels: {left: left, right: right, wild_type: wild_type, mutated: mutated, IIA: IIA, IIB: IIB}
+  es:
+    names: {site: lateralidad, stage: estadio, braf: braf, kras: kras, dfs: recaida, os: muerte}
+    levels: {left: izquierdo, right: derecho, wild_type: nativo, mutated: mutado, IIA: IIA, IIB: IIB}
+  ca:
+    names: {site: lateralitat, stage: estadi, braf: braf, kras: kras, dfs: recaiguda, os: mort}
+    levels: {left: esquerre, right: dret, wild_type: natiu, mutated: mutat, IIA: IIA, IIB: IIB}
+
+references:
+  - "Data: Colonomics stage II colon cancer series (teaching dataset of 100 patients; V Moreno). Parameters estimated with studysim Derive, log hazard ratios shrunk by 0.64 for overfitting."
+  - "Sanz-Pamplona R et al. Aberrant gene expression in mucosa adjacent to tumor reveals a molecular crosstalk in colon cancer. Mol Cancer 2014;13:46."
+  - "Roth AD et al. Prognostic role of KRAS and BRAF in stage II and III resected colon cancer: results of the translational study on the PETACC-3, EORTC 40993, SAKK 60-00 trial. J Clin Oncol 2010;28:466-74."
+
+teaching:
+  en: >
+    About one in five patients relapses within 5 years. KRAS mutation raises
+    the hazard of relapse (HR 3.0), but KRAS-mutant tumours are more frequent in
+    older patients, who relapse less (HR 0.85 per 10 years): age is a negative
+    confounder and the crude KRAS hazard ratio is smaller than the adjusted one.
+    Stage IIB (T4) doubles the hazard, but only 8% of patients have it: with
+    100 patients its confidence interval is very wide. BRAF V600E is rare in
+    this series (3%), right-sided and never together with KRAS; with a handful
+    of carriers and no events among them the Cox model cannot estimate its
+    effect (sparse data). Overall survival has fewer than half the events of
+    relapse in the same patients: compare the width of the confidence
+    intervals of the two endpoints, and the number of events per variable a
+    100-patient study offers. Death comes almost only after a relapse
+    (illness-death): the covariates reach overall survival through relapse, so
+    their hazard ratios for death are diluted versions of those for relapse.
+  es: >
+    Uno de cada cinco pacientes recae en 5 años. La mutación KRAS aumenta el
+    riesgo de recaída (HR 3,0), pero los tumores KRAS mutados son más frecuentes
+    en pacientes mayores, que recaen menos (HR 0,85 por 10 años): la edad es un
+    confusor negativo y el hazard ratio crudo de KRAS es menor que el ajustado.
+    El estadio IIB (T4) duplica el riesgo, pero solo lo tiene el 8% de los
+    pacientes: con 100 pacientes su intervalo de confianza es muy amplio. BRAF
+    V600E es raro en esta serie (3%), del lado derecho y nunca coincide con
+    KRAS; con tan pocos portadores y sin eventos entre ellos, el modelo de Cox
+    no puede estimar su efecto (datos escasos). La supervivencia global tiene
+    menos de la mitad de eventos que la recaída en los mismos pacientes:
+    comparad la amplitud de los intervalos de confianza de ambos desenlaces y
+    los eventos por variable que ofrece un estudio de 100 pacientes. La muerte
+    llega casi solo tras una recaída (enfermedad-muerte): las covariables
+    llegan a la supervivencia global a través de la recaída, y sus hazard
+    ratios para la muerte son versiones diluidas de los de la recaída.
+  ca: >
+    Un de cada cinc pacients recau en 5 anys. La mutació KRAS augmenta el risc
+    de recaiguda (HR 3,0), però els tumors KRAS mutats són més freqüents en
+    pacients grans, que recauen menys (HR 0,85 per 10 anys): l'edat és un
+    confusor negatiu i el hazard ratio cru de KRAS és més petit que l'ajustat.
+    L'estadi IIB (T4) duplica el risc, però només el té el 8% dels pacients:
+    amb 100 pacients el seu interval de confiança és molt ample. BRAF V600E és
+    rar en aquesta sèrie (3%), del costat dret i mai coincideix amb KRAS; amb
+    tan pocs portadors i sense esdeveniments entre ells, el model de Cox no pot
+    estimar-ne l'efecte (dades escasses). La supervivència global té menys de
+    la meitat d'esdeveniments que la recaiguda en els mateixos pacients:
+    compareu l'amplada dels intervals de confiança dels dos desenllaços i els
+    esdeveniments per variable que ofereix un estudi de 100 pacients. La mort
+    arriba gairebé només després d'una recaiguda (malaltia-mort): les
+    covariables arriben a la supervivència global a través de la recaiguda, i
+    els seus hazard ratios per a la mort són versions diluïdes dels de la
+    recaiguda.

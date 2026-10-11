@@ -19,3 +19,6 @@ documents/
 
 # patient-level data used to derive scenarios: never commit
 scenarios/**/*.csv
+
+# working files of scenarios derived from non-open data (the scenario itself is in inst/library)
+scenarios/CLX/

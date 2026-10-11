@@ -75,7 +75,8 @@ towards no effect by one common factor, so the confounding between them is kept.
 
 **From teaching datasets.** Several come from datasets of the author's own
 studies used for years in teaching (cervical cancer and HPV, microsatellite
-instability, colorectal cancer and diet, dyspepsia, cardiac surgery, cirrhosis),
+instability, colorectal cancer and diet, relapse of stage II colon cancer, dyspepsia,
+cardiac surgery, cirrhosis),
 estimated the same way; the scenario keeps their parameters, not their data.
 
 **From a published paper.** When no data are open, the parameters come from the

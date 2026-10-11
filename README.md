@@ -40,7 +40,7 @@ parameters and what crude and adjusted analyses of that design should find.
 
 ## Scenarios
 
-61 scenarios, most replicating a real study: their parameters were estimated
+62 scenarios, most replicating a real study: their parameters were estimated
 with the module's own *Derive* engine from open patient-level data (R
 packages survival, MASS, datasets, HSAUR3, TH.data, pROC, medicaldata,
 aplore3, NHANES; the UCI repository) or from the author's teaching datasets,
@@ -101,6 +101,7 @@ explains the method and filters the scenarios by domain, design and topic.
 |  | Oesophageal cancer: alcohol and tobacco (`esoph_cancer`) | case_control, matched_cc, cohort | R dataset esoph (datasets package) |
 |  | Pathology predictors of microsatellite instability in colorectal cancer (`msi_crc_pathology`) | cross_sectional, case_control | Molecular Epidemiology of Colorectal Cancer study |
 |  | PSA and prostate cancer (`prostate_cancer_psa`) | diagnostic, cross_sectional, case_control | published studies |
+|  | Relapse of stage II colon cancer (Colonomics) (`colonomics_stage2`) | prognosis, cohort, case_control | Colonomics stage II colon cancer series (teaching dataset of 100 patients; V Moreno) |
 |  | Relapse of Wilms tumour (`wilms_tumour`) | cohort, case_cohort, nested_cc, case_control | R dataset nwtco (survival package) |
 |  | Survival in advanced lung cancer (`lung_ncctg`) | prognosis | R dataset lung (survival package) |
 | Oncology / Nutrition | Diet and colorectal cancer in Majorca (energy adjustment) (`colorectal_diet_mallorca`) | case_control, matched_cc, cohort | Majorca colorectal cancer case-control study |
