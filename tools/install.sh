@@ -81,25 +81,14 @@ install_desktop() {
 }
 
 # ── docker ───────────────────────────────────────────────────────────────────
-# jamovi's own route (jamovi >= 28.4): the jamovi compiler on this machine
-# builds the module in a throwaway container off the running container's image
-# (dependencies included, compiled against the image's R) and hands the .jmo to
-# the server over its stdin, which installs it into $HOME/.jamovi/modules in the
-# container. Nothing is added to the image. Needs here: docker, node, and a
-# jamovi-src checkout (its jamovi-compiler) at the image's version; set
-# JMC_COMPILER=/path/to/jamovi-compiler if it is not a sibling of this repo.
-# The container must run upstream's docker-compose.yaml (stdin_open and
-# --stdin-slave), and the Docker VM must see this repo read-write (it is mounted
-# into the build container). To keep modules across 'down'/'up', mount a volume
-# at /root/.jamovi (the skill's templates/docker/docker-compose.override.yaml).
-find_compiler() {
-  local c
-  for c in "${JMC_COMPILER:-}" "$ROOT/../jamovi-src/jamovi-compiler" "$ROOT/tools/jamovi-src/jamovi-compiler"; do
-    [ -n "$c" ] && [ -f "$c/index.js" ] && [ -f "$c/docker.js" ] && { (cd "$c" && pwd); return 0; }
-  done
-  return 1
-}
-
+# Copy route, no jamovi-src needed: the module's .jmo (built here against
+# jamovi.app by tools/build-jmo.sh, or given as JMO=/path/to.jmo) is unpacked
+# into $HOME/.jamovi/modules/<module> in the container, which is then restarted
+# so jamovi reads it. The .jmo carries R code built on macOS: fine for a pure-R
+# module whose dependencies the image already has; a bundled package with
+# compiled code (libs/) is a macOS binary and will not load in the Linux image
+# (the script warns). To keep the module across 'down'/'up', mount a volume at
+# /root/.jamovi (the skill's templates/docker/docker-compose.override.yaml).
 install_docker() {
   # A sandbox that cannot read ~/.docker/config.json makes the CLI print a
   # warning and list nothing, which looks like "no container". Use a writable config.
@@ -111,43 +100,43 @@ install_docker() {
     echo "!! docker: container '$CONTAINER' is not running — skipping"
     return 0
   fi
-  local JMC CHOME OLD NEW i
-  JMC="$(find_compiler)" || {
-    echo "!! docker: no jamovi-compiler with docker support (jamovi >= 28.4) found." >&2
-    echo "!! Clone jamovi/jamovi beside this repo as jamovi-src, or set JMC_COMPILER." >&2
-    return 1; }
-  command -v node >/dev/null || { echo "!! docker: node is needed on this machine" >&2; return 1; }
-  if [ ! -d "$JMC/node_modules" ]; then
-    echo ">> docker: installing the compiler's npm dependencies (once)"
-    ( cd "$JMC" && npm install --no-audit --no-fund >/dev/null ) || return 1
-  fi
-  if [ "$(docker inspect -f '{{.Config.OpenStdin}}' "$CONTAINER")" != true ]; then
-    echo "!! docker: '$CONTAINER' was not started with stdin open (--stdin-slave);" >&2
-    echo "!! start it with jamovi-src's docker-compose.yaml" >&2
-    return 1
-  fi
-
+  local CHOME ARCH JMOFILE UNPACK PORT i b
   CHOME="$(docker exec "$CONTAINER" sh -c 'echo $HOME')"
-  # the build-time stamp of any copy already installed; the new one must differ
-  OLD="$(docker exec "$CONTAINER" sh -c "grep '^build-time' '$CHOME/.jamovi/modules/$MODULE/jamovi.yaml' 2>/dev/null" || true)"
+  case "$(docker exec "$CONTAINER" uname -m)" in
+    aarch64|arm64) ARCH=arm64 ;;
+    *) ARCH=x64 ;;
+  esac
 
-  echo ">> docker: building $MODULE $VERSION in $(docker inspect -f '{{.Config.Image}}' "$CONTAINER")"
-  node "$JMC/index.js" --install "$MODULE_DIR" --home "docker:$CONTAINER" || return 1
-  rm -f "$MODULE_DIR/.jmc-docker.jmo"   # the build container's artifact, already handed over
+  JMOFILE="${JMO:-}"
+  if [ -z "$JMOFILE" ]; then
+    echo ">> docker: building $MODULE $VERSION (tools/build-jmo.sh current)"
+    bash "$ROOT/tools/build-jmo.sh" current || return 1
+    JMOFILE="$(ls -t "$ROOT"/dist/"${MODULE}_${VERSION}"_current_*_"$ARCH".jmo 2>/dev/null | head -1)"
+  fi
+  [ -f "$JMOFILE" ] || { echo "error: no .jmo for $ARCH (set JMO=/path/to.jmo)" >&2; return 1; }
 
-  # the server installs it asynchronously after reading its stdin
-  NEW=""
+  UNPACK="$ROOT/.tmp/jmo-docker"
+  rm -rf "$UNPACK"; mkdir -p "$UNPACK"
+  unzip -q "$JMOFILE" -d "$UNPACK" || return 1
+  [ -d "$UNPACK/$MODULE" ] || { echo "error: $JMOFILE has no $MODULE/ folder" >&2; return 1; }
+  for b in "$UNPACK/$MODULE"/R/*/; do
+    [ -d "$b/libs" ] && echo "!! docker: bundled package $(basename "$b") has compiled code built on macOS; it will not load in the container"
+  done
+
+  echo ">> docker: copying $(basename "$JMOFILE") into $CONTAINER:$CHOME/.jamovi/modules/$MODULE"
+  docker exec "$CONTAINER" sh -c "mkdir -p '$CHOME/.jamovi/modules' && rm -rf '$CHOME/.jamovi/modules/$MODULE'" || return 1
+  docker cp "$UNPACK/$MODULE" "$CONTAINER:$CHOME/.jamovi/modules/$MODULE" || return 1
+  rm -rf "$UNPACK"
+
+  # jamovi reads the modules folder when it starts
+  echo ">> docker: restarting $CONTAINER"
+  docker restart "$CONTAINER" >/dev/null || return 1
+  PORT="$(docker port "$CONTAINER" 2>/dev/null | sed -n 's/.*:\([0-9]*\)$/\1/p' | sort -n | head -1)"
   for i in $(seq 1 60); do
-    NEW="$(docker exec "$CONTAINER" sh -c "grep '^build-time' '$CHOME/.jamovi/modules/$MODULE/jamovi.yaml' 2>/dev/null" || true)"
-    [ -n "$NEW" ] && [ "$NEW" != "$OLD" ] && break
+    if [ -z "$PORT" ] || curl -s -o /dev/null "http://127.0.0.1:$PORT"; then break; fi
     sleep 1
   done
-  if [ -z "$NEW" ] || [ "$NEW" = "$OLD" ]; then
-    echo "!! docker: jamovi has not installed the new $MODULE after 60 s (docker logs $CONTAINER)" >&2
-    return 1
-  fi
-  echo ">> docker: installed at $CHOME/.jamovi/modules/$MODULE"
-  if ! docker inspect -f '{{range .Mounts}}{{println .Destination}}{{end}}' "$CONTAINER" | grep -qx "$CHOME/.jamovi"; then
+  if ! docker inspect -f '{{range .Mounts}}{{println .Destination}}{{end}}' "$CONTAINER" | grep -qE "^$CHOME/.jamovi(/modules)?$"; then
     echo "!! docker: $CHOME/.jamovi is not a volume: the module is lost when the container is"
     echo "!! recreated (down/up). See the skill's templates/docker/docker-compose.override.yaml"
   fi
