@@ -1,0 +1,160 @@
+id: psoriasis_diagnosis
+label: {en: Psoriasis among erythemato-squamous diseases (clinical signs), es: Psoriasis entre las enfermedades eritematoescamosas (signos clínicos), ca: Psoriasi entre les malalties eritematoesquamoses (signes clínics)}
+domain: dermatology
+population:
+  en: Patients with an erythemato-squamous skin disease (psoriasis, seborrhoeic dermatitis, lichen planus, pityriasis rosea, chronic dermatitis, pityriasis rubra pilaris) seen at a dermatology clinic
+  es: Pacientes con una enfermedad cutánea eritematoescamosa (psoriasis, dermatitis seborreica, liquen plano, pitiriasis rosada, dermatitis crónica, pitiriasis rubra pilaris) atendidos en una consulta de dermatología
+  ca: Pacients amb una malaltia cutània eritematoesquamosa (psoriasi, dermatitis seborreica, liquen pla, pitiriasi rosada, dermatitis crònica, pitiriasi rubra pilar) atesos en una consulta de dermatologia
+
+# From the UCI Dermatology database (366 patients, 112 with psoriasis). Each
+# clinical sign is graded 0-3; frequencies over all patients. The data
+# separate psoriasis almost perfectly (AUC 0.99 with the clinical signs; some
+# signs never occur in psoriasis), so the effects are strong but finite
+# teaching values in the direction and order of the logistic model's.
+variables:
+  age: {from: dictionary, dist: "normal(36.3, 15.3)", range: [1, 75]}
+  family_history:
+    type: binary
+    levels: ["no", "yes"]
+    p: 0.13
+    label: {en: Family history of the disease, es: Antecedentes familiares de la enfermedad, ca: Antecedents familiars de la malaltia}
+  erythema:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.01, 0.16, 0.59, 0.24]
+    label: {en: Erythema (0-3), es: Eritema (0-3), ca: Eritema (0-3)}
+  scaling:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.02, 0.30, 0.54, 0.14]
+    label: {en: Scaling (0-3), es: Descamación (0-3), ca: Descamació (0-3)}
+  borders:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.16, 0.25, 0.46, 0.13]
+    label: {en: Definite borders (0-3), es: Bordes definidos (0-3), ca: Vores definides (0-3)}
+  itching:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.32, 0.20, 0.27, 0.21]
+    label: {en: Itching (0-3), es: Prurito (0-3), ca: Prurit (0-3)}
+  koebner:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.61, 0.19, 0.15, 0.05]
+    label: {en: Koebner phenomenon (0-3), es: Fenómeno de Koebner (0-3), ca: Fenomen de Koebner (0-3)}
+  polygonal_papules:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.81, 0.01, 0.11, 0.07]
+    label: {en: Polygonal papules (0-3), es: Pápulas poligonales (0-3), ca: Pàpules poligonals (0-3)}
+  follicular_papules:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.91, 0.03, 0.04, 0.02]
+    label: {en: Follicular papules (0-3), es: Pápulas foliculares (0-3), ca: Pàpules fol·liculars (0-3)}
+  oral_mucosa:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.82, 0.02, 0.12, 0.04]
+    label: {en: Oral mucosal involvement (0-3), es: Afectación de la mucosa oral (0-3), ca: Afectació de la mucosa oral (0-3)}
+  knee_elbow:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.69, 0.08, 0.17, 0.06]
+    label: {en: Knee and elbow involvement (0-3), es: Afectación de rodillas y codos (0-3), ca: Afectació de genolls i colzes (0-3)}
+  scalp:
+    type: ordinal
+    levels: ["0", "1", "2", "3"]
+    probs: [0.72, 0.08, 0.16, 0.04]
+    label: {en: Scalp involvement (0-3), es: Afectación del cuero cabelludo (0-3), ca: Afectació del cuir cabellut (0-3)}
+
+correlations:
+  - [polygonal_papules, oral_mucosa, 0.80]
+  - [itching, polygonal_papules, 0.35]
+  - [koebner, polygonal_papules, 0.30]
+  - [itching, koebner, 0.27]
+  - [knee_elbow, scalp, 0.66]
+  - [knee_elbow, family_history, 0.34]
+  - [scalp, family_history, 0.29]
+  - [erythema, scaling, 0.44]
+  - [scaling, borders, 0.36]
+  - [scaling, knee_elbow, 0.30]
+  - [scaling, scalp, 0.30]
+  - [borders, polygonal_papules, 0.25]
+  - [knee_elbow, polygonal_papules, -0.28]
+  - [knee_elbow, itching, -0.30]
+
+outcomes:
+  psoriasis:
+    type: binary
+    label: {en: Psoriasis (biopsy-confirmed), es: Psoriasis (confirmada por biopsia), ca: Psoriasi (confirmada per biòpsia)}
+    levels: ["no", "yes"]
+    prevalence: 0.306
+    designs: [cross_sectional, case_control]
+    effects:
+      # odds ratios per grade 1, 2, 3 against 0 (a constant ratio per grade)
+      scaling: {OR: [1, 2, 4, 8]}
+      borders: {OR: [1, 2.5, 6.25, 15.6]}
+      koebner: {OR: [1, 2, 4, 8]}
+      knee_elbow: {OR: [1, 3, 9, 27]}
+      scalp: {OR: [1, 3, 9, 27]}
+      itching: {OR: [1, 0.7, 0.49, 0.34]}
+      polygonal_papules: {OR: [1, 0.15, 0.0225, 0.0034]}
+      follicular_papules: {OR: [1, 0.2, 0.04, 0.008]}
+      oral_mucosa: {OR: [1, 0.3, 0.09, 0.027]}
+      family_history: {OR: 4}
+      age: {OR: 1.03, per: 1}
+
+null_variables: [erythema]
+
+i18n:
+  en:
+    names: {family_history: family_history, erythema: erythema, scaling: scaling, borders: borders, itching: itching, koebner: koebner, polygonal_papules: polygonal_papules, follicular_papules: follicular_papules, oral_mucosa: oral_mucosa, knee_elbow: knee_elbow, scalp: scalp, psoriasis: psoriasis}
+  es:
+    names: {family_history: antec_familiares, erythema: eritema, scaling: descamacion, borders: bordes, itching: prurito, koebner: koebner, polygonal_papules: papulas_poligonales, follicular_papules: papulas_foliculares, oral_mucosa: mucosa_oral, knee_elbow: rodillas_codos, scalp: cuero_cabelludo, psoriasis: psoriasis}
+  ca:
+    names: {family_history: antec_familiars, erythema: eritema, scaling: descamacio, borders: vores, itching: prurit, koebner: koebner, polygonal_papules: papules_poligonals, follicular_papules: papules_follicul, oral_mucosa: mucosa_oral, knee_elbow: genolls_colzes, scalp: cuir_cabellut, psoriasis: psoriasi}
+
+references:
+  - "Data: Dermatology database, UCI Machine Learning Repository (Güvenir HA, Demiröz G, İlter N; 366 patients)."
+  - "Güvenir HA, Demiröz G, İlter N. Learning differential diagnosis of erythemato-squamous diseases using voting feature intervals. Artif Intell Med 1998;13:147-65."
+
+teaching:
+  en: >
+    The six erythemato-squamous diseases look alike; psoriasis is a third of
+    them. Knee, elbow and scalp involvement, definite borders, scaling, the
+    Koebner phenomenon and a family history point to it; polygonal papules and
+    oral involvement (lichen planus) or follicular papules (pityriasis rubra
+    pilaris) point away, and in the real data never occur with psoriasis: the
+    maximum-likelihood logistic model diverges (complete separation). Fit it,
+    see the huge coefficients and standard errors, and compare with a
+    penalised (ridge, lasso, Firth) model. Signs graded 0-3 can enter as
+    categories or as a score per grade. With a dozen signs and an AUC near
+    0.95, check how much is optimism by bootstrap or a validation sample.
+  es: >
+    Las seis enfermedades eritematoescamosas se parecen; la psoriasis es un
+    tercio de ellas. La afectación de rodillas, codos y cuero cabelludo, los
+    bordes definidos, la descamación, el fenómeno de Koebner y los antecedentes
+    familiares la sugieren; las pápulas poligonales y la afectación oral (liquen
+    plano) o las pápulas foliculares (pitiriasis rubra pilaris) la descartan, y
+    en los datos reales nunca aparecen con psoriasis: el modelo logístico de
+    máxima verosimilitud diverge (separación completa). Ajustadlo, ved los
+    coeficientes y errores estándar enormes y comparad con un modelo penalizado
+    (ridge, lasso, Firth). Los signos graduados de 0 a 3 pueden entrar como
+    categorías o como una puntuación por grado. Con una docena de signos y un
+    AUC cercano a 0,95, comprobad cuánto es optimismo con bootstrap o una
+    muestra de validación.
+  ca: >
+    Les sis malalties eritematoesquamoses s'assemblen; la psoriasi n'és un
+    terç. L'afectació de genolls, colzes i cuir cabellut, les vores definides,
+    la descamació, el fenomen de Koebner i els antecedents familiars la
+    suggereixen; les pàpules poligonals i l'afectació oral (liquen pla) o les
+    pàpules fol·liculars (pitiriasi rubra pilar) la descarten, i a les dades
+    reals no apareixen mai amb psoriasi: el model logístic de màxima
+    versemblança divergeix (separació completa). Ajusteu-lo, mireu els
+    coeficients i els errors estàndard enormes i compareu amb un model
+    penalitzat (ridge, lasso, Firth). Els signes graduats de 0 a 3 poden entrar
+    com a categories o com una puntuació per grau. Amb una dotzena de signes i
+    un AUC proper a 0,95, comproveu quant és optimisme amb bootstrap o una
+    mostra de validació.
