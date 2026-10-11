@@ -66,11 +66,11 @@ with sync_playwright() as p:
     design = fr.locator("select.silky-option-combo-input").nth(1)
     design.select_option(label="Cohort"); page.wait_for_timeout(3000)
     ids = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()][0::2]
-    boxes = fr.locator(".list-item-cell input[type=checkbox]")
+    boxes = fr.locator(".list-item-cell input[type=checkbox]")   # Measured and Exposure ticks alternate
     forms = fr.locator(".list-item-cell select")
     # every variable is measured by default: untick those left out
     for v in ["education", "physical_activity", "bmi", "cigarettes", "total_chol", "hdl", "diabetes"]:
-        boxes.nth(ids.index(v)).uncheck(force=True); page.wait_for_timeout(500)
+        boxes.nth(2 * ids.index(v)).uncheck(force=True); page.wait_for_timeout(500)
     forms.nth(ids.index("sbp")).select_option(label="quartiles"); page.wait_for_timeout(3000)
     wait_text(page, "Q4: >")          # results of this scenario, not the previous one
     page.wait_for_timeout(3000)
@@ -83,16 +83,23 @@ with sync_playwright() as p:
     shot_item(page, "Descriptives", "s04-descriptives.png")
 
     jc.expand_section(fr, "Output")
-    jc.check_option(fr, "Answer key")     # the diagram with effects is on by default
+    jc.check_option(fr, "Effect sizes on the diagram")   # off by default since v0.5
+    jc.check_option(fr, "Answer key")
     wait_text(page, "should be close") or wait_text(page, "Expected values")
-    page.wait_for_timeout(4000)
+    page.wait_for_timeout(6000)
     shot_item(page, "Causal diagram", "s05-dag.png")
+    # the key tables are wide: a wider window for them
+    page.set_viewport_size({"width": 2000, "height": 1000}); page.wait_for_timeout(3000)
     shot_item(page, "Answer key: true model", "s06-key-true.png")
     shot_item(page, "Answer key: what this design should estimate", "s07-key-expected.png")
+    page.set_viewport_size({"width": 1440, "height": 1000}); page.wait_for_timeout(2000)
 
     jc.expand_section(fr, "Design options")
     page.wait_for_timeout(800)
-    jc.screenshot_section(page, fr, "Design options", out("s09-design-options.png"), stop_label="Realism")
+    jc.screenshot_section(page, fr, "Design options", out("s09-design-options.png"), stop_label="Biases")
+    jc.expand_section(fr, "Biases")
+    page.wait_for_timeout(800)
+    jc.screenshot_section(page, fr, "Biases", out("s18-biases.png"), stop_label="Realism")
     jc.expand_section(fr, "Realism")
     page.wait_for_timeout(800)
     jc.screenshot_section(page, fr, "Realism", out("s14-realism.png"), stop_label="Output")
@@ -123,6 +130,17 @@ with sync_playwright() as p:
     shot_item(page, "Answer key: what this design should estimate", "s16-several-outcomes.png")
     page.set_viewport_size({"width": 1440, "height": 1000})
 
+    # A trial's absolute effects: indomethacin after ERCP
+    page.goto(jc.JAMOVI_URL); page.wait_for_timeout(6000)
+    fr = jc.run_analysis(page, "Simulate", "Simulated study", exact=False)
+    wait_text(page, "cases and")
+    fr.locator("select.studysim-pick").nth(0).select_option("indomethacin_ercp"); page.wait_for_timeout(4000)
+    jc.expand_section(fr, "Output")
+    jc.check_option(fr, "Answer key")
+    wait_text(page, "Answer key: absolute effects in the trial", 60)
+    page.wait_for_timeout(8000)
+    shot_item(page, "Answer key: absolute effects in the trial", "s19-key-trial.png")
+
     # Compare designs: breast cancer, its default designs
     page.goto(jc.JAMOVI_URL); page.wait_for_timeout(6000)
     fr = jc.run_analysis(page, "Simulate", "Compare designs", exact=False)
@@ -143,6 +161,18 @@ with sync_playwright() as p:
         if imgs.count():
             imgs.last.scroll_into_view_if_needed(); page.wait_for_timeout(1500)
             imgs.last.screenshot(path=out("s17-compare-plot.png"))
+
+    # Replicate studies: indomethacin, randomised and cluster trials, 200 each
+    page.goto(jc.JAMOVI_URL); page.wait_for_timeout(6000)
+    fr = jc.run_analysis(page, "Simulate", "Compare designs", exact=False)
+    wait_text(page, "Estimates by design", 60)
+    fr.locator("select.studysim-pick").nth(0).select_option("indomethacin_ercp"); page.wait_for_timeout(5000)
+    jc.fill_text(fr, "Replicate studies per design", "200")
+    wait_text(page, "studies of 500 per design", 240)
+    page.wait_for_timeout(8000)
+    page.set_viewport_size({"width": 2100, "height": 1000}); page.wait_for_timeout(3000)
+    shot_item(page, "Replicate studies", "s20-replicates.png")
+    page.set_viewport_size({"width": 1440, "height": 1000})
 
     # Library
     page.goto(jc.JAMOVI_URL); page.wait_for_timeout(6000)

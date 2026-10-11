@@ -58,8 +58,14 @@ with sync_playwright() as p:
     page.wait_for_timeout(3000)
     names = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()]
     check("coffee" in names and "age" in names, "checklist lists the variables: %s" % names[:6])
-    boxes = fr.locator(".list-item-cell input[type=checkbox]")
+    allb = fr.locator(".list-item-cell input[type=checkbox]")
+    class Every2:   # each row has a Measured and an Exposure tick
+        def __init__(self, loc, k): self.loc, self.k = loc, k
+        def nth(self, i): return self.loc.nth(2 * i + self.k)
+        def count(self): return self.loc.count() // 2
+    boxes, expo = Every2(allb, 0), Every2(allb, 1)
     check(boxes.count() >= 12, "one checkbox per variable (%d)" % boxes.count())
+    check(not any(expo.nth(i).is_checked() for i in range(expo.count())), "no exposure ticked at start")
     check(all(boxes.nth(i).is_checked() for i in range(boxes.count())), "all measured at start")
     ids = ["age", "sex", "education", "physical_activity", "bmi", "smoking", "cigarettes", "sbp", "total_chol", "hdl", "diabetes", "coffee"]
     for v in ["education", "physical_activity", "cigarettes", "total_chol", "hdl", "diabetes", "coffee"]:
@@ -141,6 +147,24 @@ with sync_playwright() as p:
     dl.value.save_as(path)
     head = open(path, encoding="utf-8").readline().strip()
     check(head == '"id","time","chd","age","sex","smoking","bmi","sbp"', "CSV header: " + head[:60])
+    with page.expect_download(timeout=60000) as dl:
+        fr.get_by_text("Export codebook", exact=True).click()
+    path = os.path.join(OUT, "codebook.csv")
+    dl.value.save_as(path)
+    cb = open(path, encoding="utf-8").read()
+    check(cb.startswith('"Variable","Description"') and '"sbp"' in cb, "codebook export: " + cb[:60])
+    jc.fill_text(fr, "Student keys of the class", "Anna, Ben")
+    page.wait_for_timeout(4000)
+    with page.expect_download(timeout=120000) as dl:
+        fr.get_by_text("Export class (zip)", exact=True).click()
+    path = os.path.join(OUT, "class.zip")
+    dl.value.save_as(path)
+    import zipfile
+    names = sorted(zipfile.ZipFile(path).namelist())
+    check(names == ["Anna.csv", "Anna_codebook.csv", "Ben.csv", "Ben_codebook.csv", "answer_key.html", "register.csv"], "class zip: %s" % names)
+    jc.expand_section(fr, "Biases")
+    page.wait_for_timeout(1000)
+    page.screenshot(path=os.path.join(OUT, "06-biases.png"))
 
     with page.expect_file_chooser(timeout=10000) as fc:
         fr.locator("button.studysim-browse").click()

@@ -105,8 +105,8 @@ items:
           - {name: bias, title: Bias, type: text}
           - {name: seEmp, title: SE (spread), type: number}
           - {name: seModel, title: SE (model), type: number}
-          - {name: power, title: 'Power %', type: number, format: zto}
-          - {name: coverage, title: 'CI coverage %', type: number, format: zto}
+          - {name: power, title: 'Power %', type: integer}
+          - {name: coverage, title: 'CI coverage %', type: integer}
 
     - name: replicatePlot
       title: Sampling distribution by design

@@ -56,6 +56,8 @@ title: "Simulated study"
   **partial verification** (only some test-negatives get the reference
   standard). Recall, selection and the collider need a ticked *Exposure*. See
   [Teaching](teaching.qmd#biases-on-purpose).
+
+  ![Biases: only those of the chosen design are enabled.](screenshots/s18-biases.png){.screenshot width=60%}
 - *Realism*:
   - **missing values** in the measured variables: completely at random,
     depending on the outcome, or depending on the missing value itself (MNAR);
@@ -150,7 +152,7 @@ arrows (red raises the outcome, blue lowers it) and give their sizes.
    large simulated population; a variable acting only through others reads *no
    direct effect; acts through …*.
 
-   ![True model.](screenshots/s06-key-true.png){.screenshot width=75%}
+   ![True model: direct and total effects; education acts only through smoking, BMI, blood pressure, HDL and diabetes.](screenshots/s06-key-true.png){.screenshot}
 
 2. **What this design should estimate**: crude and adjusted estimates averaged
    over three large simulated studies with the same design, measured variables,
@@ -166,6 +168,8 @@ arrows (red raises the outcome, blue lowers it) and give their sizes.
    conditional odds or hazard ratio. Diagnostic studies add **accuracy at a
    cut-off**: sensitivity, specificity and predictive values, true and in the
    large study.
+
+   ![Absolute effects of a trial: risks, NNT, and the marginal odds ratio closer to 1 than the conditional one.](screenshots/s19-key-trial.png){.screenshot width=65%}
 
    ![Expected estimates: the crude coffee effect disappears after adjustment; systolic pressure in quartiles.](screenshots/s07-key-expected.png){.screenshot}
 
@@ -198,6 +202,8 @@ are hidden. It shows:
 studies of each design and reports each estimate's mean, bias, spread (empirical
 standard error) next to the model's, power and the coverage of its confidence
 intervals, with a plot of their sampling distribution.
+
+![Replicate studies: 200 parallel and 200 cluster trials of 500 people.](screenshots/s20-replicates.png){.screenshot}
 
 *Open dataset* stacks all the studies in one dataset with a `design` column, to
 analyse them with jamovi's filters. Typical exercises: a case-control vs a cohort

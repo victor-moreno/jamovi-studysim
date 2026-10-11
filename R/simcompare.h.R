@@ -474,13 +474,11 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="power", 
                         `title`="Power %", 
-                        `type`="number", 
-                        `format`="zto"),
+                        `type`="integer"),
                     list(
                         `name`="coverage", 
                         `title`="CI coverage %", 
-                        `type`="number", 
-                        `format`="zto"))))
+                        `type`="integer"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="replicatePlot",

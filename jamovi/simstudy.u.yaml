@@ -41,7 +41,7 @@ children:
           type: Label
       - name: units
         label: Units or categories
-        maxWidth: 150
+        maxWidth: 105
         selectable: false
         template:
           type: Label
@@ -51,25 +51,25 @@ children:
         selectable: false
         template:
           type: CheckBox
+      - name: exposure
+        label: Exposure
+        maxWidth: 65
+        selectable: false
+        template:
+          type: CheckBox
       - name: form
         label: Form
-        maxWidth: 95
+        maxWidth: 88
         selectable: false
         template:
           type: ComboBox
       - name: cuts
         label: Cuts / scale
-        maxWidth: 110
+        maxWidth: 72
         selectable: false
         template:
           type: TextBox
           format: string
-      - name: exposure
-        label: Exposure
-        maxWidth: 70
-        selectable: false
-        template:
-          type: CheckBox
   - type: LayoutBox
     margin: large
     children:

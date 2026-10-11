@@ -150,7 +150,7 @@ simCompareClass <- R6::R6Class(
                 lg <- sm$measure[i] %in% c("OR", "HR", "RR", "ratio")
                 tbl$setRow(rowKey = k, values = list(truth = blank(sm$true[i]), mean = blank(sm$mean[i]),
                     bias = if (is.na(sm$bias[i])) "" else if (lg) sprintf("%+.1f%%", sm$bias[i]) else formatC(sm$bias[i], format = "fg", digits = 3, flag = "+"),
-                    seEmp = blank(sm$se_emp[i]), seModel = blank(sm$se_model[i]), power = blank(sm$power[i]), coverage = blank(sm$coverage[i])))
+                    seEmp = blank(sm$se_emp[i]), seModel = blank(sm$se_model[i]), power = blank(round(sm$power[i])), coverage = blank(round(sm$coverage[i]))))
             }
             tbl$setNote("rep", jmvcore::format(.("{r} studies of {n} per design, each adjusted for all the measured variables. Bias: of the mean estimate (geometric for ratios) against the true value. SE (spread): standard deviation of the estimates (log scale for ratios); SE (model): the mean of the reported ones. Power: confidence intervals that exclude no effect; coverage: intervals that contain the true value (95% expected)."),
                                                r = o$replicates, n = o$n))
