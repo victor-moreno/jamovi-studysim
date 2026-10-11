@@ -613,6 +613,13 @@ options:
       type: Action
       action: openExternal
 
+    - name: exportCodebook
+      title: Export codebook
+      type: Action
+      action: openExternal
+      description:
+          R: saves the data dictionary (name, description, type, values, missing) as a CSV file
+
     - name: exportKey
       title: Answer key report
       type: Action

@@ -101,7 +101,7 @@ simStudyClass <- R6::R6Class(
         },
 
         .init = function() {
-            for (nm in c("openState", "csvState", "keyState"))
+            for (nm in c("openState", "csvState", "codebookState", "keyState"))
                 if (self$results[[nm]]$rowCount == 0)
                     self$results[[nm]]$addRow(rowKey = 1, values = list(fired = ""))
             ctx <- private$.context()
@@ -208,7 +208,7 @@ simStudyClass <- R6::R6Class(
             needData <- self$results$summary$isNotFilled() ||
                 (o$showDictionary && !filled(self$results$dictionary, "type")) ||
                 (o$showDescriptives && !filled(self$results$descriptives, "stat")) ||
-                private$.wants("openState", "openData") || private$.wants("csvState", "exportCsv")
+                private$.wants("openState", "openData") || private$.wants("csvState", "exportCsv") || private$.wants("codebookState", "exportCodebook")
             if (needData) {
                 res <- tryCatch(simulate_study(ctx$sc, ctx$oc$id, ctx$design, o$n, ctx$factors, seed = o$seed,
                                                student_key = o$studentKey, options = ctx$opt,
@@ -231,7 +231,7 @@ simStudyClass <- R6::R6Class(
                 private$.actions(ctx, res)
             } else {
                 # buttons not pressed: keep their guards in step
-                private$.wants("openState", "openData"); private$.wants("csvState", "exportCsv")
+                private$.wants("openState", "openData"); private$.wants("csvState", "exportCsv"); private$.wants("codebookState", "exportCodebook")
             }
             if (o$showDag) private$.fillDag(ctx)
             # a key that cannot be computed explains itself instead of showing R's message
@@ -560,6 +560,8 @@ simStudyClass <- R6::R6Class(
             invisible(TRUE)
         },
 
+        .codebook = function(res) codebook(res$dictionary, c(.("Variable"), .("Description"), .("Type"), .("Values"), .("Missing"))),
+
         .actions = function(ctx, res) {
             name <- sprintf("%s_%s", ctx$sc$id, ctx$design)
             private$.once("openState", "openData", function(action) {
@@ -568,6 +570,10 @@ simStudyClass <- R6::R6Class(
             private$.once("csvState", "exportCsv", function(action) {
                 utils::write.csv(res$data, action$params$fullPath, row.names = FALSE, na = "", fileEncoding = "UTF-8")
                 list(filename = paste0(name, ".csv"))
+            })
+            private$.once("codebookState", "exportCodebook", function(action) {
+                utils::write.csv(private$.codebook(res), action$params$fullPath, row.names = FALSE, na = "", fileEncoding = "UTF-8")
+                list(filename = paste0(name, "_codebook.csv"))
             })
         }
     )

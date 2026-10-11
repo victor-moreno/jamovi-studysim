@@ -556,3 +556,11 @@ to_wide <- function(df, sc, oc, design, opt, lang = "en") {
     rownames(out) <- NULL
     out
 }
+
+# The data dictionary as a codebook to save next to the CSV (the CSV loses the
+# columns' descriptions): one row per column, headers in the student's language
+codebook <- function(dict, headers = c("variable", "description", "type", "values", "missing")) {
+    out <- data.frame(dict$name, dict$description, dict$type, dict$values, dict$missing, stringsAsFactors = FALSE)
+    names(out) <- headers
+    out
+}

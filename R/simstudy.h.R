@@ -65,6 +65,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             showKey = FALSE,
             openData = FALSE,
             exportCsv = FALSE,
+            exportCodebook = FALSE,
             exportKey = FALSE, ...) {
 
             super$initialize(
@@ -426,6 +427,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "exportCsv",
                 exportCsv,
                 action="openExternal")
+            private$..exportCodebook <- jmvcore::OptionAction$new(
+                "exportCodebook",
+                exportCodebook,
+                action="openExternal")
             private$..exportKey <- jmvcore::OptionAction$new(
                 "exportKey",
                 exportKey,
@@ -490,6 +495,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..showKey)
             self$.addOption(private$..openData)
             self$.addOption(private$..exportCsv)
+            self$.addOption(private$..exportCodebook)
             self$.addOption(private$..exportKey)
         }),
     active = list(
@@ -552,6 +558,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         showKey = function() private$..showKey$value,
         openData = function() private$..openData$value,
         exportCsv = function() private$..exportCsv$value,
+        exportCodebook = function() private$..exportCodebook$value,
         exportKey = function() private$..exportKey$value),
     private = list(
         ..libName = NA,
@@ -613,6 +620,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..showKey = NA,
         ..openData = NA,
         ..exportCsv = NA,
+        ..exportCodebook = NA,
         ..exportKey = NA)
 )
 
@@ -633,6 +641,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         keyNotes = function() private$.items[["keyNotes"]],
         openState = function() private$.items[["openState"]],
         csvState = function() private$.items[["csvState"]],
+        codebookState = function() private$.items[["codebookState"]],
         keyState = function() private$.items[["keyState"]]),
     private = list(),
     public=list(
@@ -1324,6 +1333,68 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="text"))))
             self$add(jmvcore::Table$new(
                 options=options,
+                name="codebookState",
+                title="",
+                visible=FALSE,
+                rows=0,
+                clearWith=list(
+                    "libContent",
+                    "scenario",
+                    "outcome",
+                    "design",
+                    "secondary",
+                    "measured",
+                    "n",
+                    "ccRatio",
+                    "followup",
+                    "loss",
+                    "accrual",
+                    "subcohort",
+                    "looks",
+                    "clusters",
+                    "icc",
+                    "interaction",
+                    "visits",
+                    "dropout",
+                    "regions",
+                    "regionSize",
+                    "regionSd",
+                    "contextSd",
+                    "threshold",
+                    "mcBias",
+                    "mcSlope",
+                    "mcErrorA",
+                    "mcErrorB",
+                    "period",
+                    "carryover",
+                    "missing",
+                    "missingMech",
+                    "reliability",
+                    "misclass",
+                    "entryErrors",
+                    "noiseVars",
+                    "lodHandling",
+                    "batches",
+                    "batchCv",
+                    "batchConfounded",
+                    "spectrum",
+                    "verification",
+                    "recall",
+                    "ctrlSelect",
+                    "collider",
+                    "nonadherence",
+                    "informative",
+                    "immortal",
+                    "layout",
+                    "seed",
+                    "studentKey"),
+                columns=list(
+                    list(
+                        `name`="fired", 
+                        `title`="", 
+                        `type`="text"))))
+            self$add(jmvcore::Table$new(
+                options=options,
                 name="keyState",
                 title="",
                 visible=FALSE,
@@ -1532,6 +1603,8 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param showKey .
 #' @param openData .
 #' @param exportCsv .
+#' @param exportCodebook saves the data dictionary (name, description, type,
+#'   values, missing) as a CSV file
 #' @param exportKey saves the answer key (true model, expected estimates,
 #'   diagram, notes) as an HTML page for the teacher
 #' @return A results object containing:
@@ -1549,6 +1622,7 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$keyNotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$openState} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$csvState} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$codebookState} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$keyState} \tab \tab \tab \tab \tab a table \cr
 #' }
 #'
@@ -1620,6 +1694,7 @@ simStudy <- function(
     showKey = FALSE,
     openData = FALSE,
     exportCsv = FALSE,
+    exportCodebook = FALSE,
     exportKey = FALSE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
@@ -1690,6 +1765,7 @@ simStudy <- function(
         showKey = showKey,
         openData = openData,
         exportCsv = exportCsv,
+        exportCodebook = exportCodebook,
         exportKey = exportKey)
 
     analysis <- simStudyClass$new(

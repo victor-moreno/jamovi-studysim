@@ -80,6 +80,8 @@ children:
         name: openData
       - type: ActionButton
         name: exportCsv
+      - type: ActionButton
+        name: exportCodebook
   - type: CollapseBox
     label: Design options
     collapsed: true
