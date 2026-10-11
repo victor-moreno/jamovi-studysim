@@ -25,6 +25,14 @@ children:
     margin: large
     children:
         - type: CheckBox
+          name: designs_cross_sectional
+          optionName: designs
+          optionPart: cross_sectional
+        - type: CheckBox
+          name: designs_ecological
+          optionName: designs
+          optionPart: ecological
+        - type: CheckBox
           name: designs_case_control
           optionName: designs
           optionPart: case_control
@@ -37,22 +45,6 @@ children:
           optionName: designs
           optionPart: cohort
         - type: CheckBox
-          name: designs_cross_sectional
-          optionName: designs
-          optionPart: cross_sectional
-        - type: CheckBox
-          name: designs_rct
-          optionName: designs
-          optionPart: rct
-        - type: CheckBox
-          name: designs_crossover
-          optionName: designs
-          optionPart: crossover
-        - type: CheckBox
-          name: designs_prognosis
-          optionName: designs
-          optionPart: prognosis
-        - type: CheckBox
           name: designs_nested_cc
           optionName: designs
           optionPart: nested_cc
@@ -60,6 +52,22 @@ children:
           name: designs_case_cohort
           optionName: designs
           optionPart: case_cohort
+        - type: CheckBox
+          name: designs_prognosis
+          optionName: designs
+          optionPart: prognosis
+        - type: CheckBox
+          name: designs_diagnostic
+          optionName: designs
+          optionPart: diagnostic
+        - type: CheckBox
+          name: designs_method_comparison
+          optionName: designs
+          optionPart: method_comparison
+        - type: CheckBox
+          name: designs_rct
+          optionName: designs
+          optionPart: rct
         - type: CheckBox
           name: designs_cluster_rct
           optionName: designs
@@ -69,25 +77,17 @@ children:
           optionName: designs
           optionPart: factorial
         - type: CheckBox
+          name: designs_crossover
+          optionName: designs
+          optionPart: crossover
+        - type: CheckBox
           name: designs_longitudinal
           optionName: designs
           optionPart: longitudinal
         - type: CheckBox
-          name: designs_ecological
-          optionName: designs
-          optionPart: ecological
-        - type: CheckBox
-          name: designs_diagnostic
-          optionName: designs
-          optionPart: diagnostic
-        - type: CheckBox
           name: designs_pre_post
           optionName: designs
           optionPart: pre_post
-        - type: CheckBox
-          name: designs_method_comparison
-          optionName: designs
-          optionPart: method_comparison
   - type: ListBox
     name: measured
     showColumnHeaders: true

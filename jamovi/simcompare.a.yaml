@@ -57,38 +57,38 @@ options:
       title: Designs
       type: NMXList
       options:
+          - name: cross_sectional
+            title: Cross-sectional
+          - name: ecological
+            title: Ecological (regions)
           - name: case_control
             title: Case-control
           - name: matched_cc
             title: Matched case-control
           - name: cohort
             title: Cohort
-          - name: cross_sectional
-            title: Cross-sectional
-          - name: rct
-            title: Randomised trial
-          - name: crossover
-            title: 2x2 crossover trial
-          - name: prognosis
-            title: Prognosis (patient cohort)
           - name: nested_cc
             title: Nested case-control
           - name: case_cohort
             title: Case-cohort
+          - name: prognosis
+            title: Prognosis (patient cohort)
+          - name: diagnostic
+            title: Diagnostic accuracy
+          - name: method_comparison
+            title: Method comparison
+          - name: rct
+            title: Randomised trial
           - name: cluster_rct
             title: Cluster randomised trial
           - name: factorial
             title: 2x2 factorial trial
+          - name: crossover
+            title: 2x2 crossover trial
           - name: longitudinal
             title: Longitudinal trial (repeated visits)
-          - name: ecological
-            title: Ecological (regions)
-          - name: diagnostic
-            title: Diagnostic accuracy
           - name: pre_post
             title: Before-after (single group)
-          - name: method_comparison
-            title: Method comparison
       default: [case_control, matched_cc, cohort]
       description:
           R: designs to compare; those that do not fit the outcome are skipped

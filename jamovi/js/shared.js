@@ -9,7 +9,7 @@
 
 var BUILTIN = require('./builtin');
 
-var DESIGNS = ['case_control', 'matched_cc', 'cohort', 'cross_sectional', 'rct', 'crossover', 'prognosis', 'nested_cc', 'case_cohort', 'cluster_rct', 'factorial', 'longitudinal', 'ecological', 'diagnostic', 'pre_post', 'method_comparison'];
+var DESIGNS = ['cross_sectional', 'ecological', 'case_control', 'matched_cc', 'cohort', 'nested_cc', 'case_cohort', 'prognosis', 'diagnostic', 'method_comparison', 'rct', 'cluster_rct', 'factorial', 'crossover', 'longitudinal', 'pre_post'];
 var LIB_MAX = 700000;   // base64 characters; the options hop to the engine is 1 MiB
 
 function getOpt(ui, name) {

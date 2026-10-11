@@ -45,38 +45,38 @@ options:
       options:
           - name: any
             title: Any design
+          - name: cross_sectional
+            title: Cross-sectional
+          - name: ecological
+            title: Ecological (regions)
           - name: case_control
             title: Case-control
           - name: matched_cc
             title: Matched case-control
           - name: cohort
             title: Cohort
-          - name: cross_sectional
-            title: Cross-sectional
-          - name: rct
-            title: Randomised trial
-          - name: crossover
-            title: 2x2 crossover trial
-          - name: prognosis
-            title: Prognosis (patient cohort)
           - name: nested_cc
             title: Nested case-control
           - name: case_cohort
             title: Case-cohort
+          - name: prognosis
+            title: Prognosis (patient cohort)
+          - name: diagnostic
+            title: Diagnostic accuracy
+          - name: method_comparison
+            title: Method comparison
+          - name: rct
+            title: Randomised trial
           - name: cluster_rct
             title: Cluster randomised trial
           - name: factorial
             title: 2x2 factorial trial
+          - name: crossover
+            title: 2x2 crossover trial
           - name: longitudinal
             title: Longitudinal trial (repeated visits)
-          - name: ecological
-            title: Ecological (regions)
-          - name: diagnostic
-            title: Diagnostic accuracy
           - name: pre_post
             title: Before-after (single group)
-          - name: method_comparison
-            title: Method comparison
       default: any
       description:
           R: shows in the pickers only the scenarios (and outcomes) that fit this design
@@ -99,38 +99,38 @@ options:
       title: Design
       type: List
       options:
+          - name: cross_sectional
+            title: Cross-sectional
+          - name: ecological
+            title: Ecological (regions)
           - name: case_control
             title: Case-control
           - name: matched_cc
             title: Matched case-control
           - name: cohort
             title: Cohort
-          - name: cross_sectional
-            title: Cross-sectional
-          - name: rct
-            title: Randomised trial
-          - name: crossover
-            title: 2x2 crossover trial
-          - name: prognosis
-            title: Prognosis (patient cohort)
           - name: nested_cc
             title: Nested case-control
           - name: case_cohort
             title: Case-cohort
+          - name: prognosis
+            title: Prognosis (patient cohort)
+          - name: diagnostic
+            title: Diagnostic accuracy
+          - name: method_comparison
+            title: Method comparison
+          - name: rct
+            title: Randomised trial
           - name: cluster_rct
             title: Cluster randomised trial
           - name: factorial
             title: 2x2 factorial trial
+          - name: crossover
+            title: 2x2 crossover trial
           - name: longitudinal
             title: Longitudinal trial (repeated visits)
-          - name: ecological
-            title: Ecological (regions)
-          - name: diagnostic
-            title: Diagnostic accuracy
           - name: pre_post
             title: Before-after (single group)
-          - name: method_comparison
-            title: Method comparison
       default: case_control
       description:
           R: study design; must fit the outcome

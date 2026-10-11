@@ -42,7 +42,7 @@ with sync_playwright() as p:
     check("Any design" in combos.first.locator("option").all_inner_texts(), "design filter first")
     design = combos.nth(1)
     vis = design.evaluate("s => Array.from(s.options).filter(o => !o.hidden).map(o => o.text)")
-    check(vis == ["Case-control", "Matched case-control", "Cohort", "Nested case-control", "Case-cohort", "Ecological (regions)"], "breast cancer designs: %s" % vis)
+    check(vis == ["Ecological (regions)", "Case-control", "Matched case-control", "Cohort", "Nested case-control", "Case-cohort"], "breast cancer designs: %s" % vis)
     page.screenshot(path=os.path.join(OUT, "01-default.png"))
     for i in range(20):   # the first run after a restart loads R and calibrates
         txt = results_text(page)
