@@ -21,6 +21,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             loss = "",
             seed = 1,
             studentKey = "",
+            teacherCode = "",
             showExpected = FALSE,
             showPlot = TRUE,
             showDag = TRUE,
@@ -144,6 +145,10 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "studentKey",
                 studentKey,
                 default="")
+            private$..teacherCode <- jmvcore::OptionString$new(
+                "teacherCode",
+                teacherCode,
+                default="")
             private$..showExpected <- jmvcore::OptionBool$new(
                 "showExpected",
                 showExpected,
@@ -181,6 +186,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..loss)
             self$.addOption(private$..seed)
             self$.addOption(private$..studentKey)
+            self$.addOption(private$..teacherCode)
             self$.addOption(private$..showExpected)
             self$.addOption(private$..showPlot)
             self$.addOption(private$..showDag)
@@ -201,6 +207,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         loss = function() private$..loss$value,
         seed = function() private$..seed$value,
         studentKey = function() private$..studentKey$value,
+        teacherCode = function() private$..teacherCode$value,
         showExpected = function() private$..showExpected$value,
         showPlot = function() private$..showPlot$value,
         showDag = function() private$..showDag$value,
@@ -220,6 +227,7 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..loss = NA,
         ..seed = NA,
         ..studentKey = NA,
+        ..teacherCode = NA,
         ..showExpected = NA,
         ..showPlot = NA,
         ..showDag = NA,
@@ -262,7 +270,8 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "seed",
-                    "studentKey")))
+                    "studentKey",
+                    "teacherCode")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="studies",
@@ -279,7 +288,8 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="design", 
@@ -310,7 +320,8 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "seed",
                     "studentKey",
-                    "showExpected"),
+                    "showExpected",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="design", 
@@ -370,7 +381,8 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "measured",
-                    "dagValues")))
+                    "dagValues",
+                    "teacherCode")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",
@@ -391,7 +403,8 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "loss",
                     "seed",
                     "studentKey",
-                    "showExpected")))
+                    "showExpected",
+                    "teacherCode")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="openState",
@@ -409,7 +422,8 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="fired", 
@@ -432,7 +446,8 @@ simCompareResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "followup",
                     "loss",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="fired", 
@@ -499,6 +514,8 @@ simCompareBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param seed .
 #' @param studentKey any text (e.g. a student ID); each key gives a different
 #'   dataset (capitals and surrounding spaces are ignored)
+#' @param teacherCode unlocks the true values, the large-study estimates and
+#'   the effect sizes of a library locked with this code
 #' @param showExpected also simulate one large study per design and show its
 #'   estimates
 #' @param showPlot .
@@ -541,6 +558,7 @@ simCompare <- function(
     loss = "",
     seed = 1,
     studentKey = "",
+    teacherCode = "",
     showExpected = FALSE,
     showPlot = TRUE,
     showDag = TRUE,
@@ -569,6 +587,7 @@ simCompare <- function(
         loss = loss,
         seed = seed,
         studentKey = studentKey,
+        teacherCode = teacherCode,
         showExpected = showExpected,
         showPlot = showPlot,
         showDag = showDag,

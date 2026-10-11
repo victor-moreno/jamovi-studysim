@@ -9,7 +9,7 @@ items:
       type: Html
       visible: false
       clearWith: &gen [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
-                       seed, studentKey]
+                       seed, studentKey, teacherCode]
 
     - name: studies
       title: Studies
@@ -32,7 +32,7 @@ items:
       type: Table
       rows: 0
       clearWith: [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
-                  seed, studentKey, showExpected]
+                  seed, studentKey, showExpected, teacherCode]
       columns:
           - name: design
             title: Design
@@ -77,7 +77,7 @@ items:
       width: 600
       height: 420
       renderFun: .plotDag
-      clearWith: [libContent, scenario, outcome, measured, dagValues]
+      clearWith: [libContent, scenario, outcome, measured, dagValues, teacherCode]
 
     - name: plot
       title: Estimates by design
@@ -87,7 +87,7 @@ items:
       height: 400
       renderFun: .plot
       clearWith: [libContent, scenario, outcome, designs, measured, n, ccRatio, followup, loss,
-                  seed, studentKey, showExpected]
+                  seed, studentKey, showExpected, teacherCode]
 
     # once-only guards for the two buttons (see simstudy.r.yaml)
     - name: openState

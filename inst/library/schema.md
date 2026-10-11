@@ -256,6 +256,20 @@ factors with no effect), `designs` (default options per design, below),
 For example `matched_cc: {match: [age, sex], caliper: 2}`, `prognosis: {accrual: 4,
 followup: 8, loss: 0.02}`, `crossover: {period: -1.5, carryover: 0}`.
 
+## Locking the answer key
+
+```yaml
+lock: 2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b   # SHA-256 of the teacher code
+```
+
+A library with `lock:` (written by the Library analysis when a teacher code
+is typed before exporting) hides, while it is loaded, the answer key, its
+report, the class export, the effect sizes on the diagram, the true values of
+Compare designs and the effects in Library, until the same code is typed
+under *Teacher code*. It is a deterrent for a class, not protection: the
+library file itself holds the parameters. In Excel it is a row of a
+`settings` sheet (setting `lock`, value the hash).
+
 ## Excel sheets
 
 | sheet | one row per | columns |

@@ -237,3 +237,26 @@ test_that("a class export writes one dataset and codebook per student key and a 
   expect_false(identical(a, utils::read.csv(file.path(d, "Ben.csv"))))
   unlink(d, recursive = TRUE)
 })
+
+test_that("a library locked by a teacher code hides the key until the code is given", {
+  lib <- library_subset(builtin_library(), "chd_incidence"); lib$lock <- teacher_hash("secret")
+  for (f in c("json", "zip", "xlsx")) {
+    p <- tempfile(fileext = paste0(".", f))
+    switch(f, json = writeLines(library_to_json(lib), p), zip = write_library_yaml_zip(lib, p), xlsx = write_library_xlsx(lib, p))
+    expect_identical(read_library_file(p)$lock, lib$lock)
+  }
+  m <- merge_libraries(builtin_library(), lib)
+  expect_false(key_unlocked(m, "wrong"))
+  expect_true(key_unlocked(m, " secret "))
+  expect_true(key_unlocked(builtin_library()))
+  b64 <- jsonlite::base64_enc(charToRaw(enc2utf8(library_to_json(lib))))
+  r <- simStudy(data = data.frame(), libContent = b64, libName = "class.json", scenario = "chd_incidence", design = "cohort",
+                n = 200, showKey = TRUE, dagValues = TRUE)
+  expect_false(r$keyEffects$visible)
+  expect_false(r$dag$state$key)
+  r2 <- simStudy(data = data.frame(), libContent = b64, libName = "class.json", scenario = "chd_incidence", design = "cohort",
+                 n = 200, showKey = TRUE, teacherCode = "secret")
+  expect_true(r2$keyEffects$visible)
+  l <- simLibrary(data = data.frame(), libContent = b64, libName = "class.json", scenario = "chd_incidence", showDetails = TRUE)
+  expect_false(l$effects$visible)
+})

@@ -578,6 +578,15 @@ options:
       description:
           R: any text (e.g. a student ID); each key gives a different dataset (capitals and surrounding spaces are ignored)
 
+    - name: teacherCode
+      title: Teacher code
+      type: String
+      default: ""
+      description:
+          R: >
+              unlocks the answer key, the true values and the effect sizes of a library locked with this code
+              (the Library analysis writes the lock)
+
     - name: classKeys
       title: Student keys of the class
       type: String

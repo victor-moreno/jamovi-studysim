@@ -16,6 +16,7 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             showDetails = TRUE,
             exportFormat = "xlsx",
             exportScope = "all",
+            teacherCode = "",
             exportLib = FALSE,
             exportTemplate = FALSE, ...) {
 
@@ -95,6 +96,10 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "all",
                     "scenario"),
                 default="all")
+            private$..teacherCode <- jmvcore::OptionString$new(
+                "teacherCode",
+                teacherCode,
+                default="")
             private$..exportLib <- jmvcore::OptionAction$new(
                 "exportLib",
                 exportLib,
@@ -114,6 +119,7 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..showDetails)
             self$.addOption(private$..exportFormat)
             self$.addOption(private$..exportScope)
+            self$.addOption(private$..teacherCode)
             self$.addOption(private$..exportLib)
             self$.addOption(private$..exportTemplate)
         }),
@@ -128,6 +134,7 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         showDetails = function() private$..showDetails$value,
         exportFormat = function() private$..exportFormat$value,
         exportScope = function() private$..exportScope$value,
+        teacherCode = function() private$..teacherCode$value,
         exportLib = function() private$..exportLib$value,
         exportTemplate = function() private$..exportTemplate$value),
     private = list(
@@ -141,6 +148,7 @@ simLibraryOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..showDetails = NA,
         ..exportFormat = NA,
         ..exportScope = NA,
+        ..teacherCode = NA,
         ..exportLib = NA,
         ..exportTemplate = NA)
 )
@@ -407,6 +415,9 @@ simLibraryBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param showDetails .
 #' @param exportFormat .
 #' @param exportScope .
+#' @param teacherCode unlocks a library locked with this code; a library
+#'   exported with a code is locked with it (its answer keys, true values and
+#'   effects then need the code)
 #' @param exportLib .
 #' @param exportTemplate .
 #' @return A results object containing:
@@ -441,6 +452,7 @@ simLibrary <- function(
     showDetails = TRUE,
     exportFormat = "xlsx",
     exportScope = "all",
+    teacherCode = "",
     exportLib = FALSE,
     exportTemplate = FALSE) {
 
@@ -463,6 +475,7 @@ simLibrary <- function(
         showDetails = showDetails,
         exportFormat = exportFormat,
         exportScope = exportScope,
+        teacherCode = teacherCode,
         exportLib = exportLib,
         exportTemplate = exportTemplate)
 

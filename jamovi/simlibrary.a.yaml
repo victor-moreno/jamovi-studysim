@@ -129,6 +129,15 @@ options:
             title: Selected scenario
       default: all
 
+    - name: teacherCode
+      title: Teacher code
+      type: String
+      default: ""
+      description:
+          R: >
+              unlocks a library locked with this code; a library exported with a code is locked with it
+              (its answer keys, true values and effects then need the code)
+
     - name: exportLib
       title: Export library
       type: Action

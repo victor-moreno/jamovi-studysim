@@ -36,6 +36,9 @@ children:
         name: exportFormat
       - type: ComboBox
         name: exportScope
+      - type: TextBox
+        name: teacherCode
+        format: string
       - type: ActionButton
         name: exportLib
       - type: ActionButton

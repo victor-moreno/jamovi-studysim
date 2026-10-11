@@ -170,6 +170,9 @@ children:
             name: studentKey
             format: string
             width: large
+          - type: TextBox
+            name: teacherCode
+            format: string
           - type: CheckBox
             name: showExpected
           - type: CheckBox

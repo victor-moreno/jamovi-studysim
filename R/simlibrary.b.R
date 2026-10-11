@@ -25,7 +25,7 @@ simLibraryClass <- R6::R6Class(
                     merge_libraries(builtin_library(), custom))
                 if (length(lib$scenarios) == 0)
                     stop(.("The library has no scenarios. Press Browse… to read a custom library."), call. = FALSE)
-                list(lib = lib, custom = names(custom$scenarios))
+                list(lib = lib, custom = names(custom$scenarios), locked = !key_unlocked(lib, o$teacherCode))
             }, error = function(e) list(error = friendly_error(e, self)))
             private$.state <- st
             st
@@ -100,6 +100,13 @@ simLibraryClass <- R6::R6Class(
             for (iv in sc$interventions)
                 vt$addRow(rowKey = iv$id, values = list(name = iv$id, label = tr_text(iv$label, l), type = .("intervention"),
                                                          distribution = paste(iv$levels, collapse = " / ")))
+            # a library locked by a teacher code shows its variables, not its effects
+            if (isTRUE(private$.library()$locked)) {
+                self$results$notice$setContent(sprintf("<p>%s</p>", htmlEscape(locked_text(self))))
+                self$results$notice$setVisible(TRUE)
+                for (nm in c("effects", "structure")) self$results[[nm]]$setVisible(FALSE)
+                return()
+            }
             et <- self$results$effects
             k <- 0
             for (o in sc$outcomes) {
@@ -146,13 +153,18 @@ simLibraryClass <- R6::R6Class(
                 self$options$option(optName)$perform(fun)
                 s$setRow(rowNo = 1, values = list(fired = "yes"))
             }
-            if (is.null(st$error)) once("exportState", "exportLib", function(action) {
+            if (isTRUE(st$locked) && isTRUE(o$exportLib)) {
+                self$results$notice$setContent(sprintf("<p><b>%s</b></p>", htmlEscape(locked_text(self))))
+                self$results$notice$setVisible(TRUE)
+            } else if (is.null(st$error)) once("exportState", "exportLib", function(action) {
                 lib <- st$lib
                 base <- "studysim-library"
                 if (o$exportScope == "scenario" && o$scenario %in% names(lib$scenarios)) {
                     lib <- library_subset(lib, o$scenario)
                     base <- o$scenario
                 }
+                # exported with a teacher code: locked with it
+                lib$lock <- if (nzchar(trimws(o$teacherCode))) teacher_hash(o$teacherCode) else NULL
                 switch(o$exportFormat,
                     xlsx = { write_library_xlsx(lib, action$params$fullPath); list(filename = paste0(base, ".xlsx")) },
                     json = { writeLines(library_to_json(lib, pretty = TRUE, compatible = TRUE), action$params$fullPath, useBytes = TRUE)

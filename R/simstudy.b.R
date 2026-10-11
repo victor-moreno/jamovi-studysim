@@ -35,6 +35,7 @@ simStudyClass <- R6::R6Class(
                 ctx <- list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
                             factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats, exposures = m$exposures)
                 ctx$opt <- private$.designOptions(ctx)   # a mistyped number stops here, as a notice
+                ctx$locked <- !key_unlocked(lib, o$teacherCode)
                 ctx
             }, error = function(e) list(error = friendly_error(e, self)))
             private$.ctx <- ctx
@@ -119,7 +120,10 @@ simStudyClass <- R6::R6Class(
                     self$results$descriptives$addRow(rowKey = r$key, values = list(variable = r$variable, level = r$level))
             }
             if (self$options$showDag) private$.initDag(ctx)
-            if (self$options$showKey) {
+            if (self$options$showKey && isTRUE(ctx$locked)) {
+                private$.notice(sprintf("<p>%s</p>", htmlEscape(locked_text(self))))
+                for (nm in c("keyEffects", "keyExpected", "keyTrial", "keyMarkers", "keyAccuracy", "keyNotes")) self$results[[nm]]$setVisible(FALSE)
+            } else if (self$options$showKey) {
                 # one block of rows per outcome (the primary's keys have no prefix)
                 for (o in private$.keyOutcomes(ctx)) {
                     oc2 <- ctx$sc$outcomes[[o]]; pre <- if (o == ctx$oc$id) "" else paste0(o, "|")
@@ -231,6 +235,12 @@ simStudyClass <- R6::R6Class(
             }
             if (o$showDag) private$.fillDag(ctx)
             # a key that cannot be computed explains itself instead of showing R's message
+            if (isTRUE(ctx$locked)) {
+                # the teacher's outputs need the code: a press only explains why
+                for (b in list(c("classState", "exportClass"), c("keyState", "exportKey")))
+                    if (private$.wants(b[1], b[2])) private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(locked_text(self))))
+                return()
+            }
             if (o$showKey) tryCatch(private$.fillKey(ctx, calibrate(ctx$sc, ctx$oc), opt), error = function(e)
                 private$.notice(sprintf("<p><b>%s</b> %s</p>", .("The answer key could not be computed for these options:"),
                                         htmlEscape(friendly_error(e, self)))))
@@ -601,16 +611,22 @@ simStudyClass <- R6::R6Class(
 # The causal diagram of an analysis with options showDag/dagValues and an
 # Image result `dag` (Simulated study, Compare designs). `self` is the
 # analysis: .() translates through it.
-dag_caption <- function(self) {
+dag_caption <- function(self, values = isTRUE(self$options$dagValues)) {
     cap <- .("Solid box: measured; dashed: not measured; grey arrows: paths among variables; dotted: correlations; dark arrows: effects on the outcome.")
-    if (isTRUE(self$options$dagValues)) cap <- paste(cap, .("Red: raises the outcome, blue: lowers it; * the effect depends on another variable."))
+    if (values) cap <- paste(cap, .("Red: raises the outcome, blue: lowers it; * the effect depends on another variable."))
     cap
 }
+
+# effect sizes on the diagram: asked for, and not locked by a teacher code
+dag_values <- function(self, ctx) isTRUE(self$options$dagValues) && !isTRUE(ctx$locked)
+
+# the notice of a library locked by a teacher code
+locked_text <- function(self) .("This library is locked by a teacher code: the answer key, the true values and the effect sizes need the code (Teacher code, under Output).")
 
 # in .init(): the image sized to the layout (pixels) and its caption
 dag_init <- function(self, ctx) {
     g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
-    sz <- dag_size(g, dag_caption(self))
+    sz <- dag_size(g, dag_caption(self, dag_values(self, ctx)))
     self$results$dag$setSize(sz[["w"]], sz[["h"]])
 }
 
@@ -620,8 +636,8 @@ dag_fill <- function(self, ctx) {
     img <- self$results$dag
     if (is.null(img$state) || is.null(img$state$g$points)) {
         g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
-        img$setState(list(g = g, w = img$width, h = img$height, key = isTRUE(self$options$dagValues),
-                          caption = dag_caption(self)))
+        img$setState(list(g = g, w = img$width, h = img$height, key = dag_values(self, ctx),
+                          caption = dag_caption(self, dag_values(self, ctx))))
     }
 }
 

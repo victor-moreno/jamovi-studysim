@@ -19,8 +19,9 @@ read_yaml_file <- function(path) yaml_read(paste(readLines(path, warn = FALSE, e
 # `i18n:`) or a language dictionary (`names:`/`levels:`, file named <lang>.yaml).
 add_yaml_doc <- function(lib, doc, name = "") {
     base <- sub("\\.(ya?ml|json)$", "", basename(name), ignore.case = TRUE)
-    if (is.null(doc$outcomes) && (!is.null(doc$scenarios) || !is.null(doc$i18n) ||
+    if (is.null(doc$outcomes) && (!is.null(doc$scenarios) || !is.null(doc$i18n) || !is.null(doc$lock) ||
         (!is.null(doc$variables) && is.null(doc$id)))) {
+        if (!is.null(doc$lock)) lib$lock <- as.character(unlist(doc$lock))[1]   # teacher code hash (key_unlocked)
         lib$dictionary <- shallow_merge(lib$dictionary, doc$variables %||% list())
         for (s in doc$scenarios %||% list()) lib$scenarios[[s$id]] <- s
         if (!is.null(doc$scenarios) && !is.null(names(doc$scenarios)))
@@ -74,8 +75,16 @@ builtin_library <- function() {
 merge_libraries <- function(base, custom) {
     list(dictionary = shallow_merge(base$dictionary, custom$dictionary),
          scenarios = shallow_merge(base$scenarios, custom$scenarios),
-         i18n = merge_i18n(base$i18n, custom$i18n))
+         i18n = merge_i18n(base$i18n, custom$i18n),
+         lock = custom$lock %||% base$lock)
 }
+
+# A library can be locked by a teacher code: it then carries the code's
+# SHA-256 (`lock:`), and the answer key, the true values and the scenario's
+# effects are shown only with the code. A deterrent, not protection: the
+# library file itself holds the parameters.
+teacher_hash <- function(code) digest::digest(trimws(as.character(code %||% "")), algo = "sha256", serialize = FALSE)
+key_unlocked <- function(lib, code = "") is.null(lib$lock) || identical(teacher_hash(code), lib$lock)
 
 # ---- tabular model (the Excel sheets) ---------------------------------------
 
@@ -205,6 +214,7 @@ library_to_tables <- function(lib) {
             r
         })
     }
+    if (!is.null(lib$lock)) t$settings <- data.frame(setting = "lock", value = lib$lock, stringsAsFactors = FALSE)
     t$translations <- rbind_rows(c(tr_rows("*", lib$i18n),
                                    unlist(lapply(sc, function(s) tr_rows(s$id, s$i18n)), recursive = FALSE)))
     Filter(Negate(is.null), t)
@@ -241,6 +251,7 @@ table_var <- function(r) {
 
 tables_to_library <- function(t) {
     lib <- empty_library()
+    if (!is.null(t$settings) && "lock" %in% t$settings$setting) lib$lock <- t$settings$value[t$settings$setting == "lock"][1]
     for (r in rows_of(t$variables, "*")) lib$dictionary[[r$variable]] <- table_var(r)
     lib$i18n <- tables_to_i18n(t$translations, "*")
     ids <- unique(as.character(t$scenarios$scenario))
@@ -358,8 +369,8 @@ library_to_json <- function(lib, pretty = FALSE, compatible = FALSE) {
         for (o in intersect(names(sc[[id]]$outcomes), names(s$outcomes)))
             sc[[id]]$outcomes[[o]][["_compatible"]] <- I(compatible_designs(s, o))
     }
-    jsonlite::toJSON(list(variables = lib$dictionary, scenarios = sc, i18n = lib$i18n %||% list()), auto_unbox = TRUE,
-                     pretty = pretty, null = "null", digits = NA)
+    jsonlite::toJSON(c(list(variables = lib$dictionary, scenarios = sc, i18n = lib$i18n %||% list()), if (!is.null(lib$lock)) list(lock = lib$lock)),
+                     auto_unbox = TRUE, pretty = pretty, null = "null", digits = NA)
 }
 
 library_from_json <- function(text) {
@@ -375,6 +386,7 @@ write_library_yaml_zip <- function(lib, path) {
     for (s in lib$scenarios) yaml::write_yaml(s, file.path(tmp, "scenarios", paste0(s$id, ".yaml")))
     if (length(lib$i18n)) dir.create(file.path(tmp, "i18n"))
     for (l in names(lib$i18n)) yaml::write_yaml(lib$i18n[[l]], file.path(tmp, "i18n", paste0(l, ".yaml")))
+    if (!is.null(lib$lock)) yaml::write_yaml(list(lock = lib$lock), file.path(tmp, "library.yaml"))
     files <- list.files(tmp, recursive = TRUE)
     zip::zip(normalizePath(path, mustWork = FALSE), files, root = tmp)
     invisible(path)

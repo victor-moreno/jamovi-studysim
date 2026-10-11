@@ -32,7 +32,8 @@ simCompareClass <- R6::R6Class(
                     loss = num_opt(self, "loss", .("Loss to follow-up (% per time unit)"), 0, 50, scale = 100),
                     followup = num_opt(self, "followup", .("Follow-up"), 0.01, 100)))
                 list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], designs = designs, factors = m$factors, cats = m$cats,
-                     lang = private$.lang(), skipped = setdiff(unlist(o$designs), ok), opts = opts)
+                     lang = private$.lang(), skipped = setdiff(unlist(o$designs), ok), opts = opts,
+                     locked = !key_unlocked(lib, o$teacherCode))
             }, error = function(e) list(error = friendly_error(e, self)))
             private$.ctx <- ctx
             ctx
@@ -77,6 +78,11 @@ simCompareClass <- R6::R6Class(
             if (length(ctx$factors) == 0 && length(ctx$sc$interventions) == 0)
                 private$.notice(sprintf("<p>%s</p>", .("No variables measured yet: tick them under Measured.")))
             if (self$options$showDag) dag_init(self, ctx)
+            # a library locked by a teacher code: no true values nor large-study estimates
+            if (isTRUE(ctx$locked)) {
+                private$.notice(sprintf("<p>%s</p>", htmlEscape(locked_text(self))))
+                for (col in c("truth", "expected")) self$results$estimates$getColumn(col)$setVisible(FALSE)
+            }
             for (d in ctx$designs) self$results$studies$addRow(rowKey = d, values = list(design = design_title(d, self)))
             rows <- private$.rows(ctx)
             for (r in rows) self$results$estimates$addRow(rowKey = r$key, values = list(
@@ -99,12 +105,13 @@ simCompareClass <- R6::R6Class(
             titles <- vapply(ctx$designs, design_title, "", self)
             res <- tryCatch(compare_designs(ctx$sc, ctx$oc$id, ctx$designs, o$n, ctx$factors, seed = o$seed,
                                             student_key = o$studentKey, options = opts, lang = ctx$lang,
-                                            categorize = ctx$cats, expected = o$showExpected, titles = titles),
+                                            categorize = ctx$cats, expected = o$showExpected && !isTRUE(ctx$locked), titles = titles),
                             error = function(e) e)
             if (inherits(res, "error")) {
                 private$.notice(sprintf("<p><b>%s</b></p>", htmlEscape(friendly_error(res, self))))
                 return()
             }
+            if (isTRUE(ctx$locked) && !is.null(res$estimates)) res$estimates$true <- NA_real_
             private$.fillStudies(ctx, res)
             private$.fillEstimates(ctx, res)
             if (o$showPlot && !is.null(res$estimates) && is.null(self$results$plot$state))

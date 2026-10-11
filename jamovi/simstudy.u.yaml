@@ -277,6 +277,9 @@ children:
             format: string
             width: large
           - type: TextBox
+            name: teacherCode
+            format: string
+          - type: TextBox
             name: classKeys
             format: string
             width: large

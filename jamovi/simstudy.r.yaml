@@ -13,7 +13,7 @@ items:
                        period, carryover, missing, missingMech, reliability, misclass, entryErrors, noiseVars, lodHandling,
                        batches, batchCv, batchConfounded, spectrum, verification, recall, ctrlSelect, collider,
                        nonadherence, informative, immortal, layout, seed,
-                       studentKey]
+                       studentKey, teacherCode]
 
     - name: summary
       title: Study
@@ -62,7 +62,7 @@ items:
       width: 600
       height: 420
       renderFun: .plotDag
-      clearWith: [libContent, scenario, outcome, design, measured, dagValues]
+      clearWith: [libContent, scenario, outcome, design, measured, dagValues, teacherCode]
 
     - name: keyEffects
       title: 'Answer key: true model'

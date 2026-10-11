@@ -58,6 +58,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             noiseVars = 0,
             seed = 1,
             studentKey = "",
+            teacherCode = "",
             classKeys = "",
             showDictionary = TRUE,
             showDescriptives = TRUE,
@@ -401,6 +402,10 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "studentKey",
                 studentKey,
                 default="")
+            private$..teacherCode <- jmvcore::OptionString$new(
+                "teacherCode",
+                teacherCode,
+                default="")
             private$..classKeys <- jmvcore::OptionString$new(
                 "classKeys",
                 classKeys,
@@ -498,6 +503,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..noiseVars)
             self$.addOption(private$..seed)
             self$.addOption(private$..studentKey)
+            self$.addOption(private$..teacherCode)
             self$.addOption(private$..classKeys)
             self$.addOption(private$..showDictionary)
             self$.addOption(private$..showDescriptives)
@@ -563,6 +569,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         noiseVars = function() private$..noiseVars$value,
         seed = function() private$..seed$value,
         studentKey = function() private$..studentKey$value,
+        teacherCode = function() private$..teacherCode$value,
         classKeys = function() private$..classKeys$value,
         showDictionary = function() private$..showDictionary$value,
         showDescriptives = function() private$..showDescriptives$value,
@@ -627,6 +634,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..noiseVars = NA,
         ..seed = NA,
         ..studentKey = NA,
+        ..teacherCode = NA,
         ..classKeys = NA,
         ..showDictionary = NA,
         ..showDescriptives = NA,
@@ -722,7 +730,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey")))
+                    "studentKey",
+                    "teacherCode")))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="summary",
@@ -777,7 +786,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey")))
+                    "studentKey",
+                    "teacherCode")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="dictionary",
@@ -834,7 +844,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="name", 
@@ -912,7 +923,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="variable", 
@@ -945,7 +957,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "outcome",
                     "design",
                     "measured",
-                    "dagValues")))
+                    "dagValues",
+                    "teacherCode")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="keyEffects",
@@ -1223,7 +1236,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey")))
+                    "studentKey",
+                    "teacherCode")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="openState",
@@ -1280,7 +1294,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="fired", 
@@ -1342,7 +1357,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="fired", 
@@ -1404,7 +1420,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="fired", 
@@ -1466,7 +1483,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="fired", 
@@ -1528,7 +1546,8 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "immortal",
                     "layout",
                     "seed",
-                    "studentKey"),
+                    "studentKey",
+                    "teacherCode"),
                 columns=list(
                     list(
                         `name`="fired", 
@@ -1675,6 +1694,9 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param seed .
 #' @param studentKey any text (e.g. a student ID); each key gives a different
 #'   dataset (capitals and surrounding spaces are ignored)
+#' @param teacherCode unlocks the answer key, the true values and the effect
+#'   sizes of a library locked with this code (the Library analysis writes the
+#'   lock)
 #' @param classKeys the keys of a class (e.g. student IDs) separated by
 #'   commas, semicolons or new lines; Export class writes one dataset per key
 #' @param showDictionary .
@@ -1772,6 +1794,7 @@ simStudy <- function(
     noiseVars = 0,
     seed = 1,
     studentKey = "",
+    teacherCode = "",
     classKeys = "",
     showDictionary = TRUE,
     showDescriptives = TRUE,
@@ -1845,6 +1868,7 @@ simStudy <- function(
         noiseVars = noiseVars,
         seed = seed,
         studentKey = studentKey,
+        teacherCode = teacherCode,
         classKeys = classKeys,
         showDictionary = showDictionary,
         showDescriptives = showDescriptives,
