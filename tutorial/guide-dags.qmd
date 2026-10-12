@@ -99,7 +99,7 @@ all_res <- list()
 n <- 5000
 ```
 
-### 1. Confounder: coffee, smoking and blood pressure
+### 1. Confounder: coffee and blood pressure, confounded by smoking
 
 Smokers drink more coffee, and smoking raises blood pressure. Coffee itself has
 no effect.
@@ -128,7 +128,7 @@ res_tab(0, r1)
 it borrowed from smoking. Adjusting for the confounder closes the backdoor path
 and the estimate falls to the truth, zero.
 
-### 1b. Negative confounding: salt, age and blood pressure
+### 1b. Negative confounder: salt and blood pressure, masked by age
 
 Confounding does not always create an effect; it can also hide one. Salt raises
 blood pressure (+2 mmHg per g/day), and so does age (+0.45 mmHg per year). But
@@ -163,7 +163,7 @@ it. Two positive or two negative arrows exaggerate an effect (as smoking did for
 coffee); opposite signs mask it. A null crude association is therefore no reason
 to drop an exposure before adjusting.
 
-### 2. Mediator: exercise, body mass index and blood pressure
+### 2. Mediator: exercise and blood pressure, mediated by body mass index
 
 Exercise lowers blood pressure directly (−1 mmHg per hour a week) and by
 lowering BMI (−0.8 kg/m² per hour, each kg/m² adding 1.2 mmHg). Its total effect
@@ -195,7 +195,7 @@ for BMI removes the part that goes through it and leaves the **direct** effect.
 Both are correct answers to different questions; if the question is "how much
 does exercise lower blood pressure?", do not adjust for BMI.
 
-### 3. Collider: alcohol, depression and hospital admission
+### 3. Collider: alcohol and depression, with hospital admission as collider
 
 Alcohol intake and depression are unrelated here, but both make admission to
 hospital more likely. A study of inpatients, or a model that includes
@@ -228,7 +228,7 @@ have been admitted for something else, depression for instance, so alcohol and
 depression appear *negatively* related. Adjusting for the collider creates bias
 where there was none (Berkson's bias).
 
-### 4. Instrument: dog ownership, walking and blood pressure
+### 4. Instrument: walking and blood pressure, with dog ownership as instrument
 
 Owning a dog makes people walk more and has no other effect on blood pressure
 (an instrument). Health consciousness, unmeasured, makes people walk more and
@@ -262,7 +262,7 @@ remaining variation in walking is more confounded (bias amplification), and the
 interval is wider. An instrument is not a confounder; it is useful in a
 different analysis (instrumental variable estimation), not as a covariate.
 
-### 5. Precision variable: baseline blood pressure in a trial
+### 5. Precision variable: a drug and blood pressure, with entry blood pressure as precision variable
 
 A randomised trial of an antihypertensive in 200 patients: the drug lowers
 pressure by 8 mmHg, and pressure at entry strongly predicts pressure at the end.
@@ -296,7 +296,7 @@ in observational studies. (With logistic or Cox models it also moves the odds or
 hazard ratio from marginal to conditional; see [Measures and
 models](guide-measures.qmd).)
 
-### 6. M-bias: a variable associated with both is not always a confounder
+### 6. M-bias: physical activity and blood pressure, with supplement use as collider of two unmeasured causes
 
 Physical activity lowers blood pressure (−1 mmHg per hour a week). Health
 awareness (unmeasured) increases activity and supplement use; a family history

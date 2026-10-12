@@ -405,13 +405,13 @@ div.csl-indent {
   <li><a href="#the-kinds-of-variables" id="toc-the-kinds-of-variables" class="nav-link" data-scroll-target="#the-kinds-of-variables">The kinds of variables</a></li>
   <li><a href="#each-kind-of-variable-worked" id="toc-each-kind-of-variable-worked" class="nav-link" data-scroll-target="#each-kind-of-variable-worked">Each kind of variable, worked</a>
   <ul class="collapse">
-  <li><a href="#confounder-coffee-smoking-and-blood-pressure" id="toc-confounder-coffee-smoking-and-blood-pressure" class="nav-link" data-scroll-target="#confounder-coffee-smoking-and-blood-pressure">1. Confounder: coffee, smoking and blood pressure</a></li>
-  <li><a href="#b.-negative-confounding-salt-age-and-blood-pressure" id="toc-b.-negative-confounding-salt-age-and-blood-pressure" class="nav-link" data-scroll-target="#b.-negative-confounding-salt-age-and-blood-pressure">1b. Negative confounding: salt, age and blood pressure</a></li>
-  <li><a href="#mediator-exercise-body-mass-index-and-blood-pressure" id="toc-mediator-exercise-body-mass-index-and-blood-pressure" class="nav-link" data-scroll-target="#mediator-exercise-body-mass-index-and-blood-pressure">2. Mediator: exercise, body mass index and blood pressure</a></li>
-  <li><a href="#collider-alcohol-depression-and-hospital-admission" id="toc-collider-alcohol-depression-and-hospital-admission" class="nav-link" data-scroll-target="#collider-alcohol-depression-and-hospital-admission">3. Collider: alcohol, depression and hospital admission</a></li>
-  <li><a href="#instrument-dog-ownership-walking-and-blood-pressure" id="toc-instrument-dog-ownership-walking-and-blood-pressure" class="nav-link" data-scroll-target="#instrument-dog-ownership-walking-and-blood-pressure">4. Instrument: dog ownership, walking and blood pressure</a></li>
-  <li><a href="#precision-variable-baseline-blood-pressure-in-a-trial" id="toc-precision-variable-baseline-blood-pressure-in-a-trial" class="nav-link" data-scroll-target="#precision-variable-baseline-blood-pressure-in-a-trial">5. Precision variable: baseline blood pressure in a trial</a></li>
-  <li><a href="#m-bias-a-variable-associated-with-both-is-not-always-a-confounder" id="toc-m-bias-a-variable-associated-with-both-is-not-always-a-confounder" class="nav-link" data-scroll-target="#m-bias-a-variable-associated-with-both-is-not-always-a-confounder">6. M-bias: a variable associated with both is not always a confounder</a></li>
+  <li><a href="#confounder-coffee-and-blood-pressure-confounded-by-smoking" id="toc-confounder-coffee-and-blood-pressure-confounded-by-smoking" class="nav-link" data-scroll-target="#confounder-coffee-and-blood-pressure-confounded-by-smoking">1. Confounder: coffee and blood pressure, confounded by smoking</a></li>
+  <li><a href="#b.-negative-confounder-salt-and-blood-pressure-masked-by-age" id="toc-b.-negative-confounder-salt-and-blood-pressure-masked-by-age" class="nav-link" data-scroll-target="#b.-negative-confounder-salt-and-blood-pressure-masked-by-age">1b. Negative confounder: salt and blood pressure, masked by age</a></li>
+  <li><a href="#mediator-exercise-and-blood-pressure-mediated-by-body-mass-index" id="toc-mediator-exercise-and-blood-pressure-mediated-by-body-mass-index" class="nav-link" data-scroll-target="#mediator-exercise-and-blood-pressure-mediated-by-body-mass-index">2. Mediator: exercise and blood pressure, mediated by body mass index</a></li>
+  <li><a href="#collider-alcohol-and-depression-with-hospital-admission-as-collider" id="toc-collider-alcohol-and-depression-with-hospital-admission-as-collider" class="nav-link" data-scroll-target="#collider-alcohol-and-depression-with-hospital-admission-as-collider">3. Collider: alcohol and depression, with hospital admission as collider</a></li>
+  <li><a href="#instrument-walking-and-blood-pressure-with-dog-ownership-as-instrument" id="toc-instrument-walking-and-blood-pressure-with-dog-ownership-as-instrument" class="nav-link" data-scroll-target="#instrument-walking-and-blood-pressure-with-dog-ownership-as-instrument">4. Instrument: walking and blood pressure, with dog ownership as instrument</a></li>
+  <li><a href="#precision-variable-a-drug-and-blood-pressure-with-entry-blood-pressure-as-precision-variable" id="toc-precision-variable-a-drug-and-blood-pressure-with-entry-blood-pressure-as-precision-variable" class="nav-link" data-scroll-target="#precision-variable-a-drug-and-blood-pressure-with-entry-blood-pressure-as-precision-variable">5. Precision variable: a drug and blood pressure, with entry blood pressure as precision variable</a></li>
+  <li><a href="#m-bias-physical-activity-and-blood-pressure-with-supplement-use-as-collider-of-two-unmeasured-causes" id="toc-m-bias-physical-activity-and-blood-pressure-with-supplement-use-as-collider-of-two-unmeasured-causes" class="nav-link" data-scroll-target="#m-bias-physical-activity-and-blood-pressure-with-supplement-use-as-collider-of-two-unmeasured-causes">6. M-bias: physical activity and blood pressure, with supplement use as collider of two unmeasured causes</a></li>
   <li><a href="#the-six-side-by-side" id="toc-the-six-side-by-side" class="nav-link" data-scroll-target="#the-six-side-by-side">The six side by side</a></li>
   </ul></li>
   <li><a href="#the-same-structures-in-studysim-scenarios" id="toc-the-same-structures-in-studysim-scenarios" class="nav-link" data-scroll-target="#the-same-structures-in-studysim-scenarios">The same structures in studysim scenarios</a></li>
@@ -540,8 +540,8 @@ Figure&nbsp;1: The roles a third variable can play for the effect of an exposure
 <section id="each-kind-of-variable-worked" class="level2">
 <h2 class="anchored" data-anchor-id="each-kind-of-variable-worked">Each kind of variable, worked</h2>
 <p>Small studies, one per kind of variable (two for confounders), each simulated with a few lines of code so that the true effect is known exactly. The outcome is always a continuous measure analysed with linear regression, so the estimates are easy to compare: a coefficient is the change in the outcome per unit of the exposure. Each table gives the true effect, the crude estimate and the estimate adjusted for the third variable, with 95% confidence intervals.</p>
-<section id="confounder-coffee-smoking-and-blood-pressure" class="level3">
-<h3 class="anchored" data-anchor-id="confounder-coffee-smoking-and-blood-pressure">1. Confounder: coffee, smoking and blood pressure</h3>
+<section id="confounder-coffee-and-blood-pressure-confounded-by-smoking" class="level3">
+<h3 class="anchored" data-anchor-id="confounder-coffee-and-blood-pressure-confounded-by-smoking">1. Confounder: coffee and blood pressure, confounded by smoking</h3>
 <p>Smokers drink more coffee, and smoking raises blood pressure. Coffee itself has no effect.</p>
 <div id="fig-w-confounder" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -596,8 +596,8 @@ Figure&nbsp;2: Smoking opens the backdoor path coffee ← smoking → SBP; there
 </div>
 <p><strong>What adjusting does</strong>: the crude analysis finds about 1.5 mmHg per cup, all of it borrowed from smoking. Adjusting for the confounder closes the backdoor path and the estimate falls to the truth, zero.</p>
 </section>
-<section id="b.-negative-confounding-salt-age-and-blood-pressure" class="level3">
-<h3 class="anchored" data-anchor-id="b.-negative-confounding-salt-age-and-blood-pressure">1b. Negative confounding: salt, age and blood pressure</h3>
+<section id="b.-negative-confounder-salt-and-blood-pressure-masked-by-age" class="level3">
+<h3 class="anchored" data-anchor-id="b.-negative-confounder-salt-and-blood-pressure-masked-by-age">1b. Negative confounder: salt and blood pressure, masked by age</h3>
 <p>Confounding does not always create an effect; it can also hide one. Salt raises blood pressure (+2 mmHg per g/day), and so does age (+0.45 mmHg per year). But younger people eat more salt, so people with a high salt intake are younger and, for that reason alone, have lower blood pressure.</p>
 <div id="fig-w-negative" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -652,8 +652,8 @@ Figure&nbsp;3: Age lowers salt intake and raises blood pressure: the backdoor pa
 </div>
 <p><strong>What adjusting does</strong>: the crude analysis finds no effect of salt at all; adjusting for age reveals it. The direction of confounding bias is the product of the signs of the confounder’s two arrows: here (age → salt: −) × (age → blood pressure: +) = −, so the crude estimate is pulled <em>down</em>, towards zero or past it. Two positive or two negative arrows exaggerate an effect (as smoking did for coffee); opposite signs mask it. A null crude association is therefore no reason to drop an exposure before adjusting.</p>
 </section>
-<section id="mediator-exercise-body-mass-index-and-blood-pressure" class="level3">
-<h3 class="anchored" data-anchor-id="mediator-exercise-body-mass-index-and-blood-pressure">2. Mediator: exercise, body mass index and blood pressure</h3>
+<section id="mediator-exercise-and-blood-pressure-mediated-by-body-mass-index" class="level3">
+<h3 class="anchored" data-anchor-id="mediator-exercise-and-blood-pressure-mediated-by-body-mass-index">2. Mediator: exercise and blood pressure, mediated by body mass index</h3>
 <p>Exercise lowers blood pressure directly (−1 mmHg per hour a week) and by lowering BMI (−0.8 kg/m² per hour, each kg/m² adding 1.2 mmHg). Its total effect is −1 + (−0.8 × 1.2) = −1.96 mmHg per hour.</p>
 <div id="fig-w-mediator" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -712,8 +712,8 @@ Figure&nbsp;4: BMI is on the causal path from exercise to blood pressure.
 </div>
 <p><strong>What adjusting does</strong>: the crude estimate is the <strong>total</strong> effect. Adjusting for BMI removes the part that goes through it and leaves the <strong>direct</strong> effect. Both are correct answers to different questions; if the question is “how much does exercise lower blood pressure?”, do not adjust for BMI.</p>
 </section>
-<section id="collider-alcohol-depression-and-hospital-admission" class="level3">
-<h3 class="anchored" data-anchor-id="collider-alcohol-depression-and-hospital-admission">3. Collider: alcohol, depression and hospital admission</h3>
+<section id="collider-alcohol-and-depression-with-hospital-admission-as-collider" class="level3">
+<h3 class="anchored" data-anchor-id="collider-alcohol-and-depression-with-hospital-admission-as-collider">3. Collider: alcohol and depression, with hospital admission as collider</h3>
 <p>Alcohol intake and depression are unrelated here, but both make admission to hospital more likely. A study of inpatients, or a model that includes admission, conditions on the collider.</p>
 <div id="fig-w-collider" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -772,8 +772,8 @@ Figure&nbsp;5: Admission is caused by both. Restricting to, or adjusting for, ad
 </div>
 <p>Estimates per 10 g/day of alcohol. <strong>What adjusting does</strong>: in everybody there is no association. Among the admitted, a patient who drinks little must have been admitted for something else, depression for instance, so alcohol and depression appear <em>negatively</em> related. Adjusting for the collider creates bias where there was none (Berkson’s bias).</p>
 </section>
-<section id="instrument-dog-ownership-walking-and-blood-pressure" class="level3">
-<h3 class="anchored" data-anchor-id="instrument-dog-ownership-walking-and-blood-pressure">4. Instrument: dog ownership, walking and blood pressure</h3>
+<section id="instrument-walking-and-blood-pressure-with-dog-ownership-as-instrument" class="level3">
+<h3 class="anchored" data-anchor-id="instrument-walking-and-blood-pressure-with-dog-ownership-as-instrument">4. Instrument: walking and blood pressure, with dog ownership as instrument</h3>
 <p>Owning a dog makes people walk more and has no other effect on blood pressure (an instrument). Health consciousness, unmeasured, makes people walk more and lowers their blood pressure (an unmeasured confounder). Each 1,000 daily steps lowers systolic pressure by 1 mmHg.</p>
 <div id="fig-w-instrument" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -828,8 +828,8 @@ Figure&nbsp;6: The dog affects blood pressure only through walking; the confound
 </div>
 <p><strong>What adjusting does</strong>: the crude estimate is confounded by health consciousness. Adjusting for the instrument makes it <em>worse</em>: it removes the part of walking explained by the dog, the part that was unconfounded, so the remaining variation in walking is more confounded (bias amplification), and the interval is wider. An instrument is not a confounder; it is useful in a different analysis (instrumental variable estimation), not as a covariate.</p>
 </section>
-<section id="precision-variable-baseline-blood-pressure-in-a-trial" class="level3">
-<h3 class="anchored" data-anchor-id="precision-variable-baseline-blood-pressure-in-a-trial">5. Precision variable: baseline blood pressure in a trial</h3>
+<section id="precision-variable-a-drug-and-blood-pressure-with-entry-blood-pressure-as-precision-variable" class="level3">
+<h3 class="anchored" data-anchor-id="precision-variable-a-drug-and-blood-pressure-with-entry-blood-pressure-as-precision-variable">5. Precision variable: a drug and blood pressure, with entry blood pressure as precision variable</h3>
 <p>A randomised trial of an antihypertensive in 200 patients: the drug lowers pressure by 8 mmHg, and pressure at entry strongly predicts pressure at the end. Randomisation means entry pressure is not associated with the drug.</p>
 <div id="fig-w-precision" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -884,8 +884,8 @@ Figure&nbsp;7: Entry blood pressure affects the outcome only: it cannot confound
 </div>
 <p><strong>What adjusting does</strong>: both estimates are unbiased; the adjusted one has a confidence interval about a third narrower, as if the trial were more than twice as large. Adjusting for strong predictors of the outcome is free precision, in trials and in observational studies. (With logistic or Cox models it also moves the odds or hazard ratio from marginal to conditional; see <a href="./guide-measures.html">Measures and models</a>.)</p>
 </section>
-<section id="m-bias-a-variable-associated-with-both-is-not-always-a-confounder" class="level3">
-<h3 class="anchored" data-anchor-id="m-bias-a-variable-associated-with-both-is-not-always-a-confounder">6. M-bias: a variable associated with both is not always a confounder</h3>
+<section id="m-bias-physical-activity-and-blood-pressure-with-supplement-use-as-collider-of-two-unmeasured-causes" class="level3">
+<h3 class="anchored" data-anchor-id="m-bias-physical-activity-and-blood-pressure-with-supplement-use-as-collider-of-two-unmeasured-causes">6. M-bias: physical activity and blood pressure, with supplement use as collider of two unmeasured causes</h3>
 <p>Physical activity lowers blood pressure (−1 mmHg per hour a week). Health awareness (unmeasured) increases activity and supplement use; a family history of hypertension (unmeasured) raises blood pressure and also leads to taking supplements. Supplement use is associated with activity and with blood pressure, but it is a collider of two causes that are otherwise unrelated.</p>
 <div id="fig-w-mbias" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
