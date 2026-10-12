@@ -81,7 +81,7 @@ apart.
 
 ## Each kind of variable, worked
 
-Six small studies, one per kind of variable, each simulated with a few lines of
+Small studies, one per kind of variable (two for confounders), each simulated with a few lines of
 code so that the true effect is known exactly. The outcome is always a
 continuous measure analysed with linear regression, so the estimates are easy
 to compare: a coefficient is the change in the outcome per unit of the
@@ -127,6 +127,41 @@ res_tab(0, r1)
 **What adjusting does**: the crude analysis finds about 1.5 mmHg per cup, all of
 it borrowed from smoking. Adjusting for the confounder closes the backdoor path
 and the estimate falls to the truth, zero.
+
+### 1b. Negative confounding: salt, age and blood pressure
+
+Confounding does not always create an effect; it can also hide one. Salt raises
+blood pressure (+2 mmHg per g/day), and so does age (+0.45 mmHg per year). But
+younger people eat more salt, so people with a high salt intake are younger
+and, for that reason alone, have lower blood pressure.
+
+::: {#fig-w-negative}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 6
+#| fig-height: 2.4
+small_dag(data.frame(id = c("salt", "SBP", "age"), x = c(0, 5.5, 2.75), y = c(0, 0, 1.4), role = c("exposure", "outcome", "confounder"),
+                     label = c("salt (g/day)", "systolic BP", "age")),
+          data.frame(from = c("age", "age", "salt"), to = c("salt", "SBP", "SBP"), label = c("−", "+", "+2")))
+```
+Age lowers salt intake and raises blood pressure: the backdoor path salt ← age → SBP carries an association of the opposite sign to the effect.
+:::
+
+```{r}
+set.seed(11)
+age <- runif(n, 30, 80); salt <- pmax(1, 14 - 0.1 * age + rnorm(n, 0, 1.5)); sbp <- 100 + 2 * salt + 0.45 * age + rnorm(n, 0, 12)
+r1b <- list(crude = est(lm(sbp ~ salt), "salt"), `adjusted for age` = est(lm(sbp ~ salt + age), "salt"))
+all_res[["1b. Negative confounder"]] <- list(truth = 2, r = r1b)
+res_tab(2, r1b)
+```
+
+**What adjusting does**: the crude analysis finds no effect of salt at all;
+adjusting for age reveals it. The direction of confounding bias is the product
+of the signs of the confounder's two arrows: here (age → salt: −) × (age → blood
+pressure: +) = −, so the crude estimate is pulled *down*, towards zero or past
+it. Two positive or two negative arrows exaggerate an effect (as smoking did for
+coffee); opposite signs mask it. A null crude association is therefore no reason
+to drop an exposure before adjusting.
 
 ### 2. Mediator: exercise, body mass index and blood pressure
 
@@ -302,7 +337,7 @@ outcome" fails here; only the diagram tells this case from confounding.
 ```{r}
 #| renderings: [light, dark]
 #| fig-width: 9
-#| fig-height: 5
+#| fig-height: 6.2
 sm <- do.call(rbind, lapply(names(all_res), function(k) {
     x <- all_res[[k]]
     do.call(rbind, lapply(names(x$r), function(a) data.frame(example = k, analysis = a, est = x$r[[a]][1], lo = x$r[[a]][2], hi = x$r[[a]][3], truth = x$truth)))
@@ -320,7 +355,7 @@ six_fig <- function(mode) {
 }
 both(six_fig)
 ```
-Crude and adjusted estimates (95% CI) in the six examples; the dashed line is the true effect (for the mediator, the total effect). Adjusting helps only for the confounder (bias removed) and the precision variable (interval narrowed); for the mediator it changes the question, and for the collider, the instrument and M-bias it creates or worsens bias.
+Crude and adjusted estimates (95% CI) in the six examples; the dashed line is the true effect (for the mediator, the total effect). Adjusting helps only for the confounders (bias removed, whether it exaggerated or masked the effect) and the precision variable (interval narrowed); for the mediator it changes the question, and for the collider, the instrument and M-bias it creates or worsens bias.
 :::
 
 ## The same structures in studysim scenarios

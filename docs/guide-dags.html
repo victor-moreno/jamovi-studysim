@@ -406,6 +406,7 @@ div.csl-indent {
   <li><a href="#each-kind-of-variable-worked" id="toc-each-kind-of-variable-worked" class="nav-link" data-scroll-target="#each-kind-of-variable-worked">Each kind of variable, worked</a>
   <ul class="collapse">
   <li><a href="#confounder-coffee-smoking-and-blood-pressure" id="toc-confounder-coffee-smoking-and-blood-pressure" class="nav-link" data-scroll-target="#confounder-coffee-smoking-and-blood-pressure">1. Confounder: coffee, smoking and blood pressure</a></li>
+  <li><a href="#b.-negative-confounding-salt-age-and-blood-pressure" id="toc-b.-negative-confounding-salt-age-and-blood-pressure" class="nav-link" data-scroll-target="#b.-negative-confounding-salt-age-and-blood-pressure">1b. Negative confounding: salt, age and blood pressure</a></li>
   <li><a href="#mediator-exercise-body-mass-index-and-blood-pressure" id="toc-mediator-exercise-body-mass-index-and-blood-pressure" class="nav-link" data-scroll-target="#mediator-exercise-body-mass-index-and-blood-pressure">2. Mediator: exercise, body mass index and blood pressure</a></li>
   <li><a href="#collider-alcohol-depression-and-hospital-admission" id="toc-collider-alcohol-depression-and-hospital-admission" class="nav-link" data-scroll-target="#collider-alcohol-depression-and-hospital-admission">3. Collider: alcohol, depression and hospital admission</a></li>
   <li><a href="#instrument-dog-ownership-walking-and-blood-pressure" id="toc-instrument-dog-ownership-walking-and-blood-pressure" class="nav-link" data-scroll-target="#instrument-dog-ownership-walking-and-blood-pressure">4. Instrument: dog ownership, walking and blood pressure</a></li>
@@ -538,7 +539,7 @@ Figure&nbsp;1: The roles a third variable can play for the effect of an exposure
 </section>
 <section id="each-kind-of-variable-worked" class="level2">
 <h2 class="anchored" data-anchor-id="each-kind-of-variable-worked">Each kind of variable, worked</h2>
-<p>Six small studies, one per kind of variable, each simulated with a few lines of code so that the true effect is known exactly. The outcome is always a continuous measure analysed with linear regression, so the estimates are easy to compare: a coefficient is the change in the outcome per unit of the exposure. Each table gives the true effect, the crude estimate and the estimate adjusted for the third variable, with 95% confidence intervals.</p>
+<p>Small studies, one per kind of variable (two for confounders), each simulated with a few lines of code so that the true effect is known exactly. The outcome is always a continuous measure analysed with linear regression, so the estimates are easy to compare: a coefficient is the change in the outcome per unit of the exposure. Each table gives the true effect, the crude estimate and the estimate adjusted for the third variable, with 95% confidence intervals.</p>
 <section id="confounder-coffee-smoking-and-blood-pressure" class="level3">
 <h3 class="anchored" data-anchor-id="confounder-coffee-smoking-and-blood-pressure">1. Confounder: coffee, smoking and blood pressure</h3>
 <p>Smokers drink more coffee, and smoking raises blood pressure. Coffee itself has no effect.</p>
@@ -595,12 +596,12 @@ Figure&nbsp;2: Smoking opens the backdoor path coffee ← smoking → SBP; there
 </div>
 <p><strong>What adjusting does</strong>: the crude analysis finds about 1.5 mmHg per cup, all of it borrowed from smoking. Adjusting for the confounder closes the backdoor path and the estimate falls to the truth, zero.</p>
 </section>
-<section id="mediator-exercise-body-mass-index-and-blood-pressure" class="level3">
-<h3 class="anchored" data-anchor-id="mediator-exercise-body-mass-index-and-blood-pressure">2. Mediator: exercise, body mass index and blood pressure</h3>
-<p>Exercise lowers blood pressure directly (−1 mmHg per hour a week) and by lowering BMI (−0.8 kg/m² per hour, each kg/m² adding 1.2 mmHg). Its total effect is −1 + (−0.8 × 1.2) = −1.96 mmHg per hour.</p>
-<div id="fig-w-mediator" class="quarto-float quarto-figure quarto-figure-center anchored">
+<section id="b.-negative-confounding-salt-age-and-blood-pressure" class="level3">
+<h3 class="anchored" data-anchor-id="b.-negative-confounding-salt-age-and-blood-pressure">1b. Negative confounding: salt, age and blood pressure</h3>
+<p>Confounding does not always create an effect; it can also hide one. Salt raises blood pressure (+2 mmHg per g/day), and so does age (+0.45 mmHg per year). But younger people eat more salt, so people with a high salt intake are younger and, for that reason alone, have lower blood pressure.</p>
+<div id="fig-w-negative" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-w-mediator-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="fig-w-negative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
 <div class="cell-output-display light-content">
 <div>
@@ -618,8 +619,64 @@ Figure&nbsp;2: Smoking opens the backdoor path coffee ← smoking → SBP; there
 </div>
 </div>
 </div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-w-negative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Age lowers salt intake and raises blood pressure: the backdoor path salt ← age → SBP carries an association of the opposite sign to the effect.
+</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">estimate (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">true effect</td>
+<td style="text-align: left;">2.00</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">crude</td>
+<td style="text-align: left;">0.00 (-0.17 to 0.17)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">adjusted for age</td>
+<td style="text-align: left;">2.22 (1.99 to 2.44)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>What adjusting does</strong>: the crude analysis finds no effect of salt at all; adjusting for age reveals it. The direction of confounding bias is the product of the signs of the confounder’s two arrows: here (age → salt: −) × (age → blood pressure: +) = −, so the crude estimate is pulled <em>down</em>, towards zero or past it. Two positive or two negative arrows exaggerate an effect (as smoking did for coffee); opposite signs mask it. A null crude association is therefore no reason to drop an exposure before adjusting.</p>
+</section>
+<section id="mediator-exercise-body-mass-index-and-blood-pressure" class="level3">
+<h3 class="anchored" data-anchor-id="mediator-exercise-body-mass-index-and-blood-pressure">2. Mediator: exercise, body mass index and blood pressure</h3>
+<p>Exercise lowers blood pressure directly (−1 mmHg per hour a week) and by lowering BMI (−0.8 kg/m² per hour, each kg/m² adding 1.2 mmHg). Its total effect is −1 + (−0.8 × 1.2) = −1.96 mmHg per hour.</p>
+<div id="fig-w-mediator" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-w-mediator-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-w-mediator-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: BMI is on the causal path from exercise to blood pressure.
+Figure&nbsp;4: BMI is on the causal path from exercise to blood pressure.
 </figcaption>
 </figure>
 </div>
@@ -665,21 +722,21 @@ Figure&nbsp;3: BMI is on the causal path from exercise to blood pressure.
 <div class="cell-output-display light-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="1152"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display dark-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid figure-img" width="1152"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-w-collider-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4: Admission is caused by both. Restricting to, or adjusting for, admitted patients (double border) links the two.
+Figure&nbsp;5: Admission is caused by both. Restricting to, or adjusting for, admitted patients (double border) links the two.
 </figcaption>
 </figure>
 </div>
@@ -725,21 +782,21 @@ Figure&nbsp;4: Admission is caused by both. Restricting to, or adjusting for, ad
 <div class="cell-output-display light-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="1248"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="1248"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display dark-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="1248"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid figure-img" width="1248"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-w-instrument-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: The dog affects blood pressure only through walking; the confounder (dashed) is not measured.
+Figure&nbsp;6: The dog affects blood pressure only through walking; the confounder (dashed) is not measured.
 </figcaption>
 </figure>
 </div>
@@ -781,21 +838,21 @@ Figure&nbsp;5: The dog affects blood pressure only through walking; the confound
 <div class="cell-output-display light-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="1152"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display dark-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid figure-img" width="1152"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-w-precision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;6: Entry blood pressure affects the outcome only: it cannot confound, but it explains much of the outcome’s variation.
+Figure&nbsp;7: Entry blood pressure affects the outcome only: it cannot confound, but it explains much of the outcome’s variation.
 </figcaption>
 </figure>
 </div>
@@ -837,21 +894,21 @@ Figure&nbsp;6: Entry blood pressure affects the outcome only: it cannot confound
 <div class="cell-output-display light-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="1248"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="1248"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display dark-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid figure-img" width="1248"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid figure-img" width="1248"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-w-mbias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;7: Supplement use is associated with activity (through awareness) and with blood pressure (through family history), but it lies on no backdoor path: it is a collider.
+Figure&nbsp;8: Supplement use is associated with activity (through awareness) and with blood pressure (through family history), but it lies on no backdoor path: it is a collider.
 </figcaption>
 </figure>
 </div>
@@ -892,21 +949,21 @@ Figure&nbsp;7: Supplement use is associated with activity (through awareness) an
 <div class="cell-output-display light-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="1728"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="1728"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display dark-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid figure-img" width="1728"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-18-2.png" class="img-fluid figure-img" width="1728"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-w-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;8: Crude and adjusted estimates (95% CI) in the six examples; the dashed line is the true effect (for the mediator, the total effect). Adjusting helps only for the confounder (bias removed) and the precision variable (interval narrowed); for the mediator it changes the question, and for the collider, the instrument and M-bias it creates or worsens bias.
+Figure&nbsp;9: Crude and adjusted estimates (95% CI) in the six examples; the dashed line is the true effect (for the mediator, the total effect). Adjusting helps only for the confounders (bias removed, whether it exaggerated or masked the effect) and the precision variable (interval narrowed); for the mediator it changes the question, and for the collider, the instrument and M-bias it creates or worsens bias.
 </figcaption>
 </figure>
 </div>
@@ -1124,21 +1181,21 @@ Figure&nbsp;8: Crude and adjusted estimates (95% CI) in the six examples; the da
 <div class="cell-output-display light-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="1920"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="1920"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display dark-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-19-2.png" class="img-fluid figure-img" width="1920"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid figure-img" width="1920"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-chd-steps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;9: The causal diagram of <em>Coronary heart disease incidence</em> built step by step for the effect of BMI. Blood pressure, HDL and diabetes are mediators. Age is a confounder, and physical activity (or education) blocks the backdoor path BMI ← activity ← education → smoking → CHD. Sex and cholesterol only affect the outcome (precision variables); coffee is irrelevant.
+Figure&nbsp;10: The causal diagram of <em>Coronary heart disease incidence</em> built step by step for the effect of BMI. Blood pressure, HDL and diabetes are mediators. Age is a confounder, and physical activity (or education) blocks the backdoor path BMI ← activity ← education → smoking → CHD. Sex and cholesterol only affect the outcome (precision variables); coffee is irrelevant.
 </figcaption>
 </figure>
 </div>
@@ -1346,21 +1403,21 @@ Figure&nbsp;9: The causal diagram of <em>Coronary heart disease incidence</em> b
 <div class="cell-output-display light-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid figure-img" width="1728"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="1728"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display dark-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-22-2.png" class="img-fluid figure-img" width="1728"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-24-2.png" class="img-fluid figure-img" width="1728"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-selection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;10: Selection as a collider (double border: the analysis is restricted to S). Left: hospital patients are admitted for the disease or for other conditions caused by smoking. Right: frail patients drop out more often when treated, and analysing only those followed links treatment and frailty.
+Figure&nbsp;11: Selection as a collider (double border: the analysis is restricted to S). Left: hospital patients are admitted for the disease or for other conditions caused by smoking. Right: frail patients drop out more often when treated, and analysing only those followed links treatment and frailty.
 </figcaption>
 </figure>
 </div>
@@ -1383,21 +1440,21 @@ Figure&nbsp;10: Selection as a collider (double border: the analysis is restrict
 <div class="cell-output-display light-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="1824"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="1824"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display dark-content">
 <div>
 <figure class="figure">
-<p><img src="guide-dags_files/figure-html/unnamed-chunk-23-2.png" class="img-fluid figure-img" width="1824"></p>
+<p><img src="guide-dags_files/figure-html/unnamed-chunk-25-2.png" class="img-fluid figure-img" width="1824"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-choose-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11: A rough path to an adjustment set for a total effect: variables that precede the exposure and cause it or the outcome are adjusted for, except pure instruments; variables caused by the exposure or by the outcome are not.
+Figure&nbsp;12: A rough path to an adjustment set for a total effect: variables that precede the exposure and cause it or the outcome are adjusted for, except pure instruments; variables caused by the exposure or by the outcome are not.
 </figcaption>
 </figure>
 </div>
