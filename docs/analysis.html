@@ -1116,6 +1116,54 @@ ul.task-list li input[type="checkbox"] {
 </section>
 
 </main> <!-- /main -->
+<!-- Collapsible left (contents) and right (on this page) panels on wide
+     screens: a button at each edge, ‹ hides a panel and › brings it back; the
+     text widens into the space; the choice is remembered between pages. -->
+<style>
+.studysim-toggle {
+  position: fixed; top: 50%; transform: translateY(-50%); z-index: 1100;
+  width: 22px; height: 46px; padding: 0; font-size: 20px; line-height: 1;
+  border: 1px solid var(--bs-border-color, #ccc); border-radius: 6px;
+  background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #333);
+  opacity: 0.7; cursor: pointer;
+}
+.studysim-toggle:hover { opacity: 1; }
+#studysim-toggle-left { left: 2px; }
+#studysim-toggle-right { right: 2px; }
+@media (max-width: 991.98px) { .studysim-toggle { display: none; } }
+@media (min-width: 992px) {
+  body.studysim-left-off #quarto-sidebar { display: none !important; }
+  body.studysim-right-off #quarto-margin-sidebar { display: none !important; }
+  body.studysim-left-off main.content { grid-column-start: page-start !important; }
+  body.studysim-right-off main.content { grid-column-end: page-end !important; }
+}
+</style>
+<script>
+(function () {
+  var KEY = "studysim-panels";
+  var state = { left: true, right: true };
+  try { var s = JSON.parse(localStorage.getItem(KEY)); if (s) state = s; } catch (e) {}
+  function apply() {
+    document.body.classList.toggle("studysim-left-off", !state.left);
+    document.body.classList.toggle("studysim-right-off", !state.right);
+    var l = document.getElementById("studysim-toggle-left"), r = document.getElementById("studysim-toggle-right");
+    if (l) { l.textContent = state.left ? "‹" : "›"; l.title = state.left ? "Hide the contents" : "Show the contents"; }
+    if (r) { r.textContent = state.right ? "›" : "‹"; r.title = state.right ? "Hide 'On this page'" : "Show 'On this page'"; }
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function button(id, side) {
+    var b = document.createElement("button");
+    b.type = "button"; b.id = id; b.className = "studysim-toggle";
+    b.addEventListener("click", function () { state[side] = !state[side]; apply(); });
+    document.body.appendChild(b);
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    if (document.getElementById("quarto-sidebar")) button("studysim-toggle-left", "left");
+    if (document.getElementById("quarto-margin-sidebar")) button("studysim-toggle-right", "right");
+    apply();
+  });
+})();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right

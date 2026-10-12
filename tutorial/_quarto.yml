@@ -40,6 +40,7 @@ format:
     number-sections: false
     fig-align: center
     css: styles.css
+    include-after-body: collapse.html
 
 execute:
   echo: false
