@@ -79,9 +79,254 @@ confounder. But B is a collider of two unmeasured causes, and adjusting for it
 opens the path X ← U1 → B ← U2 → Y. Only the diagram tells the two situations
 apart.
 
-## The three basic structures in simulated data
+## Each kind of variable, worked
 
-The same simulated population, analysed three ways.
+Six small studies, one per kind of variable, each simulated with a few lines of
+code so that the true effect is known exactly. The outcome is always a
+continuous measure analysed with linear regression, so the estimates are easy
+to compare: a coefficient is the change in the outcome per unit of the
+exposure. Each table gives the true effect, the crude estimate and the estimate
+adjusted for the third variable, with 95% confidence intervals.
+
+```{r}
+est <- function(f, term, k = 1) { b <- coef(f)[[term]] * k; se <- sqrt(vcov(f)[term, term]) * k
+    c(est = b, lo = b - 1.96 * se, hi = b + 1.96 * se) }
+fmt <- function(x) sprintf("%.2f (%.2f to %.2f)", x[1], x[2], x[3])
+res_tab <- function(truth, rows) knitr::kable(data.frame(analysis = c("true effect", names(rows)),
+    estimate = c(sprintf("%.2f", truth), vapply(rows, fmt, ""))), col.names = c("", "estimate (95% CI)"), row.names = FALSE)
+small_dag <- function(n, e, ...) both(dag_fig, n, e, ...)
+all_res <- list()
+n <- 5000
+```
+
+### 1. Confounder: coffee, smoking and blood pressure
+
+Smokers drink more coffee, and smoking raises blood pressure. Coffee itself has
+no effect.
+
+::: {#fig-w-confounder}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 6
+#| fig-height: 2.2
+small_dag(data.frame(id = c("coffee", "SBP", "smoking"), x = c(0, 5.5, 2.75), y = c(0, 0, 1.3), role = c("exposure", "outcome", "confounder"),
+                     label = c("coffee (cups/day)", "systolic BP", "smoking")),
+          data.frame(from = c("smoking", "smoking"), to = c("coffee", "SBP")))
+```
+Smoking opens the backdoor path coffee ← smoking → SBP; there is no arrow from coffee to SBP.
+:::
+
+```{r}
+set.seed(1)
+smoke <- rbinom(n, 1, 0.3); coffee <- pmax(0, 2 + 1.5 * smoke + rnorm(n)); sbp <- 120 + 0 * coffee + 8 * smoke + rnorm(n, 0, 12)
+r1 <- list(crude = est(lm(sbp ~ coffee), "coffee"), `adjusted for smoking` = est(lm(sbp ~ coffee + smoke), "coffee"))
+all_res[["1. Confounder"]] <- list(truth = 0, r = r1)
+res_tab(0, r1)
+```
+
+**What adjusting does**: the crude analysis finds about 1.5 mmHg per cup, all of
+it borrowed from smoking. Adjusting for the confounder closes the backdoor path
+and the estimate falls to the truth, zero.
+
+### 2. Mediator: exercise, body mass index and blood pressure
+
+Exercise lowers blood pressure directly (−1 mmHg per hour a week) and by
+lowering BMI (−0.8 kg/m² per hour, each kg/m² adding 1.2 mmHg). Its total effect
+is −1 + (−0.8 × 1.2) = −1.96 mmHg per hour.
+
+::: {#fig-w-mediator}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 6
+#| fig-height: 2.2
+small_dag(data.frame(id = c("ex", "SBP", "BMI"), x = c(0, 5.5, 2.75), y = c(0, 0, 1.4), role = c("exposure", "outcome", "mediator"),
+                     label = c("exercise (h/week)", "systolic BP", "BMI")),
+          data.frame(from = c("ex", "BMI", "ex"), to = c("BMI", "SBP", "SBP"), label = c("−0.8", "1.2", "−1")))
+```
+BMI is on the causal path from exercise to blood pressure.
+:::
+
+```{r}
+set.seed(2)
+ex <- pmax(0, rnorm(n, 3, 1.5)); bmi <- 28 - 0.8 * ex + rnorm(n, 0, 3); sbp <- 130 - 1 * ex + 1.2 * bmi + rnorm(n, 0, 12)
+r2 <- list(crude = est(lm(sbp ~ ex), "ex"), `adjusted for BMI` = est(lm(sbp ~ ex + bmi), "ex"))
+all_res[["2. Mediator"]] <- list(truth = -1.96, r = r2)
+knitr::kable(data.frame(analysis = c("true total effect", "true direct effect", names(r2)),
+                        estimate = c("-1.96", "-1.00", vapply(r2, fmt, ""))), col.names = c("", "estimate (95% CI)"), row.names = FALSE)
+```
+
+**What adjusting does**: the crude estimate is the **total** effect. Adjusting
+for BMI removes the part that goes through it and leaves the **direct** effect.
+Both are correct answers to different questions; if the question is "how much
+does exercise lower blood pressure?", do not adjust for BMI.
+
+### 3. Collider: alcohol, depression and hospital admission
+
+Alcohol intake and depression are unrelated here, but both make admission to
+hospital more likely. A study of inpatients, or a model that includes
+admission, conditions on the collider.
+
+::: {#fig-w-collider}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 6
+#| fig-height: 2.4
+small_dag(data.frame(id = c("alc", "dep", "S"), x = c(0, 5.5, 2.75), y = c(0, 0, -1.3), role = c("exposure", "outcome", "collider"),
+                     label = c("alcohol (g/day)", "depression score", "admitted")),
+          data.frame(from = c("alc", "dep"), to = c("S", "S")), adjusted = "S")
+```
+Admission is caused by both. Restricting to, or adjusting for, admitted patients (double border) links the two.
+:::
+
+```{r}
+set.seed(3)
+alc <- rgamma(n, 2, 1 / 10); dep <- rnorm(n, 10, 4); adm <- rbinom(n, 1, plogis(-3 + 0.04 * alc + 0.2 * dep))
+r3 <- list(`crude, everybody` = est(lm(dep ~ alc), "alc", 10), `adjusted for admission` = est(lm(dep ~ alc + adm), "alc", 10),
+           `only admitted patients` = est(lm(dep ~ alc, subset = adm == 1), "alc", 10))
+all_res[["3. Collider"]] <- list(truth = 0, r = r3)
+res_tab(0, r3)
+```
+
+Estimates per 10 g/day of alcohol. **What adjusting does**: in everybody
+there is no association. Among the admitted, a patient who drinks little must
+have been admitted for something else, depression for instance, so alcohol and
+depression appear *negatively* related. Adjusting for the collider creates bias
+where there was none (Berkson's bias).
+
+### 4. Instrument: dog ownership, walking and blood pressure
+
+Owning a dog makes people walk more and has no other effect on blood pressure
+(an instrument). Health consciousness, unmeasured, makes people walk more and
+lowers their blood pressure (an unmeasured confounder). Each 1,000 daily steps
+lowers systolic pressure by 1 mmHg.
+
+::: {#fig-w-instrument}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 6.5
+#| fig-height: 2.4
+small_dag(data.frame(id = c("steps", "SBP", "dog", "U"), x = c(0, 5, -4, 2.5), y = c(0, 0, 0, 1.5), role = c("exposure", "outcome", "instrument", "confounder"),
+                     label = c("steps (1000/day)", "systolic BP", "owns a dog", "health consciousness")),
+          data.frame(from = c("dog", "U", "U", "steps"), to = c("steps", "steps", "SBP", "SBP")), unmeasured = "U")
+```
+The dog affects blood pressure only through walking; the confounder (dashed) is not measured.
+:::
+
+```{r}
+set.seed(4)
+U <- rnorm(n); dog <- rbinom(n, 1, 0.4); steps <- 6 + 2 * dog + U + rnorm(n); sbp <- 130 - 1 * steps - 4 * U + rnorm(n, 0, 10)
+r4 <- list(crude = est(lm(sbp ~ steps), "steps"), `adjusted for dog ownership` = est(lm(sbp ~ steps + dog), "steps"))
+all_res[["4. Instrument"]] <- list(truth = -1, r = r4)
+res_tab(-1, r4)
+```
+
+**What adjusting does**: the crude estimate is confounded by health
+consciousness. Adjusting for the instrument makes it *worse*: it removes the part
+of walking explained by the dog, the part that was unconfounded, so the
+remaining variation in walking is more confounded (bias amplification), and the
+interval is wider. An instrument is not a confounder; it is useful in a
+different analysis (instrumental variable estimation), not as a covariate.
+
+### 5. Precision variable: baseline blood pressure in a trial
+
+A randomised trial of an antihypertensive in 200 patients: the drug lowers
+pressure by 8 mmHg, and pressure at entry strongly predicts pressure at the end.
+Randomisation means entry pressure is not associated with the drug.
+
+::: {#fig-w-precision}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 6
+#| fig-height: 2.2
+small_dag(data.frame(id = c("drug", "SBP", "SBP0"), x = c(0, 4.5, 4.5), y = c(0, 0, 1.4), role = c("exposure", "outcome", "other"),
+                     label = c("drug", "BP after", "BP at entry")),
+          data.frame(from = c("drug", "SBP0"), to = c("SBP", "SBP")))
+```
+Entry blood pressure affects the outcome only: it cannot confound, but it explains much of the outcome's variation.
+:::
+
+```{r}
+set.seed(5)
+m <- 200; drug <- rep(0:1, m / 2); s0 <- rnorm(m, 150, 15); s1 <- 145 + 0.7 * (s0 - 150) - 8 * drug + rnorm(m, 0, 9)
+r5 <- list(`crude (t-test)` = est(lm(s1 ~ drug), "drug"), `adjusted for entry BP (ANCOVA)` = est(lm(s1 ~ drug + s0), "drug"))
+all_res[["5. Precision"]] <- list(truth = -8, r = r5)
+res_tab(-8, r5)
+```
+
+**What adjusting does**: both estimates are unbiased; the adjusted one has a
+confidence interval about a third narrower, as if the trial were more than twice
+as large.
+Adjusting for strong predictors of the outcome is free precision, in trials and
+in observational studies. (With logistic or Cox models it also moves the odds or
+hazard ratio from marginal to conditional; see [Measures and
+models](guide-measures.qmd).)
+
+### 6. M-bias: a variable associated with both is not always a confounder
+
+Physical activity lowers blood pressure (−1 mmHg per hour a week). Health
+awareness (unmeasured) increases activity and supplement use; a family history
+of hypertension (unmeasured) raises blood pressure and also leads to taking
+supplements. Supplement use is associated with activity and with blood
+pressure, but it is a collider of two causes that are otherwise unrelated.
+
+::: {#fig-w-mbias}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 6.5
+#| fig-height: 2.6
+small_dag(data.frame(id = c("act", "SBP", "U1", "U2", "B"), x = c(0, 6, 0, 6, 3), y = c(0, 0, 1.9, 1.9, 1.0),
+                     role = c("exposure", "outcome", "other", "other", "collider"),
+                     label = c("activity (h/week)", "systolic BP", "health awareness", "family history", "supplements")),
+          data.frame(from = c("U1", "U1", "U2", "U2", "act"), to = c("act", "B", "B", "SBP", "SBP")), unmeasured = c("U1", "U2"))
+```
+Supplement use is associated with activity (through awareness) and with blood pressure (through family history), but it lies on no backdoor path: it is a collider.
+:::
+
+```{r}
+set.seed(6)
+U1 <- rnorm(n); U2 <- rnorm(n); act <- 3 + U1 + rnorm(n); supp <- U1 + U2 + rnorm(n, 0, 0.5); sbp <- 130 - 1 * act + 8 * U2 + rnorm(n, 0, 10)
+r6 <- list(crude = est(lm(sbp ~ act), "act"), `adjusted for supplements` = est(lm(sbp ~ act + supp), "act"))
+all_res[["6. M-bias"]] <- list(truth = -1, r = r6)
+res_tab(-1, r6)
+```
+
+**What adjusting does**: the crude estimate is right, because there is no
+backdoor path. Adjusting for supplement use opens the path activity ← awareness
+→ supplements ← family history → blood pressure, and the estimate becomes more
+than three times the true effect. The rule "adjust for whatever is associated with exposure and
+outcome" fails here; only the diagram tells this case from confounding.
+
+### The six side by side
+
+::: {#fig-w-summary}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9
+#| fig-height: 5
+sm <- do.call(rbind, lapply(names(all_res), function(k) {
+    x <- all_res[[k]]
+    do.call(rbind, lapply(names(x$r), function(a) data.frame(example = k, analysis = a, est = x$r[[a]][1], lo = x$r[[a]][2], hi = x$r[[a]][3], truth = x$truth)))
+}))
+sm$kind <- ifelse(grepl("^crude", sm$analysis), "crude", "adjusted or restricted")
+sm$example <- factor(sm$example, levels = names(all_res))
+sm$analysis <- factor(sm$analysis, levels = rev(unique(sm$analysis)))
+six_fig <- function(mode) {
+    p <- PAL(mode)
+    ggplot(sm, aes(y = analysis)) + geom_vline(aes(xintercept = truth), colour = p$role[["outcome"]], linetype = "dashed") +
+        geom_errorbarh(aes(xmin = lo, xmax = hi, colour = kind), height = 0.25) + geom_point(aes(x = est, colour = kind), size = 2.6) +
+        facet_wrap(~example, scales = "free", ncol = 2) +
+        scale_colour_manual(values = c(crude = p$role[["other"]], `adjusted or restricted` = p$role[["exposure"]]), name = NULL) +
+        labs(x = "estimate (mmHg per unit of the exposure)", y = NULL) + theme_plot(mode, 11)
+}
+both(six_fig)
+```
+Crude and adjusted estimates (95% CI) in the six examples; the dashed line is the true effect (for the mediator, the total effect). Adjusting helps only for the confounder (bias removed) and the precision variable (interval narrowed); for the mediator it changes the question, and for the collider, the instrument and M-bias it creates or worsens bias.
+:::
+
+## The same structures in studysim scenarios
+
+Three of the structures again, now in the module's own scenarios, with the
+answer key's expected estimates.
 
 **Confounding** (*Coronary heart disease incidence*, cohort): coffee has no
 effect, but smokers drink more coffee. The crude hazard ratio of coffee is above
