@@ -22,3 +22,6 @@ scenarios/**/*.csv
 
 # working files of scenarios derived from non-open data (the scenario itself is in inst/library)
 scenarios/CLX/
+
+# review reports: local only
+revision/
