@@ -58,10 +58,14 @@ dag_fig <- function(mode, nodes, edges, adjusted = character(), unmeasured = cha
     # clip each arrow at the border of the boxes it joins
     clip <- function(n, dx, dy) {
         t <- pmin(ifelse(dx == 0, Inf, (n$w / 2 + 0.04) / abs(dx)), ifelse(dy == 0, Inf, (n$h / 2 + 0.04) / abs(dy)))
-        pmin(t, 0.45)
+        pmin(t, 0.8)
     }
     dx <- b$x - a$x; dy <- b$y - a$y
     ta <- clip(a, dx, dy); tb <- clip(b, dx, dy)
+    # boxes so close that the clipped ends would cross: share what is left
+    tot <- ta + tb
+    k <- ifelse(tot > 0.92, 0.92 / tot, 1)
+    ta <- ta * k; tb <- tb * k
     e <- data.frame(x = a$x + ta * dx, y = a$y + ta * dy, xend = b$x - tb * dx, yend = b$y - tb * dy,
                     curve = edges$curve, dashed = edges$dashed, label = edges$label, panel = edges$panel)
     nodes$fill <- p$role[nodes$role]

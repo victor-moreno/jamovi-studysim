@@ -409,8 +409,15 @@ div.csl-indent {
   </ul></li>
   <li><a href="#models-and-how-to-read-their-coefficients" id="toc-models-and-how-to-read-their-coefficients" class="nav-link" data-scroll-target="#models-and-how-to-read-their-coefficients">Models and how to read their coefficients</a>
   <ul class="collapse">
-  <li><a href="#effect-modification-and-interaction" id="toc-effect-modification-and-interaction" class="nav-link" data-scroll-target="#effect-modification-and-interaction">Effect modification and interaction</a></li>
   <li><a href="#what-studysims-answer-key-reports" id="toc-what-studysims-answer-key-reports" class="nav-link" data-scroll-target="#what-studysims-answer-key-reports">What studysim’s answer key reports</a></li>
+  </ul></li>
+  <li><a href="#effect-modification-and-interaction" id="toc-effect-modification-and-interaction" class="nav-link" data-scroll-target="#effect-modification-and-interaction">Effect modification and interaction</a>
+  <ul class="collapse">
+  <li><a href="#two-words-two-questions" id="toc-two-words-two-questions" class="nav-link" data-scroll-target="#two-words-two-questions">Two words, two questions</a></li>
+  <li><a href="#it-depends-on-the-scale" id="toc-it-depends-on-the-scale" class="nav-link" data-scroll-target="#it-depends-on-the-scale">It depends on the scale</a></li>
+  <li><a href="#reading-a-model-with-a-product-term" id="toc-reading-a-model-with-a-product-term" class="nav-link" data-scroll-target="#reading-a-model-with-a-product-term">Reading a model with a product term</a></li>
+  <li><a href="#a-modifier-that-reverses-the-effect" id="toc-a-modifier-that-reverses-the-effect" class="nav-link" data-scroll-target="#a-modifier-that-reverses-the-effect">A modifier that reverses the effect</a></li>
+  <li><a href="#in-practice" id="toc-in-practice" class="nav-link" data-scroll-target="#in-practice">In practice</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -775,10 +782,6 @@ Figure&nbsp;2: The odds ratio for a fixed risk ratio (dashed lines), by the risk
 <li><strong>Categorising a continuous variable</strong> loses information and leaves residual confounding within the categories. It is useful for showing a shape (dose response), not for adjustment.</li>
 <li><strong>Small numbers.</strong> Logistic and Cox models need roughly ten events per parameter; with fewer, coefficients are unstable and biased away from the null <span class="citation" data-cites="peduzzi1996">(<a href="#ref-peduzzi1996" role="doc-biblioref">Peduzzi et al. 1996</a>)</span>. studysim warns when a study falls short.</li>
 </ul>
-<section id="effect-modification-and-interaction" class="level3">
-<h3 class="anchored" data-anchor-id="effect-modification-and-interaction">Effect modification and interaction</h3>
-<p><strong>Effect modification</strong> means the effect of X differs between groups of Z: the risk ratio of BMI for breast cancer is below 1 before menopause and above 1 after it. Whether it appears depends on the scale: effects that are constant on the ratio scale differ on the difference scale whenever baseline risks differ, and vice versa. Report the effect within each level of the modifier, on both scales if possible. A modifier is not something to adjust away: it is a result. A causal diagram shows which variables cause which, not how their effects combine, so it cannot show effect modification.</p>
-</section>
 <section id="what-studysims-answer-key-reports" class="level3">
 <h3 class="anchored" data-anchor-id="what-studysims-answer-key-reports">What studysim’s answer key reports</h3>
 <table class="caption-top table">
@@ -815,6 +818,233 @@ Figure&nbsp;2: The odds ratio for a fixed risk ratio (dashed lines), by the risk
 </tr>
 </tbody>
 </table>
+</section>
+</section>
+<section id="effect-modification-and-interaction" class="level2">
+<h2 class="anchored" data-anchor-id="effect-modification-and-interaction">Effect modification and interaction</h2>
+<section id="two-words-two-questions" class="level3">
+<h3 class="anchored" data-anchor-id="two-words-two-questions">Two words, two questions</h3>
+<ul>
+<li><strong>Effect modification</strong>: the effect of an exposure X <em>differs between groups</em> of another variable Z. The effect of BMI on breast cancer is protective before menopause and harmful after it. Z need not cause anything: it describes in whom X acts more strongly.</li>
+<li><strong>Interaction</strong>: the <em>joint</em> effect of two exposures is not what their separate effects predict. Smoking and asbestos together cause far more lung cancer than the two separately would suggest. Both are causes, and the question is what happens if we act on both.</li>
+</ul>
+<p>They are estimated the same way (X within levels of Z, or a product term X × Z), and the words are often used interchangeably. The distinction matters when deciding what to do: a modifier tells you <em>who</em> benefits most from acting on X.</p>
+</section>
+<section id="it-depends-on-the-scale" class="level3">
+<h3 class="anchored" data-anchor-id="it-depends-on-the-scale">It depends on the scale</h3>
+<p>Whether an effect “differs” depends on how effects are measured. In this example, exposure X triples the risk both in people without and with a second factor Z:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 19%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">risk, X absent</th>
+<th style="text-align: left;">risk, X present</th>
+<th style="text-align: right;">risk ratio of X</th>
+<th style="text-align: left;">risk difference of X</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Z absent</td>
+<td style="text-align: left;">1%</td>
+<td style="text-align: left;">3%</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">+2%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Z present</td>
+<td style="text-align: left;">5%</td>
+<td style="text-align: left;">15%</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">+10%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>On the <strong>ratio</strong> scale there is no modification: the risk ratio is 3 in both groups. On the <strong>difference</strong> scale there is a great deal: X adds 2 cases per 100 people without Z and 10 per 100 with Z (<a href="#fig-scale" class="quarto-xref">Figure&nbsp;3</a>). Whenever two factors both act, no modification on one scale implies modification on the other.</p>
+<div id="fig-scale" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="guide-measures_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="1728"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="guide-measures_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="1728"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The same four risks on a difference scale (left) and on a ratio scale (right): no interaction on the multiplicative scale, a strong one on the additive scale.
+</figcaption>
+</figure>
+</div>
+<p>Logistic and Cox models are multiplicative: their product term tests departure from multiplying the effects. Public health usually cares about the additive scale, because it counts cases: here, removing X prevents five times more cases among people with Z. The <strong>relative excess risk due to interaction</strong>, RERI = RR<sub>11</sub> − RR<sub>10</sub> − RR<sub>01</sub> + 1, measures additive interaction from ratio measures: here 15 − 3 − 5 + 1 = 8 (0 means no additive interaction).</p>
+</section>
+<section id="reading-a-model-with-a-product-term" class="level3">
+<h3 class="anchored" data-anchor-id="reading-a-model-with-a-product-term">Reading a model with a product term</h3>
+<p>In a model <code>logit(risk) = β0 + β1·X + β2·Z + β3·X·Z</code>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>coefficient</th>
+<th>is</th>
+<th>holds</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>exp(β1)</td>
+<td>odds ratio of X</td>
+<td>when Z = 0 (its reference level)</td>
+</tr>
+<tr class="even">
+<td>exp(β2)</td>
+<td>odds ratio of Z</td>
+<td>when X = 0</td>
+</tr>
+<tr class="odd">
+<td>exp(β3)</td>
+<td>ratio of the odds ratios of X between Z = 1 and Z = 0</td>
+<td>the multiplicative interaction</td>
+</tr>
+<tr class="even">
+<td>exp(β1 + β3)</td>
+<td>odds ratio of X</td>
+<td>when Z = 1</td>
+</tr>
+</tbody>
+</table>
+<p>The “main effects” are therefore not average effects: each is the effect at the reference or zero of the other variable. When the other variable is continuous and zero is meaningless, a main effect is an extrapolation far from the data. Centre the continuous variable first (subtract a typical value), so that the main effect of the modifier holds at that typical value.</p>
+<p><em>Breast cancer risk factors</em>: the effect of BMI is modified by menopause (per 5 kg/m², HR 0.93 before and 1.12 after). The table fits the same interaction model to a large simulated case-control study, with BMI as it is and centred at the population mean.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 57%">
+<col style="width: 19%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">BMI as measured</th>
+<th style="text-align: left;">BMI centred at 26.6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">BMI per 5 kg/m², before menopause (exp β1)</td>
+<td style="text-align: left;">0.95</td>
+<td style="text-align: left;">0.95</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BMI per 5 kg/m², after menopause (exp(β1 + β3))</td>
+<td style="text-align: left;">1.15</td>
+<td style="text-align: left;">1.15</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ratio of the two (exp β3)</td>
+<td style="text-align: left;">1.21</td>
+<td style="text-align: left;">1.21</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">menopause, post vs pre (exp β2)</td>
+<td style="text-align: left;">0.37</td>
+<td style="text-align: left;">1.02</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The BMI effects and their ratio do not change with centring. The “effect of menopause” does: with BMI as measured it is the odds ratio at a BMI of 0, which nobody has (<a href="#fig-centring" class="quarto-xref">Figure&nbsp;4</a>). Centred, it is the odds ratio at a typical BMI, which is what the question means.</p>
+<div id="fig-centring" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-centring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="guide-measures_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="1536"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="guide-measures_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid figure-img" width="1536"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-centring-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: The fitted interaction model: the two lines cross near the mean BMI. The main effect of menopause is the vertical gap between them at BMI 0 (left arrow), far outside the data (shaded), when BMI is used as measured; after centring it is the gap at a typical BMI.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="a-modifier-that-reverses-the-effect" class="level3">
+<h3 class="anchored" data-anchor-id="a-modifier-that-reverses-the-effect">A modifier that reverses the effect</h3>
+<p><em>Dexamethasone in hospitalised COVID-19</em> (RECOVERY): dexamethasone lowers mortality in patients on oxygen or ventilation, but not in those without respiratory support. This is <strong>qualitative</strong> modification: the effect changes direction. Its overall odds ratio, averaged over the patients of the trial, would hide both the harm and the largest benefit.</p>
+<div id="fig-recovery" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-recovery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="guide-measures_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="guide-measures_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-recovery-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Odds ratios of death in a simulated RECOVERY trial of 30,000 patients, by respiratory support (dots and 95% CI) and the true values (crosses): harm without support, benefit growing with the severity. The odds ratio of all patients averages them.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="in-practice" class="level3">
+<h3 class="anchored" data-anchor-id="in-practice">In practice</h3>
+<ul>
+<li><strong>Decide in advance</strong> which modifiers to examine and why (biology, previous evidence). Testing many subgroups guarantees false positives.</li>
+<li><strong>Report the effect within each group</strong>, with its confidence interval, and the test of interaction. A significant effect in one subgroup and a non-significant one in another is not evidence that they differ: compare them with the interaction test.</li>
+<li><strong>Interaction tests have little power</strong>: detecting an interaction as large as the main effect needs about four times the sample size. A non-significant test does not show that the effect is the same.</li>
+<li><strong>Say which scale</strong> you used, and give the additive measures (RD, RERI) when the question is about how many cases could be prevented.</li>
+</ul>
+<p><strong>In jamovi</strong>: in <em>Regression</em> models, select both variables in <em>Model Builder</em> and add their interaction (centre a continuous modifier first with <em>Compute</em>); <em>Frequencies ▸ Independent Samples</em> with the modifier as <em>Layer</em> gives the odds ratio in each group and a test of homogeneity; the <strong>prognosis</strong> module gives subgroup hazard ratios for an interaction in a Cox model, and <strong>GAMLj</strong> <em>simple effects</em>. <strong>In studysim</strong>: <em>Breast cancer risk factors</em> (BMI × menopause), <em>Dexamethasone in hospitalised COVID-19</em> (treatment × respiratory support), <em>HPV and cofactors of cervical cancer (IARC multicentric)</em> (cofactors that act only with HPV), and the 2×2 factorial design with an <em>interaction</em> between the two treatments.</p>
 </section>
 </section>
 <section id="references" class="level2 unnumbered">

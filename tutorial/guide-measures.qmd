@@ -176,17 +176,6 @@ The same rules apply to every model:
   parameter; with fewer, coefficients are unstable and biased away from the
   null [@peduzzi1996]. studysim warns when a study falls short.
 
-### Effect modification and interaction
-
-**Effect modification** means the effect of X differs between groups of Z: the
-risk ratio of BMI for breast cancer is below 1 before menopause and above 1
-after it. Whether it appears depends on the scale: effects that are constant on
-the ratio scale differ on the difference scale whenever baseline risks differ,
-and vice versa. Report the effect within each level of the modifier, on both
-scales if possible. A modifier is not something to adjust away: it is a result.
-A causal diagram shows which variables cause which, not how their effects
-combine, so it cannot show effect modification.
-
 ### What studysim's answer key reports
 
 | column | estimand |
@@ -197,6 +186,207 @@ combine, so it cannot show effect modification.
 | *Adjusted (all)* | the conditional association given every measured variable |
 | *Adjusted (DAG)* | the association given the measured variables that the diagram says to adjust for |
 | *Absolute effects* (trials) | risks per arm, RD, NNT, marginal and conditional OR or HR |
+
+## Effect modification and interaction
+
+### Two words, two questions
+
+- **Effect modification**: the effect of an exposure X *differs between groups*
+  of another variable Z. The effect of BMI on breast cancer is protective before
+  menopause and harmful after it. Z need not cause anything: it describes in whom
+  X acts more strongly.
+- **Interaction**: the *joint* effect of two exposures is not what their separate
+  effects predict. Smoking and asbestos together cause far more lung cancer than
+  the two separately would suggest. Both are causes, and the question is what
+  happens if we act on both.
+
+They are estimated the same way (X within levels of Z, or a product term X × Z),
+and the words are often used interchangeably. The distinction matters when
+deciding what to do: a modifier tells you *who* benefits most from acting on X.
+
+### It depends on the scale
+
+Whether an effect "differs" depends on how effects are measured. In this example,
+exposure X triples the risk both in people without and with a second factor Z:
+
+```{r}
+r <- c(r00 = 0.01, r10 = 0.03, r01 = 0.05, r11 = 0.15)
+knitr::kable(data.frame(group = c("Z absent", "Z present"), unexposed = sprintf("%.0f%%", 100 * r[c(1, 3)]),
+                        exposed = sprintf("%.0f%%", 100 * r[c(2, 4)]), RR = r[c(2, 4)] / r[c(1, 3)],
+                        RD = sprintf("%+.0f%%", 100 * (r[c(2, 4)] - r[c(1, 3)]))),
+             col.names = c("", "risk, X absent", "risk, X present", "risk ratio of X", "risk difference of X"), row.names = FALSE)
+```
+
+On the **ratio** scale there is no modification: the risk ratio is 3 in both
+groups. On the **difference** scale there is a great deal: X adds 2 cases per
+100 people without Z and 10 per 100 with Z (@fig-scale). Whenever two factors
+both act, no modification on one scale implies modification on the other.
+
+::: {#fig-scale}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9
+#| fig-height: 3.4
+library(patchwork)
+scale_fig <- function(mode) {
+    p <- PAL(mode)
+    d <- data.frame(x = factor(rep(c("X absent", "X present"), 2), levels = c("X absent", "X present")),
+                    z = rep(c("Z absent", "Z present"), each = 2), risk = unname(r[c("r00", "r10", "r01", "r11")]))
+    cols <- c(`Z absent` = p$role[["exposure"]], `Z present` = p$role[["outcome"]])
+    base <- ggplot(d, aes(x, risk, colour = z, group = z)) + geom_line(linewidth = 1.2) + geom_point(size = 3) +
+        scale_colour_manual(values = cols, name = NULL) + labs(x = NULL) + theme_plot(mode)
+    a <- base + scale_y_continuous(labels = scales::percent, limits = c(0, 0.16)) +
+        labs(y = "risk", title = "Difference scale: lines diverge") +
+        annotate("text", x = 2.08, y = c(0.03, 0.15), label = c("+2%", "+10%"), hjust = 0, colour = p$fg, size = 3.6)
+    b <- base + scale_y_log10(labels = scales::percent, limits = c(0.008, 0.2)) +
+        labs(y = "risk (log scale)", title = "Ratio scale: lines parallel") +
+        annotate("text", x = 2.08, y = c(0.03, 0.15), label = c("x3", "x3"), hjust = 0, colour = p$fg, size = 3.6)
+    (a + b + plot_layout(guides = "collect")) & theme(legend.position = "bottom", plot.title = element_text(size = 11, colour = p$fg))
+}
+both(scale_fig)
+```
+The same four risks on a difference scale (left) and on a ratio scale (right): no interaction on the multiplicative scale, a strong one on the additive scale.
+:::
+
+Logistic and Cox models are multiplicative: their product term tests departure
+from multiplying the effects. Public health usually cares about the additive
+scale, because it counts cases: here, removing X prevents five times more cases
+among people with Z. The **relative excess risk due to interaction**,
+RERI = RR~11~ − RR~10~ − RR~01~ + 1, measures additive interaction from ratio
+measures: here 15 − 3 − 5 + 1 = `r unname(r["r11"] / r["r00"] - r["r10"] / r["r00"] - r["r01"] / r["r00"] + 1)`
+(0 means no additive interaction).
+
+### Reading a model with a product term
+
+In a model `logit(risk) = β0 + β1·X + β2·Z + β3·X·Z`:
+
+| coefficient | is | holds |
+|---|---|---|
+| exp(β1) | odds ratio of X | when Z = 0 (its reference level) |
+| exp(β2) | odds ratio of Z | when X = 0 |
+| exp(β3) | ratio of the odds ratios of X between Z = 1 and Z = 0 | the multiplicative interaction |
+| exp(β1 + β3) | odds ratio of X | when Z = 1 |
+
+The "main effects" are therefore not average effects: each is the effect at the
+reference or zero of the other variable. When the other variable is continuous
+and zero is meaningless, a main effect is an extrapolation far from the data.
+Centre the continuous variable first (subtract a typical value), so that the
+main effect of the modifier holds at that typical value.
+
+*Breast cancer risk factors*: the effect of BMI is modified by menopause
+(per 5 kg/m², HR 0.93 before and 1.12 after). The table fits the same
+interaction model to a large simulated case-control study, with BMI as it is and
+centred at the population mean.
+
+```{r}
+sc_b <- load_scenario(lib, "breast_cancer_risk")
+cc <- simulate_study(sc_b, "breast_cancer", "case_control", 14000, sc_b$order, seed = 4, key = FALSE)$data_raw
+cen <- sc_b$outcomes$breast_cancer$effects$bmi$center
+cc$bmi5 <- cc$bmi / 5; cc$bmi5c <- (cc$bmi - cen) / 5
+f0 <- glm(case ~ age + hrt + bmi5 * menopause, binomial(), cc)
+f1 <- glm(case ~ age + hrt + bmi5c * menopause, binomial(), cc)
+b0 <- coef(f0); b1 <- coef(f1)
+row <- function(lab, a, b) data.frame(term = lab, raw = sprintf("%.2f", a), centred = sprintf("%.2f", b))
+knitr::kable(rbind(
+    row("BMI per 5 kg/m², before menopause (exp β1)", exp(b0[["bmi5"]]), exp(b1[["bmi5c"]])),
+    row("BMI per 5 kg/m², after menopause (exp(β1 + β3))", exp(b0[["bmi5"]] + b0[["bmi5:menopausepost"]]), exp(b1[["bmi5c"]] + b1[["bmi5c:menopausepost"]])),
+    row("ratio of the two (exp β3)", exp(b0[["bmi5:menopausepost"]]), exp(b1[["bmi5c:menopausepost"]])),
+    row("menopause, post vs pre (exp β2)", exp(b0[["menopausepost"]]), exp(b1[["menopausepost"]]))),
+    col.names = c("", "BMI as measured", sprintf("BMI centred at %.1f", cen)), row.names = FALSE)
+```
+
+The BMI effects and their ratio do not change with centring. The "effect of
+menopause" does: with BMI as measured it is the odds ratio at a BMI of 0, which
+nobody has (@fig-centring). Centred, it is the odds ratio at a typical BMI, which
+is what the question means.
+
+::: {#fig-centring}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 8
+#| fig-height: 3.6
+bm <- seq(0, 45, length.out = 200)
+lp <- function(post) b0[["bmi5"]] * bm / 5 + post * (b0[["menopausepost"]] + b0[["bmi5:menopausepost"]] * bm / 5)
+cdat <- rbind(data.frame(bmi = bm, or = exp(lp(0) - lp(0)[which.min(abs(bm - cen))]), status = "before menopause"),
+              data.frame(bmi = bm, or = exp(lp(1) - lp(0)[which.min(abs(bm - cen))]), status = "after menopause"))
+cent_fig <- function(mode) {
+    p <- PAL(mode)
+    g0 <- cdat$or[cdat$status == "after menopause"][1]; g1 <- cdat$or[cdat$status == "before menopause"][1]
+    ggplot(cdat, aes(bmi, or, colour = status)) +
+        annotate("rect", xmin = 16, xmax = 48, ymin = 0, ymax = Inf, fill = p$faint, alpha = 0.35) +
+        geom_line(linewidth = 1.2) + scale_y_log10() +
+        annotate("segment", x = 0.6, xend = 0.6, y = g1, yend = g0, colour = p$fg, arrow = arrow(length = unit(2, "mm"), ends = "both")) +
+        annotate("text", x = 1.4, y = sqrt(g0 * g1), hjust = 0, colour = p$fg, size = 3.4, label = "exp(β2) with BMI as measured:\nthe gap at BMI 0") +
+        annotate("segment", x = cen, xend = cen, y = 0.7, yend = 1.4, colour = p$fg, linetype = "dashed") +
+        annotate("text", x = cen + 0.8, y = 1.45, hjust = 0, colour = p$fg, size = 3.4, label = "centred: the gap\nat a typical BMI") +
+        annotate("text", x = 40, y = 0.48, label = "where the data are", colour = p$muted, size = 3.4) +
+        coord_cartesian(ylim = c(0.45, 1.9)) +
+        scale_colour_manual(values = c(`before menopause` = p$role[["exposure"]], `after menopause` = p$role[["outcome"]]), name = NULL) +
+        labs(x = "body mass index (kg/m2)", y = "relative odds (log scale)") + theme_plot(mode)
+}
+both(cent_fig)
+```
+The fitted interaction model: the two lines cross near the mean BMI. The main effect of menopause is the vertical gap between them at BMI 0 (left arrow), far outside the data (shaded), when BMI is used as measured; after centring it is the gap at a typical BMI.
+:::
+
+### A modifier that reverses the effect
+
+*Dexamethasone in hospitalised COVID-19* (RECOVERY): dexamethasone lowers
+mortality in patients on oxygen or ventilation, but not in those without
+respiratory support. This is **qualitative** modification: the effect changes
+direction. Its overall odds ratio, averaged over the patients of the trial, would
+hide both the harm and the largest benefit.
+
+::: {#fig-recovery}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 3
+sc_r <- load_scenario(lib, "recovery_dexamethasone")
+tr <- simulate_study(sc_r, "death_28d", "rct", 30000, sc_r$order, seed = 2, key = FALSE)$data_raw
+or_of <- function(d) { f <- glm(death_28d ~ treatment + age + sex + diabetes, binomial(), d); b <- coef(f)[["treatmentdexamethasone"]]
+    se <- sqrt(vcov(f)["treatmentdexamethasone", "treatmentdexamethasone"]); exp(b + c(0, -1.96, 1.96) * se) }
+st <- do.call(rbind, lapply(levels(tr$support), function(l) data.frame(group = l, t(or_of(tr[tr$support == l, ])))))
+st <- rbind(st, data.frame(group = "all patients", t(or_of(tr))))
+names(st)[2:4] <- c("or", "lo", "hi")
+st$truth <- c(1.38, 0.80, 0.55, NA)
+st$group <- factor(st$group, levels = rev(st$group))
+rec_fig <- function(mode) {
+    p <- PAL(mode)
+    ggplot(st, aes(y = group)) + geom_vline(xintercept = 1, colour = p$muted, linetype = "dashed") +
+        geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2, colour = p$role[["exposure"]]) +
+        geom_point(aes(x = or), size = 3, colour = p$role[["exposure"]]) +
+        geom_point(aes(x = truth), shape = 4, size = 3.5, stroke = 1.2, colour = p$role[["outcome"]], na.rm = TRUE) +
+        scale_x_log10() + labs(x = "odds ratio of death, dexamethasone vs usual care (log scale)", y = "respiratory support") + theme_plot(mode)
+}
+both(rec_fig)
+```
+Odds ratios of death in a simulated RECOVERY trial of 30,000 patients, by respiratory support (dots and 95% CI) and the true values (crosses): harm without support, benefit growing with the severity. The odds ratio of all patients averages them.
+:::
+
+### In practice
+
+- **Decide in advance** which modifiers to examine and why (biology, previous
+  evidence). Testing many subgroups guarantees false positives.
+- **Report the effect within each group**, with its confidence interval, and the
+  test of interaction. A significant effect in one subgroup and a non-significant
+  one in another is not evidence that they differ: compare them with the
+  interaction test.
+- **Interaction tests have little power**: detecting an interaction as large as
+  the main effect needs about four times the sample size. A non-significant test
+  does not show that the effect is the same.
+- **Say which scale** you used, and give the additive measures (RD, RERI) when
+  the question is about how many cases could be prevented.
+
+**In jamovi**: in *Regression* models, select both variables in *Model Builder*
+and add their interaction (centre a continuous modifier first with *Compute*);
+*Frequencies ▸ Independent Samples* with the modifier as *Layer* gives the odds
+ratio in each group and a test of homogeneity; the **prognosis** module gives
+subgroup hazard ratios for an interaction in a Cox model, and **GAMLj** *simple
+effects*. **In studysim**: *Breast cancer risk factors* (BMI × menopause),
+*Dexamethasone in hospitalised COVID-19* (treatment × respiratory support),
+*HPV and cofactors of cervical cancer (IARC multicentric)* (cofactors that act only with HPV), and the 2×2
+factorial design with an *interaction* between the two treatments.
 
 ## References {.unnumbered}
 

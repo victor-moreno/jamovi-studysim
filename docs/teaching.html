@@ -423,6 +423,31 @@ ul.task-list li input[type="checkbox"] {
 <section id="confounding-coffee-and-coronary-heart-disease" class="level2">
 <h2 class="anchored" data-anchor-id="confounding-coffee-and-coronary-heart-disease">Confounding: coffee and coronary heart disease</h2>
 <p><em>Coronary heart disease incidence</em>, cohort, measure age, sex, smoking and coffee. Coffee has no effect, but coffee drinkers smoke more: the crude hazard ratio of coffee is above 1 and disappears once smoking is in the model.</p>
+<div id="fig-coffee" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-coffee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="1344"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-2-2.png" class="img-fluid figure-img" width="1344"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-coffee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Coffee has no arrow into coronary heart disease, but smoking causes both: the backdoor path coffee ← smoking → CHD makes coffee look harmful until smoking is adjusted for.
+</figcaption>
+</figure>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -515,6 +540,31 @@ ul.task-list li input[type="checkbox"] {
 <section id="confounding-by-indication-chemotherapy" class="level2">
 <h2 class="anchored" data-anchor-id="confounding-by-indication-chemotherapy">Confounding by indication: chemotherapy</h2>
 <p><em>Breast cancer prognosis</em>, prognosis design. Chemotherapy truly lowers the hazard (HR 0.75), but it is given to younger women with more nodes and higher grade; its crude hazard ratio points the wrong way.</p>
+<div id="fig-chemo" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-chemo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-chemo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Confounding by indication: the worse the tumour (size, nodes, grade) the more likely chemotherapy, and the worse the prognosis. Without adjustment the treatment carries the prognosis of the patients who receive it.
+</figcaption>
+</figure>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -617,6 +667,31 @@ ul.task-list li input[type="checkbox"] {
 <section id="odds-ratios-from-a-case-control-study" class="level2">
 <h2 class="anchored" data-anchor-id="odds-ratios-from-a-case-control-study">Odds ratios from a case-control study</h2>
 <p><em>Breast cancer risk factors</em>, case-control with two controls per case. The data are generated as a cohort with hazard ratios; the case-control odds ratios approach them because the disease is rare. Menopause is determined by age (a rule of the scenario), so much of its crude odds ratio is confounding by age. After adjustment it falls near 1, its direct effect. What remains above 1 is mediated: only post-menopausal women take hormone replacement therapy, which is not measured here, so menopause carries part of its effect (the <em>total</em> column). BMI’s effect, which differs before and after menopause, is centred at the population’s mean BMI, where menopause has no effect of its own.</p>
+<div id="fig-menopause" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-menopause-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-menopause-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Menopause has no arrow of its own into breast cancer. Age confounds it, and HRT, taken only after menopause and not measured here (dashed), mediates part of its total effect.
+</figcaption>
+</figure>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -708,11 +783,61 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="effect-modification" class="level2">
 <h2 class="anchored" data-anchor-id="effect-modification">Effect modification</h2>
-<p>In the same scenario BMI protects before menopause and raises risk after it. A model without the interaction gives a single, misleading BMI effect; students should fit <code>bmi × menopause</code>. The answer key shows the true effect per level of menopause in its note.</p>
+<p>In the same scenario BMI protects before menopause and raises risk after it. A model without the interaction gives a single, misleading BMI effect; students should fit <code>bmi × menopause</code>. The answer key shows the true effect per level of menopause in its note. <a href="./guide-measures.html#effect-modification-and-interaction">Effect modification and interaction</a> explains how to read the model’s coefficients, why centring BMI changes the “effect of menopause”, why the answer depends on the scale, and shows a modifier that reverses an effect (<em>Dexamethasone in hospitalised COVID-19</em>).</p>
+<div id="fig-modification" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-modification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="1344"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid figure-img" width="1344"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-modification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Effect modification is not drawn in a DAG, so here is the effect itself: the hazard ratio of breast cancer by BMI, relative to the centre, falls with BMI before menopause and rises after it.
+</figcaption>
+</figure>
+</div>
 </section>
 <section id="adjusting-for-everything-the-table-2-fallacy" class="level2">
 <h2 class="anchored" data-anchor-id="adjusting-for-everything-the-table-2-fallacy">Adjusting for everything: the Table 2 fallacy</h2>
 <p><em>Coronary heart disease incidence</em>, cohort, all variables measured. Age, sex and education act partly through blood pressure, cholesterol, BMI, diabetes and HDL. A model with every variable gives their <strong>direct</strong> effects: education seems to do nothing, and the effect of sex shrinks. Adjusting each exposure only for its confounders (<em>Adjusted (DAG)</em>) gives the <strong>total</strong> effect, the one that answers “what if this changed?”. A single mutually adjusted table (the “Table 2” of many papers) mixes both kinds.</p>
+<div id="fig-table2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-table2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="1536"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid figure-img" width="1536"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-table2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Part of the structure of <em>Coronary heart disease incidence</em>: age, education and sex act partly or wholly through blood pressure, smoking and HDL. A model with all of them gives the direct effects of age and sex and makes education look useless.
+</figcaption>
+</figure>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -903,6 +1028,31 @@ ul.task-list li input[type="checkbox"] {
 <section id="trials-absolute-effects-and-non-collapsibility" class="level2">
 <h2 class="anchored" data-anchor-id="trials-absolute-effects-and-non-collapsibility">Trials: absolute effects and non-collapsibility</h2>
 <p><em>Rectal indomethacin to prevent post-ERCP pancreatitis</em>, randomised trial. The key gives the risk in each arm, the risk difference and the number needed to treat. The odds ratio of the 2×2 table (the marginal one) is closer to 1 than the conditional odds ratio the data were generated with, although randomisation leaves no confounding: adjusting for prognostic variables moves it towards the conditional one.</p>
+<div id="fig-trial" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-trial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-11-2.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trial-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: In a trial nothing but randomisation causes the treatment, so there is no backdoor path. The prognostic variables (previous pancreatitis, a difficult cannulation) are precision variables: adjusting for them changes the odds ratio from marginal to conditional, not its validity.
+</figcaption>
+</figure>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1004,6 +1154,31 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
+<div id="fig-biases" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-biases-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="1824"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid figure-img" width="1824"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-biases-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: The biases studysim can build in, as diagrams. Recall: what cases report depends on being a case. Selection and collider: the study is restricted to, or adjusted for, a variable caused by exposure and outcome (double border). Non-adherence: prognosis affects whether people take the treatment, so comparing by treatment received is confounded; by treatment assigned it is not.
+</figcaption>
+</figure>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1202,6 +1377,31 @@ ul.task-list li input[type="checkbox"] {
 <section id="trials-parallel-and-crossover" class="level2">
 <h2 class="anchored" data-anchor-id="trials-parallel-and-crossover">Trials: parallel and crossover</h2>
 <p><em>Antihypertensive drug vs placebo</em>: in the parallel trial the unadjusted difference is unbiased, and adjusting for baseline pressure (ANCOVA) narrows the interval. In the 2×2 crossover each patient is their own control: 30 patients give a precise estimate, and the period effect must be in the model.</p>
+<div id="fig-ancova" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ancova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell" data-renderings="[&quot;light&quot;,&quot;dark&quot;]">
+<div class="cell-output-display light-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display dark-content">
+<div>
+<figure class="figure">
+<p><img src="teaching_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid figure-img" width="1440"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ancova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: A parallel trial: the pressure at entry predicts the pressure after treatment but is not caused by the drug. It is a precision variable, and adjusting for it (ANCOVA) narrows the interval without changing what is estimated.
+</figcaption>
+</figure>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">

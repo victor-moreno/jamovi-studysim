@@ -555,6 +555,12 @@ NEW.update({
 "Write the divisor in Cuts, a positive number such as 10.": ("Escriba el divisor en Cortes, un número positivo como 10.", "Escriviu el divisor a Talls, un nombre positiu com 10."),
 "Write the student keys of the class (separated by commas) before exporting it.": ("Escriba las claves de alumno de la clase (separadas por comas) antes de exportarla.", "Escriviu les claus d'alumne de la classe (separades per comes) abans d'exportar-la."),
 })
+NEW.update({
+"CSV files for spreadsheets": ("Ficheros CSV para hojas de cálculo", "Fitxers CSV per a fulls de càlcul"),
+"By the language (semicolons in Spanish and Catalan)": ("Según el idioma (punto y coma en castellano y catalán)", "Segons l'idioma (punt i coma en castellà i català)"),
+"Commas, decimal point": ("Comas, punto decimal", "Comes, punt decimal"),
+"Semicolons, decimal comma": ("Punto y coma, coma decimal", "Punt i coma, coma decimal"),
+})
 for k, v in NEW.items():
     ES[k], CA[k] = v
 ES.update(ES2); CA.update(CA2)

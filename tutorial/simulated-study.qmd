@@ -83,13 +83,19 @@ title: "Simulated study"
   and saves a zip with one CSV and one codebook per student, a register of keys
   and seeds, and one answer key report. A **teacher code** unlocks a library
   locked with it (see [Teaching](teaching.qmd#assignments-with-student-keys)).
+  *CSV files for spreadsheets* sets how the CSV files are written: all in UTF-8
+  with a byte-order mark, so spreadsheets read accented letters; with semicolons
+  and decimal commas when jamovi is in Spanish or Catalan (as Excel expects
+  there), or as chosen.
 
 ### Several outcomes in one study
 
-Most trials record several outcomes. *Other outcomes of the scenario (same
-people)* adds every other outcome of the scenario as columns for the same people
-(cross-sectional, cohort, prognosis and trial designs), and the answer key gets a
-block per outcome. Outcomes can be linked (correlated beyond their common
+Most trials record several outcomes. When the scenario has more than one and the
+design can carry them (cross-sectional, cohort, prognosis, trial and diagnostic
+designs), its other outcomes are the first rows of the **Variables** list, marked
+*outcome* in the second column and unticked. Tick the ones to add: they become
+columns for the same people, they appear in the causal diagram, and the answer
+key gets a block for each. Outcomes can be linked (correlated beyond their common
 causes, e.g. HbA1c and control below 7%), and overall survival can be built
 from a first event (an illness-death model: in the colon cancer trial, death
 after recurrence).
@@ -97,13 +103,11 @@ after recurrence).
 For example, *Intensive blood-pressure control (SPRINT)* has five outcomes: the
 primary cardiovascular event, death from any cause and three harms (acute kidney
 injury, hypotension, syncope), to weigh benefits against harms and to see what
-testing many outcomes does. The **Outcome** picker lists all five, and the
-dataset holds only the one chosen (by default the cardiovascular event). Tick
-*Other outcomes of the scenario (same people)* to add the other four as columns
-(`time_death`, `death`, `kidney_injury`, `hypotension`, `syncope`); the answer key
-then has a block per outcome.
+testing many outcomes does. Choose the cardiovascular event as **Outcome** and
+tick the other four at the top of the Variables list (`time_death`, `death`,
+`kidney_injury`, `hypotension`, `syncope` are added).
 
-![SPRINT with *Other outcomes of the scenario* ticked: the answer key has the intervention effect on each outcome.](screenshots/s16-several-outcomes.png){.screenshot}
+![SPRINT with its other outcomes ticked: the answer key has the intervention effect on each outcome.](screenshots/s16-several-outcomes.png){.screenshot}
 
 ### Two more designs
 

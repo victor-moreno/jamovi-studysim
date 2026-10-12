@@ -120,7 +120,12 @@ with sync_playwright() as p:
     fr = jc.run_analysis(page, "Simulate", "Simulated study", exact=False)
     wait_text(page, "cases and")
     fr.locator("select.studysim-pick").nth(0).select_option("sprint_blood_pressure"); page.wait_for_timeout(4000)
-    jc.check_option(fr, "Other outcomes of the scenario (same people)")
+    # the other outcomes are the first rows of the Variables list: tick them
+    page.wait_for_timeout(2000)
+    names = [t.strip() for t in fr.locator(".list-item-cell .silky-control-label").all_inner_texts()][0::2]
+    boxes = fr.locator(".list-item-cell input[type=checkbox]")
+    for i in range(4):
+        boxes.nth(2 * i).check(force=True); page.wait_for_timeout(800)
     jc.expand_section(fr, "Output")
     jc.check_option(fr, "Answer key")
     wait_text(page, "Answer key: what this design should estimate", 60)
@@ -155,12 +160,18 @@ with sync_playwright() as p:
     wait_text(page, "All designs sample the same superpopulation", 90)
     page.wait_for_timeout(8000)
     page.screenshot(path=out("s15-compare.png"))
-    for f in page.frames:
-        if jc.HOST_C not in f.url: continue
-        imgs = f.locator(".jmv-results-image-image")
-        if imgs.count():
-            imgs.last.scroll_into_view_if_needed(); page.wait_for_timeout(1500)
-            imgs.last.screenshot(path=out("s17-compare-plot.png"))
+    # the estimates plot: the last image already drawn (the replicates plot,
+    # hidden without replicates, comes after it and is empty)
+    for _ in range(60):
+        drawn = [e for f in page.frames if jc.HOST_C in f.url for e in f.locator(".jmv-results-image-image").all()
+                 if e.is_visible() and "url(" in (e.evaluate("e => e.style.backgroundImage") or "")]
+        if len(drawn) >= 2: break
+        page.wait_for_timeout(1000)
+    if drawn:
+        drawn[-1].scroll_into_view_if_needed(); page.wait_for_timeout(1500)
+        drawn[-1].screenshot(path=out("s17-compare-plot.png"))
+    else:
+        print("missing: compare plot")
 
     # Replicate studies: indomethacin, randomised and cluster trials, 200 each
     page.goto(jc.JAMOVI_URL); page.wait_for_timeout(6000)

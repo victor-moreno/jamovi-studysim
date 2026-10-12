@@ -202,6 +202,9 @@
             "Built-in only": [
                 "Solo la incluida"
             ],
+            "By the language (semicolons in Spanish and Catalan)": [
+                "Según el idioma (punto y coma en castellano y catalán)"
+            ],
             "Calibration": [
                 "Calibración"
             ],
@@ -259,6 +262,9 @@
             "Columns": [
                 "Columnas"
             ],
+            "Commas, decimal point": [
+                "Comas, punto decimal"
+            ],
             "Compare designs": [
                 "Comparar diseños"
             ],
@@ -309,6 +315,9 @@
             ],
             "Crude: difference at the last visit among those who attended it (completers). Adjusted: linear mixed model with all visits (random intercept, an effect per visit), valid when dropout depends on values already seen.": [
                 "Crudo: diferencia en la última visita entre quienes acudieron (completos). Ajustado: modelo lineal mixto con todas las visitas (intercepto aleatorio, un efecto por visita), válido cuando el abandono depende de valores ya observados."
+            ],
+            "CSV files for spreadsheets": [
+                "Ficheros CSV para hojas de cálculo"
             ],
             "custom": [
                 "propio"
@@ -927,6 +936,9 @@
             ],
             "Selected scenario": [
                 "Escenario seleccionado"
+            ],
+            "Semicolons, decimal comma": [
+                "Punto y coma, coma decimal"
             ],
             "Sensitivity": [
                 "Sensibilidad"

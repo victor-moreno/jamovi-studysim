@@ -202,6 +202,9 @@
             "Built-in only": [
                 "Només la inclosa"
             ],
+            "By the language (semicolons in Spanish and Catalan)": [
+                "Segons l'idioma (punt i coma en castellà i català)"
+            ],
             "Calibration": [
                 "Calibratge"
             ],
@@ -259,6 +262,9 @@
             "Columns": [
                 "Columnes"
             ],
+            "Commas, decimal point": [
+                "Comes, punt decimal"
+            ],
             "Compare designs": [
                 "Comparar dissenys"
             ],
@@ -309,6 +315,9 @@
             ],
             "Crude: difference at the last visit among those who attended it (completers). Adjusted: linear mixed model with all visits (random intercept, an effect per visit), valid when dropout depends on values already seen.": [
                 "Cru: diferència a l'última visita entre els que hi van anar (complets). Ajustat: model lineal mixt amb totes les visites (intercepte aleatori, un efecte per visita), vàlid quan l'abandonament depèn de valors ja observats."
+            ],
+            "CSV files for spreadsheets": [
+                "Fitxers CSV per a fulls de càlcul"
             ],
             "custom": [
                 "propi"
@@ -927,6 +936,9 @@
             ],
             "Selected scenario": [
                 "Escenari seleccionat"
+            ],
+            "Semicolons, decimal comma": [
+                "Punt i coma, coma decimal"
             ],
             "Sensitivity": [
                 "Sensibilitat"

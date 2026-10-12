@@ -4,6 +4,7 @@ title: "Teaching with studysim"
 
 ```{r}
 source("_common.R")
+source("_figures.R")
 ```
 
 Each exercise below names the scenario and options, then what the students should
@@ -20,6 +21,19 @@ cause.
 Coffee has no effect, but coffee drinkers smoke more: the crude hazard ratio of
 coffee is above 1 and disappears once smoking is in the model.
 
+::: {#fig-coffee}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7
+#| fig-height: 2.8
+n <- data.frame(id = c("coffee", "CHD", "smoking", "age", "sex"), x = c(0, 3.6, 1.8, 3.6, 3.6), y = c(0, 0, 1.3, 1.5, -1.3),
+                role = c("exposure", "outcome", "confounder", "other", "other"))
+e <- data.frame(from = c("smoking", "smoking", "age", "sex"), to = c("coffee", "CHD", "CHD", "CHD"))
+both(dag_fig, n, e)
+```
+Coffee has no arrow into coronary heart disease, but smoking causes both: the backdoor path coffee ← smoking → CHD makes coffee look harmful until smoking is adjusted for.
+:::
+
 ```{r}
 key_table("chd_incidence", "chd", "cohort", c("age", "sex", "smoking", "coffee"))
 ```
@@ -32,6 +46,21 @@ biased (residual confounding).
 *Breast cancer prognosis*, prognosis design. Chemotherapy truly lowers the hazard
 (HR 0.75), but it is given to younger women with more nodes and higher grade; its
 crude hazard ratio points the wrong way.
+
+::: {#fig-chemo}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 3.2
+n <- data.frame(id = c("chemo", "death", "tumour size", "nodes", "grade", "age"), x = c(0, 4.4, 0, 1.6, 3, 4.4), y = c(0, 0, 2.6, 1.6, 2.6, 1.6),
+                role = c("exposure", "outcome", "confounder", "confounder", "confounder", "confounder"))
+e <- data.frame(from = c("tumour size", "tumour size", "nodes", "grade", "age", "tumour size", "nodes", "grade", "age", "chemo"),
+                to = c("nodes", "chemo", "chemo", "chemo", "chemo", "death", "death", "death", "death", "death"),
+                curve = c(0, 0, 0, 0, 0, -0.3, 0, 0, 0, 0))
+both(dag_fig, n, e)
+```
+Confounding by indication: the worse the tumour (size, nodes, grade) the more likely chemotherapy, and the worse the prognosis. Without adjustment the treatment carries the prognosis of the patients who receive it.
+:::
 
 ```{r}
 key_table("breast_cancer_prognosis", "death", "prognosis", c("age", "tumour_size", "nodes", "grade", "chemo"))
@@ -49,6 +78,22 @@ measured here, so menopause carries part of its effect (the *total* column).
 BMI's effect, which differs before and after menopause, is centred at the
 population's mean BMI, where menopause has no effect of its own.
 
+::: {#fig-menopause}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 3.2
+n <- data.frame(id = c("menopause", "breast cancer", "age", "HRT", "parity", "family history", "alcohol"),
+                x = c(0.8, 5.8, 0.8, 3.2, 3.2, 5.8, 5.8), y = c(0, 0, 2.2, 0, 3, 2, -1.5),
+                role = c("exposure", "outcome", "confounder", "mediator", "other", "other", "other"))
+e <- data.frame(from = c("age", "age", "menopause", "HRT", "age", "parity", "family history", "alcohol"),
+                to = c("menopause", "breast cancer", "HRT", "breast cancer", "parity", "breast cancer", "breast cancer", "breast cancer"),
+                curve = c(0, 0, 0, 0, 0, 0, 0, 0))
+both(dag_fig, n, e, unmeasured = "HRT")
+```
+Menopause has no arrow of its own into breast cancer. Age confounds it, and HRT, taken only after menopause and not measured here (dashed), mediates part of its total effect.
+:::
+
 ```{r}
 key_table("breast_cancer_risk", "breast_cancer", "case_control", c("age", "menopause", "parity", "family_hist", "alcohol"),
           options = list(ratio = 2))
@@ -62,7 +107,34 @@ logistic regression.
 In the same scenario BMI protects before menopause and raises risk after it. A
 model without the interaction gives a single, misleading BMI effect; students
 should fit `bmi × menopause`. The answer key shows the true effect per level of
-menopause in its note.
+menopause in its note. [Effect modification and
+interaction](guide-measures.qmd#effect-modification-and-interaction) explains
+how to read the model's coefficients, why centring BMI changes the "effect of
+menopause", why the answer depends on the scale, and shows a modifier that
+reverses an effect (*Dexamethasone in hospitalised COVID-19*).
+
+::: {#fig-modification}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7
+#| fig-height: 3.4
+sc_b <- load_scenario(lib, "breast_cancer_risk")
+eb <- sc_b$outcomes$breast_cancer$effects$bmi
+bm <- seq(18, 40, length.out = 100)
+dm <- rbind(data.frame(bmi = bm, hr = exp(eb$by$coef[1] * (bm - eb$center) / eb$per), status = "pre-menopausal"),
+            data.frame(bmi = bm, hr = exp(eb$by$coef[2] * (bm - eb$center) / eb$per), status = "post-menopausal"))
+mod_fig <- function(mode) {
+    p <- PAL(mode)
+    ggplot(dm, aes(bmi, hr, colour = status)) + geom_hline(yintercept = 1, colour = p$faint) +
+        geom_vline(xintercept = eb$center, colour = p$muted, linetype = "dashed") + geom_line(linewidth = 1.3) +
+        scale_y_log10() + scale_colour_manual(values = unname(p$role[c("exposure", "outcome")]), name = NULL) +
+        annotate("text", x = eb$center + 0.3, y = 1.9, label = sprintf("centre %.1f kg/m2", eb$center), hjust = 0, colour = p$fg, size = 3.5) +
+        labs(x = "body mass index (kg/m2)", y = "hazard ratio (log scale)") + theme_plot(mode)
+}
+both(mod_fig)
+```
+Effect modification is not drawn in a DAG, so here is the effect itself: the hazard ratio of breast cancer by BMI, relative to the centre, falls with BMI before menopause and rises after it.
+:::
 
 ## Adjusting for everything: the Table 2 fallacy
 
@@ -73,6 +145,21 @@ seems to do nothing, and the effect of sex shrinks. Adjusting each exposure only
 for its confounders (*Adjusted (DAG)*) gives the **total** effect, the one
 that answers "what if this changed?". A single mutually adjusted table (the
 "Table 2" of many papers) mixes both kinds.
+
+::: {#fig-table2}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 8
+#| fig-height: 3.6
+n <- data.frame(id = c("age", "education", "sex", "sbp", "smoking", "HDL", "CHD"), x = c(0, 0, 0, 2.4, 2.4, 2.4, 4.8), y = c(2, 0, -2, 2, 0, -2, 0),
+                role = c("exposure", "exposure", "exposure", "mediator", "mediator", "mediator", "outcome"),
+                label = c("age", "education", "sex", "blood pressure", "smoking", "HDL", "CHD"))
+e <- data.frame(from = c("age", "sbp", "age", "education", "smoking", "sex", "HDL", "sex"), to = c("sbp", "CHD", "CHD", "smoking", "CHD", "HDL", "CHD", "CHD"),
+                curve = c(0, 0, -0.2, 0, 0, 0, 0, 0.2))
+both(dag_fig, n, e)
+```
+Part of the structure of *Coronary heart disease incidence*: age, education and sex act partly or wholly through blood pressure, smoking and HDL. A model with all of them gives the direct effects of age and sex and makes education look useless.
+:::
 
 ```{r}
 key_table("chd_incidence", "chd", "cohort", load_scenario(lib, "chd_incidence")$order)
@@ -85,6 +172,21 @@ the risk difference and the number needed to treat. The odds ratio of the
 2×2 table (the marginal one) is closer to 1 than the conditional odds ratio the
 data were generated with, although randomisation leaves no confounding:
 adjusting for prognostic variables moves it towards the conditional one.
+
+::: {#fig-trial}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 3
+n <- data.frame(id = c("randomisation", "indomethacin", "pancreatitis", "previous PEP", "difficult cannulation", "SOD"),
+                x = c(-2.6, 1, 5.6, 5.6, 3, -0.6), y = c(0, 0, 0, 1.6, -1.6, -1.6),
+                role = c("instrument", "exposure", "outcome", "other", "other", "other"))
+e <- data.frame(from = c("randomisation", "indomethacin", "previous PEP", "difficult cannulation", "SOD"),
+                to = c("indomethacin", "pancreatitis", "pancreatitis", "pancreatitis", "difficult cannulation"))
+both(dag_fig, n, e)
+```
+In a trial nothing but randomisation causes the treatment, so there is no backdoor path. The prognostic variables (previous pancreatitis, a difficult cannulation) are precision variables: adjusting for them changes the odds ratio from marginal to conditional, not its validity.
+:::
 
 ```{r}
 trial_table("indomethacin_ercp", "pancreatitis")
@@ -106,6 +208,28 @@ collider act on the variables ticked in the *Exposure* column.
 | Informative loss to follow-up | followed designs | Kaplan-Meier underestimates the risk; hazard ratios shift |
 | Immortal time | cohort, prognosis | a useless treatment started during follow-up looks protective when analysed at baseline |
 | Spectrum, partial verification | diagnostic | sensitivity and AUC too high with severe cases; with only some negatives verified, sensitivity too high and specificity too low |
+
+::: {#fig-biases}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9.5
+#| fig-height: 5.6
+P <- c("Recall bias", "Controls selected by exposure", "Collider (admitted)", "Non-adherence")
+n <- rbind(
+  data.frame(panel = P[1], id = c("X", "Y", "X*"), x = c(0, 3, 1.5), y = c(0, 0, -1.3), role = c("exposure", "outcome", "other"), label = c("smoking", "cancer", "reported smoking")),
+  data.frame(panel = P[2], id = c("X", "Y", "S"), x = c(0, 3, 1.5), y = c(0, 0, -1.3), role = c("exposure", "outcome", "collider"), label = c("smoking", "cancer", "in the study")),
+  data.frame(panel = P[3], id = c("X", "Y", "A"), x = c(0, 3, 1.5), y = c(0, 0, -1.3), role = c("exposure", "outcome", "collider"), label = c("smoking", "cancer", "admitted")),
+  data.frame(panel = P[4], id = c("R", "T", "Y", "U"), x = c(-0.6, 1.4, 3.4, 2.4), y = c(0, 0, 0, 1.4), role = c("instrument", "exposure", "outcome", "confounder"),
+             label = c("assigned", "received", "outcome", "prognosis")))
+e <- rbind(
+  data.frame(panel = P[1], from = c("X", "Y", "X"), to = c("X*", "X*", "Y")),
+  data.frame(panel = P[2], from = c("X", "Y", "X"), to = c("S", "S", "Y")),
+  data.frame(panel = P[3], from = c("X", "Y", "X"), to = c("A", "A", "Y")),
+  data.frame(panel = P[4], from = c("R", "T", "U", "U"), to = c("T", "Y", "T", "Y")))
+both(dag_fig, n, e, adjusted = c("S", "A"), unmeasured = "U", ncol = 2)
+```
+The biases studysim can build in, as diagrams. Recall: what cases report depends on being a case. Selection and collider: the study is restricted to, or adjusted for, a variable caused by exposure and outcome (double border). Non-adherence: prognosis affects whether people take the treatment, so comparing by treatment received is confounded; by treatment assigned it is not.
+:::
 
 ```{r}
 key_table("lung_cancer_smoking", "lung_cancer", "case_control", c("age", "sex", "smoking"),
@@ -139,6 +263,19 @@ key_table("chd_incidence", "chd", "cohort", c("age", "sex", "sbp"), categorize =
 is unbiased, and adjusting for baseline pressure (ANCOVA) narrows the interval. In
 the 2×2 crossover each patient is their own control: 30 patients give a precise
 estimate, and the period effect must be in the model.
+
+::: {#fig-ancova}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 3.4
+n <- data.frame(id = c("drug", "sbp", "sbp0", "age, BMI, salt"), x = c(0, 5.4, 2.8, 0), y = c(0, 0, 1.5, 2.9),
+                role = c("exposure", "outcome", "other", "other"), label = c("drug", "pressure after", "pressure at entry", "age, BMI, salt"))
+e <- data.frame(from = c("drug", "sbp0", "age, BMI, salt", "age, BMI, salt"), to = c("sbp", "sbp", "sbp0", "sbp"), curve = c(0, 0, 0, -0.25))
+both(dag_fig, n, e)
+```
+A parallel trial: the pressure at entry predicts the pressure after treatment but is not caused by the drug. It is a precision variable, and adjusting for it (ANCOVA) narrows the interval without changing what is estimated.
+:::
 
 ```{r}
 key_table("antihypertensive_trial", "sbp", "rct", c("sbp0", "age"))

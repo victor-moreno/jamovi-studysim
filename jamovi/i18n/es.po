@@ -294,6 +294,10 @@ msgstr "Incluida y propia"
 msgid "Built-in only"
 msgstr "Solo la incluida"
 
+#: simStudy/options/csvFormat/auto.title
+msgid "By the language (semicolons in Spanish and Catalan)"
+msgstr "Según el idioma (punto y coma en castellano y catalán)"
+
 #: R/simstudy.b.R
 msgid "Calibration"
 msgstr "Calibración"
@@ -392,6 +396,10 @@ msgstr "Columna"
 msgid "Columns"
 msgstr "Columnas"
 
+#: simStudy/options/csvFormat/comma.title
+msgid "Commas, decimal point"
+msgstr "Comas, punto decimal"
+
 #: R/simcompare.b.R
 #: package/analyses/simCompare.title
 #: package/analyses/simCompare.menuTitle
@@ -484,6 +492,10 @@ msgstr "Crudo"
 #: R/simstudy.b.R
 msgid "Crude: difference at the last visit among those who attended it (completers). Adjusted: linear mixed model with all visits (random intercept, an effect per visit), valid when dropout depends on values already seen."
 msgstr "Crudo: diferencia en la última visita entre quienes acudieron (completos). Ajustado: modelo lineal mixto con todas las visitas (intercepto aleatorio, un efecto por visita), válido cuando el abandono depende de valores ya observados."
+
+#: simStudy/options/csvFormat.title
+msgid "CSV files for spreadsheets"
+msgstr "Ficheros CSV para hojas de cálculo"
 
 #: R/simlibrary.b.R
 msgid "custom"
@@ -1461,6 +1473,10 @@ msgstr "semilla {seed} con clave de estudiante \"{key}\""
 #: simLibrary/options/exportScope/scenario.title
 msgid "Selected scenario"
 msgstr "Escenario seleccionado"
+
+#: simStudy/options/csvFormat/semicolon.title
+msgid "Semicolons, decimal comma"
+msgstr "Punto y coma, coma decimal"
 
 #: R/simstudy.b.R
 msgid "Sensitivity"
