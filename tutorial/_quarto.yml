@@ -23,6 +23,13 @@ website:
       - scenarios.qmd
       - derive.qmd
       - how-it-works.qmd
+      - section: "Epidemiology guide"
+        contents:
+          - guide-measures.qmd
+          - guide-observational.qmd
+          - guide-trials.qmd
+          - guide-dags.qmd
+          - guide-mediation.qmd
 
 format:
   html:

@@ -34,6 +34,13 @@ chance against bias), [Analysing the data in jamovi](analysis.qmd) says which
 analysis and module fit each design, and [How it works](how-it-works.qmd)
 describes the simulation model.
 
+The **Epidemiology guide** is a short course that uses the simulator for its
+examples: [measures and models](guide-measures.qmd), [observational
+designs](guide-observational.qmd), [trials and other designs](guide-trials.qmd),
+[causal diagrams](guide-dags.qmd) (confounders, mediators, colliders, how to build
+a DAG and choose the adjustment) and [mediation](guide-mediation.qmd) (direct and
+indirect effects).
+
 ## Install
 
 Download the `.jmo` for your computer from the

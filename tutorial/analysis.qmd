@@ -12,7 +12,10 @@ jamovi, in another module of the jamovi library (*Modules ▸ jamovi library*),
 or in one of the author's modules
 ([jamovi-modules-vm](https://victor-moreno.github.io/jamovi-modules-vm/)).
 Below it, one worked exercise per design: the scenario, what to do in jamovi,
-and what the answer key says a correct analysis should find.
+and what the answer key says a correct analysis should find. The
+[Epidemiology guide](guide-observational.qmd) explains each design, its
+strengths and limitations, and how to read its parameters; [Causal
+diagrams](guide-dags.qmd) explains how to choose what to adjust for.
 
 ## Design, analysis and module
 
@@ -51,7 +54,7 @@ own confidence interval.
 
 ### Cross-sectional: diabetes in Pima women
 
-*Pima Indian diabetes*, cross-sectional, 700 women, all variables. Fit
+*Diabetes in Pima women*, cross-sectional, 700 women, all variables. Fit
 *Regression ▸ Logistic Regression ▸ 2 Outcomes* with `diabetes` as the outcome
 and the measured variables as covariates (*Odds ratio* under *Model
 Coefficients*). Then fit one variable at a time and compare each crude odds
@@ -88,7 +91,7 @@ key_table("esoph_cancer", "oesophageal_cancer", "matched_cc", load_scenario(lib,
 
 ### Nested case-control and case-cohort: Wilms tumour relapse
 
-*Wilms tumour*, nested case-control with 3 controls per case: **condLogReg** with
+*Relapse of Wilms tumour*, nested case-control with 3 controls per case: **condLogReg** with
 `set` (the risk set) as matching variable gives hazard ratios, with no
 rare-disease assumption. The case-cohort version needs a weighted Cox model:
 in **Rj**, `survival::cch(Surv(time, relapse) ~ histology + stage, data = data,
@@ -105,7 +108,7 @@ cumulative incidence of the event.
 
 ### Diagnostic accuracy: PSA
 
-*Prostate cancer and PSA*, diagnostic, 500 men. In **meddecide** or
+*PSA and prostate cancer*, diagnostic, 500 men. In **meddecide** or
 **psychoPDA**, the ROC curve of `psa` against `prostate_cancer`. The key gives the
 AUC and, at a cut-off, the sensitivity, specificity and predictive values;
 *Compute* `psa > 5.63` and cross it with the disease (*Frequencies ▸
@@ -121,14 +124,14 @@ knitr::kable(a[, c("marker", "cutoff", "stat", "true", "expected")], col.names =
 
 ### Method comparison: two blood pressure devices
 
-*NHANES blood pressure*, method comparison of `sbp`. In **blandr** or
+*Blood pressure in US adults*, method comparison of `sbp`. In **blandr** or
 **SimplyAgree**, the Bland-Altman analysis of `sbp_a` and `sbp_b`: the mean
 difference, the limits of agreement and the proportional bias (B grows faster
 than A).
 
 ### Randomised trial: indomethacin and pancreatitis
 
-*Indomethacin after ERCP*, randomised trial of 600. *Frequencies ▸ Independent
+*Rectal indomethacin to prevent post-ERCP pancreatitis*, randomised trial of 600. *Frequencies ▸ Independent
 Samples* with `treatment` and `pancreatitis` (*Comparative measures*: relative
 risk, difference in proportions); the number needed to treat is 1 / risk
 difference. The key's trial table gives the true risks: note that the marginal
@@ -141,14 +144,14 @@ trial_table("indomethacin_ercp", "pancreatitis")
 
 ### Cluster randomised trial: handwashing in Karachi
 
-*Handwashing in Karachi*, cluster trial. In **GAMLj** *Generalized Mixed Models*,
+*Handwashing and childhood pneumonia*, cluster trial. In **GAMLj** *Generalized Mixed Models*,
 a Poisson model of `pneumonia` with `soap` as a fixed factor and `cluster` as the
 cluster variable. Ignoring the clusters (a plain Poisson regression) gives
 confidence intervals that are too narrow.
 
 ### 2×2 factorial: aspirin and beta-carotene
 
-*Physicians' Health Study*, factorial. **prognosis** *Cox Regression* with both
+*Aspirin and beta-carotene in male physicians*, factorial. **prognosis** *Cox Regression* with both
 treatments; adding their interaction tests whether one changes the other's
 effect.
 
@@ -172,13 +175,13 @@ completers at the last visit, *Adjusted* the mixed model with every visit.
 
 ### Before-after: metformin
 
-*Metformin and HbA1c*, before-after, enrolling only people above the 50th
+*Metformin vs placebo on HbA1c*, before-after, enrolling only people above the 50th
 percentile. *T-Tests ▸ Paired Samples* of `hba1c_before` and `hba1c`: the mean
 change is larger than the true effect, because of regression to the mean.
 
 ### Ecological: water hardness and mortality
 
-*Water hardness*, ecological. *Compute* the death rate per 100,000 (`death /
+*Water hardness and mortality*, ecological. *Compute* the death rate per 100,000 (`death /
 population * 100000`) and regress it on the region means and percentages
 (*Regression ▸ Linear Regression*); compare the regional slope with the true
 individual effect in the key: the gap is the ecological bias.

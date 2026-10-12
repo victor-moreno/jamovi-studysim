@@ -1,0 +1,351 @@
+---
+title: "Observational designs"
+subtitle: "Epidemiology guide, part 2"
+bibliography: references.bib
+---
+
+```{r}
+source("_common.R")
+source("_figures.R")
+# a CHD cohort simulated by the module: the people of the figures below
+sc_chd <- load_scenario(lib, "chd_incidence")
+coh <- simulate_study(sc_chd, "chd", "cohort", 4000, sc_chd$order, seed = 7, key = FALSE)$data_raw
+pick <- function(d, n_ev, n_no, seed = 1) {
+    set.seed(seed)
+    rbind(d[sample(which(d$chd == 1), n_ev), ], d[sample(which(d$chd == 0), n_no), ])
+}
+```
+
+In an observational study the investigator does not decide who is exposed.
+Exposed and unexposed people may differ in other ways that affect the outcome
+(**confounding**), people may enter the study in ways related to exposure and
+outcome (**selection bias**), and exposure or outcome may be measured with error
+(**information bias**). Each design is a way of sampling a population. The
+analysis has to match that sampling, and the [causal diagram](guide-dags.qmd)
+says what to adjust for.
+
+| design | samples | measures | main model |
+|---|---|---|---|
+| Cross-sectional | a population at one time | prevalence, prevalence ratio or OR | logistic or linear regression |
+| Ecological | groups (regions) | rates and means of groups | regression on group summaries |
+| Cohort | people free of the outcome, followed | risk, rate, hazard | Cox, Poisson, logistic |
+| Case-control | cases, and a sample of non-cases | odds ratio | logistic regression |
+| Matched case-control | cases, and controls matched to each | odds ratio within sets | conditional logistic regression |
+| Nested case-control | a cohort's cases, controls from their risk sets | hazard ratio | conditional logistic regression |
+| Case-cohort | a cohort's cases, a random subcohort | hazard ratio | weighted Cox regression |
+| Prognosis | patients from diagnosis | survival, cumulative incidence, HR | Kaplan-Meier, Cox, competing risks |
+
+## Cross-sectional study
+
+**What it is.** Exposure and outcome measured at the same time in a sample of a
+population: a health survey, a screening programme.
+
+**Estimates.** Prevalence, and prevalence ratios or odds ratios between groups.
+
+::: {#fig-cross-sectional}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 3.6
+xs_fig <- function(mode) {
+    p <- PAL(mode)
+    set.seed(3)
+    d <- data.frame(start = runif(40, 0, 10))
+    d$long <- seq_len(40) %% 2 == 0
+    d$end <- d$start + ifelse(d$long, rexp(40, 1 / 3.5), rexp(40, 1 / 0.6))
+    d <- d[order(d$start), ]; d$row <- seq_len(nrow(d))
+    d$prevalent <- d$start <= 6 & d$end >= 6
+    d$kind <- ifelse(d$long, "long episodes", "short episodes")
+    ggplot(d) + annotate("rect", xmin = 5.9, xmax = 6.1, ymin = -Inf, ymax = Inf, fill = p$role[["exposure"]], alpha = 0.25) +
+        geom_segment(aes(x = start, xend = pmin(end, 12), y = row, yend = row, linetype = kind, alpha = prevalent),
+                     colour = p$role[["outcome"]], linewidth = 1.1) +
+        annotate("text", x = 6.2, y = 41.5, label = "survey", hjust = 0, colour = p$fg, size = 3.6) +
+        scale_alpha_manual(values = c(`FALSE` = 0.3, `TRUE` = 1), guide = "none") +
+        scale_linetype_manual(values = c("long episodes" = "solid", "short episodes" = "11"), name = NULL) +
+        scale_y_continuous(breaks = NULL) + coord_cartesian(xlim = c(0, 12)) + labs(x = "calendar time", y = NULL) + theme_plot(mode)
+}
+both(xs_fig)
+```
+Episodes of a disease in a population (one line each). A survey sees only the episodes in progress on its day (bright): the long ones are overrepresented, so a prevalent sample mixes the causes of getting the disease with the causes of keeping it.
+:::
+
+**Strengths.** Quick and cheap; describes the burden of a condition and plans
+services; studies many exposures and outcomes at once.
+
+**Limitations.** Exposure and outcome are measured together, so their time
+order is often unknown (does low activity cause depression, or the reverse?).
+Prevalent cases over-represent long-lasting disease (@fig-cross-sectional).
+Survivors only: people who died of the disease are missing.
+
+**Analysis.** Prevalence with its confidence interval; logistic regression
+(odds ratios) or, better for common outcomes, a log-binomial or Poisson model
+with robust errors (prevalence ratios); linear regression for continuous
+outcomes.
+
+**Interpretation.** An odds ratio of 1.8 for diabetes with obesity means the
+odds of *having* diabetes are 1.8 times higher in obese people with the same
+values of the other variables in the model. It is not a risk of *developing*
+diabetes, and with a common outcome it overstates the prevalence ratio.
+
+**In studysim.** *Blood pressure in US adults* or *Diabetes in Pima women*,
+cross-sectional design.
+
+## Ecological study
+
+**What it is.** The units are groups (regions, countries, years), with only group
+summaries: the rate of the outcome, the mean or percentage of the exposure.
+
+**Estimates.** The association between group summaries. It is not the effect on
+individuals.
+
+::: {#fig-ecological}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 3.8
+eco_fig <- function(mode) {
+    p <- PAL(mode)
+    set.seed(11)
+    reg <- data.frame(region = LETTERS[1:6], mx = seq(2, 7, length.out = 6))
+    ind <- do.call(rbind, lapply(seq_len(6), function(g) {
+        x <- rnorm(25, reg$mx[g], 0.7)
+        data.frame(region = reg$region[g], x = x, y = 2 + 1.6 * reg$mx[g] - 0.9 * (x - reg$mx[g]) + rnorm(25, 0, 0.5))
+    }))
+    mean_y <- tapply(ind$y, ind$region, mean)
+    reg$my <- mean_y[reg$region]
+    ggplot(ind, aes(x, y)) + geom_point(aes(colour = region), alpha = 0.35, size = 1.4) +
+        geom_smooth(aes(group = region, colour = region), method = "lm", se = FALSE, formula = y ~ x, linewidth = 0.8) +
+        geom_smooth(data = reg, aes(mx, my), method = "lm", se = FALSE, formula = y ~ x, colour = p$fg, linetype = "dashed") +
+        geom_point(data = reg, aes(mx, my), colour = p$fg, size = 3.2, shape = 21, fill = p$panel, stroke = 1.2) +
+        scale_colour_manual(values = grDevices::hcl.colors(6, "Dark 3"), guide = "none") +
+        labs(x = "exposure", y = "outcome") + theme_plot(mode)
+}
+both(eco_fig)
+```
+The ecological fallacy. Across regions (open circles, dashed line) more exposure goes with more of the outcome; within every region (coloured lines) the individual association is the opposite. Something that differs between regions confounds the regional comparison.
+:::
+
+**Strengths.** Uses routine data (registries, censuses), so it is fast and cheap;
+studies exposures that only exist at group level (policies, water hardness, air
+pollution); good for generating hypotheses [@morgenstern1995].
+
+**Limitations.** The **ecological fallacy** (@fig-ecological): a group-level
+association need not hold for individuals, because regions differ in many
+things at once (contextual confounding) and nobody knows who in a region was
+exposed and who fell ill. Group summaries also hide non-linear effects.
+
+**Analysis.** Regression of the regional rate on regional means and percentages,
+weighted by population size (Poisson with the population as offset for counts).
+
+**Interpretation.** A coefficient per percentage point of smokers is the change
+in the regional rate between regions that differ by one point. It is not the
+risk ratio of smoking.
+
+**In studysim.** *Water hardness and mortality* or *Dietary fat and breast
+cancer*, ecological design: compare the regional slope with the individual
+effect in the answer key.
+
+## Cohort study
+
+**What it is.** People free of the outcome are classified by exposure and
+followed until the outcome, a competing event, loss to follow-up or the end of
+the study.
+
+::: {#fig-cohort}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 4.2
+d <- rbind(transform(pick(coh[coh$smoking == "current", ], 4, 9, 1), group = "smokers"),
+           transform(pick(coh[coh$smoking == "never", ], 2, 11, 2), group = "never smoked"))
+d <- data.frame(start = 0, end = d$time, event = d$chd, group = d$group)
+both(timeline_fig, d, xlab = "years since entry")
+```
+Twenty-six people of a simulated cohort (*Coronary heart disease incidence*), each followed from entry: a cross is a coronary event, a bar the end of follow-up without one (loss or end of the study).
+:::
+
+**Estimates.** Risks (cumulative incidence), rates and hazards in each exposure
+group, and their ratios and differences.
+
+**Strengths.** Exposure is measured before the outcome, so the time order is
+clear and recall cannot be biased by the outcome; several outcomes of one
+exposure can be studied; it gives absolute risks.
+
+**Limitations.** Large and long for rare or slow outcomes (the coronary cohort
+of 3,000 people has about 250 events in 10 years); losses to follow-up that
+depend on prognosis bias the results (**informative censoring**); confounding,
+as in any observational design; exposure can change during follow-up.
+
+**Analysis.** Kaplan-Meier curves and the log-rank test; Cox regression for
+hazard ratios adjusted for confounders; Poisson regression of counts with log
+person-time as offset for rates; logistic regression only when everybody is
+followed for the same period.
+
+**Interpretation.** A hazard ratio of 1.6 for smoking means that at any time
+during follow-up, among those still free of the event, smokers have 1.6 times
+the event rate of non-smokers with the same values of the adjustment variables.
+It assumes the ratio is constant over time (check proportional hazards).
+
+**Two traps.** A treatment that starts during follow-up must not be analysed as
+if it were present from entry: the treated had to survive until they started it
+(**immortal time**), and the treatment looks protective even when useless
+[@suissa2008]. Treat it as a time-dependent variable, or compare from a
+landmark time. And adjusting for something that happens *after* the exposure
+(a mediator, or a consequence of the outcome) changes the question; see
+[Causal diagrams](guide-dags.qmd).
+
+**In studysim.** *Coronary heart disease incidence*, cohort; *Biases* ▸
+*Informative loss to follow-up* and *Treatment started during follow-up*.
+
+### Prognosis and competing risks
+
+A **prognosis** study is a cohort of patients from diagnosis or treatment,
+recruited over several years (staggered entry), to describe survival and its
+predictors. When patients can die of something else before the outcome of
+interest, that death is a **competing event**. A Cox model that censors it
+estimates the **cause-specific hazard ratio**, a valid measure of the effect on
+the rate of the event. But 1 − Kaplan-Meier, which treats the deaths from other
+causes as if those patients could still have the event, overstates its
+**cumulative incidence** (@fig-competing).
+
+::: {#fig-competing}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 8
+#| fig-height: 3.8
+sc_bc <- load_scenario(lib, "breast_cancer_prognosis")
+pr <- simulate_study(sc_bc, "bc_death", "prognosis", 6000, sc_bc$order, seed = 3, key = FALSE)$data_raw
+cif <- function(d, grp) {
+    km <- survival::survfit(survival::Surv(time, bc_death == 1) ~ 1, data = d)
+    aj <- survival::survfit(survival::Surv(time, factor(bc_death, levels = 0:2)) ~ 1, data = d)
+    oth <- summary(aj, times = 10)$pstate[, 3]
+    lab <- sprintf("%s: other deaths %.0f%% by 10 years", grp, 100 * oth)
+    data.frame(time = c(km$time, aj$time), value = c(1 - km$surv, aj$pstate[, 2]), group = lab,
+               curve = rep(c("1 - Kaplan-Meier (competing deaths censored)", "cumulative incidence (Aalen-Johansen)"),
+                           c(length(km$time), length(aj$time))))
+}
+ci <- rbind(cif(pr, "all patients"), cif(pr[pr$age >= 75, ], "aged 75 and over"))
+ci$group <- factor(ci$group, levels = unique(ci$group))
+cr_fig <- function(mode) {
+    p <- PAL(mode)
+    ggplot(ci, aes(time, value, colour = curve)) + geom_step(linewidth = 1) + facet_wrap(~group) +
+        scale_colour_manual(values = unname(p$role[c("outcome", "exposure")]), name = NULL) +
+        scale_y_continuous(labels = scales::percent) + coord_cartesian(xlim = c(0, 10)) +
+        labs(x = "years from diagnosis", y = "death from breast cancer") +
+        theme_plot(mode) + guides(colour = guide_legend(nrow = 2))
+}
+both(cr_fig)
+```
+Deaths from breast cancer in a simulated prognosis cohort with deaths from other causes (*Breast cancer prognosis*). 1 − Kaplan-Meier overstates the proportion who die of breast cancer, and the more so the more patients die of something else first.
+:::
+
+## Case-control study
+
+**What it is.** All (or a random sample of) the cases of a disease arising in a
+source population, and a sample of people from the same population who are not
+cases (controls); exposure is then measured in both, usually looking back.
+
+::: {#fig-case-control}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 3.8
+set.seed(5)
+pop <- data.frame(x = runif(600), y = runif(600))
+pop$status <- ifelse(runif(600) < 0.04, "case", "non-case")
+ctrl <- sample(which(pop$status == "non-case"), 2 * sum(pop$status == "case"))
+pop2 <- rbind(transform(pop, panel = "source population", chosen = NA),
+              transform(pop, panel = "the study: every case, 2 controls each", chosen = status == "case" | seq_len(600) %in% ctrl))
+both(sample_fig, pop2)
+```
+A case-control study samples by outcome: all the cases (red) of the source population and a random sample of the non-cases. The proportion of cases in the study is set by the design, so it estimates odds ratios, not risks.
+:::
+
+**Estimates.** The exposure odds ratio, which equals the disease odds ratio.
+With controls sampled from those still at risk when each case occurs (risk-set
+sampling, as in a nested case-control study) it estimates the rate ratio, with
+no rare-disease assumption. Otherwise it approximates the risk ratio when the
+disease is rare.
+
+**Strengths.** Efficient for rare diseases and long latencies (a few hundred
+cases instead of a cohort of a hundred thousand); many exposures can be studied
+for one disease; fast.
+
+**Limitations.** Controls must come from the population that gave rise to the
+cases: hospital controls admitted for diseases related to the exposure distort
+the odds ratio (**selection bias**). Exposure recalled after the diagnosis can
+be reported differently by cases (**recall bias**). No absolute risks unless the
+sampling fractions are known.
+
+**Analysis.** Logistic regression with case status as the outcome, adjusted for
+confounders. The intercept is meaningless (it reflects the sampling), but the
+odds ratios are valid.
+
+**Interpretation.** An odds ratio of 7.7 for smoking 1-14 cigarettes a day means
+the odds of lung cancer are 7.7 times higher than in never smokers with the same
+age and sex. For a rare disease it reads as the rate ratio.
+
+**In studysim.** *Lung cancer and smoking* or *Oesophageal cancer*,
+case-control; *Biases* ▸ *Recall bias* and *Controls selected by exposure*,
+ticking smoking as the exposure.
+
+### Matched case-control
+
+Each case gets controls with the same values of some confounders (age, sex,
+hospital). Matching makes the groups comparable on those variables and can
+increase efficiency, but it **must be kept in the analysis**: conditional
+logistic regression compares each case with its own controls. An ordinary
+logistic regression of matched data is biased towards the null, the effect of a
+matching variable cannot be estimated, and matching on something caused by the
+exposure (overmatching) removes part of the effect.
+
+### Nested case-control and case-cohort
+
+Both sample a cohort whose follow-up is already recorded, to avoid measuring an
+expensive exposure (a biomarker in stored blood) on everybody.
+
+::: {#fig-nested}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7.5
+#| fig-height: 4.2
+d <- pick(coh, 4, 16, 3)
+d <- d[order(-d$time), ]
+d <- data.frame(start = 0, end = d$time, event = d$chd, group = "cohort member")
+case_row <- which(d$event == 1)[2]
+t_case <- d$end[case_row]
+at_risk <- which(d$end >= t_case)
+set.seed(2); controls <- sample(setdiff(at_risk, case_row), 2)
+both(timeline_fig, d, xlab = "years since entry", highlight = c(case_row, controls),
+     marks = function(p) list(geom_vline(xintercept = t_case, linetype = "dashed", colour = p$role[["outcome"]]),
+                              annotate("point", x = t_case, y = controls, shape = 21, size = 4, colour = p$role[["control"]], stroke = 1.3),
+                              annotate("text", x = t_case + 0.15, y = nrow(d) + 0.8, label = "case's event time: its risk set", hjust = 0, colour = p$fg, size = 3.5)))
+```
+Nested case-control: for each case (here the highlighted one), controls are drawn from its **risk set**, the people still followed and free of the event at the case's event time (lines crossing the dashed line). A control can later become a case.
+:::
+
+- **Nested case-control**: for each case, a few controls from its risk set
+  (@fig-nested). Analysed with conditional logistic regression on the risk
+  sets, it estimates the hazard ratio of the full cohort.
+- **Case-cohort** [@prentice1986]: a random **subcohort** chosen at the start,
+  plus every case. The same subcohort serves several outcomes. The analysis is a
+  Cox model weighted for the sampling (Prentice or Lin-Ying weights) with a
+  robust variance; it estimates the hazard ratio.
+
+**In studysim.** *Relapse of Wilms tumour*: nested case-control and case-cohort
+from the same cohort.
+
+## What to remember
+
+| design | biggest threat | protect with |
+|---|---|---|
+| Cross-sectional | unknown time order; prevalent cases | incident cases, clear definitions of when exposure happened |
+| Ecological | ecological fallacy | individual data; use only for hypotheses |
+| Cohort | confounding; informative loss to follow-up; immortal time | adjustment chosen with a DAG; complete follow-up; time-dependent exposures |
+| Case-control | selection of controls; recall bias | population controls from the source population; records instead of recall |
+| Matched | analysis that ignores matching; overmatching | conditional logistic regression; match only on confounders |
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

@@ -1,0 +1,344 @@
+---
+title: "Trials and other designs"
+subtitle: "Epidemiology guide, part 3"
+bibliography: references.bib
+---
+
+```{r}
+source("_common.R")
+source("_figures.R")
+library(patchwork)
+```
+
+In a **randomised trial** the investigator assigns the intervention by chance.
+Randomisation makes the arms comparable in everything, measured or not, so a
+difference in outcomes is caused by the intervention or by chance, and the
+confidence interval accounts for chance. There is no confounding to adjust for
+at baseline. What remains can still bias a trial: who leaves it, who does not
+take the treatment, and how the outcome is measured. This page covers the trial
+designs, then two designs that are not trials but look like them (before-after,
+method comparison), and diagnostic accuracy studies.
+
+## Parallel randomised trial
+
+::: {#fig-rct}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9
+#| fig-height: 2.8
+boxes <- data.frame(id = c("el", "ra", "a", "b", "fa", "fb", "an"), x = c(0, 2.6, 5.2, 5.2, 7.8, 7.8, 10.4), y = c(0, 0, 0.8, -0.8, 0.8, -0.8, 0),
+                    label = c("Eligible,\nconsenting", "Randomised", "Intervention", "Control", "Follow-up,\noutcome", "Follow-up,\noutcome", "Compare as\nrandomised (ITT)"),
+                    role = c("other", "confounder", "exposure", "other", "other", "other", "outcome"))
+links <- data.frame(from = c("el", "ra", "ra", "a", "b", "fa", "fb"), to = c("ra", "a", "b", "fa", "fb", "an", "an"))
+both(flow_fig, boxes, links, w = 2.1, h = 0.95)
+```
+A parallel trial. The comparison that keeps the protection of randomisation is by assigned arm: intention to treat (ITT).
+:::
+
+**Estimates.** The effect of being *assigned* the intervention, as risk
+difference, risk ratio, NNT, odds ratio, hazard ratio or mean difference.
+
+**Strengths.** Randomisation removes confounding, known and unknown; blinding
+removes bias in measuring the outcome and in co-interventions; the strongest
+evidence for an effect.
+
+**Limitations.** Expensive; selected participants and strict protocols (results
+may not apply to every patient); short follow-up; impossible or unethical for
+harmful exposures. **Non-adherence** dilutes the intention-to-treat effect, and
+the alternatives are no longer randomised comparisons: *as treated* (by the
+treatment received) and *per protocol* (only those who followed it) are
+confounded by whatever made people stop [@hernan2017]. Losses to follow-up
+related to prognosis bias any analysis.
+
+**Analysis.** Binary outcome: risks per arm, RD with NNT, RR (*Frequencies ▸
+Independent Samples*), or logistic regression. Continuous: difference in means
+(t-test), or **ANCOVA** adjusted for the baseline value, which is more precise.
+Time to event: Kaplan-Meier and Cox. Adjusting for strong prognostic factors
+increases precision. For odds and hazard ratios it also changes the estimand,
+from marginal to conditional ([Measures and models](guide-measures.qmd)).
+
+**Interpretation.** "Risk of pancreatitis 17% with placebo and 9% with
+indomethacin: 8 fewer cases per 100 patients treated, NNT 12." The odds ratio of
+the crude comparison is the effect on the population of patients, not on an
+individual with given characteristics.
+
+```{r}
+trial_table("indomethacin_ercp", "pancreatitis")
+```
+
+**In studysim.** *Rectal indomethacin to prevent post-ERCP pancreatitis*, randomised trial; *Biases* ▸
+*Non-adherence* adds as-treated and per-protocol rows to the key.
+
+## Cluster randomised trial
+
+::: {#fig-cluster}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 8
+#| fig-height: 3.4
+cl_fig <- function(mode) {
+    p <- PAL(mode)
+    set.seed(4)
+    cl <- data.frame(cluster = 1:12, cx = rep(1:6, 2) * 2.2, cy = rep(c(2.2, 0), each = 6), arm = sample(rep(c("intervention", "control"), 6)))
+    ppl <- do.call(rbind, lapply(1:12, function(k) { a <- runif(14, 0, 2 * pi); r <- sqrt(runif(14)) * 0.75
+        data.frame(cluster = k, x = cl$cx[k] + r * cos(a), y = cl$cy[k] + r * sin(a), arm = cl$arm[k]) }))
+    ggplot() + ggforce_circle(cl, p) +
+        geom_point(data = ppl, aes(x, y, colour = arm), size = 1.6) +
+        scale_colour_manual(values = c(intervention = p$role[["exposure"]], control = p$role[["other"]]), name = NULL) +
+        coord_equal() + theme_fig(mode) + theme(legend.position = "bottom")
+}
+ggforce_circle <- function(cl, p) {
+    t <- seq(0, 2 * pi, length.out = 60)
+    circ <- do.call(rbind, lapply(seq_len(nrow(cl)), function(k) data.frame(cluster = k, x = cl$cx[k] + 0.95 * cos(t), y = cl$cy[k] + 0.95 * sin(t))))
+    geom_polygon(data = circ, aes(x, y, group = cluster), fill = NA, colour = p$muted, linewidth = 0.5)
+}
+both(cl_fig)
+```
+Twelve clusters (villages, schools, practices) randomised as a whole. People in a cluster resemble each other, so the trial has less information than its number of people suggests.
+:::
+
+**What it is.** Groups are randomised: villages, schools, wards. Necessary when
+the intervention acts on groups (hand-washing campaigns, a new ward protocol)
+or when individuals would contaminate each other.
+
+**Strengths.** Feasible for community interventions; avoids contamination.
+
+**Limitations.** Outcomes of people in the same cluster are correlated (the
+**intraclass correlation**, ICC), so the effective sample size is smaller: the
+design effect is 1 + (m − 1) × ICC for clusters of m people. Few clusters means
+chance imbalance between arms.
+
+**Analysis.** A mixed (multilevel) model with a random intercept per cluster
+(**GAMLj**), or cluster-robust standard errors. Ignoring the clusters gives
+confidence intervals that are too narrow.
+
+**Interpretation.** A mixed logistic model gives an odds ratio *within* clusters
+(conditional); a model with robust errors gives the population-average one, which
+is closer to 1.
+
+**In studysim.** *Handwashing and childhood pneumonia* (counts of pneumonia), *Vitamin A and child mortality*, cluster randomised trial; vary the intraclass correlation.
+
+## 2×2 factorial trial
+
+Two interventions randomised independently, so each participant gets one of
+four combinations. One trial answers two questions, *if the interventions do not
+interact*: each main effect is estimated by comparing everyone with and without
+it. With an interaction the main effects are averages over the other
+intervention, and the trial needs to be powered to detect the interaction.
+Analyse with both treatments in the model (*ANOVA*, logistic or Cox regression)
+and test their product term. In studysim: *Aspirin and beta-carotene in male physicians* (aspirin and
+beta-carotene).
+
+## Crossover trial
+
+::: {#fig-crossover}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 8.5
+#| fig-height: 2.4
+co_fig <- function(mode) {
+    p <- PAL(mode)
+    d <- data.frame(seq = rep(c("sequence AB", "sequence BA"), each = 3), xmin = rep(c(0, 4, 5.2), 2), xmax = rep(c(4, 5.2, 9.2), 2),
+                    what = c("A", "washout", "B", "B", "washout", "A"))
+    ggplot(d) + geom_rect(aes(xmin = xmin, xmax = xmax, ymin = 3 - as.numeric(factor(seq)) - 0.35, ymax = 3 - as.numeric(factor(seq)) + 0.35, fill = what), colour = NA, alpha = 0.85) +
+        geom_text(aes(x = (xmin + xmax) / 2, y = 3 - as.numeric(factor(seq)), label = what), colour = "white", fontface = "bold") +
+        annotate("text", x = c(2, 7.2), y = 2.65, label = c("period 1", "period 2"), colour = p$fg) +
+        scale_fill_manual(values = c(A = p$role[["exposure"]], B = p$role[["mediator"]], washout = p$role[["other"]]), guide = "none") +
+        scale_y_continuous(breaks = 1:2, labels = c("sequence BA", "sequence AB")) + labs(x = "time", y = NULL) +
+        theme_plot(mode) + theme(panel.grid = element_blank(), axis.text.x = element_blank())
+}
+both(co_fig)
+```
+A 2×2 crossover: each participant receives both treatments, in a random order, separated by a washout.
+:::
+
+**What it is.** Each participant receives both treatments in random order, for
+stable chronic conditions and treatments whose effect wears off.
+
+**Strengths.** Each participant is their own control: with outcomes that are
+correlated within a person, far fewer participants are needed.
+
+**Limitations.** Only for reversible effects and stable conditions; a
+**carryover** effect of the first treatment into the second period biases the
+comparison; dropouts lose both periods.
+
+**Analysis.** Paired t-test of the outcome under A and under B (one row per
+person: *Repeated measures: wide*), or a mixed model with treatment and period
+as fixed effects and the participant as cluster (long layout), which also
+estimates the period effect.
+
+**In studysim.** *Antihypertensive drug* or *Bioequivalence of two formulations*, 2×2 crossover;
+*Design options* ▸ period and carryover effects.
+
+## Longitudinal trial
+
+::: {#fig-longitudinal}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 8
+#| fig-height: 3.6
+sc_lead <- load_scenario(lib, "lead_succimer")
+lg <- simulate_study(sc_lead, "blood_lead", "longitudinal", 60, sc_lead$order, seed = 2, options = list(dropout = 0.25), key = FALSE)$data_raw
+lg_fig <- function(mode) {
+    p <- PAL(mode)
+    m <- aggregate(blood_lead ~ visit + treatment, lg, mean)
+    ggplot(lg, aes(visit, blood_lead, colour = treatment)) + geom_line(aes(group = id), alpha = 0.25) +
+        geom_line(data = m, linewidth = 1.5) + geom_point(data = m, size = 2.5) +
+        scale_colour_manual(values = c(placebo = p$role[["other"]], succimer = p$role[["exposure"]]), name = NULL) +
+        labs(x = "visit (0 = baseline)", y = "blood lead (ug/dL)") + theme_plot(mode)
+}
+both(lg_fig)
+```
+Sixty children of a simulated longitudinal trial (*Succimer for lead-exposed children*), with 25% dropout: thin lines are children (some stop early), thick lines the mean of those still seen at each visit.
+:::
+
+Repeated visits give the trajectory of the effect, but participants drop out,
+and dropout usually depends on how they were doing. Comparing only the
+completers at the last visit is biased when dropout depends on earlier values. A
+**linear mixed model** with all visits (random intercept per participant,
+treatment by visit) is valid when dropout depends on values already observed
+(missing at random). jamovi: **GAMLj** *Mixed Models*; repeated-measures ANOVA
+uses completers only.
+
+## Before-after study (no control group)
+
+::: {#fig-rtm}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 8
+#| fig-height: 3.6
+set.seed(9)
+true <- rnorm(800, 8, 1)
+rtm <- data.frame(before = true + rnorm(800, 0, 0.7), after = true + rnorm(800, 0, 0.7))
+cut <- quantile(rtm$before, 0.7)
+rtm$enrolled <- rtm$before > cut
+rtm_fig <- function(mode) {
+    p <- PAL(mode)
+    e <- rtm[rtm$enrolled, ]
+    ggplot(rtm, aes(before, after)) + geom_abline(slope = 1, intercept = 0, colour = p$muted, linetype = "dashed") +
+        geom_point(aes(colour = enrolled), size = 1.2, alpha = 0.6) + geom_vline(xintercept = cut, colour = p$role[["confounder"]]) +
+        annotate("point", x = mean(e$before), y = mean(e$after), size = 5, shape = 21, fill = p$role[["outcome"]], colour = p$fg, stroke = 1) +
+        annotate("label", x = mean(e$before) - 0.3, y = mean(e$after) + 1.6, hjust = 1, colour = p$fg, size = 3.6,
+                 fill = if (mode == "dark") "#1f2226" else "#ffffff", label.size = 0,
+                 label = sprintf("enrolled: mean %.2f before, %.2f after", mean(e$before), mean(e$after))) +
+        scale_colour_manual(values = c(`FALSE` = p$role[["other"]], `TRUE` = p$role[["exposure"]]), guide = "none") +
+        labs(x = "value before", y = "value after (no treatment)") + theme_plot(mode)
+}
+both(rtm_fig)
+```
+Regression to the mean. Nobody is treated, but people enrolled because their first value was high (above the vertical line) have lower values when measured again: part of a high value was chance, and chance does not repeat.
+:::
+
+Everyone is measured before and after the intervention. The mean change mixes
+the effect with the natural course of the condition, with what else happened
+meanwhile and, when people are enrolled *because* their values were high, with
+**regression to the mean** [@barnett2005]. A paired t-test tests the change,
+not the effect. A control group (a trial) is the remedy; failing that, enrol on
+a separate baseline measurement or repeat it. In studysim: *Metformin vs placebo on HbA1c*,
+before-after, with *Enrol only above percentile*.
+
+## Diagnostic accuracy study
+
+::: {#fig-diagnostic}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9
+#| fig-height: 3.6
+auc <- 0.82; delta <- sqrt(2) * qnorm(auc); cutp <- delta / 2
+dg_fig <- function(mode) {
+    p <- PAL(mode)
+    x <- seq(-3.5, 3.5 + delta, length.out = 400)
+    d <- rbind(data.frame(x = x, dens = dnorm(x), group = "without the disease"),
+               data.frame(x = x, dens = dnorm(x, delta), group = "with the disease"))
+    cols <- c(`without the disease` = p$role[["other"]], `with the disease` = p$role[["outcome"]])
+    a <- ggplot(d, aes(x, dens, colour = group)) +
+        geom_area(data = d[d$group == "with the disease" & d$x > cutp, ], aes(fill = group), alpha = 0.3, colour = NA) +
+        geom_area(data = d[d$group == "without the disease" & d$x > cutp, ], aes(fill = group), alpha = 0.3, colour = NA) +
+        geom_line(linewidth = 1.1) + geom_vline(xintercept = cutp, colour = p$fg, linetype = "dashed") +
+        annotate("text", x = cutp + 0.1, y = 0.42, label = "cut-off", hjust = 0, colour = p$fg, size = 3.6) +
+        scale_colour_manual(values = cols, name = NULL) + scale_fill_manual(values = cols, guide = "none") +
+        labs(x = "marker", y = NULL) + theme_plot(mode) + theme(axis.text.y = element_blank())
+    th <- seq(-4, 4 + delta, length.out = 300)
+    roc <- data.frame(fpr = 1 - pnorm(th), tpr = 1 - pnorm(th, delta))
+    b <- ggplot(roc, aes(fpr, tpr)) + geom_abline(colour = p$faint, linetype = "dashed") + geom_line(colour = p$role[["exposure"]], linewidth = 1.2) +
+        annotate("point", x = 1 - pnorm(cutp), y = 1 - pnorm(cutp, delta), size = 3.5, colour = p$fg) +
+        annotate("text", x = 0.55, y = 0.25, label = sprintf("AUC %.2f", auc), colour = p$fg, size = 4) +
+        coord_equal() + labs(x = "1 - specificity", y = "sensitivity") + theme_plot(mode)
+    a + b + plot_layout(widths = c(2, 1))
+}
+both(dg_fig)
+```
+A marker that is higher in people with the disease. At a cut-off (dashed), the shaded area of the diseased is the sensitivity and that of the non-diseased one minus the specificity; moving the cut-off traces the ROC curve.
+:::
+
+**What it is.** A sample of people *in whom the test would be used*, all
+receiving the index test and the reference standard (the best available way of
+knowing who has the disease).
+
+**Estimates.** Sensitivity and specificity at a cut-off, the ROC curve and its
+area (AUC), likelihood ratios, and the predictive values (PPV, NPV), which also
+depend on the prevalence.
+
+**Biases.** **Spectrum bias**: studying severe cases and healthy volunteers
+instead of the patients where the test is needed overstates accuracy
+[@ransohoff1978]. **Partial verification**: when only test-positives (and some
+negatives) get the reference standard, sensitivity is overstated and
+specificity understated. An imperfect reference standard, and a cut-off chosen
+on the same data, flatter the test.
+
+**Analysis.** 2×2 table at a cut-off; ROC analysis (**meddecide**, **psychoPDA**);
+logistic regression to combine markers, validated on other data.
+
+**In studysim.** *PSA and prostate cancer*, *High-sensitivity troponin for myocardial infarction*, diagnostic design; *Biases* ▸ spectrum and verification.
+
+## Method comparison
+
+Two methods measure the same quantity in the same people (a new device against
+the standard). A correlation coefficient says nothing about agreement: two
+methods can correlate perfectly and differ by 10 units. The **Bland-Altman**
+analysis plots the difference against the mean of the two and reports the mean
+difference (bias) and the **limits of agreement**, mean ± 1.96 SD of the
+differences, within which 95% of the differences fall [@bland1986]. Whether
+those limits are acceptable is a clinical decision. A slope in the plot shows a
+proportional bias.
+
+::: {#fig-ba}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7
+#| fig-height: 3.6
+sc_nh <- load_scenario(lib, "nhanes_blood_pressure")
+mc <- simulate_study(sc_nh, "sbp", "method_comparison", 300, character(), seed = 4, key = FALSE)$data_raw
+mc$mean <- (mc$sbp_a + mc$sbp_b) / 2; mc$diff <- mc$sbp_b - mc$sbp_a
+ba_fig <- function(mode) {
+    p <- PAL(mode)
+    m <- mean(mc$diff); s <- sd(mc$diff)
+    ggplot(mc, aes(mean, diff)) + geom_point(colour = p$role[["exposure"]], alpha = 0.6, size = 1.4) +
+        geom_hline(yintercept = m, colour = p$fg) + geom_hline(yintercept = m + c(-1.96, 1.96) * s, colour = p$role[["outcome"]], linetype = "dashed") +
+        geom_smooth(method = "lm", formula = y ~ x, se = FALSE, colour = p$role[["confounder"]], linewidth = 0.8) +
+        annotate("text", x = max(mc$mean), y = m + c(-1.96, 0, 1.96) * s + 1.5, hjust = 1, colour = p$fg, size = 3.4,
+                 label = c("lower limit of agreement", sprintf("mean difference %.1f", m), "upper limit of agreement")) +
+        labs(x = "mean of the two methods (mmHg)", y = "B - A (mmHg)") + theme_plot(mode)
+}
+both(ba_fig)
+```
+Bland-Altman plot of two simulated blood pressure devices (*Blood pressure in US adults*, method comparison): method B reads `r round(-mean(mc$diff), 1)` mmHg lower on average, and the sloping line shows that the gap grows with the pressure (proportional bias).
+:::
+
+## What to remember
+
+| design | estimand | main threat | analysis |
+|---|---|---|---|
+| Parallel trial | effect of assignment (ITT) | non-adherence, loss to follow-up | as randomised; ANCOVA, Cox |
+| Cluster trial | effect of assigning the cluster | correlation within clusters | mixed model or robust errors |
+| Factorial | two main effects | interaction | both treatments and their product |
+| Crossover | within-person effect | carryover | paired t-test or mixed model with period |
+| Longitudinal | effect over time | informative dropout | linear mixed model |
+| Before-after | change, not effect | regression to the mean, secular trend | add a control group |
+| Diagnostic | sensitivity, specificity, AUC | spectrum, partial verification | patients like those who will be tested |
+| Method comparison | agreement | proportional bias | Bland-Altman, not correlation |
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

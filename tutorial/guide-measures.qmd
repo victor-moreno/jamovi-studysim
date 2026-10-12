@@ -1,0 +1,204 @@
+---
+title: "Measures and models"
+subtitle: "Epidemiology guide, part 1"
+bibliography: references.bib
+---
+
+```{r}
+source("_common.R")
+source("_figures.R")
+```
+
+Every analysis in this guide goes through the same steps. A **question** ("does
+smoking cause coronary heart disease, and by how much?") becomes an
+**estimand**: a precise quantity, such as the risk ratio of a 10-year coronary
+event for smokers against non-smokers with the same age and sex. A **design**
+gathers data that can estimate it. A **causal diagram** says which variables to
+adjust for. A **model** turns the data into a number, and the number is
+**interpreted** on the scale of the estimand. This page covers the last two
+steps: the measures epidemiology uses and how the coefficients of its models
+are read. The next pages cover the designs, the diagrams and mediation
+[@rothman2021; @hernan2020].
+
+::: {#fig-strategy}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 10
+#| fig-height: 1.6
+boxes <- data.frame(id = c("q", "e", "d", "g", "a", "m", "i"), x = (0:6) * 2.55, y = 0,
+                    label = c("Question", "Estimand", "Design", "DAG", "Adjustment\nset", "Model", "Interpretation"),
+                    role = c("other", "exposure", "other", "confounder", "confounder", "mediator", "outcome"))
+links <- data.frame(from = boxes$id[-7], to = boxes$id[-1])
+both(flow_fig, boxes, links, w = 2.0, h = 0.9)
+```
+From the question to its answer. Each page of this guide covers some of these steps.
+:::
+
+## Measures of frequency
+
+| measure | definition | example | typical design |
+|---|---|---|---|
+| **Prevalence** | proportion of a population that has the condition at a time | 18% of adults have hypertension | cross-sectional |
+| **Risk** (cumulative incidence) | proportion of people free of the outcome at the start who develop it over a period | 8% have a coronary event in 10 years | cohort, trial |
+| **Rate** (incidence density) | new cases per unit of person-time | 2.5 breast cancers per 1000 woman-years | cohort |
+| **Odds** | probability / (1 − probability) | a risk of 0.2 is odds of 0.25 | case-control (only odds ratios) |
+| **Hazard** | instantaneous rate among those still at risk at a given time | | cohort with times (Cox) |
+
+Prevalence mixes how often a condition starts and how long it lasts: in a
+steady population, **prevalence ≈ incidence rate × mean duration**. A
+treatment that keeps patients alive longer *raises* prevalence. A risk always
+refers to a period ("10-year risk"), and it requires everyone to be followed
+for that period or a method that handles censoring (Kaplan-Meier). When another
+event can prevent the outcome (death from other causes before a cancer
+relapse), the risk of the outcome is a **cumulative incidence** in the presence
+of a **competing event**. One minus Kaplan-Meier, which censors the competing
+deaths, overstates it.
+
+## Measures of association
+
+| measure | definition | estimated by |
+|---|---|---|
+| Risk difference (RD) | risk~1~ − risk~0~ | cohort, trial (2×2 table, binomial model with identity link) |
+| Number needed to treat (NNT) | 1 / \|RD\| | trial |
+| Risk ratio (RR) | risk~1~ / risk~0~ | cohort, trial, cross-sectional (prevalence ratio) |
+| Rate ratio (IRR) | rate~1~ / rate~0~ | cohort (Poisson regression with log person-time as offset) |
+| Hazard ratio (HR) | hazard~1~ / hazard~0~, assumed constant over time | cohort, trial (Cox regression) |
+| Odds ratio (OR) | odds~1~ / odds~0~ | any design; the only one a case-control study gives |
+| Mean difference | mean~1~ − mean~0~ | linear regression |
+| Ratio of geometric means | exp(mean of log~1~ − mean of log~0~) | linear regression of a log outcome |
+
+Difference measures say how many people are affected, and that is what
+decisions need. Ratio measures say how strong the association is, and they are
+usually more stable across populations with different baseline risks. Report
+both when you can: a risk ratio of 2 means 10 extra cases per 1000 people if
+the baseline risk is 1%, and 200 if it is 20%.
+
+### The odds ratio is not a risk ratio
+
+The odds ratio approaches the risk ratio only when the outcome is rare
+(@fig-or-rr). A case-control study of a rare disease therefore estimates the
+risk (or rate) ratio. A cross-sectional study of a common condition analysed
+with logistic regression reports odds ratios that look much stronger than the
+prevalence ratios.
+
+::: {#fig-or-rr}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7
+#| fig-height: 3.6
+or_rr <- function(mode) {
+    p <- PAL(mode)
+    r0 <- seq(0.005, 0.45, length.out = 200)
+    d <- do.call(rbind, lapply(c(1.5, 2, 3), function(rr) {
+        r1 <- pmin(rr * r0, 0.999)
+        data.frame(r0 = r0, or = (r1 / (1 - r1)) / (r0 / (1 - r0)), rr = factor(sprintf("RR = %s", rr), levels = sprintf("RR = %s", c(1.5, 2, 3))))
+    }))
+    ggplot(d, aes(r0, or, colour = rr)) + geom_hline(yintercept = c(1.5, 2, 3), colour = p$faint, linetype = "dashed") +
+        geom_line(linewidth = 1.1) + scale_colour_manual(values = unname(p$role[c("exposure", "mediator", "outcome")]), name = NULL) +
+        scale_x_continuous(labels = scales::percent) + coord_cartesian(ylim = c(1, 12)) +
+        labs(x = "risk in the unexposed", y = "odds ratio") + theme_plot(mode)
+}
+both(or_rr)
+```
+The odds ratio for a fixed risk ratio (dashed lines), by the risk in the unexposed: equal when the outcome is rare, ever larger as it becomes common.
+:::
+
+### Conditional and marginal: non-collapsibility
+
+The odds ratio and the hazard ratio have a property that surprises many
+people. Suppose a treatment multiplies the odds by 3 in every subgroup of
+patients and the subgroups are perfectly balanced between the arms, so nothing
+is confounded. The odds ratio of the whole trial is still *smaller* than 3
+[@greenland1999b]. Risk differences and risk ratios do not behave this way.
+
+```{r}
+strata <- data.frame(group = c("low risk", "high risk"), r0 = c(0.10, 0.60))
+odds <- function(r) r / (1 - r); risk <- function(o) o / (1 + o)
+strata$r1 <- risk(3 * odds(strata$r0))
+m0 <- mean(strata$r0); m1 <- mean(strata$r1)
+tab <- rbind(strata, data.frame(group = "whole population (half each)", r0 = m0, r1 = m1))
+tab$OR <- odds(tab$r1) / odds(tab$r0); tab$RR <- tab$r1 / tab$r0; tab$RD <- tab$r1 - tab$r0
+knitr::kable(transform(tab, r0 = round(r0, 3), r1 = round(r1, 3), OR = round(OR, 2), RR = round(RR, 2), RD = round(RD, 3)),
+             col.names = c("", "risk, control", "risk, treated", "OR", "RR", "RD"), row.names = FALSE)
+```
+
+Both subgroups have an odds ratio of 3, and the whole population has
+`r round(odds(m1) / odds(m0), 2)`. Neither number is wrong: they answer
+different questions. The **conditional** odds ratio is the effect for a patient
+with given characteristics; the **marginal** one is the effect on the
+population. In a trial the crude analysis estimates the marginal effect and an
+analysis adjusted for prognostic variables the conditional one, which is
+further from 1. studysim generates data with conditional effects, and its
+answer key shows both for trials (*absolute effects in the trial*).
+
+```{r}
+trial_table("indomethacin_ercp", "pancreatitis")
+```
+
+## Models and how to read their coefficients
+
+| outcome | model | exp(β) or β is | jamovi |
+|---|---|---|---|
+| continuous | linear regression | β: difference in the mean per unit of x | *Regression ▸ Linear Regression* |
+| continuous, skewed | linear regression of log(y) | exp(β): ratio of geometric means | *Compute* log(y), then linear regression |
+| binary | logistic regression | odds ratio | *Regression ▸ Logistic Regression ▸ 2 Outcomes* |
+| binary, matched sets | conditional logistic regression | odds ratio within sets | **condLogReg** |
+| count or rate | Poisson (negative binomial) regression, log person-time as offset | rate ratio | **GAMLj** |
+| time to event | Cox regression | hazard ratio | **prognosis** |
+
+The same rules apply to every model:
+
+- **A coefficient is the effect of its variable with the other variables in the
+  model held fixed.** It is a *conditional* effect. Whether it is the effect you
+  want depends on which variables are in the model: the
+  [causal diagram](guide-dags.qmd) decides that, not the model.
+- **Per unit.** A coefficient for age is *per year*. A hazard ratio of 1.05 per
+  year is 1.05^10^ = 1.63 per 10 years. Choose units that make sense: per 10
+  mmHg, per 5 kg/m², per standard deviation.
+- **Per level.** A categorical variable gets one coefficient per level, each
+  against the reference level. Changing the reference changes the numbers but
+  not the model.
+- **Log scale.** Logistic, Poisson and Cox coefficients are logarithms: exp(β)
+  is the ratio, and effects of several variables multiply. A log-transformed
+  exposure gives the effect per doubling (log~2~) or per tenfold increase (log~10~).
+- **Interaction.** With a product term X × Z, the coefficient of X is the effect
+  of X *when Z is at its reference or zero*, and the interaction coefficient is
+  how much that effect changes per unit of Z. If zero is not a meaningful value
+  of Z (a BMI of zero), centre Z first, or the main effects become meaningless.
+  This is the problem studysim's `center:` solves in its own scenarios.
+- **The intercept** is the outcome (or its log odds or log rate) when every
+  variable is at zero or its reference: rarely of interest, and meaningless
+  without centring.
+- **Categorising a continuous variable** loses information and leaves residual
+  confounding within the categories. It is useful for showing a shape (dose
+  response), not for adjustment.
+- **Small numbers.** Logistic and Cox models need roughly ten events per
+  parameter; with fewer, coefficients are unstable and biased away from the
+  null [@peduzzi1996]. studysim warns when a study falls short.
+
+### Effect modification and interaction
+
+**Effect modification** means the effect of X differs between groups of Z: the
+risk ratio of BMI for breast cancer is below 1 before menopause and above 1
+after it. Whether it appears depends on the scale: effects that are constant on
+the ratio scale differ on the difference scale whenever baseline risks differ,
+and vice versa. Report the effect within each level of the modifier, on both
+scales if possible. A modifier is not something to adjust away: it is a result.
+A causal diagram shows which variables cause which, not how their effects
+combine, so it cannot show effect modification.
+
+### What studysim's answer key reports
+
+| column | estimand |
+|---|---|
+| *Direct (conditional)* | the effect in the generating model, every other variable fixed |
+| *Total* | the effect of changing the variable while its consequences change too, given the variables it does not cause ([Causal diagrams](guide-dags.qmd)) |
+| *Crude* | the association without adjustment |
+| *Adjusted (all)* | the conditional association given every measured variable |
+| *Adjusted (DAG)* | the association given the measured variables that the diagram says to adjust for |
+| *Absolute effects* (trials) | risks per arm, RD, NNT, marginal and conditional OR or HR |
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

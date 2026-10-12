@@ -331,6 +331,47 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">How it works</span></a>
   </div>
 </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Epidemiology guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./guide-measures.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Measures and models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./guide-observational.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Observational designs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./guide-trials.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Trials and other designs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./guide-dags.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal diagrams</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./guide-mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Direct and indirect effects: mediation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -386,7 +427,7 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Each design calls for its own analysis, and not all of them are in base jamovi. The table says which analysis fits each design and where to find it: in base jamovi, in another module of the jamovi library (<em>Modules ▸ jamovi library</em>), or in one of the author’s modules (<a href="https://victor-moreno.github.io/jamovi-modules-vm/">jamovi-modules-vm</a>). Below it, one worked exercise per design: the scenario, what to do in jamovi, and what the answer key says a correct analysis should find.</p>
+<p>Each design calls for its own analysis, and not all of them are in base jamovi. The table says which analysis fits each design and where to find it: in base jamovi, in another module of the jamovi library (<em>Modules ▸ jamovi library</em>), or in one of the author’s modules (<a href="https://victor-moreno.github.io/jamovi-modules-vm/">jamovi-modules-vm</a>). Below it, one worked exercise per design: the scenario, what to do in jamovi, and what the answer key says a correct analysis should find. The <a href="./guide-observational.html">Epidemiology guide</a> explains each design, its strengths and limitations, and how to read its parameters; <a href="./guide-dags.html">Causal diagrams</a> explains how to choose what to adjust for.</p>
 <section id="design-analysis-and-module" class="level2">
 <h2 class="anchored" data-anchor-id="design-analysis-and-module">Design, analysis and module</h2>
 <table class="caption-top table">
@@ -511,7 +552,7 @@ ul.task-list li input[type="checkbox"] {
 <p>Each exercise uses the default seed (1) and the scenario’s default options. The tables are the answer key’s <em>what this design should estimate</em>: a correct analysis of a study of the size given should land near <em>Adjusted</em>, within its own confidence interval.</p>
 <section id="cross-sectional-diabetes-in-pima-women" class="level3">
 <h3 class="anchored" data-anchor-id="cross-sectional-diabetes-in-pima-women">Cross-sectional: diabetes in Pima women</h3>
-<p><em>Pima Indian diabetes</em>, cross-sectional, 700 women, all variables. Fit <em>Regression ▸ Logistic Regression ▸ 2 Outcomes</em> with <code>diabetes</code> as the outcome and the measured variables as covariates (<em>Odds ratio</em> under <em>Model Coefficients</em>). Then fit one variable at a time and compare each crude odds ratio with its adjusted one.</p>
+<p><em>Diabetes in Pima women</em>, cross-sectional, 700 women, all variables. Fit <em>Regression ▸ Logistic Regression ▸ 2 Outcomes</em> with <code>diabetes</code> as the outcome and the measured variables as covariates (<em>Odds ratio</em> under <em>Model Coefficients</em>). Then fit one variable at a time and compare each crude odds ratio with its adjusted one.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -868,7 +909,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="nested-case-control-and-case-cohort-wilms-tumour-relapse" class="level3">
 <h3 class="anchored" data-anchor-id="nested-case-control-and-case-cohort-wilms-tumour-relapse">Nested case-control and case-cohort: Wilms tumour relapse</h3>
-<p><em>Wilms tumour</em>, nested case-control with 3 controls per case: <strong>condLogReg</strong> with <code>set</code> (the risk set) as matching variable gives hazard ratios, with no rare-disease assumption. The case-cohort version needs a weighted Cox model: in <strong>Rj</strong>, <code>survival::cch(Surv(time, relapse) ~ histology + stage, data = data, subcoh = ~ subcohort == "yes", id = ~ id, cohort.size = …, method = "LinYing")</code> (the cohort size is in the <em>Study</em> summary).</p>
+<p><em>Relapse of Wilms tumour</em>, nested case-control with 3 controls per case: <strong>condLogReg</strong> with <code>set</code> (the risk set) as matching variable gives hazard ratios, with no rare-disease assumption. The case-cohort version needs a weighted Cox model: in <strong>Rj</strong>, <code>survival::cch(Surv(time, relapse) ~ histology + stage, data = data, subcoh = ~ subcohort == "yes", id = ~ id, cohort.size = …, method = "LinYing")</code> (the cohort size is in the <em>Study</em> summary).</p>
 </section>
 <section id="prognosis-with-a-competing-event" class="level3">
 <h3 class="anchored" data-anchor-id="prognosis-with-a-competing-event">Prognosis with a competing event</h3>
@@ -876,7 +917,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="diagnostic-accuracy-psa" class="level3">
 <h3 class="anchored" data-anchor-id="diagnostic-accuracy-psa">Diagnostic accuracy: PSA</h3>
-<p><em>Prostate cancer and PSA</em>, diagnostic, 500 men. In <strong>meddecide</strong> or <strong>psychoPDA</strong>, the ROC curve of <code>psa</code> against <code>prostate_cancer</code>. The key gives the AUC and, at a cut-off, the sensitivity, specificity and predictive values; <em>Compute</em> <code>psa &gt; 5.63</code> and cross it with the disease (<em>Frequencies ▸ Independent Samples</em>) to check them by hand. Then set <em>Test-negatives verified (%)</em> to 20 (Biases): among the verified, sensitivity is far too high.</p>
+<p><em>PSA and prostate cancer</em>, diagnostic, 500 men. In <strong>meddecide</strong> or <strong>psychoPDA</strong>, the ROC curve of <code>psa</code> against <code>prostate_cancer</code>. The key gives the AUC and, at a cut-off, the sensitivity, specificity and predictive values; <em>Compute</em> <code>psa &gt; 5.63</code> and cross it with the disease (<em>Frequencies ▸ Independent Samples</em>) to check them by hand. Then set <em>Test-negatives verified (%)</em> to 20 (Biases): among the verified, sensitivity is far too high.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -953,11 +994,11 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="method-comparison-two-blood-pressure-devices" class="level3">
 <h3 class="anchored" data-anchor-id="method-comparison-two-blood-pressure-devices">Method comparison: two blood pressure devices</h3>
-<p><em>NHANES blood pressure</em>, method comparison of <code>sbp</code>. In <strong>blandr</strong> or <strong>SimplyAgree</strong>, the Bland-Altman analysis of <code>sbp_a</code> and <code>sbp_b</code>: the mean difference, the limits of agreement and the proportional bias (B grows faster than A).</p>
+<p><em>Blood pressure in US adults</em>, method comparison of <code>sbp</code>. In <strong>blandr</strong> or <strong>SimplyAgree</strong>, the Bland-Altman analysis of <code>sbp_a</code> and <code>sbp_b</code>: the mean difference, the limits of agreement and the proportional bias (B grows faster than A).</p>
 </section>
 <section id="randomised-trial-indomethacin-and-pancreatitis" class="level3">
 <h3 class="anchored" data-anchor-id="randomised-trial-indomethacin-and-pancreatitis">Randomised trial: indomethacin and pancreatitis</h3>
-<p><em>Indomethacin after ERCP</em>, randomised trial of 600. <em>Frequencies ▸ Independent Samples</em> with <code>treatment</code> and <code>pancreatitis</code> (<em>Comparative measures</em>: relative risk, difference in proportions); the number needed to treat is 1 / risk difference. The key’s trial table gives the true risks: note that the marginal odds ratio (what the 2×2 table estimates) is closer to 1 than the conditional one the data were generated with, with no confounding at all.</p>
+<p><em>Rectal indomethacin to prevent post-ERCP pancreatitis</em>, randomised trial of 600. <em>Frequencies ▸ Independent Samples</em> with <code>treatment</code> and <code>pancreatitis</code> (<em>Comparative measures</em>: relative risk, difference in proportions); the number needed to treat is 1 / risk difference. The key’s trial table gives the true risks: note that the marginal odds ratio (what the 2×2 table estimates) is closer to 1 than the conditional one the data were generated with, with no confounding at all.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1007,11 +1048,11 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="cluster-randomised-trial-handwashing-in-karachi" class="level3">
 <h3 class="anchored" data-anchor-id="cluster-randomised-trial-handwashing-in-karachi">Cluster randomised trial: handwashing in Karachi</h3>
-<p><em>Handwashing in Karachi</em>, cluster trial. In <strong>GAMLj</strong> <em>Generalized Mixed Models</em>, a Poisson model of <code>pneumonia</code> with <code>soap</code> as a fixed factor and <code>cluster</code> as the cluster variable. Ignoring the clusters (a plain Poisson regression) gives confidence intervals that are too narrow.</p>
+<p><em>Handwashing and childhood pneumonia</em>, cluster trial. In <strong>GAMLj</strong> <em>Generalized Mixed Models</em>, a Poisson model of <code>pneumonia</code> with <code>soap</code> as a fixed factor and <code>cluster</code> as the cluster variable. Ignoring the clusters (a plain Poisson regression) gives confidence intervals that are too narrow.</p>
 </section>
 <section id="factorial-aspirin-and-beta-carotene" class="level3">
 <h3 class="anchored" data-anchor-id="factorial-aspirin-and-beta-carotene">2×2 factorial: aspirin and beta-carotene</h3>
-<p><em>Physicians’ Health Study</em>, factorial. <strong>prognosis</strong> <em>Cox Regression</em> with both treatments; adding their interaction tests whether one changes the other’s effect.</p>
+<p><em>Aspirin and beta-carotene in male physicians</em>, factorial. <strong>prognosis</strong> <em>Cox Regression</em> with both treatments; adding their interaction tests whether one changes the other’s effect.</p>
 </section>
 <section id="crossover-an-antihypertensive" class="level3">
 <h3 class="anchored" data-anchor-id="crossover-an-antihypertensive">Crossover: an antihypertensive</h3>
@@ -1060,11 +1101,11 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="before-after-metformin" class="level3">
 <h3 class="anchored" data-anchor-id="before-after-metformin">Before-after: metformin</h3>
-<p><em>Metformin and HbA1c</em>, before-after, enrolling only people above the 50th percentile. <em>T-Tests ▸ Paired Samples</em> of <code>hba1c_before</code> and <code>hba1c</code>: the mean change is larger than the true effect, because of regression to the mean.</p>
+<p><em>Metformin vs placebo on HbA1c</em>, before-after, enrolling only people above the 50th percentile. <em>T-Tests ▸ Paired Samples</em> of <code>hba1c_before</code> and <code>hba1c</code>: the mean change is larger than the true effect, because of regression to the mean.</p>
 </section>
 <section id="ecological-water-hardness-and-mortality" class="level3">
 <h3 class="anchored" data-anchor-id="ecological-water-hardness-and-mortality">Ecological: water hardness and mortality</h3>
-<p><em>Water hardness</em>, ecological. <em>Compute</em> the death rate per 100,000 (<code>death / population * 100000</code>) and regress it on the region means and percentages (<em>Regression ▸ Linear Regression</em>); compare the regional slope with the true individual effect in the key: the gap is the ecological bias.</p>
+<p><em>Water hardness and mortality</em>, ecological. <em>Compute</em> the death rate per 100,000 (<code>death / population * 100000</code>) and regress it on the region means and percentages (<em>Regression ▸ Linear Regression</em>); compare the regional slope with the true individual effect in the key: the gap is the ecological bias.</p>
 </section>
 </section>
 <section id="simulating-many-studies" class="level2">

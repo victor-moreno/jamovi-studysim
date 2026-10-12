@@ -1,0 +1,226 @@
+---
+title: "Direct and indirect effects: mediation"
+subtitle: "Epidemiology guide, part 5"
+bibliography: references.bib
+---
+
+```{r}
+source("_common.R")
+source("_figures.R")
+```
+
+An exposure often acts through intermediate variables: obesity raises blood
+pressure, which raises the risk of a heart attack. **Mediation analysis** splits
+the total effect of an exposure into the part that goes through a mediator (the
+**indirect** effect) and the rest (the **direct** effect). The aim is to explain
+*how* an exposure works, or what share of its effect an intervention on the
+mediator could remove. It needs more assumptions than estimating a total effect,
+and those assumptions are where most mediation analyses fail
+[@vanderweele2016; @hernan2020].
+
+## Effects to estimate
+
+::: {#fig-paths}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9
+#| fig-height: 2.6
+pn <- rbind(data.frame(panel = "Total effect", id = c("X", "Y"), x = c(0, 3.4), y = c(0, 0), role = c("exposure", "outcome")),
+            data.frame(panel = "Mediation", id = c("X", "Y", "M"), x = c(0, 3.4, 1.7), y = c(0, 0, 1.3), role = c("exposure", "outcome", "mediator")))
+pe <- rbind(data.frame(panel = "Total effect", from = "X", to = "Y", label = "c"),
+            data.frame(panel = "Mediation", from = c("X", "M", "X"), to = c("M", "Y", "Y"), label = c("a", "b", "c'")))
+both(dag_fig, pn, pe, ncol = 2)
+```
+Left, the total effect *c* of X on Y. Right, the same effect split into the path through the mediator M (*a*, from X to M, and *b*, from M to Y given X) and the direct path *c′* (from X to Y given M).
+:::
+
+| effect | question | definition |
+|---|---|---|
+| **Total effect** (TE) | what if X changed? | compares Y with X and without X, M following X |
+| **Controlled direct effect** (CDE) | what if X changed and M were *fixed* at a value m for everyone? | depends on m when X and M interact |
+| **Natural direct effect** (NDE) | what if X changed but M stayed as it would be *without* X? | the effect not through M |
+| **Natural indirect effect** (NIE) | what if X stayed, but M changed as X would change it? | the effect through M |
+
+On the difference scale **TE = NDE + NIE**, and the proportion mediated is
+NIE / TE. In linear models without an X × M interaction the classic approach
+of Baron and Kenny [@baron1986] gives them directly:
+
+- **product method**: NIE = *a* × *b*, NDE = *c′*;
+- **difference method**: NIE = *c* − *c′*.
+
+The two agree for linear models of continuous outcomes. For binary and survival
+outcomes (logistic, Cox) they do not, because odds and hazard ratios are
+non-collapsible: *c* − *c′* then mixes mediation with the change of scale
+([Measures and models](guide-measures.qmd)). With an X × M interaction, or with
+non-linear models, natural effects need the counterfactual definitions and
+software that implements them [@imai2010].
+
+## The assumptions
+
+::: {#fig-assumptions}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 8
+#| fig-height: 3.6
+an <- data.frame(id = c("X", "M", "Y", "C1", "C2", "C3", "L"), x = c(0, 2.4, 4.8, 2.4, 4.8, 0, 2.4), y = c(0, 1.4, 0, 3, 2.6, 2.4, -1.5),
+                 role = c("exposure", "mediator", "outcome", "confounder", "confounder", "confounder", "collider"),
+                 label = c("X", "M", "Y", "C1: X-Y", "C2: M-Y", "C3: X-M", "L: caused by X"))
+ae <- data.frame(from = c("X", "M", "X", "C1", "C1", "C2", "C2", "C3", "C3", "X", "L", "L"),
+                 to = c("M", "Y", "Y", "X", "Y", "M", "Y", "X", "M", "L", "M", "Y"),
+                 curve = c(0, 0, 0, 0.25, -0.25, 0, 0, 0, 0, 0, 0, 0))
+both(dag_fig, an, ae)
+```
+Mediation needs every one of these confounders measured and adjusted for: C1 (exposure and outcome), C2 (mediator and outcome), C3 (exposure and mediator). L, a mediator-outcome confounder that the exposure itself affects, breaks the natural effects altogether.
+:::
+
+Natural direct and indirect effects can be estimated only if there is no
+unmeasured confounding of [@vanderweele2016]:
+
+1. the exposure and the outcome (C1);
+2. **the mediator and the outcome (C2)**, even in a randomised trial, because
+   the mediator is not randomised. This is the assumption most often broken;
+3. the exposure and the mediator (C3);
+4. and no confounder of the mediator and the outcome is itself affected by the
+   exposure (L).
+
+Randomising X removes C1 and C3, not C2. The adjustment sets of the two
+regressions differ: the model for M needs the X–M confounders, and the model for
+Y needs the X–Y and M–Y confounders.
+
+## Example 1: full mediation (continuous outcome)
+
+*Formoterol vs salbutamol in asthma*, children aged 7 to 14. Peak expiratory
+flow (PEF) rises with age, but age has no effect of its own in the scenario:
+older children are taller, and height determines lung size. Age acts entirely
+through height.
+
+```{r}
+sc_as <- load_scenario(lib, "asthma_formoterol")
+big <- simulate_study(sc_as, "pef", "rct", 30000, sc_as$order, seed = 5, key = FALSE)$data_raw
+med_lm <- function(d) {
+    tot <- lm(pef ~ age + drug, d); mm <- lm(height ~ age + drug, d); yy <- lm(pef ~ age + height + drug, d)
+    c(total = coef(tot)[["age"]], a = coef(mm)[["age"]], b = coef(yy)[["height"]], direct = coef(yy)[["age"]])
+}
+e <- med_lm(big)
+small <- simulate_study(sc_as, "pef", "rct", 300, sc_as$order, seed = 1, key = FALSE)$data_raw
+es <- med_lm(small)
+set.seed(1)
+boot <- t(replicate(1000, med_lm(small[sample(nrow(small), replace = TRUE), ])))
+ci <- function(x) sprintf("%.1f (%.1f to %.1f)", mean(x), quantile(x, 0.025), quantile(x, 0.975))
+tab <- data.frame(effect = c("total effect of age (c)", "age on height (a, cm per year)", "height on PEF (b, L/min per cm)", "direct effect of age (c')", "indirect effect (a × b)"),
+                  large = sprintf("%.2f", c(e[["total"]], e[["a"]], e[["b"]], e[["direct"]], e[["a"]] * e[["b"]])),
+                  study = c(ci(boot[, "total"]), ci(boot[, "a"]), sprintf("%.2f (%.2f to %.2f)", mean(boot[, "b"]), quantile(boot[, "b"], 0.025), quantile(boot[, "b"], 0.975)),
+                            ci(boot[, "direct"]), ci(boot[, "a"] * boot[, "b"])))
+knitr::kable(tab, col.names = c("", "simulated population (30,000)", "a trial of 300: estimate (bootstrap 95% CI)"), row.names = FALSE)
+```
+
+Each year of age adds `r round(e[["total"]], 1)` L/min of PEF. Given height,
+age adds nothing (`r round(e[["direct"]], 1)`): the indirect effect a × b =
+`r round(e[["a"]] * e[["b"]], 1)` is the whole effect. In a trial of 300 children
+the indirect effect is estimated with a bootstrap confidence interval, because
+a product of two estimates is not normally distributed.
+
+**In jamovi**: open the trial's data and run **jAMM** ▸ *GLM Mediation Model*
+with `pef` as dependent variable, `height` as mediator, `age` as covariate (and
+`drug` as factor), bootstrap confidence intervals; or **medmod** ▸ *Mediation*
+for a single mediator without covariates. Both fit linear models (with lavaan),
+so they need a continuous mediator and outcome.
+
+## Example 2: partial mediation, with confounders of the mediator
+
+*Blood pressure in US adults*, cross-sectional. People with a college education
+have lower systolic pressure, partly because they are less poor (the poverty
+ratio enters the outcome model) and partly for other reasons. Age and race
+affect education, poverty and blood pressure, so they confound both steps.
+
+::: {#fig-nhanes}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 7
+#| fig-height: 3.2
+nn <- data.frame(id = c("college", "poverty", "sbp", "age, race"), x = c(0, 2.4, 4.8, 2.4), y = c(0, 1.3, 0, 2.8),
+                 role = c("exposure", "mediator", "outcome", "confounder"), label = c("college", "poverty ratio", "systolic BP", "age, race"))
+ne <- data.frame(from = c("college", "poverty", "college", "age, race", "age, race", "age, race"), to = c("poverty", "sbp", "sbp", "college", "poverty", "sbp"),
+                 curve = c(0, 0, 0, 0.2, 0, -0.2))
+both(dag_fig, nn, ne, adjusted = "age, race")
+```
+Education and blood pressure (*Blood pressure in US adults*): age and race (adjusted for, double border) confound education, poverty and blood pressure.
+:::
+
+```{r}
+sc_nh <- load_scenario(lib, "nhanes_blood_pressure")
+nh <- simulate_study(sc_nh, "sbp", "cross_sectional", 60000, sc_nh$order, seed = 2, key = FALSE)$data_raw
+nh$college <- as.integer(nh$education == "college")
+fits <- function(adj) {
+    f <- function(rhs, y) coef(lm(stats::as.formula(paste(y, "~", rhs)), nh))
+    r <- paste(c("college", adj), collapse = " + ")
+    tot <- f(r, "sbp")[["college"]]; a <- f(r, "poverty")[["college"]]
+    yy <- f(paste(r, "+ poverty"), "sbp")
+    c(total = tot, direct = yy[["college"]], indirect = a * yy[["poverty"]])
+}
+m1 <- fits(c("age", "race")); m0 <- fits(character())
+knitr::kable(data.frame(effect = c("total", "direct", "indirect (through poverty)", "proportion mediated"),
+                        adjusted = c(sprintf("%.2f mmHg", m1[1:3]), sprintf("%.0f%%", 100 * m1[["indirect"]] / m1[["total"]])),
+                        unadjusted = c(sprintf("%.2f mmHg", m0[1:3]), sprintf("%.0f%%", 100 * m0[["indirect"]] / m0[["total"]]))),
+             col.names = c("", "adjusted for age and race", "not adjusted"), row.names = FALSE)
+```
+
+Most of the effect of college education here is direct; poverty carries a small
+part. Without adjusting for age and race the total effect is confounded: older
+people have less education and higher pressure.
+
+## Example 3: an event outcome, by the difference method
+
+*Coronary heart disease incidence*: men have a higher hazard than women partly
+because they have lower HDL. jamovi's mediation modules need a continuous
+outcome, so for a Cox model the usual approach is the difference method: the
+hazard ratio of sex before and after adding HDL, with the confounders of HDL and
+CHD (age, BMI) in both models.
+
+```{r}
+sc_chd <- load_scenario(lib, "chd_incidence")
+coh <- simulate_study(sc_chd, "chd", "cohort", 60000, sc_chd$order, seed = 3, key = FALSE)$data_raw
+hr <- function(rhs) exp(coef(survival::coxph(stats::as.formula(paste("survival::Surv(time, chd == 1) ~", rhs)), coh))[["sexmale"]])
+h_tot <- hr("sex + age + bmi"); h_dir <- hr("sex + age + bmi + hdl")
+te <- true_effects(sc_chd, sc_chd$outcomes$chd, total = TRUE)
+knitr::kable(data.frame(model = c("sex, age, BMI (total effect)", "sex, age, BMI, HDL (direct effect)"),
+                        HR = round(c(h_tot, h_dir), 2),
+                        truth = round(c(te$total[te$variable == "sex"], te$value[te$variable == "sex"]), 2)),
+             col.names = c("Cox model", "HR of men, simulated cohort of 60,000", "studysim's truth"), row.names = FALSE)
+```
+
+On the log scale, (log `r round(h_tot, 2)` − log `r round(h_dir, 2)`) / log
+`r round(h_tot, 2)` = `r round(100 * (log(h_tot) - log(h_dir)) / log(h_tot))`% of
+the effect of sex goes through HDL. The approximation is reasonable here
+because coronary events are uncommon. With a common outcome the hazard ratio
+changes when a covariate is added even if it mediates nothing, so this share is
+not a mediated proportion. For binary or survival outcomes, estimate natural
+effects with the R package `mediation` (in jamovi, through the **Rj** editor) or
+with weighting methods.
+
+## A checklist
+
+1. Write the diagram with the exposure, the mediator, the outcome and the
+   confounders of all three pairs ([Causal diagrams](guide-dags.qmd)).
+2. Make sure the mediator happens after the exposure and before the outcome.
+3. Adjust the mediator model for exposure-mediator confounders, and the outcome
+   model for exposure-outcome and mediator-outcome confounders.
+4. Test the exposure × mediator interaction; if present, report controlled
+   direct effects at chosen values of M, or natural effects from software that
+   allows the interaction.
+5. Use bootstrap confidence intervals for indirect effects.
+6. Discuss unmeasured mediator-outcome confounding, which randomising the
+   exposure does not remove, and run a sensitivity analysis.
+
+## Software
+
+| situation | jamovi | R |
+|---|---|---|
+| continuous M and Y, one mediator | **medmod** *Mediation* | `lm`, `lavaan` |
+| several mediators, covariates, moderated mediation | **jAMM** *GLM Mediation Model* | `lavaan` |
+| binary or survival Y, X × M interaction | (Rj) | `mediation`, `CMAverse` |
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

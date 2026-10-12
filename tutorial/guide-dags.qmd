@@ -1,0 +1,304 @@
+---
+title: "Causal diagrams"
+subtitle: "Epidemiology guide, part 4"
+bibliography: references.bib
+---
+
+```{r}
+source("_common.R")
+source("_figures.R")
+sc_chd <- load_scenario(lib, "chd_incidence")
+oc_chd <- sc_chd$outcomes$chd
+```
+
+A regression model adjusts for whatever variables it is given, and it cannot
+tell a confounder from a mediator or a collider. That knowledge comes from
+outside the data: what causes what, and in what order. A **directed acyclic
+graph** (DAG) writes it down, so that the choice of adjustment variables
+follows from explicit assumptions that others can check and dispute
+[@greenland1999; @shrier2008; @hernan2020].
+
+## Reading a DAG
+
+- Each **node** is a variable; each **arrow** is a direct causal effect, in the
+  direction of time.
+- The **absence** of an arrow is the strong assumption: no direct effect.
+- **Acyclic**: no variable causes itself through a loop. A variable measured at
+  several times appears as several nodes.
+- Every **common cause** of two variables in the diagram must be in it,
+  measured or not. Unmeasured ones are drawn too (dashed here).
+- A **path** is any sequence of arrows, whatever their direction. A **causal
+  path** from X to Y follows the arrows; a **backdoor path** starts with an
+  arrow *into* X.
+- A **collider** on a path is a node where two arrowheads meet (→ C ←).
+
+Associations travel along paths. A path is **open** (it transmits association)
+unless it contains a collider, or a non-collider that has been adjusted for.
+Adjusting for a collider **opens** the path through it.
+
+## The kinds of variables
+
+::: {#fig-gallery}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9.5
+#| fig-height: 5.6
+P <- c("Confounder", "Mediator", "Collider", "Instrument", "Precision variable", "M-bias")
+gn <- rbind(
+  data.frame(panel = P[1], id = c("X", "Y", "C"), x = c(0, 3, 1.5), y = c(0, 0, 1.2), role = c("exposure", "outcome", "confounder")),
+  data.frame(panel = P[2], id = c("X", "Y", "M"), x = c(0, 3, 1.5), y = c(0, 0, 1.2), role = c("exposure", "outcome", "mediator")),
+  data.frame(panel = P[3], id = c("X", "Y", "S"), x = c(0, 3, 1.5), y = c(0, 0, -1.2), role = c("exposure", "outcome", "collider")),
+  data.frame(panel = P[4], id = c("X", "Y", "Z", "U"), x = c(0, 3, -1.4, 1.5), y = c(0, 0, 0, 1.2), role = c("exposure", "outcome", "instrument", "confounder")),
+  data.frame(panel = P[5], id = c("X", "Y", "P"), x = c(0, 3, 3), y = c(0, 0, 1.2), role = c("exposure", "outcome", "other")),
+  data.frame(panel = P[6], id = c("X", "Y", "U1", "U2", "B"), x = c(0, 3, 0, 3, 1.5), y = c(0, 0, 1.4, 1.4, 0.8), role = c("exposure", "outcome", "other", "other", "collider")))
+ge <- rbind(
+  data.frame(panel = P[1], from = c("C", "C", "X"), to = c("X", "Y", "Y")),
+  data.frame(panel = P[2], from = c("X", "M", "X"), to = c("M", "Y", "Y")),
+  data.frame(panel = P[3], from = c("X", "Y", "X"), to = c("S", "S", "Y")),
+  data.frame(panel = P[4], from = c("Z", "X", "U", "U"), to = c("X", "Y", "X", "Y")),
+  data.frame(panel = P[5], from = c("X", "P"), to = c("Y", "Y")),
+  data.frame(panel = P[6], from = c("U1", "U1", "U2", "U2", "X"), to = c("X", "B", "B", "Y", "Y")))
+both(dag_fig, gn, ge, unmeasured = c("U", "U1", "U2"), ncol = 3, legend = TRUE)
+```
+The roles a third variable can play for the effect of an exposure X on an outcome Y. Dashed boxes are unmeasured.
+:::
+
+| variable | what it is | adjust for it to estimate the total effect of X? |
+|---|---|---|
+| **Confounder** | a common cause of X and Y (or lies on a backdoor path) | **yes**: it opens a backdoor path X ← C → Y |
+| **Mediator** | caused by X, causes Y | **no**: it carries part of the effect; adjusting gives the *direct* effect, which is a different question ([Mediation](guide-mediation.qmd)) |
+| **Collider** | caused by X and by Y (or by their causes) | **no**: adjusting, stratifying or selecting on it creates an association |
+| **Instrument** | causes X, affects Y only through X | **no**: it adds no protection and inflates the variance; with unmeasured confounding it amplifies the bias |
+| **Precision variable** | causes Y, unrelated to X | **optional**: it narrows confidence intervals (linear models) and changes OR/HR to their conditional value |
+| **Descendant of Y** | caused by the outcome | **no**: it acts as a collider |
+| **Effect modifier** | the effect of X differs across its levels | a result to report by level, not something to adjust away; a DAG does not show it |
+
+The **M-bias** panel shows the subtle case. B is associated with both X and Y,
+so the old "associated with exposure and outcome" rule would make it a
+confounder. But B is a collider of two unmeasured causes, and adjusting for it
+opens the path X ← U1 → B ← U2 → Y. Only the diagram tells the two situations
+apart.
+
+## The three basic structures in simulated data
+
+The same simulated population, analysed three ways.
+
+**Confounding** (*Coronary heart disease incidence*, cohort): coffee has no
+effect, but smokers drink more coffee. The crude hazard ratio of coffee is above
+1; adjusting for smoking removes it.
+
+```{r}
+key_table("chd_incidence", "chd", "cohort", c("age", "sex", "smoking", "coffee"))
+```
+
+**Mediation**: sex acts on coronary disease partly through HDL. Adjusting for
+HDL gives the direct effect (1.60). Leaving it out gives the total effect
+(`r round(true_effects(sc_chd, oc_chd, total = TRUE)$total[true_effects(sc_chd, oc_chd)$variable == "sex"], 2)`).
+Neither is wrong; they answer different questions.
+
+**Collider** (*Lung cancer and smoking*, case-control, *Biases* ▸ *Add a variable
+caused by outcome and exposure*): `admitted` is caused by lung cancer and by
+smoking. A model that includes it (*Adjusted (all)*) underestimates the effect of
+smoking; the diagram's set leaves it out (*Adjusted (DAG)*).
+
+```{r}
+key_table("lung_cancer_smoking", "lung_cancer", "case_control", c("age", "sex", "smoking"),
+          options = list(exposures = "smoking", collider = TRUE))
+```
+
+## Building a DAG for a study, step by step
+
+The question: **what is the effect of body mass index on the 10-year risk of
+coronary heart disease?**
+
+1. **Define the exposure, the outcome and time zero**: BMI at entry, a coronary
+   event in 10 years, follow-up from entry.
+2. **Add the causes of the outcome** you know of, measured or not: age, sex,
+   blood pressure, cholesterol, HDL, diabetes, smoking.
+3. **Add the causes of the exposure**: age, physical activity; and the causes of
+   those, such as education, which also affects smoking.
+4. **Add every common cause of two variables already in the diagram**, measured
+   or not. A missing common cause is the most common error.
+5. **Order by time**, left to right, and decide for each arrow whether it can
+   exist. BMI raises blood pressure, lowers HDL and causes diabetes: those three
+   come *after* BMI and are **mediators** of its effect.
+6. **Add how people got into the study and how variables were measured**, when
+   these could depend on exposure or outcome (selection, missing data,
+   misclassification).
+7. **Find the backdoor paths** from BMI to coronary disease and a set of measured
+   variables that blocks all of them without containing a descendant of BMI
+   (the **backdoor criterion**). Software does this: [dagitty.net](https://www.dagitty.net)
+   or the R package `dagitty` [@textor2016].
+8. **Check what you assumed**: draw the alternative diagrams that colleagues
+   would defend, and see whether the adjustment set changes.
+
+::: {#fig-chd-steps}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 10
+#| fig-height: 9.6
+pos <- data.frame(id = c("bmi", "chd", "age", "activity", "education", "smoking", "cigarettes", "sbp", "hdl", "diabetes", "sex", "chol", "coffee"),
+                  x = c(4.4, 9.8, 4.4, 2.2, 0, 2.2, 4.8, 7.2, 7.2, 7.2, 7.2, 8.6, 0),
+                  y = c(0.4, 2.4, 3.4, 1.2, 2.6, 5.2, 5.2, 2.2, -1.4, 0.2, -2.8, 4.6, 5.2),
+                  role = c("exposure", "outcome", "confounder", "confounder", "confounder", "other", "other", "mediator", "mediator", "mediator", "other", "other", "other"),
+                  label = c("BMI", "CHD", "age", "activity", "education", "smoking", "cigarettes", "blood pressure", "HDL", "diabetes", "sex", "cholesterol", "coffee"))
+ed <- data.frame(from = c("activity", "age", "education", "education", "age", "bmi", "age", "sex", "bmi", "bmi", "age", "smoking", "education", "smoking",
+                          "age", "sex", "sbp", "chol", "hdl", "smoking", "cigarettes", "diabetes", "bmi"),
+                 to = c("bmi", "bmi", "smoking", "activity", "sbp", "sbp", "chol", "hdl", "hdl", "diabetes", "diabetes", "coffee", "cigarettes", "cigarettes",
+                        "chd", "chd", "chd", "chd", "chd", "chd", "chd", "chd", "chd"),
+                 curve = c(rep(0, 15), 0.2, rep(0, 7)))
+step <- function(k, nodes, extra = character()) {
+    n <- pos[pos$id %in% nodes, ]; n$panel <- k
+    e <- ed[ed$from %in% nodes & ed$to %in% nodes, ]; e$panel <- k
+    list(n = n, e = e)
+}
+S <- c("1. Exposure and outcome", "2. Causes of the outcome and the exposure", "3. Mediators, after the exposure", "4. The rest; an adjustment set (double border)")
+s1 <- step(S[1], c("bmi", "chd"))
+s2 <- step(S[2], c("bmi", "chd", "age", "activity", "education", "smoking", "cigarettes"))
+s3 <- step(S[3], c("bmi", "chd", "age", "activity", "education", "smoking", "cigarettes", "sbp", "hdl", "diabetes"))
+s4 <- step(S[4], pos$id)
+nn <- rbind(s1$n, s2$n, s3$n, s4$n); ee <- rbind(s1$e, s2$e, s3$e, s4$e)
+steps_fig <- function(mode) {
+    g <- dag_fig(mode, nn, ee, ncol = 2, base = 8.5)
+    p <- PAL(mode)
+    adj <- pos[pos$id %in% c("age", "activity"), ]; adj$panel <- S[4]
+    adj$w <- 0.16 * pmax(nchar(adj$label), 2) + 0.35
+    g + geom_rect(data = adj, aes(xmin = x - w / 2 - 0.09, xmax = x + w / 2 + 0.09, ymin = y - 0.3, ymax = y + 0.3), fill = NA, colour = p$fg, linewidth = 0.7)
+}
+both(steps_fig)
+```
+The causal diagram of *Coronary heart disease incidence* built step by step for the effect of BMI. Blood pressure, HDL and diabetes are mediators. Age is a confounder, and physical activity (or education) blocks the backdoor path BMI ← activity ← education → smoking → CHD. Sex and cholesterol only affect the outcome (precision variables); coffee is irrelevant.
+:::
+
+The backdoor paths from BMI are BMI ← age → … → CHD and BMI ← activity ←
+education → smoking → CHD. Adjusting for **{age, activity}** blocks both, and so
+does **{age, education}**. Adding sex and cholesterol is harmless. Adding
+blood pressure, HDL or diabetes is not: they are on the causal path, so the
+model would estimate only the part of BMI's effect that does not go through
+them.
+
+```{r}
+coh <- simulate_study(sc_chd, "chd", "cohort", 60000, sc_chd$order, seed = 11, key = FALSE)$data_raw
+fit <- function(terms) {
+    f <- survival::coxph(stats::as.formula(paste("survival::Surv(time, chd == 1) ~", paste(terms, collapse = " + "))), data = coh)
+    exp(5 * stats::coef(f)[["bmi"]])
+}
+sets <- list("none (crude)" = "bmi", "age, physical activity (minimal set)" = c("bmi", "age", "physical_activity"),
+             "age, education (minimal set)" = c("bmi", "age", "education"),
+             "every variable BMI does not cause" = c("bmi", "age", "sex", "education", "physical_activity", "smoking", "cigarettes", "total_chol", "coffee"),
+             "everything, mediators included" = c("bmi", sc_chd$order[sc_chd$order != "bmi"]))
+te <- true_effects(sc_chd, oc_chd, total = TRUE)
+res <- data.frame(`adjusted for` = names(sets), `HR per 5 kg/m2` = round(vapply(sets, fit, 0), 2), check.names = FALSE)
+knitr::kable(res, row.names = FALSE)
+```
+
+In a simulated cohort of 60,000, every valid set gives about the true
+**total** effect, a hazard ratio of
+`r round(te$total[te$variable == "bmi"]^5, 2)` per 5 kg/m². Adjusting for the
+mediators gives the **direct** effect,
+`r round(te$value[te$variable == "bmi"]^5, 2)`, which leaves out the part of
+BMI's harm that works by raising blood pressure, lowering HDL and causing
+diabetes. The crude estimate is confounded.
+
+## The Table 2 fallacy
+
+Papers often show one multivariable model with a coefficient for every variable
+("Table 2") and interpret each as that variable's effect. Each coefficient is
+adjusted for all the others, including that variable's mediators, and its
+confounders may be missing. Only the coefficient of the exposure the model was
+built for has the meaning intended [@westreich2013]. In the CHD model with every
+variable, age's coefficient is its direct effect (net of blood pressure,
+cholesterol and diabetes), and education seems to do nothing. In fact education
+acts through smoking and activity. studysim's answer key shows both
+columns:
+
+```{r}
+key_table("chd_incidence", "chd", "cohort", c("age", "sex", "education", "physical_activity", "smoking", "bmi", "sbp", "hdl", "diabetes"))
+```
+
+Each exposure needs its own adjustment set, and often its own model.
+
+## Selection bias is conditioning on a collider
+
+::: {#fig-selection}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9
+#| fig-height: 2.8
+sn <- rbind(
+  data.frame(panel = "Hospital controls (Berkson)", id = c("X", "Y", "S"), x = c(0, 3, 1.5), y = c(0, 0, -1.2), role = c("exposure", "outcome", "collider"),
+             label = c("smoking", "disease", "in hospital")),
+  data.frame(panel = "Loss to follow-up", id = c("X", "Y", "L", "S"), x = c(0, 3.2, 1.6, 1.6), y = c(0, 0, 1.2, -1.2), role = c("exposure", "outcome", "other", "collider"),
+             label = c("treatment", "death", "frailty", "followed")))
+se <- rbind(data.frame(panel = "Hospital controls (Berkson)", from = c("X", "Y"), to = c("S", "S")),
+            data.frame(panel = "Loss to follow-up", from = c("X", "L", "L"), to = c("S", "S", "Y")))
+both(dag_fig, sn, se, adjusted = "S", unmeasured = "L", ncol = 2)
+```
+Selection as a collider (double border: the analysis is restricted to S). Left: hospital patients are admitted for the disease or for other conditions caused by smoking. Right: frail patients drop out more often when treated, and analysing only those followed links treatment and frailty.
+:::
+
+Restricting a study to a group of people is conditioning on whatever put them in
+it. When getting in depends on the exposure and on the outcome (or its causes),
+the selection node is a collider, and the study finds an association that does
+not exist in the population [@hernan2004]. The same structure explains biased
+hospital controls, informative losses to follow-up and analyses of complete
+cases. studysim builds these on purpose (*Biases*). Two more problems are
+diagrammed the same way: **measurement error**, a measured X\* caused by X, and
+**immortal time**, a treatment that can only start among those who survive.
+
+## Choosing the adjustment set in practice
+
+When the full diagram is uncertain, a practical rule [@vanderweele2019]:
+
+1. Adjust for every measured variable that causes the exposure, the outcome or
+   both (pre-exposure).
+2. Leave out variables known to be instruments (they cause the exposure only).
+3. Add good proxies of unmeasured common causes.
+4. Never adjust for something caused by the exposure (a mediator) when the
+   question is the total effect, nor for consequences of the outcome.
+
+Then check: with how many events per parameter will the model be fitted? A
+large adjustment set in a small study is unstable ([Measures and
+models](guide-measures.qmd)). Prefer the smallest valid set, plus strong
+predictors of the outcome.
+
+::: {#fig-choose}
+```{r}
+#| renderings: [light, dark]
+#| fig-width: 9.5
+#| fig-height: 3.4
+bx <- data.frame(id = c("q", "pre", "cause", "inst", "adj", "post", "no"),
+                 x = c(0, 2.8, 5.6, 8.4, 8.4, 2.8, 5.6), y = c(0, 0.9, 0.9, 1.9, 0, -0.9, -0.9),
+                 label = c("A variable\nV", "measured\nbefore X", "causes X,\nY or both", "only X (instrument):\nleave out", "Y, or X and Y:\nadjust", "caused by X\nor by Y", "do not\nadjust"),
+                 role = c("other", "other", "other", "instrument", "confounder", "mediator", "outcome"))
+lk <- data.frame(from = c("q", "pre", "cause", "cause", "q", "post"), to = c("pre", "cause", "inst", "adj", "post", "no"))
+both(flow_fig, bx, lk, w = 2.4, h = 0.85)
+```
+A rough path to an adjustment set for a total effect: variables that precede the exposure and cause it or the outcome are adjusted for, except pure instruments; variables caused by the exposure or by the outcome are not.
+:::
+
+## Effect modification is not in the diagram
+
+A DAG shows which variables cause which, not how their effects combine. Two
+variables with arrows into Y may act additively, multiplicatively or only
+together, and the diagram looks the same. Effect modification is a feature of
+the effect of X, reported within levels of the modifier
+([Measures and models](guide-measures.qmd)).
+
+## Exercises with studysim
+
+1. *Coronary heart disease incidence*, cohort, all variables measured. Fit the
+   Cox model for BMI with {age, physical activity}, then with every variable.
+   Compare with *True (total)*, *Adjusted (DAG)* and *Direct (conditional)*.
+2. Untick physical activity and education: which backdoor path is left open?
+   How large is the residual confounding?
+3. *Lung cancer and smoking*, case-control, tick smoking under *Exposure* and
+   add the collider. Draw the DAG with `admitted` and explain why adjusting for
+   it underestimates the effect.
+4. Draw the DAG of a scenario from the [catalogue](scenarios.qmd) from its
+   teaching note, then switch on *Causal diagram* and compare.
+
+## References {.unnumbered}
+
+::: {#refs}
+:::

@@ -80,7 +80,7 @@ key_table("chd_incidence", "chd", "cohort", load_scenario(lib, "chd_incidence")$
 
 ## Trials: absolute effects and non-collapsibility
 
-*Indomethacin after ERCP*, randomised trial. The key gives the risk in each arm,
+*Rectal indomethacin to prevent post-ERCP pancreatitis*, randomised trial. The key gives the risk in each arm,
 the risk difference and the number needed to treat. The odds ratio of the
 2×2 table (the marginal one) is closer to 1 than the conditional odds ratio the
 data were generated with, although randomisation leaves no confounding:
@@ -145,7 +145,7 @@ key_table("antihypertensive_trial", "sbp", "rct", c("sbp0", "age"))
 key_table("antihypertensive_trial", "sbp", "crossover", character())
 ```
 
-*Bioequivalence*: AUC and Cmax are log-normal; analyse log values and back-transform
+*Bioequivalence of two formulations*: AUC and Cmax are log-normal; analyse log values and back-transform
 to a geometric mean ratio, then check whether its 90% CI lies within 0.80–1.25.
 
 ## Assignments with student keys

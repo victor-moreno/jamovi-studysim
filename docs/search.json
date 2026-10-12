@@ -40,73 +40,418 @@
     ]
   },
   {
-    "objectID": "analysis.html",
-    "href": "analysis.html",
-    "title": "Analysing the data in jamovi",
+    "objectID": "guide-trials.html",
+    "href": "guide-trials.html",
+    "title": "Trials and other designs",
     "section": "",
-    "text": "Each design calls for its own analysis, and not all of them are in base jamovi. The table says which analysis fits each design and where to find it: in base jamovi, in another module of the jamovi library (Modules ▸ jamovi library), or in one of the author’s modules (jamovi-modules-vm). Below it, one worked exercise per design: the scenario, what to do in jamovi, and what the answer key says a correct analysis should find.",
+    "text": "In a randomised trial the investigator assigns the intervention by chance. Randomisation makes the arms comparable in everything, measured or not, so a difference in outcomes is caused by the intervention or by chance, and the confidence interval accounts for chance. There is no confounding to adjust for at baseline. What remains can still bias a trial: who leaves it, who does not take the treatment, and how the outcome is measured. This page covers the trial designs, then two designs that are not trials but look like them (before-after, method comparison), and diagnostic accuracy studies.",
     "crumbs": [
-      "Analysing the data in jamovi"
+      "Epidemiology guide",
+      "Trials and other designs"
     ]
   },
   {
-    "objectID": "analysis.html#design-analysis-and-module",
-    "href": "analysis.html#design-analysis-and-module",
-    "title": "Analysing the data in jamovi",
-    "section": "Design, analysis and module",
-    "text": "Design, analysis and module\n\n\n\n\n\n\n\n\n\ndesign\nlayout of the data\nanalysis\nin jamovi\n\n\n\n\nCross-sectional\none row per person\nlogistic (binary), linear (continuous), Poisson (count) regression\nRegression ▸ Logistic Regression ▸ 2 Outcomes, Linear Regression; Poisson: GAMLj Generalized Linear Models\n\n\nCohort (event)\ntime, status 0/1 (2 = competing event)\nKaplan-Meier, Cox regression\nprognosis Prognosis ▸ Kaplan-Meier, Cox Regression\n\n\nCase-control\ncase/control\nlogistic regression; odds ratio of a 2×2 table\nRegression ▸ Logistic Regression ▸ 2 Outcomes; Frequencies ▸ Independent Samples (odds ratio)\n\n\nMatched case-control\nset = matched set\nconditional logistic regression\ncondLogReg Regression ▸ Logistic Regression ▸ Conditional (Matched), matching variable set\n\n\nNested case-control\nset = risk set\nconditional logistic regression (it estimates the hazard ratio)\ncondLogReg, matching variable set\n\n\nCase-cohort\nsubcohort yes/no, time, status\nCox regression with Prentice weights and robust variance\nnot in a jamovi module: the Rj editor with survival::cch()\n\n\nPrognosis\ntime from entry, status\nKaplan-Meier, Cox; with a competing event, cause-specific Cox (status 2 censored)\nprognosis; cumulative incidence of competing risks: Rj with cmprsk\n\n\nDiagnostic accuracy\nstatus, markers\nROC curve, AUC, sensitivity and specificity at a cut-off\nmeddecide (ClinicoPath) or psychoPDA Test ROC; at a cut-off: Compute a positive/negative column, then Frequencies ▸ Independent Samples\n\n\nMethod comparison\ny_a, y_b\nBland-Altman limits of agreement\nblandr or SimplyAgree; or Compute the difference and the mean, then Descriptives and a scatterplot\n\n\nRandomised trial\narm, outcome\nrisk difference, relative risk, NNT (binary); t-test or ANCOVA (continuous); Kaplan-Meier and Cox (event)\nFrequencies ▸ Independent Samples; T-Tests, ANOVA ▸ ANCOVA; prognosis; interim looks: jmsequential\n\n\nCluster randomised trial\ncluster\nmixed (multilevel) model with a random intercept per cluster\nGAMLj Mixed Models (continuous), Generalized Mixed Models (binary, count)\n\n\n2×2 factorial trial\ntwo arms\nANOVA or regression with both treatments and their interaction\nANOVA ▸ ANOVA; Regression ▸ Logistic Regression\n\n\n2×2 crossover\nlong: one row per period; wide: one per person\npaired t-test (wide); mixed model with treatment and period (long)\nT-Tests ▸ Paired Samples; GAMLj Mixed Models\n\n\nLongitudinal trial\nlong: one row per visit; wide: one per person\nlinear mixed model with all visits (long); repeated-measures ANOVA on completers (wide)\nGAMLj Mixed Models; ANOVA ▸ Repeated Measures ANOVA\n\n\nBefore-after\ny_before, y\npaired t-test of the change\nT-Tests ▸ Paired Samples\n\n\nEcological\none row per region\nregression of the regional rate on regional means and percentages\nCompute the rate (cases / people), then Regression ▸ Linear Regression\n\n\n\nRepeated measures (Design options) gives the crossover and longitudinal trials one row per person (wide), which jamovi’s paired t-test and repeated-measures ANOVA need; the default long layout is the one for mixed models.\nExport codebook saves the data dictionary next to the CSV, since a CSV keeps no column descriptions.",
+    "objectID": "guide-trials.html#parallel-randomised-trial",
+    "href": "guide-trials.html#parallel-randomised-trial",
+    "title": "Trials and other designs",
+    "section": "Parallel randomised trial",
+    "text": "Parallel randomised trial\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 1: A parallel trial. The comparison that keeps the protection of randomisation is by assigned arm: intention to treat (ITT).\n\n\n\nEstimates. The effect of being assigned the intervention, as risk difference, risk ratio, NNT, odds ratio, hazard ratio or mean difference.\nStrengths. Randomisation removes confounding, known and unknown; blinding removes bias in measuring the outcome and in co-interventions; the strongest evidence for an effect.\nLimitations. Expensive; selected participants and strict protocols (results may not apply to every patient); short follow-up; impossible or unethical for harmful exposures. Non-adherence dilutes the intention-to-treat effect, and the alternatives are no longer randomised comparisons: as treated (by the treatment received) and per protocol (only those who followed it) are confounded by whatever made people stop (Hernán and Robins 2017). Losses to follow-up related to prognosis bias any analysis.\nAnalysis. Binary outcome: risks per arm, RD with NNT, RR (Frequencies ▸ Independent Samples), or logistic regression. Continuous: difference in means (t-test), or ANCOVA adjusted for the baseline value, which is more precise. Time to event: Kaplan-Meier and Cox. Adjusting for strong prognostic factors increases precision. For odds and hazard ratios it also changes the estimand, from marginal to conditional (Measures and models).\nInterpretation. “Risk of pancreatitis 17% with placebo and 9% with indomethacin: 8 fewer cases per 100 patients treated, NNT 12.” The odds ratio of the crude comparison is the effect on the population of patients, not on an individual with given characteristics.\n\n\n\n\n\n\n\n\n\n\nValue\n\n\n\n\nRisk: placebo\n0.1700\n\n\nRisk: indomethacin\n0.0896\n\n\nRisk difference, indomethacin vs placebo\n-0.0806\n\n\nNumber needed to treat for one event fewer, indomethacin vs placebo\n12.4000\n\n\nRisk ratio, indomethacin vs placebo\n0.5260\n\n\nOdds ratio, marginal (population), indomethacin vs placebo\n0.4800\n\n\nOdds ratio, conditional (true model), indomethacin vs placebo\n0.4700\n\n\n\n\n\nIn studysim. Rectal indomethacin to prevent post-ERCP pancreatitis, randomised trial; Biases ▸ Non-adherence adds as-treated and per-protocol rows to the key.",
     "crumbs": [
-      "Analysing the data in jamovi"
+      "Epidemiology guide",
+      "Trials and other designs"
     ]
   },
   {
-    "objectID": "analysis.html#worked-exercises",
-    "href": "analysis.html#worked-exercises",
-    "title": "Analysing the data in jamovi",
-    "section": "Worked exercises",
-    "text": "Worked exercises\nEach exercise uses the default seed (1) and the scenario’s default options. The tables are the answer key’s what this design should estimate: a correct analysis of a study of the size given should land near Adjusted, within its own confidence interval.\n\nCross-sectional: diabetes in Pima women\nPima Indian diabetes, cross-sectional, 700 women, all variables. Fit Regression ▸ Logistic Regression ▸ 2 Outcomes with diabetes as the outcome and the measured variables as covariates (Odds ratio under Model Coefficients). Then fit one variable at a time and compare each crude odds ratio with its adjusted one.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\ntotal\nCrude\nAdjusted (all)\nAdjusted (DAG)\nEstimate\n\n\n\n\nage\nper 1 years\nOR\n1.05\n1.07\n1.06\n1.05\n1.07\nOR\n\n\nbmi\nper 5 kg/m2\nOR\n1.69\n1.69\n1.65\n1.69\n1.69\nOR\n\n\npedigree\nper 0.5\nOR\n1.94\n1.94\n2.01\n1.93\n1.93\nOR\n\n\npregnancies\nper 1\nOR\n1.09\n1.09\n1.17\n1.09\n1.09\nOR\n\n\ndiastolic\nper 1 mmHg\nOR\n1.00\n1.00\n1.03\n1.00\n1.00\nOR\n\n\ntriceps\nper 1 mm\nOR\n1.00\n1.00\n1.04\n1.00\n1.00\nOR\n\n\n\n\n\n\n\nCohort: coronary heart disease\nCoronary heart disease, cohort of 3,000. In prognosis, Kaplan-Meier of time and chd by smoking, then Cox Regression with the measured variables. Leave out hdl (untick it under Variables) to see the hazard ratio for sex change: HDL is a mediator of sex, so the estimate moves towards the total effect, which is what the Adjusted (DAG) column estimates.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\ntotal\nCrude\nAdjusted (all)\nAdjusted (DAG)\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.05\n1.07\n1.07\n1.05\n1.07\nHR\n\n\nsex\nmale vs female\nHR\n1.60\n1.76\n1.77\n1.81\n1.81\nHR\n\n\nsmoking\nformer vs never\nHR\n1.20\n1.21\n1.21\n1.21\n1.21\nHR\n\n\nsmoking\ncurrent vs never\nHR\n1.60\n1.81\n1.76\n1.79\n1.79\nHR\n\n\ntotal_chol\nper 1 mmol/L\nHR\n1.20\n1.20\n1.31\n1.20\n1.20\nHR\n\n\nbmi\nper 1 kg/m2\nHR\n1.02\n1.06\n1.07\n1.03\n1.06\nHR\n\n\nsbp\nper 10 mmHg\nHR\n1.18\n1.18\n1.34\n1.17\n1.17\nHR\n\n\ndiabetes\nyes vs no\nHR\n1.80\n1.80\n2.94\n1.88\n1.88\nHR\n\n\n\n\n\n\n\nCase-control and matched case-control: oesophageal cancer\nOesophageal cancer, case-control with the scenario’s 4 controls per case. Regression ▸ Logistic Regression ▸ 2 Outcomes with case as the outcome. Then Matched case-control (matched on age group) and condLogReg with set as the matching variable: the matching variable itself cannot be estimated, and an unconditional logistic regression of matched data is biased towards the null.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\nCrude\nAdjusted (all)\nEstimate\n\n\n\n\nage_group\n35-44 vs 25-34\nHR\n7.00\nNA\nNA\nOR\n\n\nage_group\n45-54 vs 25-34\nHR\n40.00\nNA\nNA\nOR\n\n\nage_group\n55-64 vs 25-34\nHR\n75.00\nNA\nNA\nOR\n\n\nage_group\n65-74 vs 25-34\nHR\n130.00\nNA\nNA\nOR\n\n\nage_group\n75+ vs 25-34\nHR\n125.00\nNA\nNA\nOR\n\n\nalcohol\n40-79 vs 0-39\nHR\n4.20\n4.70\n4.33\nOR\n\n\nalcohol\n80-119 vs 0-39\nHR\n7.30\n8.30\n7.26\nOR\n\n\nalcohol\n120+ vs 0-39\nHR\n36.70\n40.96\n32.33\nOR\n\n\ntobacco\n10-19 vs 0-9\nHR\n1.55\n1.86\n1.50\nOR\n\n\ntobacco\n20-29 vs 0-9\nHR\n1.67\n2.03\n1.47\nOR\n\n\ntobacco\n30+ vs 0-9\nHR\n5.16\n7.42\n4.69\nOR\n\n\n\n\n\n\n\nNested case-control and case-cohort: Wilms tumour relapse\nWilms tumour, nested case-control with 3 controls per case: condLogReg with set (the risk set) as matching variable gives hazard ratios, with no rare-disease assumption. The case-cohort version needs a weighted Cox model: in Rj, survival::cch(Surv(time, relapse) ~ histology + stage, data = data, subcoh = ~ subcohort == \"yes\", id = ~ id, cohort.size = …, method = \"LinYing\") (the cohort size is in the Study summary).\n\n\nPrognosis with a competing event\nBreast cancer prognosis, outcome Death from breast cancer, prognosis design. In prognosis, Cox Regression of time and the status: the status has a 2 for a death from other causes; treat it as censored to estimate the cause-specific hazard ratios of the key. 1 − Kaplan-Meier then overstates the cumulative incidence of the event.\n\n\nDiagnostic accuracy: PSA\nProstate cancer and PSA, diagnostic, 500 men. In meddecide or psychoPDA, the ROC curve of psa against prostate_cancer. The key gives the AUC and, at a cut-off, the sensitivity, specificity and predictive values; Compute psa &gt; 5.63 and cross it with the disease (Frequencies ▸ Independent Samples) to check them by hand. Then set Test-negatives verified (%) to 20 (Biases): among the verified, sensitivity is far too high.\n\n\n\n\n\nMarker\nCut-off\n\nTrue\nLarge study\n\n\n\n\npsa\n5.63\nsens\n0.630\n0.632\n\n\npsa\n5.63\nspec\n0.636\n0.638\n\n\npsa\n5.63\nppv\n0.426\n0.429\n\n\npsa\n5.63\nnpv\n0.800\n0.801\n\n\nfree_psa\n19.40\nsens\n0.646\n0.646\n\n\nfree_psa\n19.40\nspec\n0.643\n0.641\n\n\nfree_psa\n19.40\nppv\n0.437\n0.436\n\n\nfree_psa\n19.40\nnpv\n0.809\n0.808\n\n\n\n\n\n\n\nMethod comparison: two blood pressure devices\nNHANES blood pressure, method comparison of sbp. In blandr or SimplyAgree, the Bland-Altman analysis of sbp_a and sbp_b: the mean difference, the limits of agreement and the proportional bias (B grows faster than A).\n\n\nRandomised trial: indomethacin and pancreatitis\nIndomethacin after ERCP, randomised trial of 600. Frequencies ▸ Independent Samples with treatment and pancreatitis (Comparative measures: relative risk, difference in proportions); the number needed to treat is 1 / risk difference. The key’s trial table gives the true risks: note that the marginal odds ratio (what the 2×2 table estimates) is closer to 1 than the conditional one the data were generated with, with no confounding at all.\n\n\n\n\n\n\n\n\n\n\nValue\n\n\n\n\nRisk: placebo\n0.1700\n\n\nRisk: indomethacin\n0.0896\n\n\nRisk difference, indomethacin vs placebo\n-0.0806\n\n\nNumber needed to treat for one event fewer, indomethacin vs placebo\n12.4000\n\n\nRisk ratio, indomethacin vs placebo\n0.5260\n\n\nOdds ratio, marginal (population), indomethacin vs placebo\n0.4800\n\n\nOdds ratio, conditional (true model), indomethacin vs placebo\n0.4700\n\n\n\n\n\n\n\nCluster randomised trial: handwashing in Karachi\nHandwashing in Karachi, cluster trial. In GAMLj Generalized Mixed Models, a Poisson model of pneumonia with soap as a fixed factor and cluster as the cluster variable. Ignoring the clusters (a plain Poisson regression) gives confidence intervals that are too narrow.\n\n\n2×2 factorial: aspirin and beta-carotene\nPhysicians’ Health Study, factorial. prognosis Cox Regression with both treatments; adding their interaction tests whether one changes the other’s effect.\n\n\nCrossover: an antihypertensive\nAntihypertensive drug, crossover of 30 people with Repeated measures: wide. T-Tests ▸ Paired Samples of sbp_placebo and sbp_amlodipine. With the long layout, GAMLj Mixed Models of sbp with drug and period as fixed factors and id as cluster gives the same estimate and the period effect.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\nCrude\nAdjusted (all)\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.92\n-8.92\nbeta\n\n\n\n\n\n\n\nLongitudinal trial: succimer for lead exposure\nSuccimer for lead-exposed children, longitudinal. Long layout: GAMLj Mixed Models of blood_lead with treatment, visit (as a factor) and their interaction, id as cluster. The key’s Crude is the naive comparison of the completers at the last visit, Adjusted the mixed model with every visit.\n\n\nBefore-after: metformin\nMetformin and HbA1c, before-after, enrolling only people above the 50th percentile. T-Tests ▸ Paired Samples of hba1c_before and hba1c: the mean change is larger than the true effect, because of regression to the mean.\n\n\nEcological: water hardness and mortality\nWater hardness, ecological. Compute the death rate per 100,000 (death / population * 100000) and regress it on the region means and percentages (Regression ▸ Linear Regression); compare the regional slope with the true individual effect in the key: the gap is the ecological bias.",
+    "objectID": "guide-trials.html#cluster-randomised-trial",
+    "href": "guide-trials.html#cluster-randomised-trial",
+    "title": "Trials and other designs",
+    "section": "Cluster randomised trial",
+    "text": "Cluster randomised trial\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2: Twelve clusters (villages, schools, practices) randomised as a whole. People in a cluster resemble each other, so the trial has less information than its number of people suggests.\n\n\n\nWhat it is. Groups are randomised: villages, schools, wards. Necessary when the intervention acts on groups (hand-washing campaigns, a new ward protocol) or when individuals would contaminate each other.\nStrengths. Feasible for community interventions; avoids contamination.\nLimitations. Outcomes of people in the same cluster are correlated (the intraclass correlation, ICC), so the effective sample size is smaller: the design effect is 1 + (m − 1) × ICC for clusters of m people. Few clusters means chance imbalance between arms.\nAnalysis. A mixed (multilevel) model with a random intercept per cluster (GAMLj), or cluster-robust standard errors. Ignoring the clusters gives confidence intervals that are too narrow.\nInterpretation. A mixed logistic model gives an odds ratio within clusters (conditional); a model with robust errors gives the population-average one, which is closer to 1.\nIn studysim. Handwashing and childhood pneumonia (counts of pneumonia), Vitamin A and child mortality, cluster randomised trial; vary the intraclass correlation.",
     "crumbs": [
-      "Analysing the data in jamovi"
+      "Epidemiology guide",
+      "Trials and other designs"
     ]
   },
   {
-    "objectID": "analysis.html#simulating-many-studies",
-    "href": "analysis.html#simulating-many-studies",
-    "title": "Analysing the data in jamovi",
-    "section": "Simulating many studies",
-    "text": "Simulating many studies\nCompare designs with Replicate studies per design draws hundreds of studies of each design and reports, for each estimate, its mean, bias, spread (the standard error a study does not see), power and the coverage of its confidence intervals: chance and bias side by side.",
+    "objectID": "guide-trials.html#factorial-trial",
+    "href": "guide-trials.html#factorial-trial",
+    "title": "Trials and other designs",
+    "section": "2×2 factorial trial",
+    "text": "2×2 factorial trial\nTwo interventions randomised independently, so each participant gets one of four combinations. One trial answers two questions, if the interventions do not interact: each main effect is estimated by comparing everyone with and without it. With an interaction the main effects are averages over the other intervention, and the trial needs to be powered to detect the interaction. Analyse with both treatments in the model (ANOVA, logistic or Cox regression) and test their product term. In studysim: Aspirin and beta-carotene in male physicians (aspirin and beta-carotene).",
     "crumbs": [
-      "Analysing the data in jamovi"
+      "Epidemiology guide",
+      "Trials and other designs"
     ]
   },
   {
-    "objectID": "derive.html",
-    "href": "derive.html",
-    "title": "Derive a scenario from data",
+    "objectID": "guide-trials.html#crossover-trial",
+    "href": "guide-trials.html#crossover-trial",
+    "title": "Trials and other designs",
+    "section": "Crossover trial",
+    "text": "Crossover trial\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 3: A 2×2 crossover: each participant receives both treatments, in a random order, separated by a washout.\n\n\n\nWhat it is. Each participant receives both treatments in random order, for stable chronic conditions and treatments whose effect wears off.\nStrengths. Each participant is their own control: with outcomes that are correlated within a person, far fewer participants are needed.\nLimitations. Only for reversible effects and stable conditions; a carryover effect of the first treatment into the second period biases the comparison; dropouts lose both periods.\nAnalysis. Paired t-test of the outcome under A and under B (one row per person: Repeated measures: wide), or a mixed model with treatment and period as fixed effects and the participant as cluster (long layout), which also estimates the period effect.\nIn studysim. Antihypertensive drug or Bioequivalence of two formulations, 2×2 crossover; Design options ▸ period and carryover effects.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Trials and other designs"
+    ]
+  },
+  {
+    "objectID": "guide-trials.html#longitudinal-trial",
+    "href": "guide-trials.html#longitudinal-trial",
+    "title": "Trials and other designs",
+    "section": "Longitudinal trial",
+    "text": "Longitudinal trial\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 4: Sixty children of a simulated longitudinal trial (Succimer for lead-exposed children), with 25% dropout: thin lines are children (some stop early), thick lines the mean of those still seen at each visit.\n\n\n\nRepeated visits give the trajectory of the effect, but participants drop out, and dropout usually depends on how they were doing. Comparing only the completers at the last visit is biased when dropout depends on earlier values. A linear mixed model with all visits (random intercept per participant, treatment by visit) is valid when dropout depends on values already observed (missing at random). jamovi: GAMLj Mixed Models; repeated-measures ANOVA uses completers only.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Trials and other designs"
+    ]
+  },
+  {
+    "objectID": "guide-trials.html#before-after-study-no-control-group",
+    "href": "guide-trials.html#before-after-study-no-control-group",
+    "title": "Trials and other designs",
+    "section": "Before-after study (no control group)",
+    "text": "Before-after study (no control group)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 5: Regression to the mean. Nobody is treated, but people enrolled because their first value was high (above the vertical line) have lower values when measured again: part of a high value was chance, and chance does not repeat.\n\n\n\nEveryone is measured before and after the intervention. The mean change mixes the effect with the natural course of the condition, with what else happened meanwhile and, when people are enrolled because their values were high, with regression to the mean (Barnett 2005). A paired t-test tests the change, not the effect. A control group (a trial) is the remedy; failing that, enrol on a separate baseline measurement or repeat it. In studysim: Metformin vs placebo on HbA1c, before-after, with Enrol only above percentile.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Trials and other designs"
+    ]
+  },
+  {
+    "objectID": "guide-trials.html#diagnostic-accuracy-study",
+    "href": "guide-trials.html#diagnostic-accuracy-study",
+    "title": "Trials and other designs",
+    "section": "Diagnostic accuracy study",
+    "text": "Diagnostic accuracy study\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 6: A marker that is higher in people with the disease. At a cut-off (dashed), the shaded area of the diseased is the sensitivity and that of the non-diseased one minus the specificity; moving the cut-off traces the ROC curve.\n\n\n\nWhat it is. A sample of people in whom the test would be used, all receiving the index test and the reference standard (the best available way of knowing who has the disease).\nEstimates. Sensitivity and specificity at a cut-off, the ROC curve and its area (AUC), likelihood ratios, and the predictive values (PPV, NPV), which also depend on the prevalence.\nBiases. Spectrum bias: studying severe cases and healthy volunteers instead of the patients where the test is needed overstates accuracy (Ransohoff and Feinstein 1978). Partial verification: when only test-positives (and some negatives) get the reference standard, sensitivity is overstated and specificity understated. An imperfect reference standard, and a cut-off chosen on the same data, flatter the test.\nAnalysis. 2×2 table at a cut-off; ROC analysis (meddecide, psychoPDA); logistic regression to combine markers, validated on other data.\nIn studysim. PSA and prostate cancer, High-sensitivity troponin for myocardial infarction, diagnostic design; Biases ▸ spectrum and verification.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Trials and other designs"
+    ]
+  },
+  {
+    "objectID": "guide-trials.html#method-comparison",
+    "href": "guide-trials.html#method-comparison",
+    "title": "Trials and other designs",
+    "section": "Method comparison",
+    "text": "Method comparison\nTwo methods measure the same quantity in the same people (a new device against the standard). A correlation coefficient says nothing about agreement: two methods can correlate perfectly and differ by 10 units. The Bland-Altman analysis plots the difference against the mean of the two and reports the mean difference (bias) and the limits of agreement, mean ± 1.96 SD of the differences, within which 95% of the differences fall (Martin Bland and Altman 1986). Whether those limits are acceptable is a clinical decision. A slope in the plot shows a proportional bias.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 7: Bland-Altman plot of two simulated blood pressure devices (Blood pressure in US adults, method comparison): method B reads 9.5 mmHg lower on average, and the sloping line shows that the gap grows with the pressure (proportional bias).",
+    "crumbs": [
+      "Epidemiology guide",
+      "Trials and other designs"
+    ]
+  },
+  {
+    "objectID": "guide-trials.html#what-to-remember",
+    "href": "guide-trials.html#what-to-remember",
+    "title": "Trials and other designs",
+    "section": "What to remember",
+    "text": "What to remember\n\n\n\n\n\n\n\n\n\ndesign\nestimand\nmain threat\nanalysis\n\n\n\n\nParallel trial\neffect of assignment (ITT)\nnon-adherence, loss to follow-up\nas randomised; ANCOVA, Cox\n\n\nCluster trial\neffect of assigning the cluster\ncorrelation within clusters\nmixed model or robust errors\n\n\nFactorial\ntwo main effects\ninteraction\nboth treatments and their product\n\n\nCrossover\nwithin-person effect\ncarryover\npaired t-test or mixed model with period\n\n\nLongitudinal\neffect over time\ninformative dropout\nlinear mixed model\n\n\nBefore-after\nchange, not effect\nregression to the mean, secular trend\nadd a control group\n\n\nDiagnostic\nsensitivity, specificity, AUC\nspectrum, partial verification\npatients like those who will be tested\n\n\nMethod comparison\nagreement\nproportional bias\nBland-Altman, not correlation",
+    "crumbs": [
+      "Epidemiology guide",
+      "Trials and other designs"
+    ]
+  },
+  {
+    "objectID": "guide-trials.html#references",
+    "href": "guide-trials.html#references",
+    "title": "Trials and other designs",
+    "section": "References",
+    "text": "References\n\n\nBarnett, A. G. 2005. “Regression to the Mean: What It Is and How to Deal with It.” International Journal of Epidemiology 34 (1): 215–20. https://doi.org/10.1093/ije/dyh299.\n\n\nHernán, Miguel A., and James M. Robins. 2017. “Per-Protocol Analyses of Pragmatic Trials.” New England Journal of Medicine 377 (14): 1391–98. https://doi.org/10.1056/nejmsm1605385.\n\n\nMartin Bland, J., and DouglasG. Altman. 1986. “Statistical Methods for Assessing Agreement Between Two Methods of Clinical Measurement.” The Lancet 327 (8476): 307–10. https://doi.org/10.1016/s0140-6736(86)90837-8.\n\n\nRansohoff, David F., and Alvan R. Feinstein. 1978. “Problems of Spectrum and Bias in Evaluating the Efficacy of Diagnostic Tests.” New England Journal of Medicine 299 (17): 926–30. https://doi.org/10.1056/nejm197810262991705.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Trials and other designs"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html",
+    "href": "simulated-study.html",
+    "title": "Simulated study",
     "section": "",
-    "text": "Simulate ▸ Derive scenario turns a real dataset into a scenario that simulates studies like it: the plasmode idea, without sharing the data.",
+    "text": "Simulate ▸ Simulated study builds one study and opens its data.",
     "crumbs": [
-      "Derive a scenario from data"
+      "Simulated study"
     ]
   },
   {
-    "objectID": "derive.html#what-it-estimates",
-    "href": "derive.html#what-it-estimates",
-    "title": "Derive a scenario from data",
-    "section": "What it estimates",
-    "text": "What it estimates\n\nthe marginal distribution of each variable (normal, log-normal, gamma or uniform; Poisson or negative binomial for counts; category proportions);\nthe latent correlations, by inverting the Gaussian copula the simulator uses, so a simulated study reproduces the observed correlations;\nthe conditional effects on the outcome (logistic, linear, Poisson or Cox, with 95% CI and the crude estimate), and the prevalence, mean, risk or Weibull shape that calibrates it.\n\nCheck by simulating analyses one large study simulated from the derived scenario with the same model: the Re-estimated column should match the adjusted estimates.\n\n\n\nThe round-trip check.\n\n\n\nMissing values\nMissing values in the variables chooses how the outcome model deals with rows that miss a covariate (the distributions and correlations always use every observed value, and the outcome targets every row with the outcome):\n\n\n\n\n\n\n\n\nmethod\ncost\nwhat it gives\n\n\n\n\nComplete cases\nnone\nunbiased when missingness does not depend on the outcome; loses rows\n\n\nMean / most frequent value\nnone\nkeeps every row, but dilutes the associations and understates the uncertainty\n\n\nSingle imputation\nlow\nchained equations (each variable from the others and the outcome, with its noise): unbiased under missing at random, intervals too narrow\n\n\nMultiple imputation\nm times higher\nm sets, each model on a bootstrap sample, pooled by Rubin’s rules: the reference method\n\n\n\nWith an imputation method the table also shows the complete-case estimate. Derive also warns when few rows are complete, when a variable is missing mostly in one outcome group (probably recorded after the outcome), when there are fewer than 10 events per coefficient (with a shrinkage factor), when an effect is not estimable, and when times look like days or months.\n\n\nValues that do not apply\nReal datasets record some variables only for some people: the age at first oral contraceptive use is blank for women who never used them, the years of use are 0, the age at the first smear test is coded 99 when there was none. Before estimating anything, Derive:\n\nreads an all-nines value at the top of a variable’s range (99, 999), far more frequent than the values just below it, as missing, and so a 0 far below every other value (a blood pressure or a BMI of 0 that meant “not measured”, as in the Pima data);\nfinds variables that are missing, or one constant, in a level of another variable and observed elsewhere (structural values). The scenario writes them with only_if/otherwise (e.g. only_if: co == \"sí\", otherwise: 0), their distribution comes from the people they apply to, their correlations with that variable are left out (it is a rule), and the model gives the other rows the otherwise value, so no rows are lost: the effect of the variable is among those it applies to, and the effect of the other variable is at the otherwise value;\nreports pairs of numbers whose order the data never break (start age ≤ end age ≤ age): the scenario cannot keep such an order, so write one from the other with a formula or leave one out.\n\nColumns that jamovi read as nominal but hold numbers (integers from a CSV) are read as numbers. Try it with chd_sim.csv, a simulated cohort.",
+    "objectID": "simulated-study.html#scenario-outcome-and-design",
+    "href": "simulated-study.html#scenario-outcome-and-design",
+    "title": "Simulated study",
+    "section": "Scenario, outcome and design",
+    "text": "Scenario, outcome and design\n\n\n\nThe options panel.\n\n\n\nScenarios for design narrows the pickers to the scenarios (and outcomes) that fit one design, e.g. every scenario that can be run as a case-cohort study.\nScenario and Outcome come from the library (built-in, or a custom one read with Browse…), grouped by clinical domain.\nDesign lists only the designs that fit the outcome: an event in a population can be studied with a cohort or a case-control study (unmatched or matched), a patient outcome with a prognosis cohort, a treatment effect with a randomised trial or, for continuous outcomes, a 2×2 crossover.\nVariables: every variable is measured at start; untick one to leave it out of the dataset. It still acts on the outcome, which is how you teach residual confounding. The second column shows units or categories; the Exposure column marks the variable(s) the biases act on (below).\nForm groups a numeric variable: median split, tertiles, quartiles, quintiles (cut points from the sample, as a study would compute them) or cuts typed as values (18.5, 25, 30; with a decimal comma 18,5; 25) or percentiles (10%, 90%). Labels read Q2: 120–131 or G1: ≤25. log2 and log10 transform it instead (of x + 1 when there are zeros); the answer key then gives the effect per doubling or per 10-fold increase. scale divides it by the number typed in Cuts / scale (e.g. 10 for alcohol in units of 10 g/day, or 1 to undo the scenario’s default unit); the answer key labels the contrast per 10 g/day and re-expresses the true effect in that unit.\nSample size: people in the study (cases plus controls in a case-control study).\n\n\nDesign options, realism and output\n\n\n\nDesign options: only those of the chosen design are enabled.\n\n\n\nDesign options: controls per case; follow-up, loss to follow-up and recruitment period for cohorts and trials; subcohort, clusters and ICC, interaction, interim looks, visits and dropout, regions; period and carryover for a crossover; entry threshold for a before-after study; bias, slope and errors of two methods. An empty box keeps the scenario’s value (many scenarios set their own: 4 controls per case, 3 visits); the Study summary lists the values used. Repeated measures gives crossover and longitudinal trials one row per measurement (long, for mixed models) or one per person (wide, for a paired t-test or repeated-measures ANOVA).\nBiases builds a bias into the study, and into the answer key’s large study, so the key shows what the biased design estimates: recall bias and controls selected by exposure (case-control), a collider admitted caused by the outcome and the exposure, non-adherence to treatment related to prognosis (a column received; the key adds as-treated and per-protocol rows), informative loss to follow-up, a treatment started during follow-up with no effect (immortal time: treated, treatment_start), and in diagnostic studies spectrum (only the most severe diseased) and partial verification (only some test-negatives get the reference standard). Recall, selection and the collider need a ticked Exposure. See Teaching.\n\n\n\nBiases: only those of the chosen design are enabled.\n\n\nRealism:\n\nmissing values in the measured variables: completely at random, depending on the outcome, or depending on the missing value itself (MNAR);\nmeasurement error: the reliability of numeric measures and a share of misclassified categories, non-differential. The answer key uses the same error, so it shows how much the estimates are diluted and how much confounding remains;\ndata-entry errors (decimal slips, swapped digits, 999 codes) to find and clean, and extra variables with no effect (extra_01, …) for multiple testing and variable selection;\nlaboratory: values below a marker’s or a biomarker’s detection limit reported as missing, as LOD/2 or as the LOD; diagnostic markers run in batches, optionally with cases and controls in separate batches.\n\n\n\n\nRealism options.\n\n\nOutput: seed and student key (any text, e.g. a student ID: each key gives a different dataset from the same options; capitals and surrounding spaces are ignored), which tables to show, and Answer key report, which saves the whole key (true model, what the design should estimate, markers, diagram, notes) as one HTML page for the teacher. Export class takes the student keys of the class (separated by commas) and saves a zip with one CSV and one codebook per student, a register of keys and seeds, and one answer key report. A teacher code unlocks a library locked with it (see Teaching).\n\n\n\nSeveral outcomes in one study\nMost trials record several outcomes. Other outcomes of the scenario (same people) adds every other outcome of the scenario as columns for the same people (cross-sectional, cohort, prognosis and trial designs), and the answer key gets a block per outcome. Outcomes can be linked (correlated beyond their common causes, e.g. HbA1c and control below 7%), and overall survival can be built from a first event (an illness-death model: in the colon cancer trial, death after recurrence). The SPRINT scenario has a primary outcome, death and three harms, to weigh benefits against harms and to see what testing many outcomes does.\n\n\n\nSPRINT with the other outcomes: the answer key has the intervention effect on each outcome.\n\n\n\n\nTwo more designs\n\nBefore-after (single group): everybody is treated and measured before and after, with no control group. The mean change mixes the effect, the natural trend and, if only people with high values are enrolled (Enrol only above percentile), regression to the mean.\nMethod comparison: the outcome measured twice in each person, by methods A and B (B with a bias, a proportional bias and its own error), for a Bland-Altman analysis; the key gives the mean difference, the limits of agreement and the regression slope of B on A, attenuated by A’s own error.\n\nThe same seed always gives the same study, and the people of the superpopulation do not depend on the design: the same seed under another design samples the same people. Showing the key, the diagram or a table does not draw the study again; only options that change the data do.",
     "crumbs": [
-      "Derive a scenario from data"
+      "Simulated study"
     ]
   },
   {
-    "objectID": "derive.html#finishing-it-with-an-ai",
-    "href": "derive.html#finishing-it-with-an-ai",
-    "title": "Derive a scenario from data",
-    "section": "Finishing it with an AI",
-    "text": "Finishing it with an AI\nThe data cannot tell causes from correlates, so a derived scenario has undirected correlations and raw column names. Export scenario writes it as YAML with a derivation: block (source, original names, missing data, estimates and correlations), which is what an AI needs to finish it:\n\nA prompt for any AI: attach the exported YAML and schema.md. It returns the scenario with names and translations, a causal structure, rules for impossible combinations, rounded effects, a teaching note and references marked to verify, plus a report of its decisions.\nA Claude skill (also as a zip in the Releases): the same steps, with a validator, check_scenario.R, that checks the file, simulates a large study and compares the re-estimated effects with the data’s, following renamed variables and changed reference categories.\n\nReview the result before teaching with it: the causal structure is a judgement, and references must be checked.",
+    "objectID": "simulated-study.html#the-data",
+    "href": "simulated-study.html#the-data",
+    "title": "Simulated study",
+    "section": "The data",
+    "text": "The data\nOpen dataset opens the data in a new jamovi window, with nominal, ordinal and ID columns typed and each column described; Export CSV saves them, and Export codebook saves the data dictionary as another CSV (a CSV keeps no column descriptions). Analysing the data in jamovi says which analysis and module fit each design.\n\n\n\nThe dataset in its own window.\n\n\nColumn names and category labels follow jamovi’s language (age → edad/edat, current → fumador), from dictionaries the teacher can edit (Library).",
     "crumbs": [
-      "Derive a scenario from data"
+      "Simulated study"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html#results",
+    "href": "simulated-study.html#results",
+    "title": "Simulated study",
+    "section": "Results",
+    "text": "Results\n\n\n\nData dictionary.\n\n\n\n\n\nUnivariate descriptives: mean (SD) and median [IQR], or n (%) per category.\n\n\nThe causal diagram shows the scenario’s structure: measured variables in solid boxes, unmeasured ones dashed, null variables in italics, grey arrows for paths among variables, dark arrows for effects on the outcome. It is shown by default without effect sizes; tick Effect sizes on the diagram to colour the arrows (red raises the outcome, blue lowers it) and give their sizes.\n\n\n\nCausal diagram with effect sizes.",
+    "crumbs": [
+      "Simulated study"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html#the-answer-key",
+    "href": "simulated-study.html#the-answer-key",
+    "title": "Simulated study",
+    "section": "The answer key",
+    "text": "The answer key\nAnswer key adds these parts, for the teacher:\n\nTrue model: by contrast, the direct (conditional) effects the data were generated with, including the null variables, and the total effect of each variable that also acts through others (mediators), estimated in a large simulated population; a variable acting only through others reads no direct effect; acts through ….\n\n\n\nTrue model: direct and total effects; education acts only through smoking, BMI, blood pressure, HDL and diabetes.\n\n\nWhat this design should estimate: crude and adjusted estimates averaged over three large simulated studies with the same design, measured variables, grouping, measurement error and biases (one for matched case-control), with their Monte Carlo uncertainty in a note. This is what a correct analysis of the student’s data should approach. Adjusted (all) adjusts for every measured variable; Adjusted (DAG) adjusts each one only for the measured variables it does not cause, and approaches its True (total). Where the generating measure differs from the design’s (hazard ratios generated, odds ratios estimated by a case-control study) a note says so. Trials with a binary or event outcome add absolute effects: risk per arm, risk difference, NNT, risk ratio, and the marginal next to the conditional odds or hazard ratio. Diagnostic studies add accuracy at a cut-off: sensitivity, specificity and predictive values, true and in the large study.\n\n\n\nAbsolute effects of a trial: risks, NNT, and the marginal odds ratio closer to 1 than the conditional one.\n\n\n\n\n\nExpected estimates: the crude coffee effect disappears after adjustment; systolic pressure in quartiles.\n\n\nNotes: teaching note of the scenario, calibration of the outcome, latent structure and the sources of the parameters.\n\nThe Study summary warns when there are fewer than 10 events per parameter of a model adjusted for every measured variable.",
+    "crumbs": [
+      "Simulated study"
+    ]
+  },
+  {
+    "objectID": "simulated-study.html#compare-designs",
+    "href": "simulated-study.html#compare-designs",
+    "title": "Simulated study",
+    "section": "Compare designs",
+    "text": "Compare designs\nSimulate ▸ Compare designs takes one scenario and outcome, the measured variables and a sample size, and simulates every ticked design from the same population (same seed and student key); designs that do not fit the outcome are hidden. It shows:\n\n\n\nCompare designs: breast cancer with four measured variables, three designs from the same population.\n\n\n\nStudies: rows, cases and controls, events, clusters or regions of each one;\nEstimates by design: crude and adjusted estimates with their 95% CI next to the true values, and optionally what each design gives in a large study;\na forest plot of the same estimates, one panel per contrast;\nthe causal diagram, once, because it is the same for every design: what changes between designs is how the population is sampled, not how it works.\n\n\n\n\nEstimates plot: the cohort of 500 women has 10 cases, so its intervals are far wider than the case-control studies’.\n\n\nReplicate studies per design (next to the sample size) draws that many studies of each design and reports each estimate’s mean, bias, spread (empirical standard error) next to the model’s, power and the coverage of its confidence intervals, with a plot of their sampling distribution.\n\n\n\nReplicate studies: 200 parallel and 200 cluster trials of 500 people.\n\n\nOpen dataset stacks all the studies in one dataset with a design column, to analyse them with jamovi’s filters. Typical exercises: a case-control vs a cohort study of a rare cancer (same estimates, very different precision for the same number of people), a parallel vs a crossover trial, an ecological vs an individual-level analysis.",
+    "crumbs": [
+      "Simulated study"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "",
+    "text": "studysim is a jamovi module that simulates plausible datasets of medical studies. A student picks a clinical scenario, one of its outcomes, a study design that fits it, a sample size and some realism, and gets a dataset in a new jamovi window. A hidden answer key gives the true parameters and what crude and adjusted analyses of that design should find.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "index.html#why-simulated-studies",
+    "href": "index.html#why-simulated-studies",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "Why simulated studies",
+    "text": "Why simulated studies\nReal teaching datasets are few, and they never come with the truth. A simulated study does: confounders, mediators, effect modifiers and null variables are built in, so students can check whether their analysis recovers the effects, see why the crude estimate differs from the adjusted one, and what a design or a missing variable does to the answer. Every student can get a different dataset from the same assignment (a student key), and the teacher can regenerate any of them.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "index.html#the-menu",
+    "href": "index.html#the-menu",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "The menu",
+    "text": "The menu\n\n\n\nAnalysis\nWhat it does\n\n\n\n\nSimulated study\nscenario → outcome → design → dataset, data dictionary, descriptives, causal diagram, answer key\n\n\nCompare designs\none scenario under several designs from the same population: estimates with 95% CI against the truth\n\n\nLibrary\nlists, checks, explores and exports the scenarios; reads custom libraries (YAML, Excel, JSON)\n\n\nDerive scenario\nestimates a scenario from a real dataset, to simulate studies like it\n\n\n\nTeaching with studysim has worked exercises (confounding, mediation and the Table 2 fallacy, non-collapsibility, biases built on purpose, chance against bias), Analysing the data in jamovi says which analysis and module fit each design, and How it works describes the simulation model.\nThe Epidemiology guide is a short course that uses the simulator for its examples: measures and models, observational designs, trials and other designs, causal diagrams (confounders, mediators, colliders, how to build a DAG and choose the adjustment) and mediation (direct and indirect effects).",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "Install",
+    "text": "Install\nDownload the .jmo for your computer from the Releases page (x64 for Intel/AMD, arm64 for Apple silicon) and in jamovi go to Modules (⊕) → Sideload. It needs jamovi 28.4 or newer and no other package. The interface and the built-in scenarios are in English, Spanish and Catalan; jamovi’s language setting chooses.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "index.html#the-scenarios",
+    "href": "index.html#the-scenarios",
+    "title": "studysim: simulated medical studies for teaching",
+    "section": "The scenarios",
+    "text": "The scenarios\nThe module ships with 65 scenarios across 21 clinical domains (dentistry and podiatry among them), most of them replicating a real study from its open data or its published tables, with several scenarios for every design. The scenario catalogue explains how they were made and lets you filter them by domain, design, outcome and teaching topic.",
+    "crumbs": [
+      "studysim: simulated medical studies for teaching"
+    ]
+  },
+  {
+    "objectID": "guide-measures.html",
+    "href": "guide-measures.html",
+    "title": "Measures and models",
+    "section": "",
+    "text": "Every analysis in this guide goes through the same steps. A question (“does smoking cause coronary heart disease, and by how much?”) becomes an estimand: a precise quantity, such as the risk ratio of a 10-year coronary event for smokers against non-smokers with the same age and sex. A design gathers data that can estimate it. A causal diagram says which variables to adjust for. A model turns the data into a number, and the number is interpreted on the scale of the estimand. This page covers the last two steps: the measures epidemiology uses and how the coefficients of its models are read. The next pages cover the designs, the diagrams and mediation (Lash et al. 2021; Hernán and Robins 2020).",
+    "crumbs": [
+      "Epidemiology guide",
+      "Measures and models"
+    ]
+  },
+  {
+    "objectID": "guide-measures.html#measures-of-frequency",
+    "href": "guide-measures.html#measures-of-frequency",
+    "title": "Measures and models",
+    "section": "Measures of frequency",
+    "text": "Measures of frequency\n\n\n\n\n\n\n\n\n\nmeasure\ndefinition\nexample\ntypical design\n\n\n\n\nPrevalence\nproportion of a population that has the condition at a time\n18% of adults have hypertension\ncross-sectional\n\n\nRisk (cumulative incidence)\nproportion of people free of the outcome at the start who develop it over a period\n8% have a coronary event in 10 years\ncohort, trial\n\n\nRate (incidence density)\nnew cases per unit of person-time\n2.5 breast cancers per 1000 woman-years\ncohort\n\n\nOdds\nprobability / (1 − probability)\na risk of 0.2 is odds of 0.25\ncase-control (only odds ratios)\n\n\nHazard\ninstantaneous rate among those still at risk at a given time\n\ncohort with times (Cox)\n\n\n\nPrevalence mixes how often a condition starts and how long it lasts: in a steady population, prevalence ≈ incidence rate × mean duration. A treatment that keeps patients alive longer raises prevalence. A risk always refers to a period (“10-year risk”), and it requires everyone to be followed for that period or a method that handles censoring (Kaplan-Meier). When another event can prevent the outcome (death from other causes before a cancer relapse), the risk of the outcome is a cumulative incidence in the presence of a competing event. One minus Kaplan-Meier, which censors the competing deaths, overstates it.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Measures and models"
+    ]
+  },
+  {
+    "objectID": "guide-measures.html#measures-of-association",
+    "href": "guide-measures.html#measures-of-association",
+    "title": "Measures and models",
+    "section": "Measures of association",
+    "text": "Measures of association\n\n\n\n\n\n\n\n\nmeasure\ndefinition\nestimated by\n\n\n\n\nRisk difference (RD)\nrisk1 − risk0\ncohort, trial (2×2 table, binomial model with identity link)\n\n\nNumber needed to treat (NNT)\n1 / |RD|\ntrial\n\n\nRisk ratio (RR)\nrisk1 / risk0\ncohort, trial, cross-sectional (prevalence ratio)\n\n\nRate ratio (IRR)\nrate1 / rate0\ncohort (Poisson regression with log person-time as offset)\n\n\nHazard ratio (HR)\nhazard1 / hazard0, assumed constant over time\ncohort, trial (Cox regression)\n\n\nOdds ratio (OR)\nodds1 / odds0\nany design; the only one a case-control study gives\n\n\nMean difference\nmean1 − mean0\nlinear regression\n\n\nRatio of geometric means\nexp(mean of log1 − mean of log0)\nlinear regression of a log outcome\n\n\n\nDifference measures say how many people are affected, and that is what decisions need. Ratio measures say how strong the association is, and they are usually more stable across populations with different baseline risks. Report both when you can: a risk ratio of 2 means 10 extra cases per 1000 people if the baseline risk is 1%, and 200 if it is 20%.\n\nThe odds ratio is not a risk ratio\nThe odds ratio approaches the risk ratio only when the outcome is rare (Figure 2). A case-control study of a rare disease therefore estimates the risk (or rate) ratio. A cross-sectional study of a common condition analysed with logistic regression reports odds ratios that look much stronger than the prevalence ratios.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2: The odds ratio for a fixed risk ratio (dashed lines), by the risk in the unexposed: equal when the outcome is rare, ever larger as it becomes common.\n\n\n\n\n\nConditional and marginal: non-collapsibility\nThe odds ratio and the hazard ratio have a property that surprises many people. Suppose a treatment multiplies the odds by 3 in every subgroup of patients and the subgroups are perfectly balanced between the arms, so nothing is confounded. The odds ratio of the whole trial is still smaller than 3 (Greenland et al. 1999). Risk differences and risk ratios do not behave this way.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nrisk, control\nrisk, treated\nOR\nRR\nRD\n\n\n\n\nlow risk\n0.10\n0.250\n3.00\n2.50\n0.150\n\n\nhigh risk\n0.60\n0.818\n3.00\n1.36\n0.218\n\n\nwhole population (half each)\n0.35\n0.534\n2.13\n1.53\n0.184\n\n\n\n\n\nBoth subgroups have an odds ratio of 3, and the whole population has 2.13. Neither number is wrong: they answer different questions. The conditional odds ratio is the effect for a patient with given characteristics; the marginal one is the effect on the population. In a trial the crude analysis estimates the marginal effect and an analysis adjusted for prognostic variables the conditional one, which is further from 1. studysim generates data with conditional effects, and its answer key shows both for trials (absolute effects in the trial).\n\n\n\n\n\n\n\n\n\n\nValue\n\n\n\n\nRisk: placebo\n0.1700\n\n\nRisk: indomethacin\n0.0896\n\n\nRisk difference, indomethacin vs placebo\n-0.0806\n\n\nNumber needed to treat for one event fewer, indomethacin vs placebo\n12.4000\n\n\nRisk ratio, indomethacin vs placebo\n0.5260\n\n\nOdds ratio, marginal (population), indomethacin vs placebo\n0.4800\n\n\nOdds ratio, conditional (true model), indomethacin vs placebo\n0.4700",
+    "crumbs": [
+      "Epidemiology guide",
+      "Measures and models"
+    ]
+  },
+  {
+    "objectID": "guide-measures.html#models-and-how-to-read-their-coefficients",
+    "href": "guide-measures.html#models-and-how-to-read-their-coefficients",
+    "title": "Measures and models",
+    "section": "Models and how to read their coefficients",
+    "text": "Models and how to read their coefficients\n\n\n\n\n\n\n\n\n\noutcome\nmodel\nexp(β) or β is\njamovi\n\n\n\n\ncontinuous\nlinear regression\nβ: difference in the mean per unit of x\nRegression ▸ Linear Regression\n\n\ncontinuous, skewed\nlinear regression of log(y)\nexp(β): ratio of geometric means\nCompute log(y), then linear regression\n\n\nbinary\nlogistic regression\nodds ratio\nRegression ▸ Logistic Regression ▸ 2 Outcomes\n\n\nbinary, matched sets\nconditional logistic regression\nodds ratio within sets\ncondLogReg\n\n\ncount or rate\nPoisson (negative binomial) regression, log person-time as offset\nrate ratio\nGAMLj\n\n\ntime to event\nCox regression\nhazard ratio\nprognosis\n\n\n\nThe same rules apply to every model:\n\nA coefficient is the effect of its variable with the other variables in the model held fixed. It is a conditional effect. Whether it is the effect you want depends on which variables are in the model: the causal diagram decides that, not the model.\nPer unit. A coefficient for age is per year. A hazard ratio of 1.05 per year is 1.0510 = 1.63 per 10 years. Choose units that make sense: per 10 mmHg, per 5 kg/m², per standard deviation.\nPer level. A categorical variable gets one coefficient per level, each against the reference level. Changing the reference changes the numbers but not the model.\nLog scale. Logistic, Poisson and Cox coefficients are logarithms: exp(β) is the ratio, and effects of several variables multiply. A log-transformed exposure gives the effect per doubling (log2) or per tenfold increase (log10).\nInteraction. With a product term X × Z, the coefficient of X is the effect of X when Z is at its reference or zero, and the interaction coefficient is how much that effect changes per unit of Z. If zero is not a meaningful value of Z (a BMI of zero), centre Z first, or the main effects become meaningless. This is the problem studysim’s center: solves in its own scenarios.\nThe intercept is the outcome (or its log odds or log rate) when every variable is at zero or its reference: rarely of interest, and meaningless without centring.\nCategorising a continuous variable loses information and leaves residual confounding within the categories. It is useful for showing a shape (dose response), not for adjustment.\nSmall numbers. Logistic and Cox models need roughly ten events per parameter; with fewer, coefficients are unstable and biased away from the null (Peduzzi et al. 1996). studysim warns when a study falls short.\n\n\nEffect modification and interaction\nEffect modification means the effect of X differs between groups of Z: the risk ratio of BMI for breast cancer is below 1 before menopause and above 1 after it. Whether it appears depends on the scale: effects that are constant on the ratio scale differ on the difference scale whenever baseline risks differ, and vice versa. Report the effect within each level of the modifier, on both scales if possible. A modifier is not something to adjust away: it is a result. A causal diagram shows which variables cause which, not how their effects combine, so it cannot show effect modification.\n\n\nWhat studysim’s answer key reports\n\n\n\ncolumn\nestimand\n\n\n\n\nDirect (conditional)\nthe effect in the generating model, every other variable fixed\n\n\nTotal\nthe effect of changing the variable while its consequences change too, given the variables it does not cause (Causal diagrams)\n\n\nCrude\nthe association without adjustment\n\n\nAdjusted (all)\nthe conditional association given every measured variable\n\n\nAdjusted (DAG)\nthe association given the measured variables that the diagram says to adjust for\n\n\nAbsolute effects (trials)\nrisks per arm, RD, NNT, marginal and conditional OR or HR",
+    "crumbs": [
+      "Epidemiology guide",
+      "Measures and models"
+    ]
+  },
+  {
+    "objectID": "guide-measures.html#references",
+    "href": "guide-measures.html#references",
+    "title": "Measures and models",
+    "section": "References",
+    "text": "References\n\n\nGreenland, Sander, Judea Pearl, and James M. Robins. 1999. “Confounding and Collapsibility in Causal Inference.” Statistical Science 14 (1). https://doi.org/10.1214/ss/1009211805.\n\n\nHernán, Miguel A., and James M. Robins. 2020. Causal Inference: What If. Chapman & Hall/CRC. https://miguelhernan.org/whatifbook.\n\n\nLash, Timothy L., Tyler J. VanderWeele, Sebastien Haneuse, and Kenneth J. Rothman. 2021. Modern Epidemiology. 4th ed. Wolters Kluwer.\n\n\nPeduzzi, Peter, John Concato, Elizabeth Kemper, Theodore R. Holford, and Alvan R. Feinstein. 1996. “A Simulation Study of the Number of Events Per Variable in Logistic Regression Analysis.” Journal of Clinical Epidemiology 49 (12): 1373–79. https://doi.org/10.1016/s0895-4356(96)00236-3.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Measures and models"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html",
+    "href": "guide-mediation.html",
+    "title": "Direct and indirect effects: mediation",
+    "section": "",
+    "text": "An exposure often acts through intermediate variables: obesity raises blood pressure, which raises the risk of a heart attack. Mediation analysis splits the total effect of an exposure into the part that goes through a mediator (the indirect effect) and the rest (the direct effect). The aim is to explain how an exposure works, or what share of its effect an intervention on the mediator could remove. It needs more assumptions than estimating a total effect, and those assumptions are where most mediation analyses fail (VanderWeele 2016; Hernán and Robins 2020).",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html#effects-to-estimate",
+    "href": "guide-mediation.html#effects-to-estimate",
+    "title": "Direct and indirect effects: mediation",
+    "section": "Effects to estimate",
+    "text": "Effects to estimate\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 1: Left, the total effect c of X on Y. Right, the same effect split into the path through the mediator M (a, from X to M, and b, from M to Y given X) and the direct path c′ (from X to Y given M).\n\n\n\n\n\n\n\n\n\n\n\neffect\nquestion\ndefinition\n\n\n\n\nTotal effect (TE)\nwhat if X changed?\ncompares Y with X and without X, M following X\n\n\nControlled direct effect (CDE)\nwhat if X changed and M were fixed at a value m for everyone?\ndepends on m when X and M interact\n\n\nNatural direct effect (NDE)\nwhat if X changed but M stayed as it would be without X?\nthe effect not through M\n\n\nNatural indirect effect (NIE)\nwhat if X stayed, but M changed as X would change it?\nthe effect through M\n\n\n\nOn the difference scale TE = NDE + NIE, and the proportion mediated is NIE / TE. In linear models without an X × M interaction the classic approach of Baron and Kenny (Baron and Kenny 1986) gives them directly:\n\nproduct method: NIE = a × b, NDE = c′;\ndifference method: NIE = c − c′.\n\nThe two agree for linear models of continuous outcomes. For binary and survival outcomes (logistic, Cox) they do not, because odds and hazard ratios are non-collapsible: c − c′ then mixes mediation with the change of scale (Measures and models). With an X × M interaction, or with non-linear models, natural effects need the counterfactual definitions and software that implements them (Imai et al. 2010).",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html#the-assumptions",
+    "href": "guide-mediation.html#the-assumptions",
+    "title": "Direct and indirect effects: mediation",
+    "section": "The assumptions",
+    "text": "The assumptions\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2: Mediation needs every one of these confounders measured and adjusted for: C1 (exposure and outcome), C2 (mediator and outcome), C3 (exposure and mediator). L, a mediator-outcome confounder that the exposure itself affects, breaks the natural effects altogether.\n\n\n\nNatural direct and indirect effects can be estimated only if there is no unmeasured confounding of (VanderWeele 2016):\n\nthe exposure and the outcome (C1);\nthe mediator and the outcome (C2), even in a randomised trial, because the mediator is not randomised. This is the assumption most often broken;\nthe exposure and the mediator (C3);\nand no confounder of the mediator and the outcome is itself affected by the exposure (L).\n\nRandomising X removes C1 and C3, not C2. The adjustment sets of the two regressions differ: the model for M needs the X–M confounders, and the model for Y needs the X–Y and M–Y confounders.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html#example-1-full-mediation-continuous-outcome",
+    "href": "guide-mediation.html#example-1-full-mediation-continuous-outcome",
+    "title": "Direct and indirect effects: mediation",
+    "section": "Example 1: full mediation (continuous outcome)",
+    "text": "Example 1: full mediation (continuous outcome)\nFormoterol vs salbutamol in asthma, children aged 7 to 14. Peak expiratory flow (PEF) rises with age, but age has no effect of its own in the scenario: older children are taller, and height determines lung size. Age acts entirely through height.\n\n\n\n\n\n\n\n\n\n\n\nsimulated population (30,000)\na trial of 300: estimate (bootstrap 95% CI)\n\n\n\n\ntotal effect of age (c)\n13.03\n11.5 (8.0 to 15.1)\n\n\nage on height (a, cm per year)\n4.36\n4.3 (3.9 to 4.7)\n\n\nheight on PEF (b, L/min per cm)\n3.02\n3.44 (2.52 to 4.41)\n\n\ndirect effect of age (c’)\n-0.15\n-3.3 (-8.3 to 1.8)\n\n\nindirect effect (a × b)\n13.18\n14.8 (11.0 to 19.0)\n\n\n\n\n\nEach year of age adds 13 L/min of PEF. Given height, age adds nothing (-0.1): the indirect effect a × b = 13.2 is the whole effect. In a trial of 300 children the indirect effect is estimated with a bootstrap confidence interval, because a product of two estimates is not normally distributed.\nIn jamovi: open the trial’s data and run jAMM ▸ GLM Mediation Model with pef as dependent variable, height as mediator, age as covariate (and drug as factor), bootstrap confidence intervals; or medmod ▸ Mediation for a single mediator without covariates. Both fit linear models (with lavaan), so they need a continuous mediator and outcome.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html#example-2-partial-mediation-with-confounders-of-the-mediator",
+    "href": "guide-mediation.html#example-2-partial-mediation-with-confounders-of-the-mediator",
+    "title": "Direct and indirect effects: mediation",
+    "section": "Example 2: partial mediation, with confounders of the mediator",
+    "text": "Example 2: partial mediation, with confounders of the mediator\nBlood pressure in US adults, cross-sectional. People with a college education have lower systolic pressure, partly because they are less poor (the poverty ratio enters the outcome model) and partly for other reasons. Age and race affect education, poverty and blood pressure, so they confound both steps.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 3: Education and blood pressure (Blood pressure in US adults): age and race (adjusted for, double border) confound education, poverty and blood pressure.\n\n\n\n\n\n\n\n\n\nadjusted for age and race\nnot adjusted\n\n\n\n\ntotal\n-3.16 mmHg\n-5.26 mmHg\n\n\ndirect\n-2.50 mmHg\n-4.30 mmHg\n\n\nindirect (through poverty)\n-0.66 mmHg\n-0.95 mmHg\n\n\nproportion mediated\n21%\n18%\n\n\n\n\n\nMost of the effect of college education here is direct; poverty carries a small part. Without adjusting for age and race the total effect is confounded: older people have less education and higher pressure.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html#example-3-an-event-outcome-by-the-difference-method",
+    "href": "guide-mediation.html#example-3-an-event-outcome-by-the-difference-method",
+    "title": "Direct and indirect effects: mediation",
+    "section": "Example 3: an event outcome, by the difference method",
+    "text": "Example 3: an event outcome, by the difference method\nCoronary heart disease incidence: men have a higher hazard than women partly because they have lower HDL. jamovi’s mediation modules need a continuous outcome, so for a Cox model the usual approach is the difference method: the hazard ratio of sex before and after adding HDL, with the confounders of HDL and CHD (age, BMI) in both models.\n\n\n\n\n\n\n\n\n\n\nCox model\nHR of men, simulated cohort of 60,000\nstudysim’s truth\n\n\n\n\nsex, age, BMI (total effect)\n1.77\n1.76\n\n\nsex, age, BMI, HDL (direct effect)\n1.56\n1.60\n\n\n\n\n\nOn the log scale, (log 1.77 − log 1.56) / log 1.77 = 22% of the effect of sex goes through HDL. The approximation is reasonable here because coronary events are uncommon. With a common outcome the hazard ratio changes when a covariate is added even if it mediates nothing, so this share is not a mediated proportion. For binary or survival outcomes, estimate natural effects with the R package mediation (in jamovi, through the Rj editor) or with weighting methods.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html#a-checklist",
+    "href": "guide-mediation.html#a-checklist",
+    "title": "Direct and indirect effects: mediation",
+    "section": "A checklist",
+    "text": "A checklist\n\nWrite the diagram with the exposure, the mediator, the outcome and the confounders of all three pairs (Causal diagrams).\nMake sure the mediator happens after the exposure and before the outcome.\nAdjust the mediator model for exposure-mediator confounders, and the outcome model for exposure-outcome and mediator-outcome confounders.\nTest the exposure × mediator interaction; if present, report controlled direct effects at chosen values of M, or natural effects from software that allows the interaction.\nUse bootstrap confidence intervals for indirect effects.\nDiscuss unmeasured mediator-outcome confounding, which randomising the exposure does not remove, and run a sensitivity analysis.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html#software",
+    "href": "guide-mediation.html#software",
+    "title": "Direct and indirect effects: mediation",
+    "section": "Software",
+    "text": "Software\n\n\n\n\n\n\n\n\nsituation\njamovi\nR\n\n\n\n\ncontinuous M and Y, one mediator\nmedmod Mediation\nlm, lavaan\n\n\nseveral mediators, covariates, moderated mediation\njAMM GLM Mediation Model\nlavaan\n\n\nbinary or survival Y, X × M interaction\n(Rj)\nmediation, CMAverse",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "guide-mediation.html#references",
+    "href": "guide-mediation.html#references",
+    "title": "Direct and indirect effects: mediation",
+    "section": "References",
+    "text": "References\n\n\nBaron, Reuben M., and David A. Kenny. 1986. “The Moderator–Mediator Variable Distinction in Social Psychological Research: Conceptual, Strategic, and Statistical Considerations.” Journal of Personality and Social Psychology 51 (6): 1173–82. https://doi.org/10.1037/0022-3514.51.6.1173.\n\n\nHernán, Miguel A., and James M. Robins. 2020. Causal Inference: What If. Chapman & Hall/CRC. https://miguelhernan.org/whatifbook.\n\n\nImai, Kosuke, Luke Keele, and Dustin Tingley. 2010. “A General Approach to Causal Mediation Analysis.” Psychological Methods 15 (4): 309–34. https://doi.org/10.1037/a0020761.\n\n\nVanderWeele, Tyler J. 2016. “Mediation Analysis: A Practitioner’s Guide.” Annual Review of Public Health 37 (1): 17–32. https://doi.org/10.1146/annurev-publhealth-032315-021402.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Direct and indirect effects: mediation"
+    ]
+  },
+  {
+    "objectID": "library.html",
+    "href": "library.html",
+    "title": "The scenario library",
+    "section": "",
+    "text": "A library is a dictionary of shared variables plus scenarios, one clinical question each. The built-in one is in the module (inst/library/); teachers can write their own in YAML or Excel. The full format is in schema.md.",
+    "crumbs": [
+      "The scenario library"
+    ]
+  },
+  {
+    "objectID": "library.html#the-library-analysis",
+    "href": "library.html#the-library-analysis",
+    "title": "The scenario library",
+    "section": "The Library analysis",
+    "text": "The Library analysis\n\n\n\nSimulate ▸ Library: scenarios, check, and one scenario’s variables, effects and structure.\n\n\n\nBrowse… reads a custom library (.yaml, .xlsx, .json or a .zip of them); Library shown chooses built-in, custom or both.\nScenarios for design lists only the scenarios with an outcome that fits a design.\nCheck lists problems in plain language, located by scenario and field.\nExport library writes the library or one scenario as Excel, JSON or zipped YAML; Excel template gives a workbook with a worked example and the format.\nThe Simulated study pickers read custom libraries in JSON; export a YAML or Excel library as JSON here to use it there.",
+    "crumbs": [
+      "The scenario library"
+    ]
+  },
+  {
+    "objectID": "library.html#a-scenario-in-brief",
+    "href": "library.html#a-scenario-in-brief",
+    "title": "The scenario library",
+    "section": "A scenario in brief",
+    "text": "A scenario in brief\nid: breast_cancer_risk\nlabel: {en: Breast cancer risk factors, es: Factores de riesgo de cáncer de mama}\nvariables:\n  age: {from: dictionary, dist: \"uniform(35, 75)\"}\n  menarche: {type: continuous, dist: normal(12.6, 1.4), range: [9, 17], round: 0}\n  menopause:\n    type: binary\n    levels: [pre, post]\n    p: plogis((age - 51) / 1.5)          # rule: menopause depends on age\n  hrt:\n    type: binary\n    p: 0.25\n    levels: [never, ever]\n    only_if: menopause == \"post\"         # structural value\n    otherwise: never\nstructure:                                 # latent paths among variables\n  - [age, parity, 0.25]\noutcomes:\n  breast_cancer:\n    type: event\n    rate: 2.5/1000\n    designs: [case_control, matched_cc, cohort]\n    effects:\n      age: {HR: 1.04, per: 1}\n      bmi: {HR: 1.12, per: 5, by: {menopause: {pre: 0.93, post: 1.12}}}\nnull_variables: [education, coffee]\nteaching: {en: \"Age confounds parity and menopause...\", es: \"...\"}\n\nVariables: continuous (normal, log-normal, gamma, beta, uniform), counts (Poisson, negative binomial), binary, nominal, ordinal and genotypes.\nStructure and correlations among variables, and rules: a probability that depends on other variables, structural values (only_if/otherwise) and formulas for derived variables.\nOutcomes: binary (prevalence), events (rate, risk or median; Weibull shape), continuous (also on the log scale) and counts, each with conditional effects (OR, HR, RR, ratio, beta), effect modification (by:, centred at the population mean of the variable unless center: says otherwise) and interventions for trials; diagnostic markers with an AUC, a cutoff, a dependence on covariates (depends:) or on disease severity (severity_sd).\nTranslations: labels in several languages, and an i18n: section with the column names and category labels students see.\nA lock: typed in Teacher code before exporting, it locks the exported library; while it is loaded, the answer key, the true values and the effects need the same code (a deterrent: the file itself holds the parameters).",
+    "crumbs": [
+      "The scenario library"
     ]
   },
   {
@@ -174,7 +519,7 @@
     "href": "teaching.html#trials-absolute-effects-and-non-collapsibility",
     "title": "Teaching with studysim",
     "section": "Trials: absolute effects and non-collapsibility",
-    "text": "Trials: absolute effects and non-collapsibility\nIndomethacin after ERCP, randomised trial. The key gives the risk in each arm, the risk difference and the number needed to treat. The odds ratio of the 2×2 table (the marginal one) is closer to 1 than the conditional odds ratio the data were generated with, although randomisation leaves no confounding: adjusting for prognostic variables moves it towards the conditional one.\n\n\n\n\n\n\n\n\n\n\nValue\n\n\n\n\nRisk: placebo\n0.1700\n\n\nRisk: indomethacin\n0.0896\n\n\nRisk difference, indomethacin vs placebo\n-0.0806\n\n\nNumber needed to treat for one event fewer, indomethacin vs placebo\n12.4000\n\n\nRisk ratio, indomethacin vs placebo\n0.5260\n\n\nOdds ratio, marginal (population), indomethacin vs placebo\n0.4800\n\n\nOdds ratio, conditional (true model), indomethacin vs placebo\n0.4700",
+    "text": "Trials: absolute effects and non-collapsibility\nRectal indomethacin to prevent post-ERCP pancreatitis, randomised trial. The key gives the risk in each arm, the risk difference and the number needed to treat. The odds ratio of the 2×2 table (the marginal one) is closer to 1 than the conditional odds ratio the data were generated with, although randomisation leaves no confounding: adjusting for prognostic variables moves it towards the conditional one.\n\n\n\n\n\n\n\n\n\n\nValue\n\n\n\n\nRisk: placebo\n0.1700\n\n\nRisk: indomethacin\n0.0896\n\n\nRisk difference, indomethacin vs placebo\n-0.0806\n\n\nNumber needed to treat for one event fewer, indomethacin vs placebo\n12.4000\n\n\nRisk ratio, indomethacin vs placebo\n0.5260\n\n\nOdds ratio, marginal (population), indomethacin vs placebo\n0.4800\n\n\nOdds ratio, conditional (true model), indomethacin vs placebo\n0.4700",
     "crumbs": [
       "Teaching with studysim"
     ]
@@ -214,7 +559,7 @@
     "href": "teaching.html#trials-parallel-and-crossover",
     "title": "Teaching with studysim",
     "section": "Trials: parallel and crossover",
-    "text": "Trials: parallel and crossover\nAntihypertensive drug vs placebo: in the parallel trial the unadjusted difference is unbiased, and adjusting for baseline pressure (ANCOVA) narrows the interval. In the 2×2 crossover each patient is their own control: 30 patients give a precise estimate, and the period effect must be in the model.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\nCrude\nAdjusted (all)\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.99\n-8.97\nbeta\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\nCrude\nAdjusted (all)\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.92\n-8.92\nbeta\n\n\n\n\n\nBioequivalence: AUC and Cmax are log-normal; analyse log values and back-transform to a geometric mean ratio, then check whether its 90% CI lies within 0.80–1.25.",
+    "text": "Trials: parallel and crossover\nAntihypertensive drug vs placebo: in the parallel trial the unadjusted difference is unbiased, and adjusting for baseline pressure (ANCOVA) narrows the interval. In the 2×2 crossover each patient is their own control: 30 patients give a precise estimate, and the period effect must be in the model.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\nCrude\nAdjusted (all)\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.99\n-8.97\nbeta\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\nCrude\nAdjusted (all)\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.92\n-8.92\nbeta\n\n\n\n\n\nBioequivalence of two formulations: AUC and Cmax are log-normal; analyse log values and back-transform to a geometric mean ratio, then check whether its 90% CI lies within 0.80–1.25.",
     "crumbs": [
       "Teaching with studysim"
     ]
@@ -230,143 +575,271 @@
     ]
   },
   {
-    "objectID": "library.html",
-    "href": "library.html",
-    "title": "The scenario library",
+    "objectID": "guide-dags.html",
+    "href": "guide-dags.html",
+    "title": "Causal diagrams",
     "section": "",
-    "text": "A library is a dictionary of shared variables plus scenarios, one clinical question each. The built-in one is in the module (inst/library/); teachers can write their own in YAML or Excel. The full format is in schema.md.",
+    "text": "A regression model adjusts for whatever variables it is given, and it cannot tell a confounder from a mediator or a collider. That knowledge comes from outside the data: what causes what, and in what order. A directed acyclic graph (DAG) writes it down, so that the choice of adjustment variables follows from explicit assumptions that others can check and dispute (Greenland et al. 1999; Shrier and Platt 2008; Hernán and Robins 2020).",
     "crumbs": [
-      "The scenario library"
+      "Epidemiology guide",
+      "Causal diagrams"
     ]
   },
   {
-    "objectID": "library.html#the-library-analysis",
-    "href": "library.html#the-library-analysis",
-    "title": "The scenario library",
-    "section": "The Library analysis",
-    "text": "The Library analysis\n\n\n\nSimulate ▸ Library: scenarios, check, and one scenario’s variables, effects and structure.\n\n\n\nBrowse… reads a custom library (.yaml, .xlsx, .json or a .zip of them); Library shown chooses built-in, custom or both.\nScenarios for design lists only the scenarios with an outcome that fits a design.\nCheck lists problems in plain language, located by scenario and field.\nExport library writes the library or one scenario as Excel, JSON or zipped YAML; Excel template gives a workbook with a worked example and the format.\nThe Simulated study pickers read custom libraries in JSON; export a YAML or Excel library as JSON here to use it there.",
+    "objectID": "guide-dags.html#reading-a-dag",
+    "href": "guide-dags.html#reading-a-dag",
+    "title": "Causal diagrams",
+    "section": "Reading a DAG",
+    "text": "Reading a DAG\n\nEach node is a variable; each arrow is a direct causal effect, in the direction of time.\nThe absence of an arrow is the strong assumption: no direct effect.\nAcyclic: no variable causes itself through a loop. A variable measured at several times appears as several nodes.\nEvery common cause of two variables in the diagram must be in it, measured or not. Unmeasured ones are drawn too (dashed here).\nA path is any sequence of arrows, whatever their direction. A causal path from X to Y follows the arrows; a backdoor path starts with an arrow into X.\nA collider on a path is a node where two arrowheads meet (→ C ←).\n\nAssociations travel along paths. A path is open (it transmits association) unless it contains a collider, or a non-collider that has been adjusted for. Adjusting for a collider opens the path through it.",
     "crumbs": [
-      "The scenario library"
+      "Epidemiology guide",
+      "Causal diagrams"
     ]
   },
   {
-    "objectID": "library.html#a-scenario-in-brief",
-    "href": "library.html#a-scenario-in-brief",
-    "title": "The scenario library",
-    "section": "A scenario in brief",
-    "text": "A scenario in brief\nid: breast_cancer_risk\nlabel: {en: Breast cancer risk factors, es: Factores de riesgo de cáncer de mama}\nvariables:\n  age: {from: dictionary, dist: \"uniform(35, 75)\"}\n  menarche: {type: continuous, dist: normal(12.6, 1.4), range: [9, 17], round: 0}\n  menopause:\n    type: binary\n    levels: [pre, post]\n    p: plogis((age - 51) / 1.5)          # rule: menopause depends on age\n  hrt:\n    type: binary\n    p: 0.25\n    levels: [never, ever]\n    only_if: menopause == \"post\"         # structural value\n    otherwise: never\nstructure:                                 # latent paths among variables\n  - [age, parity, 0.25]\noutcomes:\n  breast_cancer:\n    type: event\n    rate: 2.5/1000\n    designs: [case_control, matched_cc, cohort]\n    effects:\n      age: {HR: 1.04, per: 1}\n      bmi: {HR: 1.12, per: 5, by: {menopause: {pre: 0.93, post: 1.12}}}\nnull_variables: [education, coffee]\nteaching: {en: \"Age confounds parity and menopause...\", es: \"...\"}\n\nVariables: continuous (normal, log-normal, gamma, beta, uniform), counts (Poisson, negative binomial), binary, nominal, ordinal and genotypes.\nStructure and correlations among variables, and rules: a probability that depends on other variables, structural values (only_if/otherwise) and formulas for derived variables.\nOutcomes: binary (prevalence), events (rate, risk or median; Weibull shape), continuous (also on the log scale) and counts, each with conditional effects (OR, HR, RR, ratio, beta), effect modification (by:, centred at the population mean of the variable unless center: says otherwise) and interventions for trials; diagnostic markers with an AUC, a cutoff, a dependence on covariates (depends:) or on disease severity (severity_sd).\nTranslations: labels in several languages, and an i18n: section with the column names and category labels students see.\nA lock: typed in Teacher code before exporting, it locks the exported library; while it is loaded, the answer key, the true values and the effects need the same code (a deterrent: the file itself holds the parameters).",
+    "objectID": "guide-dags.html#the-kinds-of-variables",
+    "href": "guide-dags.html#the-kinds-of-variables",
+    "title": "Causal diagrams",
+    "section": "The kinds of variables",
+    "text": "The kinds of variables\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 1: The roles a third variable can play for the effect of an exposure X on an outcome Y. Dashed boxes are unmeasured.\n\n\n\n\n\n\nvariable\nwhat it is\nadjust for it to estimate the total effect of X?\n\n\n\n\nConfounder\na common cause of X and Y (or lies on a backdoor path)\nyes: it opens a backdoor path X ← C → Y\n\n\nMediator\ncaused by X, causes Y\nno: it carries part of the effect; adjusting gives the direct effect, which is a different question (Mediation)\n\n\nCollider\ncaused by X and by Y (or by their causes)\nno: adjusting, stratifying or selecting on it creates an association\n\n\nInstrument\ncauses X, affects Y only through X\nno: it adds no protection and inflates the variance; with unmeasured confounding it amplifies the bias\n\n\nPrecision variable\ncauses Y, unrelated to X\noptional: it narrows confidence intervals (linear models) and changes OR/HR to their conditional value\n\n\nDescendant of Y\ncaused by the outcome\nno: it acts as a collider\n\n\nEffect modifier\nthe effect of X differs across its levels\na result to report by level, not something to adjust away; a DAG does not show it\n\n\n\nThe M-bias panel shows the subtle case. B is associated with both X and Y, so the old “associated with exposure and outcome” rule would make it a confounder. But B is a collider of two unmeasured causes, and adjusting for it opens the path X ← U1 → B ← U2 → Y. Only the diagram tells the two situations apart.",
     "crumbs": [
-      "The scenario library"
+      "Epidemiology guide",
+      "Causal diagrams"
     ]
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "studysim: simulated medical studies for teaching",
+    "objectID": "guide-dags.html#the-three-basic-structures-in-simulated-data",
+    "href": "guide-dags.html#the-three-basic-structures-in-simulated-data",
+    "title": "Causal diagrams",
+    "section": "The three basic structures in simulated data",
+    "text": "The three basic structures in simulated data\nThe same simulated population, analysed three ways.\nConfounding (Coronary heart disease incidence, cohort): coffee has no effect, but smokers drink more coffee. The crude hazard ratio of coffee is above 1; adjusting for smoking removes it.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\ntotal\nCrude\nAdjusted (all)\nAdjusted (DAG)\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.05\n1.07\n1.07\n1.07\n1.07\nHR\n\n\nsex\nmale vs female\nHR\n1.60\n1.76\n1.77\n1.79\n1.79\nHR\n\n\nsmoking\nformer vs never\nHR\n1.20\n1.21\n1.21\n1.20\n1.21\nHR\n\n\nsmoking\ncurrent vs never\nHR\n1.60\n1.81\n1.76\n1.75\n1.78\nHR\n\n\ncoffee\nper 1 cups/day\nHR\n1.00\n1.00\n1.08\n1.01\n1.01\nHR\n\n\n\n\n\nMediation: sex acts on coronary disease partly through HDL. Adjusting for HDL gives the direct effect (1.60). Leaving it out gives the total effect (1.76). Neither is wrong; they answer different questions.\nCollider (Lung cancer and smoking, case-control, Biases ▸ Add a variable caused by outcome and exposure): admitted is caused by lung cancer and by smoking. A model that includes it (Adjusted (all)) underestimates the effect of smoking; the diagram’s set leaves it out (Adjusted (DAG)).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\ntotal\nCrude\nAdjusted (all)\nAdjusted (DAG)\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.09\n1.09\n1.09\n1.09\n1.09\nOR\n\n\nsex\nmale vs female\nHR\n1.20\n2.46\n2.70\n1.25\n2.72\nOR\n\n\nsmoking\nformer vs never\nHR\n4.00\n4.00\n4.06\n3.20\n3.87\nOR\n\n\nsmoking\n1-14 vs never\nHR\n7.70\n7.70\n8.09\n6.20\n7.63\nOR\n\n\nsmoking\n15-24 vs never\nHR\n13.70\n13.70\n14.73\n11.09\n13.44\nOR\n\n\nsmoking\n25+ vs never\nHR\n24.50\n24.50\n28.28\n20.98\n25.15\nOR",
+    "crumbs": [
+      "Epidemiology guide",
+      "Causal diagrams"
+    ]
+  },
+  {
+    "objectID": "guide-dags.html#building-a-dag-for-a-study-step-by-step",
+    "href": "guide-dags.html#building-a-dag-for-a-study-step-by-step",
+    "title": "Causal diagrams",
+    "section": "Building a DAG for a study, step by step",
+    "text": "Building a DAG for a study, step by step\nThe question: what is the effect of body mass index on the 10-year risk of coronary heart disease?\n\nDefine the exposure, the outcome and time zero: BMI at entry, a coronary event in 10 years, follow-up from entry.\nAdd the causes of the outcome you know of, measured or not: age, sex, blood pressure, cholesterol, HDL, diabetes, smoking.\nAdd the causes of the exposure: age, physical activity; and the causes of those, such as education, which also affects smoking.\nAdd every common cause of two variables already in the diagram, measured or not. A missing common cause is the most common error.\nOrder by time, left to right, and decide for each arrow whether it can exist. BMI raises blood pressure, lowers HDL and causes diabetes: those three come after BMI and are mediators of its effect.\nAdd how people got into the study and how variables were measured, when these could depend on exposure or outcome (selection, missing data, misclassification).\nFind the backdoor paths from BMI to coronary disease and a set of measured variables that blocks all of them without containing a descendant of BMI (the backdoor criterion). Software does this: dagitty.net or the R package dagitty (Textor et al. 2016).\nCheck what you assumed: draw the alternative diagrams that colleagues would defend, and see whether the adjustment set changes.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2: The causal diagram of Coronary heart disease incidence built step by step for the effect of BMI. Blood pressure, HDL and diabetes are mediators. Age is a confounder, and physical activity (or education) blocks the backdoor path BMI ← activity ← education → smoking → CHD. Sex and cholesterol only affect the outcome (precision variables); coffee is irrelevant.\n\n\n\nThe backdoor paths from BMI are BMI ← age → … → CHD and BMI ← activity ← education → smoking → CHD. Adjusting for {age, activity} blocks both, and so does {age, education}. Adding sex and cholesterol is harmless. Adding blood pressure, HDL or diabetes is not: they are on the causal path, so the model would estimate only the part of BMI’s effect that does not go through them.\n\n\n\n\n\nadjusted for\nHR per 5 kg/m2\n\n\n\n\nnone (crude)\n1.42\n\n\nage, physical activity (minimal set)\n1.34\n\n\nage, education (minimal set)\n1.34\n\n\nevery variable BMI does not cause\n1.35\n\n\neverything, mediators included\n1.12\n\n\n\n\n\nIn a simulated cohort of 60,000, every valid set gives about the true total effect, a hazard ratio of 1.33 per 5 kg/m². Adjusting for the mediators gives the direct effect, 1.1, which leaves out the part of BMI’s harm that works by raising blood pressure, lowering HDL and causing diabetes. The crude estimate is confounded.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Causal diagrams"
+    ]
+  },
+  {
+    "objectID": "guide-dags.html#the-table-2-fallacy",
+    "href": "guide-dags.html#the-table-2-fallacy",
+    "title": "Causal diagrams",
+    "section": "The Table 2 fallacy",
+    "text": "The Table 2 fallacy\nPapers often show one multivariable model with a coefficient for every variable (“Table 2”) and interpret each as that variable’s effect. Each coefficient is adjusted for all the others, including that variable’s mediators, and its confounders may be missing. Only the coefficient of the exposure the model was built for has the meaning intended (Westreich and Greenland 2013). In the CHD model with every variable, age’s coefficient is its direct effect (net of blood pressure, cholesterol and diabetes), and education seems to do nothing. In fact education acts through smoking and activity. studysim’s answer key shows both columns:\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\ntotal\nCrude\nAdjusted (all)\nAdjusted (DAG)\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.05\n1.07\n1.07\n1.05\n1.07\nHR\n\n\nsex\nmale vs female\nHR\n1.60\n1.76\n1.77\n1.61\n1.80\nHR\n\n\neducation\nsecondary vs primary\nHR\n1.00\n0.94\n0.90\n0.96\n0.90\nHR\n\n\neducation\nuniversity vs primary\nHR\n1.00\n0.90\n0.89\n1.00\n0.88\nHR\n\n\nphysical_activity\nper 1 MET-h/week\nHR\n1.00\n0.99\n0.99\n1.00\n0.99\nHR\n\n\nsmoking\nformer vs never\nHR\n1.20\n1.21\n1.21\n1.20\n1.20\nHR\n\n\nsmoking\ncurrent vs never\nHR\n1.60\n1.81\n1.76\n1.79\n1.79\nHR\n\n\nbmi\nper 1 kg/m2\nHR\n1.02\n1.06\n1.07\n1.02\n1.06\nHR\n\n\nsbp\nper 10 mmHg\nHR\n1.18\n1.18\n1.34\n1.17\n1.17\nHR\n\n\nhdl\nper 1 mmol/L\nHR\n0.60\n0.60\n0.41\n0.60\n0.60\nHR\n\n\ndiabetes\nyes vs no\nHR\n1.80\n1.80\n2.94\n1.89\n1.89\nHR\n\n\n\n\n\nEach exposure needs its own adjustment set, and often its own model.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Causal diagrams"
+    ]
+  },
+  {
+    "objectID": "guide-dags.html#selection-bias-is-conditioning-on-a-collider",
+    "href": "guide-dags.html#selection-bias-is-conditioning-on-a-collider",
+    "title": "Causal diagrams",
+    "section": "Selection bias is conditioning on a collider",
+    "text": "Selection bias is conditioning on a collider\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 3: Selection as a collider (double border: the analysis is restricted to S). Left: hospital patients are admitted for the disease or for other conditions caused by smoking. Right: frail patients drop out more often when treated, and analysing only those followed links treatment and frailty.\n\n\n\nRestricting a study to a group of people is conditioning on whatever put them in it. When getting in depends on the exposure and on the outcome (or its causes), the selection node is a collider, and the study finds an association that does not exist in the population (Hernán et al. 2004). The same structure explains biased hospital controls, informative losses to follow-up and analyses of complete cases. studysim builds these on purpose (Biases). Two more problems are diagrammed the same way: measurement error, a measured X* caused by X, and immortal time, a treatment that can only start among those who survive.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Causal diagrams"
+    ]
+  },
+  {
+    "objectID": "guide-dags.html#choosing-the-adjustment-set-in-practice",
+    "href": "guide-dags.html#choosing-the-adjustment-set-in-practice",
+    "title": "Causal diagrams",
+    "section": "Choosing the adjustment set in practice",
+    "text": "Choosing the adjustment set in practice\nWhen the full diagram is uncertain, a practical rule (VanderWeele 2019):\n\nAdjust for every measured variable that causes the exposure, the outcome or both (pre-exposure).\nLeave out variables known to be instruments (they cause the exposure only).\nAdd good proxies of unmeasured common causes.\nNever adjust for something caused by the exposure (a mediator) when the question is the total effect, nor for consequences of the outcome.\n\nThen check: with how many events per parameter will the model be fitted? A large adjustment set in a small study is unstable (Measures and models). Prefer the smallest valid set, plus strong predictors of the outcome.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 4: A rough path to an adjustment set for a total effect: variables that precede the exposure and cause it or the outcome are adjusted for, except pure instruments; variables caused by the exposure or by the outcome are not.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Causal diagrams"
+    ]
+  },
+  {
+    "objectID": "guide-dags.html#effect-modification-is-not-in-the-diagram",
+    "href": "guide-dags.html#effect-modification-is-not-in-the-diagram",
+    "title": "Causal diagrams",
+    "section": "Effect modification is not in the diagram",
+    "text": "Effect modification is not in the diagram\nA DAG shows which variables cause which, not how their effects combine. Two variables with arrows into Y may act additively, multiplicatively or only together, and the diagram looks the same. Effect modification is a feature of the effect of X, reported within levels of the modifier (Measures and models).",
+    "crumbs": [
+      "Epidemiology guide",
+      "Causal diagrams"
+    ]
+  },
+  {
+    "objectID": "guide-dags.html#exercises-with-studysim",
+    "href": "guide-dags.html#exercises-with-studysim",
+    "title": "Causal diagrams",
+    "section": "Exercises with studysim",
+    "text": "Exercises with studysim\n\nCoronary heart disease incidence, cohort, all variables measured. Fit the Cox model for BMI with {age, physical activity}, then with every variable. Compare with True (total), Adjusted (DAG) and Direct (conditional).\nUntick physical activity and education: which backdoor path is left open? How large is the residual confounding?\nLung cancer and smoking, case-control, tick smoking under Exposure and add the collider. Draw the DAG with admitted and explain why adjusting for it underestimates the effect.\nDraw the DAG of a scenario from the catalogue from its teaching note, then switch on Causal diagram and compare.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Causal diagrams"
+    ]
+  },
+  {
+    "objectID": "guide-dags.html#references",
+    "href": "guide-dags.html#references",
+    "title": "Causal diagrams",
+    "section": "References",
+    "text": "References\n\n\nGreenland, Sander, Judea Pearl, and James M. Robins. 1999. “Causal Diagrams for Epidemiologic Research.” Epidemiology 10 (1): 37–48. https://doi.org/10.1097/00001648-199901000-00008.\n\n\nHernán, Miguel A., Sonia Hernández-Díaz, and James M. Robins. 2004. “A Structural Approach to Selection Bias.” Epidemiology 15 (5): 615–25. https://doi.org/10.1097/01.ede.0000135174.63482.43.\n\n\nHernán, Miguel A., and James M. Robins. 2020. Causal Inference: What If. Chapman & Hall/CRC. https://miguelhernan.org/whatifbook.\n\n\nShrier, Ian, and Robert W Platt. 2008. “Reducing Bias Through Directed Acyclic Graphs.” BMC Medical Research Methodology 8 (1). https://doi.org/10.1186/1471-2288-8-70.\n\n\nTextor, Johannes, Benito van der Zander, Mark S. Gilthorpe, Maciej Liśkiewicz, and George T. H. Ellison. 2016. “Robust Causal Inference Using Directed Acyclic Graphs: The r Package ‘Dagitty’.” International Journal of Epidemiology, January, dyw341. https://doi.org/10.1093/ije/dyw341.\n\n\nVanderWeele, Tyler J. 2019. “Principles of Confounder Selection.” European Journal of Epidemiology 34 (3): 211–19. https://doi.org/10.1007/s10654-019-00494-6.\n\n\nWestreich, D., and S. Greenland. 2013. “The Table 2 Fallacy: Presenting and Interpreting Confounder and Modifier Coefficients.” American Journal of Epidemiology 177 (4): 292–98. https://doi.org/10.1093/aje/kws412.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Causal diagrams"
+    ]
+  },
+  {
+    "objectID": "guide-observational.html",
+    "href": "guide-observational.html",
+    "title": "Observational designs",
     "section": "",
-    "text": "studysim is a jamovi module that simulates plausible datasets of medical studies. A student picks a clinical scenario, one of its outcomes, a study design that fits it, a sample size and some realism, and gets a dataset in a new jamovi window. A hidden answer key gives the true parameters and what crude and adjusted analyses of that design should find.",
+    "text": "In an observational study the investigator does not decide who is exposed. Exposed and unexposed people may differ in other ways that affect the outcome (confounding), people may enter the study in ways related to exposure and outcome (selection bias), and exposure or outcome may be measured with error (information bias). Each design is a way of sampling a population. The analysis has to match that sampling, and the causal diagram says what to adjust for.",
     "crumbs": [
-      "studysim: simulated medical studies for teaching"
+      "Epidemiology guide",
+      "Observational designs"
     ]
   },
   {
-    "objectID": "index.html#why-simulated-studies",
-    "href": "index.html#why-simulated-studies",
-    "title": "studysim: simulated medical studies for teaching",
-    "section": "Why simulated studies",
-    "text": "Why simulated studies\nReal teaching datasets are few, and they never come with the truth. A simulated study does: confounders, mediators, effect modifiers and null variables are built in, so students can check whether their analysis recovers the effects, see why the crude estimate differs from the adjusted one, and what a design or a missing variable does to the answer. Every student can get a different dataset from the same assignment (a student key), and the teacher can regenerate any of them.",
+    "objectID": "guide-observational.html#cross-sectional-study",
+    "href": "guide-observational.html#cross-sectional-study",
+    "title": "Observational designs",
+    "section": "Cross-sectional study",
+    "text": "Cross-sectional study\nWhat it is. Exposure and outcome measured at the same time in a sample of a population: a health survey, a screening programme.\nEstimates. Prevalence, and prevalence ratios or odds ratios between groups.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 1: Episodes of a disease in a population (one line each). A survey sees only the episodes in progress on its day (bright): the long ones are overrepresented, so a prevalent sample mixes the causes of getting the disease with the causes of keeping it.\n\n\n\nStrengths. Quick and cheap; describes the burden of a condition and plans services; studies many exposures and outcomes at once.\nLimitations. Exposure and outcome are measured together, so their time order is often unknown (does low activity cause depression, or the reverse?). Prevalent cases over-represent long-lasting disease (Figure 1). Survivors only: people who died of the disease are missing.\nAnalysis. Prevalence with its confidence interval; logistic regression (odds ratios) or, better for common outcomes, a log-binomial or Poisson model with robust errors (prevalence ratios); linear regression for continuous outcomes.\nInterpretation. An odds ratio of 1.8 for diabetes with obesity means the odds of having diabetes are 1.8 times higher in obese people with the same values of the other variables in the model. It is not a risk of developing diabetes, and with a common outcome it overstates the prevalence ratio.\nIn studysim. Blood pressure in US adults or Diabetes in Pima women, cross-sectional design.",
     "crumbs": [
-      "studysim: simulated medical studies for teaching"
+      "Epidemiology guide",
+      "Observational designs"
     ]
   },
   {
-    "objectID": "index.html#the-menu",
-    "href": "index.html#the-menu",
-    "title": "studysim: simulated medical studies for teaching",
-    "section": "The menu",
-    "text": "The menu\n\n\n\nAnalysis\nWhat it does\n\n\n\n\nSimulated study\nscenario → outcome → design → dataset, data dictionary, descriptives, causal diagram, answer key\n\n\nCompare designs\none scenario under several designs from the same population: estimates with 95% CI against the truth\n\n\nLibrary\nlists, checks, explores and exports the scenarios; reads custom libraries (YAML, Excel, JSON)\n\n\nDerive scenario\nestimates a scenario from a real dataset, to simulate studies like it\n\n\n\nTeaching with studysim has worked exercises (confounding, mediation and the Table 2 fallacy, non-collapsibility, biases built on purpose, chance against bias), Analysing the data in jamovi says which analysis and module fit each design, and How it works describes the simulation model.",
+    "objectID": "guide-observational.html#ecological-study",
+    "href": "guide-observational.html#ecological-study",
+    "title": "Observational designs",
+    "section": "Ecological study",
+    "text": "Ecological study\nWhat it is. The units are groups (regions, countries, years), with only group summaries: the rate of the outcome, the mean or percentage of the exposure.\nEstimates. The association between group summaries. It is not the effect on individuals.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 2: The ecological fallacy. Across regions (open circles, dashed line) more exposure goes with more of the outcome; within every region (coloured lines) the individual association is the opposite. Something that differs between regions confounds the regional comparison.\n\n\n\nStrengths. Uses routine data (registries, censuses), so it is fast and cheap; studies exposures that only exist at group level (policies, water hardness, air pollution); good for generating hypotheses (Morgenstern 1995).\nLimitations. The ecological fallacy (Figure 2): a group-level association need not hold for individuals, because regions differ in many things at once (contextual confounding) and nobody knows who in a region was exposed and who fell ill. Group summaries also hide non-linear effects.\nAnalysis. Regression of the regional rate on regional means and percentages, weighted by population size (Poisson with the population as offset for counts).\nInterpretation. A coefficient per percentage point of smokers is the change in the regional rate between regions that differ by one point. It is not the risk ratio of smoking.\nIn studysim. Water hardness and mortality or Dietary fat and breast cancer, ecological design: compare the regional slope with the individual effect in the answer key.",
     "crumbs": [
-      "studysim: simulated medical studies for teaching"
+      "Epidemiology guide",
+      "Observational designs"
     ]
   },
   {
-    "objectID": "index.html#install",
-    "href": "index.html#install",
-    "title": "studysim: simulated medical studies for teaching",
-    "section": "Install",
-    "text": "Install\nDownload the .jmo for your computer from the Releases page (x64 for Intel/AMD, arm64 for Apple silicon) and in jamovi go to Modules (⊕) → Sideload. It needs jamovi 28.4 or newer and no other package. The interface and the built-in scenarios are in English, Spanish and Catalan; jamovi’s language setting chooses.",
+    "objectID": "guide-observational.html#cohort-study",
+    "href": "guide-observational.html#cohort-study",
+    "title": "Observational designs",
+    "section": "Cohort study",
+    "text": "Cohort study\nWhat it is. People free of the outcome are classified by exposure and followed until the outcome, a competing event, loss to follow-up or the end of the study.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 3: Twenty-six people of a simulated cohort (Coronary heart disease incidence), each followed from entry: a cross is a coronary event, a bar the end of follow-up without one (loss or end of the study).\n\n\n\nEstimates. Risks (cumulative incidence), rates and hazards in each exposure group, and their ratios and differences.\nStrengths. Exposure is measured before the outcome, so the time order is clear and recall cannot be biased by the outcome; several outcomes of one exposure can be studied; it gives absolute risks.\nLimitations. Large and long for rare or slow outcomes (the coronary cohort of 3,000 people has about 250 events in 10 years); losses to follow-up that depend on prognosis bias the results (informative censoring); confounding, as in any observational design; exposure can change during follow-up.\nAnalysis. Kaplan-Meier curves and the log-rank test; Cox regression for hazard ratios adjusted for confounders; Poisson regression of counts with log person-time as offset for rates; logistic regression only when everybody is followed for the same period.\nInterpretation. A hazard ratio of 1.6 for smoking means that at any time during follow-up, among those still free of the event, smokers have 1.6 times the event rate of non-smokers with the same values of the adjustment variables. It assumes the ratio is constant over time (check proportional hazards).\nTwo traps. A treatment that starts during follow-up must not be analysed as if it were present from entry: the treated had to survive until they started it (immortal time), and the treatment looks protective even when useless (Suissa 2008). Treat it as a time-dependent variable, or compare from a landmark time. And adjusting for something that happens after the exposure (a mediator, or a consequence of the outcome) changes the question; see Causal diagrams.\nIn studysim. Coronary heart disease incidence, cohort; Biases ▸ Informative loss to follow-up and Treatment started during follow-up.\n\nPrognosis and competing risks\nA prognosis study is a cohort of patients from diagnosis or treatment, recruited over several years (staggered entry), to describe survival and its predictors. When patients can die of something else before the outcome of interest, that death is a competing event. A Cox model that censors it estimates the cause-specific hazard ratio, a valid measure of the effect on the rate of the event. But 1 − Kaplan-Meier, which treats the deaths from other causes as if those patients could still have the event, overstates its cumulative incidence (Figure 4).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 4: Deaths from breast cancer in a simulated prognosis cohort with deaths from other causes (Breast cancer prognosis). 1 − Kaplan-Meier overstates the proportion who die of breast cancer, and the more so the more patients die of something else first.",
     "crumbs": [
-      "studysim: simulated medical studies for teaching"
+      "Epidemiology guide",
+      "Observational designs"
     ]
   },
   {
-    "objectID": "index.html#the-scenarios",
-    "href": "index.html#the-scenarios",
-    "title": "studysim: simulated medical studies for teaching",
-    "section": "The scenarios",
-    "text": "The scenarios\nThe module ships with 65 scenarios across 21 clinical domains (dentistry and podiatry among them), most of them replicating a real study from its open data or its published tables, with several scenarios for every design. The scenario catalogue explains how they were made and lets you filter them by domain, design, outcome and teaching topic.",
+    "objectID": "guide-observational.html#case-control-study",
+    "href": "guide-observational.html#case-control-study",
+    "title": "Observational designs",
+    "section": "Case-control study",
+    "text": "Case-control study\nWhat it is. All (or a random sample of) the cases of a disease arising in a source population, and a sample of people from the same population who are not cases (controls); exposure is then measured in both, usually looking back.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 5: A case-control study samples by outcome: all the cases (red) of the source population and a random sample of the non-cases. The proportion of cases in the study is set by the design, so it estimates odds ratios, not risks.\n\n\n\nEstimates. The exposure odds ratio, which equals the disease odds ratio. With controls sampled from those still at risk when each case occurs (risk-set sampling, as in a nested case-control study) it estimates the rate ratio, with no rare-disease assumption. Otherwise it approximates the risk ratio when the disease is rare.\nStrengths. Efficient for rare diseases and long latencies (a few hundred cases instead of a cohort of a hundred thousand); many exposures can be studied for one disease; fast.\nLimitations. Controls must come from the population that gave rise to the cases: hospital controls admitted for diseases related to the exposure distort the odds ratio (selection bias). Exposure recalled after the diagnosis can be reported differently by cases (recall bias). No absolute risks unless the sampling fractions are known.\nAnalysis. Logistic regression with case status as the outcome, adjusted for confounders. The intercept is meaningless (it reflects the sampling), but the odds ratios are valid.\nInterpretation. An odds ratio of 7.7 for smoking 1-14 cigarettes a day means the odds of lung cancer are 7.7 times higher than in never smokers with the same age and sex. For a rare disease it reads as the rate ratio.\nIn studysim. Lung cancer and smoking or Oesophageal cancer, case-control; Biases ▸ Recall bias and Controls selected by exposure, ticking smoking as the exposure.\n\nMatched case-control\nEach case gets controls with the same values of some confounders (age, sex, hospital). Matching makes the groups comparable on those variables and can increase efficiency, but it must be kept in the analysis: conditional logistic regression compares each case with its own controls. An ordinary logistic regression of matched data is biased towards the null, the effect of a matching variable cannot be estimated, and matching on something caused by the exposure (overmatching) removes part of the effect.\n\n\nNested case-control and case-cohort\nBoth sample a cohort whose follow-up is already recorded, to avoid measuring an expensive exposure (a biomarker in stored blood) on everybody.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFigure 6: Nested case-control: for each case (here the highlighted one), controls are drawn from its risk set, the people still followed and free of the event at the case’s event time (lines crossing the dashed line). A control can later become a case.\n\n\n\n\nNested case-control: for each case, a few controls from its risk set (Figure 6). Analysed with conditional logistic regression on the risk sets, it estimates the hazard ratio of the full cohort.\nCase-cohort (PRENTICE 1986): a random subcohort chosen at the start, plus every case. The same subcohort serves several outcomes. The analysis is a Cox model weighted for the sampling (Prentice or Lin-Ying weights) with a robust variance; it estimates the hazard ratio.\n\nIn studysim. Relapse of Wilms tumour: nested case-control and case-cohort from the same cohort.",
     "crumbs": [
-      "studysim: simulated medical studies for teaching"
+      "Epidemiology guide",
+      "Observational designs"
     ]
   },
   {
-    "objectID": "simulated-study.html",
-    "href": "simulated-study.html",
-    "title": "Simulated study",
+    "objectID": "guide-observational.html#what-to-remember",
+    "href": "guide-observational.html#what-to-remember",
+    "title": "Observational designs",
+    "section": "What to remember",
+    "text": "What to remember\n\n\n\n\n\n\n\n\ndesign\nbiggest threat\nprotect with\n\n\n\n\nCross-sectional\nunknown time order; prevalent cases\nincident cases, clear definitions of when exposure happened\n\n\nEcological\necological fallacy\nindividual data; use only for hypotheses\n\n\nCohort\nconfounding; informative loss to follow-up; immortal time\nadjustment chosen with a DAG; complete follow-up; time-dependent exposures\n\n\nCase-control\nselection of controls; recall bias\npopulation controls from the source population; records instead of recall\n\n\nMatched\nanalysis that ignores matching; overmatching\nconditional logistic regression; match only on confounders",
+    "crumbs": [
+      "Epidemiology guide",
+      "Observational designs"
+    ]
+  },
+  {
+    "objectID": "guide-observational.html#references",
+    "href": "guide-observational.html#references",
+    "title": "Observational designs",
+    "section": "References",
+    "text": "References\n\n\nMorgenstern, Hal. 1995. “Ecologic Studies in Epidemiology: Concepts, Principles, and Methods.” Annual Review of Public Health 16 (1): 61–81. https://doi.org/10.1146/annurev.pu.16.050195.000425.\n\n\nPRENTICE, R. L. 1986. “A Case-Cohort Design for Epidemiologic Cohort Studies and Disease Prevention Trials.” Biometrika 73 (1): 1–11. https://doi.org/10.1093/biomet/73.1.1.\n\n\nSuissa, S. 2008. “Immortal Time Bias in Pharmacoepidemiology.” American Journal of Epidemiology 167 (4): 492–99. https://doi.org/10.1093/aje/kwm324.",
+    "crumbs": [
+      "Epidemiology guide",
+      "Observational designs"
+    ]
+  },
+  {
+    "objectID": "derive.html",
+    "href": "derive.html",
+    "title": "Derive a scenario from data",
     "section": "",
-    "text": "Simulate ▸ Simulated study builds one study and opens its data.",
+    "text": "Simulate ▸ Derive scenario turns a real dataset into a scenario that simulates studies like it: the plasmode idea, without sharing the data.",
     "crumbs": [
-      "Simulated study"
+      "Derive a scenario from data"
     ]
   },
   {
-    "objectID": "simulated-study.html#scenario-outcome-and-design",
-    "href": "simulated-study.html#scenario-outcome-and-design",
-    "title": "Simulated study",
-    "section": "Scenario, outcome and design",
-    "text": "Scenario, outcome and design\n\n\n\nThe options panel.\n\n\n\nScenarios for design narrows the pickers to the scenarios (and outcomes) that fit one design, e.g. every scenario that can be run as a case-cohort study.\nScenario and Outcome come from the library (built-in, or a custom one read with Browse…), grouped by clinical domain.\nDesign lists only the designs that fit the outcome: an event in a population can be studied with a cohort or a case-control study (unmatched or matched), a patient outcome with a prognosis cohort, a treatment effect with a randomised trial or, for continuous outcomes, a 2×2 crossover.\nVariables: every variable is measured at start; untick one to leave it out of the dataset. It still acts on the outcome, which is how you teach residual confounding. The second column shows units or categories; the Exposure column marks the variable(s) the biases act on (below).\nForm groups a numeric variable: median split, tertiles, quartiles, quintiles (cut points from the sample, as a study would compute them) or cuts typed as values (18.5, 25, 30; with a decimal comma 18,5; 25) or percentiles (10%, 90%). Labels read Q2: 120–131 or G1: ≤25. log2 and log10 transform it instead (of x + 1 when there are zeros); the answer key then gives the effect per doubling or per 10-fold increase. scale divides it by the number typed in Cuts / scale (e.g. 10 for alcohol in units of 10 g/day, or 1 to undo the scenario’s default unit); the answer key labels the contrast per 10 g/day and re-expresses the true effect in that unit.\nSample size: people in the study (cases plus controls in a case-control study).\n\n\nDesign options, realism and output\n\n\n\nDesign options: only those of the chosen design are enabled.\n\n\n\nDesign options: controls per case; follow-up, loss to follow-up and recruitment period for cohorts and trials; subcohort, clusters and ICC, interaction, interim looks, visits and dropout, regions; period and carryover for a crossover; entry threshold for a before-after study; bias, slope and errors of two methods. An empty box keeps the scenario’s value (many scenarios set their own: 4 controls per case, 3 visits); the Study summary lists the values used. Repeated measures gives crossover and longitudinal trials one row per measurement (long, for mixed models) or one per person (wide, for a paired t-test or repeated-measures ANOVA).\nBiases builds a bias into the study, and into the answer key’s large study, so the key shows what the biased design estimates: recall bias and controls selected by exposure (case-control), a collider admitted caused by the outcome and the exposure, non-adherence to treatment related to prognosis (a column received; the key adds as-treated and per-protocol rows), informative loss to follow-up, a treatment started during follow-up with no effect (immortal time: treated, treatment_start), and in diagnostic studies spectrum (only the most severe diseased) and partial verification (only some test-negatives get the reference standard). Recall, selection and the collider need a ticked Exposure. See Teaching.\n\n\n\nBiases: only those of the chosen design are enabled.\n\n\nRealism:\n\nmissing values in the measured variables: completely at random, depending on the outcome, or depending on the missing value itself (MNAR);\nmeasurement error: the reliability of numeric measures and a share of misclassified categories, non-differential. The answer key uses the same error, so it shows how much the estimates are diluted and how much confounding remains;\ndata-entry errors (decimal slips, swapped digits, 999 codes) to find and clean, and extra variables with no effect (extra_01, …) for multiple testing and variable selection;\nlaboratory: values below a marker’s or a biomarker’s detection limit reported as missing, as LOD/2 or as the LOD; diagnostic markers run in batches, optionally with cases and controls in separate batches.\n\n\n\n\nRealism options.\n\n\nOutput: seed and student key (any text, e.g. a student ID: each key gives a different dataset from the same options; capitals and surrounding spaces are ignored), which tables to show, and Answer key report, which saves the whole key (true model, what the design should estimate, markers, diagram, notes) as one HTML page for the teacher. Export class takes the student keys of the class (separated by commas) and saves a zip with one CSV and one codebook per student, a register of keys and seeds, and one answer key report. A teacher code unlocks a library locked with it (see Teaching).\n\n\n\nSeveral outcomes in one study\nMost trials record several outcomes. Other outcomes of the scenario (same people) adds every other outcome of the scenario as columns for the same people (cross-sectional, cohort, prognosis and trial designs), and the answer key gets a block per outcome. Outcomes can be linked (correlated beyond their common causes, e.g. HbA1c and control below 7%), and overall survival can be built from a first event (an illness-death model: in the colon cancer trial, death after recurrence). The SPRINT scenario has a primary outcome, death and three harms, to weigh benefits against harms and to see what testing many outcomes does.\n\n\n\nSPRINT with the other outcomes: the answer key has the intervention effect on each outcome.\n\n\n\n\nTwo more designs\n\nBefore-after (single group): everybody is treated and measured before and after, with no control group. The mean change mixes the effect, the natural trend and, if only people with high values are enrolled (Enrol only above percentile), regression to the mean.\nMethod comparison: the outcome measured twice in each person, by methods A and B (B with a bias, a proportional bias and its own error), for a Bland-Altman analysis; the key gives the mean difference, the limits of agreement and the regression slope of B on A, attenuated by A’s own error.\n\nThe same seed always gives the same study, and the people of the superpopulation do not depend on the design: the same seed under another design samples the same people. Showing the key, the diagram or a table does not draw the study again; only options that change the data do.",
+    "objectID": "derive.html#what-it-estimates",
+    "href": "derive.html#what-it-estimates",
+    "title": "Derive a scenario from data",
+    "section": "What it estimates",
+    "text": "What it estimates\n\nthe marginal distribution of each variable (normal, log-normal, gamma or uniform; Poisson or negative binomial for counts; category proportions);\nthe latent correlations, by inverting the Gaussian copula the simulator uses, so a simulated study reproduces the observed correlations;\nthe conditional effects on the outcome (logistic, linear, Poisson or Cox, with 95% CI and the crude estimate), and the prevalence, mean, risk or Weibull shape that calibrates it.\n\nCheck by simulating analyses one large study simulated from the derived scenario with the same model: the Re-estimated column should match the adjusted estimates.\n\n\n\nThe round-trip check.\n\n\n\nMissing values\nMissing values in the variables chooses how the outcome model deals with rows that miss a covariate (the distributions and correlations always use every observed value, and the outcome targets every row with the outcome):\n\n\n\n\n\n\n\n\nmethod\ncost\nwhat it gives\n\n\n\n\nComplete cases\nnone\nunbiased when missingness does not depend on the outcome; loses rows\n\n\nMean / most frequent value\nnone\nkeeps every row, but dilutes the associations and understates the uncertainty\n\n\nSingle imputation\nlow\nchained equations (each variable from the others and the outcome, with its noise): unbiased under missing at random, intervals too narrow\n\n\nMultiple imputation\nm times higher\nm sets, each model on a bootstrap sample, pooled by Rubin’s rules: the reference method\n\n\n\nWith an imputation method the table also shows the complete-case estimate. Derive also warns when few rows are complete, when a variable is missing mostly in one outcome group (probably recorded after the outcome), when there are fewer than 10 events per coefficient (with a shrinkage factor), when an effect is not estimable, and when times look like days or months.\n\n\nValues that do not apply\nReal datasets record some variables only for some people: the age at first oral contraceptive use is blank for women who never used them, the years of use are 0, the age at the first smear test is coded 99 when there was none. Before estimating anything, Derive:\n\nreads an all-nines value at the top of a variable’s range (99, 999), far more frequent than the values just below it, as missing, and so a 0 far below every other value (a blood pressure or a BMI of 0 that meant “not measured”, as in the Pima data);\nfinds variables that are missing, or one constant, in a level of another variable and observed elsewhere (structural values). The scenario writes them with only_if/otherwise (e.g. only_if: co == \"sí\", otherwise: 0), their distribution comes from the people they apply to, their correlations with that variable are left out (it is a rule), and the model gives the other rows the otherwise value, so no rows are lost: the effect of the variable is among those it applies to, and the effect of the other variable is at the otherwise value;\nreports pairs of numbers whose order the data never break (start age ≤ end age ≤ age): the scenario cannot keep such an order, so write one from the other with a formula or leave one out.\n\nColumns that jamovi read as nominal but hold numbers (integers from a CSV) are read as numbers. Try it with chd_sim.csv, a simulated cohort.",
     "crumbs": [
-      "Simulated study"
+      "Derive a scenario from data"
     ]
   },
   {
-    "objectID": "simulated-study.html#the-data",
-    "href": "simulated-study.html#the-data",
-    "title": "Simulated study",
-    "section": "The data",
-    "text": "The data\nOpen dataset opens the data in a new jamovi window, with nominal, ordinal and ID columns typed and each column described; Export CSV saves them, and Export codebook saves the data dictionary as another CSV (a CSV keeps no column descriptions). Analysing the data in jamovi says which analysis and module fit each design.\n\n\n\nThe dataset in its own window.\n\n\nColumn names and category labels follow jamovi’s language (age → edad/edat, current → fumador), from dictionaries the teacher can edit (Library).",
+    "objectID": "derive.html#finishing-it-with-an-ai",
+    "href": "derive.html#finishing-it-with-an-ai",
+    "title": "Derive a scenario from data",
+    "section": "Finishing it with an AI",
+    "text": "Finishing it with an AI\nThe data cannot tell causes from correlates, so a derived scenario has undirected correlations and raw column names. Export scenario writes it as YAML with a derivation: block (source, original names, missing data, estimates and correlations), which is what an AI needs to finish it:\n\nA prompt for any AI: attach the exported YAML and schema.md. It returns the scenario with names and translations, a causal structure, rules for impossible combinations, rounded effects, a teaching note and references marked to verify, plus a report of its decisions.\nA Claude skill (also as a zip in the Releases): the same steps, with a validator, check_scenario.R, that checks the file, simulates a large study and compares the re-estimated effects with the data’s, following renamed variables and changed reference categories.\n\nReview the result before teaching with it: the causal structure is a judgement, and references must be checked.",
     "crumbs": [
-      "Simulated study"
+      "Derive a scenario from data"
     ]
   },
   {
-    "objectID": "simulated-study.html#results",
-    "href": "simulated-study.html#results",
-    "title": "Simulated study",
-    "section": "Results",
-    "text": "Results\n\n\n\nData dictionary.\n\n\n\n\n\nUnivariate descriptives: mean (SD) and median [IQR], or n (%) per category.\n\n\nThe causal diagram shows the scenario’s structure: measured variables in solid boxes, unmeasured ones dashed, null variables in italics, grey arrows for paths among variables, dark arrows for effects on the outcome. It is shown by default without effect sizes; tick Effect sizes on the diagram to colour the arrows (red raises the outcome, blue lowers it) and give their sizes.\n\n\n\nCausal diagram with effect sizes.",
+    "objectID": "analysis.html",
+    "href": "analysis.html",
+    "title": "Analysing the data in jamovi",
+    "section": "",
+    "text": "Each design calls for its own analysis, and not all of them are in base jamovi. The table says which analysis fits each design and where to find it: in base jamovi, in another module of the jamovi library (Modules ▸ jamovi library), or in one of the author’s modules (jamovi-modules-vm). Below it, one worked exercise per design: the scenario, what to do in jamovi, and what the answer key says a correct analysis should find. The Epidemiology guide explains each design, its strengths and limitations, and how to read its parameters; Causal diagrams explains how to choose what to adjust for.",
     "crumbs": [
-      "Simulated study"
+      "Analysing the data in jamovi"
     ]
   },
   {
-    "objectID": "simulated-study.html#the-answer-key",
-    "href": "simulated-study.html#the-answer-key",
-    "title": "Simulated study",
-    "section": "The answer key",
-    "text": "The answer key\nAnswer key adds these parts, for the teacher:\n\nTrue model: by contrast, the direct (conditional) effects the data were generated with, including the null variables, and the total effect of each variable that also acts through others (mediators), estimated in a large simulated population; a variable acting only through others reads no direct effect; acts through ….\n\n\n\nTrue model: direct and total effects; education acts only through smoking, BMI, blood pressure, HDL and diabetes.\n\n\nWhat this design should estimate: crude and adjusted estimates averaged over three large simulated studies with the same design, measured variables, grouping, measurement error and biases (one for matched case-control), with their Monte Carlo uncertainty in a note. This is what a correct analysis of the student’s data should approach. Adjusted (all) adjusts for every measured variable; Adjusted (DAG) adjusts each one only for the measured variables it does not cause, and approaches its True (total). Where the generating measure differs from the design’s (hazard ratios generated, odds ratios estimated by a case-control study) a note says so. Trials with a binary or event outcome add absolute effects: risk per arm, risk difference, NNT, risk ratio, and the marginal next to the conditional odds or hazard ratio. Diagnostic studies add accuracy at a cut-off: sensitivity, specificity and predictive values, true and in the large study.\n\n\n\nAbsolute effects of a trial: risks, NNT, and the marginal odds ratio closer to 1 than the conditional one.\n\n\n\n\n\nExpected estimates: the crude coffee effect disappears after adjustment; systolic pressure in quartiles.\n\n\nNotes: teaching note of the scenario, calibration of the outcome, latent structure and the sources of the parameters.\n\nThe Study summary warns when there are fewer than 10 events per parameter of a model adjusted for every measured variable.",
+    "objectID": "analysis.html#design-analysis-and-module",
+    "href": "analysis.html#design-analysis-and-module",
+    "title": "Analysing the data in jamovi",
+    "section": "Design, analysis and module",
+    "text": "Design, analysis and module\n\n\n\n\n\n\n\n\n\ndesign\nlayout of the data\nanalysis\nin jamovi\n\n\n\n\nCross-sectional\none row per person\nlogistic (binary), linear (continuous), Poisson (count) regression\nRegression ▸ Logistic Regression ▸ 2 Outcomes, Linear Regression; Poisson: GAMLj Generalized Linear Models\n\n\nCohort (event)\ntime, status 0/1 (2 = competing event)\nKaplan-Meier, Cox regression\nprognosis Prognosis ▸ Kaplan-Meier, Cox Regression\n\n\nCase-control\ncase/control\nlogistic regression; odds ratio of a 2×2 table\nRegression ▸ Logistic Regression ▸ 2 Outcomes; Frequencies ▸ Independent Samples (odds ratio)\n\n\nMatched case-control\nset = matched set\nconditional logistic regression\ncondLogReg Regression ▸ Logistic Regression ▸ Conditional (Matched), matching variable set\n\n\nNested case-control\nset = risk set\nconditional logistic regression (it estimates the hazard ratio)\ncondLogReg, matching variable set\n\n\nCase-cohort\nsubcohort yes/no, time, status\nCox regression with Prentice weights and robust variance\nnot in a jamovi module: the Rj editor with survival::cch()\n\n\nPrognosis\ntime from entry, status\nKaplan-Meier, Cox; with a competing event, cause-specific Cox (status 2 censored)\nprognosis; cumulative incidence of competing risks: Rj with cmprsk\n\n\nDiagnostic accuracy\nstatus, markers\nROC curve, AUC, sensitivity and specificity at a cut-off\nmeddecide (ClinicoPath) or psychoPDA Test ROC; at a cut-off: Compute a positive/negative column, then Frequencies ▸ Independent Samples\n\n\nMethod comparison\ny_a, y_b\nBland-Altman limits of agreement\nblandr or SimplyAgree; or Compute the difference and the mean, then Descriptives and a scatterplot\n\n\nRandomised trial\narm, outcome\nrisk difference, relative risk, NNT (binary); t-test or ANCOVA (continuous); Kaplan-Meier and Cox (event)\nFrequencies ▸ Independent Samples; T-Tests, ANOVA ▸ ANCOVA; prognosis; interim looks: jmsequential\n\n\nCluster randomised trial\ncluster\nmixed (multilevel) model with a random intercept per cluster\nGAMLj Mixed Models (continuous), Generalized Mixed Models (binary, count)\n\n\n2×2 factorial trial\ntwo arms\nANOVA or regression with both treatments and their interaction\nANOVA ▸ ANOVA; Regression ▸ Logistic Regression\n\n\n2×2 crossover\nlong: one row per period; wide: one per person\npaired t-test (wide); mixed model with treatment and period (long)\nT-Tests ▸ Paired Samples; GAMLj Mixed Models\n\n\nLongitudinal trial\nlong: one row per visit; wide: one per person\nlinear mixed model with all visits (long); repeated-measures ANOVA on completers (wide)\nGAMLj Mixed Models; ANOVA ▸ Repeated Measures ANOVA\n\n\nBefore-after\ny_before, y\npaired t-test of the change\nT-Tests ▸ Paired Samples\n\n\nEcological\none row per region\nregression of the regional rate on regional means and percentages\nCompute the rate (cases / people), then Regression ▸ Linear Regression\n\n\n\nRepeated measures (Design options) gives the crossover and longitudinal trials one row per person (wide), which jamovi’s paired t-test and repeated-measures ANOVA need; the default long layout is the one for mixed models.\nExport codebook saves the data dictionary next to the CSV, since a CSV keeps no column descriptions.",
     "crumbs": [
-      "Simulated study"
+      "Analysing the data in jamovi"
     ]
   },
   {
-    "objectID": "simulated-study.html#compare-designs",
-    "href": "simulated-study.html#compare-designs",
-    "title": "Simulated study",
-    "section": "Compare designs",
-    "text": "Compare designs\nSimulate ▸ Compare designs takes one scenario and outcome, the measured variables and a sample size, and simulates every ticked design from the same population (same seed and student key); designs that do not fit the outcome are hidden. It shows:\n\n\n\nCompare designs: breast cancer with four measured variables, three designs from the same population.\n\n\n\nStudies: rows, cases and controls, events, clusters or regions of each one;\nEstimates by design: crude and adjusted estimates with their 95% CI next to the true values, and optionally what each design gives in a large study;\na forest plot of the same estimates, one panel per contrast;\nthe causal diagram, once, because it is the same for every design: what changes between designs is how the population is sampled, not how it works.\n\n\n\n\nEstimates plot: the cohort of 500 women has 10 cases, so its intervals are far wider than the case-control studies’.\n\n\nReplicate studies per design (next to the sample size) draws that many studies of each design and reports each estimate’s mean, bias, spread (empirical standard error) next to the model’s, power and the coverage of its confidence intervals, with a plot of their sampling distribution.\n\n\n\nReplicate studies: 200 parallel and 200 cluster trials of 500 people.\n\n\nOpen dataset stacks all the studies in one dataset with a design column, to analyse them with jamovi’s filters. Typical exercises: a case-control vs a cohort study of a rare cancer (same estimates, very different precision for the same number of people), a parallel vs a crossover trial, an ecological vs an individual-level analysis.",
+    "objectID": "analysis.html#worked-exercises",
+    "href": "analysis.html#worked-exercises",
+    "title": "Analysing the data in jamovi",
+    "section": "Worked exercises",
+    "text": "Worked exercises\nEach exercise uses the default seed (1) and the scenario’s default options. The tables are the answer key’s what this design should estimate: a correct analysis of a study of the size given should land near Adjusted, within its own confidence interval.\n\nCross-sectional: diabetes in Pima women\nDiabetes in Pima women, cross-sectional, 700 women, all variables. Fit Regression ▸ Logistic Regression ▸ 2 Outcomes with diabetes as the outcome and the measured variables as covariates (Odds ratio under Model Coefficients). Then fit one variable at a time and compare each crude odds ratio with its adjusted one.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\ntotal\nCrude\nAdjusted (all)\nAdjusted (DAG)\nEstimate\n\n\n\n\nage\nper 1 years\nOR\n1.05\n1.07\n1.06\n1.05\n1.07\nOR\n\n\nbmi\nper 5 kg/m2\nOR\n1.69\n1.69\n1.65\n1.69\n1.69\nOR\n\n\npedigree\nper 0.5\nOR\n1.94\n1.94\n2.01\n1.93\n1.93\nOR\n\n\npregnancies\nper 1\nOR\n1.09\n1.09\n1.17\n1.09\n1.09\nOR\n\n\ndiastolic\nper 1 mmHg\nOR\n1.00\n1.00\n1.03\n1.00\n1.00\nOR\n\n\ntriceps\nper 1 mm\nOR\n1.00\n1.00\n1.04\n1.00\n1.00\nOR\n\n\n\n\n\n\n\nCohort: coronary heart disease\nCoronary heart disease, cohort of 3,000. In prognosis, Kaplan-Meier of time and chd by smoking, then Cox Regression with the measured variables. Leave out hdl (untick it under Variables) to see the hazard ratio for sex change: HDL is a mediator of sex, so the estimate moves towards the total effect, which is what the Adjusted (DAG) column estimates.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\ntotal\nCrude\nAdjusted (all)\nAdjusted (DAG)\nEstimate\n\n\n\n\nage\nper 1 years\nHR\n1.05\n1.07\n1.07\n1.05\n1.07\nHR\n\n\nsex\nmale vs female\nHR\n1.60\n1.76\n1.77\n1.81\n1.81\nHR\n\n\nsmoking\nformer vs never\nHR\n1.20\n1.21\n1.21\n1.21\n1.21\nHR\n\n\nsmoking\ncurrent vs never\nHR\n1.60\n1.81\n1.76\n1.79\n1.79\nHR\n\n\ntotal_chol\nper 1 mmol/L\nHR\n1.20\n1.20\n1.31\n1.20\n1.20\nHR\n\n\nbmi\nper 1 kg/m2\nHR\n1.02\n1.06\n1.07\n1.03\n1.06\nHR\n\n\nsbp\nper 10 mmHg\nHR\n1.18\n1.18\n1.34\n1.17\n1.17\nHR\n\n\ndiabetes\nyes vs no\nHR\n1.80\n1.80\n2.94\n1.88\n1.88\nHR\n\n\n\n\n\n\n\nCase-control and matched case-control: oesophageal cancer\nOesophageal cancer, case-control with the scenario’s 4 controls per case. Regression ▸ Logistic Regression ▸ 2 Outcomes with case as the outcome. Then Matched case-control (matched on age group) and condLogReg with set as the matching variable: the matching variable itself cannot be estimated, and an unconditional logistic regression of matched data is biased towards the null.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\nCrude\nAdjusted (all)\nEstimate\n\n\n\n\nage_group\n35-44 vs 25-34\nHR\n7.00\nNA\nNA\nOR\n\n\nage_group\n45-54 vs 25-34\nHR\n40.00\nNA\nNA\nOR\n\n\nage_group\n55-64 vs 25-34\nHR\n75.00\nNA\nNA\nOR\n\n\nage_group\n65-74 vs 25-34\nHR\n130.00\nNA\nNA\nOR\n\n\nage_group\n75+ vs 25-34\nHR\n125.00\nNA\nNA\nOR\n\n\nalcohol\n40-79 vs 0-39\nHR\n4.20\n4.70\n4.33\nOR\n\n\nalcohol\n80-119 vs 0-39\nHR\n7.30\n8.30\n7.26\nOR\n\n\nalcohol\n120+ vs 0-39\nHR\n36.70\n40.96\n32.33\nOR\n\n\ntobacco\n10-19 vs 0-9\nHR\n1.55\n1.86\n1.50\nOR\n\n\ntobacco\n20-29 vs 0-9\nHR\n1.67\n2.03\n1.47\nOR\n\n\ntobacco\n30+ vs 0-9\nHR\n5.16\n7.42\n4.69\nOR\n\n\n\n\n\n\n\nNested case-control and case-cohort: Wilms tumour relapse\nRelapse of Wilms tumour, nested case-control with 3 controls per case: condLogReg with set (the risk set) as matching variable gives hazard ratios, with no rare-disease assumption. The case-cohort version needs a weighted Cox model: in Rj, survival::cch(Surv(time, relapse) ~ histology + stage, data = data, subcoh = ~ subcohort == \"yes\", id = ~ id, cohort.size = …, method = \"LinYing\") (the cohort size is in the Study summary).\n\n\nPrognosis with a competing event\nBreast cancer prognosis, outcome Death from breast cancer, prognosis design. In prognosis, Cox Regression of time and the status: the status has a 2 for a death from other causes; treat it as censored to estimate the cause-specific hazard ratios of the key. 1 − Kaplan-Meier then overstates the cumulative incidence of the event.\n\n\nDiagnostic accuracy: PSA\nPSA and prostate cancer, diagnostic, 500 men. In meddecide or psychoPDA, the ROC curve of psa against prostate_cancer. The key gives the AUC and, at a cut-off, the sensitivity, specificity and predictive values; Compute psa &gt; 5.63 and cross it with the disease (Frequencies ▸ Independent Samples) to check them by hand. Then set Test-negatives verified (%) to 20 (Biases): among the verified, sensitivity is far too high.\n\n\n\n\n\nMarker\nCut-off\n\nTrue\nLarge study\n\n\n\n\npsa\n5.63\nsens\n0.630\n0.632\n\n\npsa\n5.63\nspec\n0.636\n0.638\n\n\npsa\n5.63\nppv\n0.426\n0.429\n\n\npsa\n5.63\nnpv\n0.800\n0.801\n\n\nfree_psa\n19.40\nsens\n0.646\n0.646\n\n\nfree_psa\n19.40\nspec\n0.643\n0.641\n\n\nfree_psa\n19.40\nppv\n0.437\n0.436\n\n\nfree_psa\n19.40\nnpv\n0.809\n0.808\n\n\n\n\n\n\n\nMethod comparison: two blood pressure devices\nBlood pressure in US adults, method comparison of sbp. In blandr or SimplyAgree, the Bland-Altman analysis of sbp_a and sbp_b: the mean difference, the limits of agreement and the proportional bias (B grows faster than A).\n\n\nRandomised trial: indomethacin and pancreatitis\nRectal indomethacin to prevent post-ERCP pancreatitis, randomised trial of 600. Frequencies ▸ Independent Samples with treatment and pancreatitis (Comparative measures: relative risk, difference in proportions); the number needed to treat is 1 / risk difference. The key’s trial table gives the true risks: note that the marginal odds ratio (what the 2×2 table estimates) is closer to 1 than the conditional one the data were generated with, with no confounding at all.\n\n\n\n\n\n\n\n\n\n\nValue\n\n\n\n\nRisk: placebo\n0.1700\n\n\nRisk: indomethacin\n0.0896\n\n\nRisk difference, indomethacin vs placebo\n-0.0806\n\n\nNumber needed to treat for one event fewer, indomethacin vs placebo\n12.4000\n\n\nRisk ratio, indomethacin vs placebo\n0.5260\n\n\nOdds ratio, marginal (population), indomethacin vs placebo\n0.4800\n\n\nOdds ratio, conditional (true model), indomethacin vs placebo\n0.4700\n\n\n\n\n\n\n\nCluster randomised trial: handwashing in Karachi\nHandwashing and childhood pneumonia, cluster trial. In GAMLj Generalized Mixed Models, a Poisson model of pneumonia with soap as a fixed factor and cluster as the cluster variable. Ignoring the clusters (a plain Poisson regression) gives confidence intervals that are too narrow.\n\n\n2×2 factorial: aspirin and beta-carotene\nAspirin and beta-carotene in male physicians, factorial. prognosis Cox Regression with both treatments; adding their interaction tests whether one changes the other’s effect.\n\n\nCrossover: an antihypertensive\nAntihypertensive drug, crossover of 30 people with Repeated measures: wide. T-Tests ▸ Paired Samples of sbp_placebo and sbp_amlodipine. With the long layout, GAMLj Mixed Models of sbp with drug and period as fixed factors and id as cluster gives the same estimate and the period effect.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nContrast\nTrue\ndirect\nCrude\nAdjusted (all)\nEstimate\n\n\n\n\ndrug\namlodipine vs placebo\nbeta\n-9\n-8.92\n-8.92\nbeta\n\n\n\n\n\n\n\nLongitudinal trial: succimer for lead exposure\nSuccimer for lead-exposed children, longitudinal. Long layout: GAMLj Mixed Models of blood_lead with treatment, visit (as a factor) and their interaction, id as cluster. The key’s Crude is the naive comparison of the completers at the last visit, Adjusted the mixed model with every visit.\n\n\nBefore-after: metformin\nMetformin vs placebo on HbA1c, before-after, enrolling only people above the 50th percentile. T-Tests ▸ Paired Samples of hba1c_before and hba1c: the mean change is larger than the true effect, because of regression to the mean.\n\n\nEcological: water hardness and mortality\nWater hardness and mortality, ecological. Compute the death rate per 100,000 (death / population * 100000) and regress it on the region means and percentages (Regression ▸ Linear Regression); compare the regional slope with the true individual effect in the key: the gap is the ecological bias.",
     "crumbs": [
-      "Simulated study"
+      "Analysing the data in jamovi"
+    ]
+  },
+  {
+    "objectID": "analysis.html#simulating-many-studies",
+    "href": "analysis.html#simulating-many-studies",
+    "title": "Analysing the data in jamovi",
+    "section": "Simulating many studies",
+    "text": "Simulating many studies\nCompare designs with Replicate studies per design draws hundreds of studies of each design and reports, for each estimate, its mean, bias, spread (the standard error a study does not see), power and the coverage of its confidence intervals: chance and bias side by side.",
+    "crumbs": [
+      "Analysing the data in jamovi"
     ]
   },
   {
