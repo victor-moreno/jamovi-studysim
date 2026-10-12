@@ -92,11 +92,18 @@ people)* adds every other outcome of the scenario as columns for the same people
 block per outcome. Outcomes can be linked (correlated beyond their common
 causes, e.g. HbA1c and control below 7%), and overall survival can be built
 from a first event (an illness-death model: in the colon cancer trial, death
-after recurrence). The SPRINT scenario has a primary outcome, death and three
-harms, to weigh benefits against harms and to see what testing many outcomes
-does.
+after recurrence).
 
-![SPRINT with the other outcomes: the answer key has the intervention effect on each outcome.](screenshots/s16-several-outcomes.png){.screenshot}
+For example, *Intensive blood-pressure control (SPRINT)* has five outcomes: the
+primary cardiovascular event, death from any cause and three harms (acute kidney
+injury, hypotension, syncope), to weigh benefits against harms and to see what
+testing many outcomes does. The **Outcome** picker lists all five, and the
+dataset holds only the one chosen (by default the cardiovascular event). Tick
+*Other outcomes of the scenario (same people)* to add the other four as columns
+(`time_death`, `death`, `kidney_injury`, `hypotension`, `syncope`); the answer key
+then has a block per outcome.
+
+![SPRINT with *Other outcomes of the scenario* ticked: the answer key has the intervention effect on each outcome.](screenshots/s16-several-outcomes.png){.screenshot}
 
 ### Two more designs
 

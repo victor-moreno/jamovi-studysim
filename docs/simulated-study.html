@@ -470,11 +470,12 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="several-outcomes-in-one-study" class="level3">
 <h3 class="anchored" data-anchor-id="several-outcomes-in-one-study">Several outcomes in one study</h3>
-<p>Most trials record several outcomes. <em>Other outcomes of the scenario (same people)</em> adds every other outcome of the scenario as columns for the same people (cross-sectional, cohort, prognosis and trial designs), and the answer key gets a block per outcome. Outcomes can be linked (correlated beyond their common causes, e.g.&nbsp;HbA1c and control below 7%), and overall survival can be built from a first event (an illness-death model: in the colon cancer trial, death after recurrence). The SPRINT scenario has a primary outcome, death and three harms, to weigh benefits against harms and to see what testing many outcomes does.</p>
+<p>Most trials record several outcomes. <em>Other outcomes of the scenario (same people)</em> adds every other outcome of the scenario as columns for the same people (cross-sectional, cohort, prognosis and trial designs), and the answer key gets a block per outcome. Outcomes can be linked (correlated beyond their common causes, e.g.&nbsp;HbA1c and control below 7%), and overall survival can be built from a first event (an illness-death model: in the colon cancer trial, death after recurrence).</p>
+<p>For example, <em>Intensive blood-pressure control (SPRINT)</em> has five outcomes: the primary cardiovascular event, death from any cause and three harms (acute kidney injury, hypotension, syncope), to weigh benefits against harms and to see what testing many outcomes does. The <strong>Outcome</strong> picker lists all five, and the dataset holds only the one chosen (by default the cardiovascular event). Tick <em>Other outcomes of the scenario (same people)</em> to add the other four as columns (<code>time_death</code>, <code>death</code>, <code>kidney_injury</code>, <code>hypotension</code>, <code>syncope</code>); the answer key then has a block per outcome.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="screenshots/s16-several-outcomes.png" class="screenshot img-fluid figure-img"></p>
-<figcaption>SPRINT with the other outcomes: the answer key has the intervention effect on each outcome.</figcaption>
+<figcaption>SPRINT with <em>Other outcomes of the scenario</em> ticked: the answer key has the intervention effect on each outcome.</figcaption>
 </figure>
 </div>
 </section>
