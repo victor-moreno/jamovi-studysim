@@ -238,7 +238,7 @@ simCompareClass <- R6::R6Class(
                 list(data = res$data, title = sprintf("%s - %s", tr_text(ctx$sc$label, ctx$lang), .("Compare designs")))
             })
             private$.once("csvState", "exportCsv", function(action) {
-                utils::write.csv(res$data, action$params$fullPath, row.names = FALSE, na = "", fileEncoding = "UTF-8")
+                write_data_csv(res$data, action$params$fullPath, ctx$lang)
                 list(filename = sprintf("%s_designs.csv", ctx$sc$id))
             })
         }

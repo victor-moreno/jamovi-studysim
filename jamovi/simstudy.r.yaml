@@ -69,13 +69,12 @@ items:
       type: Table
       visible: (showKey)
       rows: 0
-      clearWith: [libContent, scenario, outcome, design, secondary]
+      clearWith: [libContent, scenario, outcome, design, secondary, measured]
       columns:
           - name: outcome
             title: Outcome
             type: text
             combineBelow: true
-            visible: (secondary)
           - name: variable
             title: Variable
             type: text
@@ -109,7 +108,6 @@ items:
             title: Outcome
             type: text
             combineBelow: true
-            visible: (secondary)
           - name: variable
             title: Variable
             type: text

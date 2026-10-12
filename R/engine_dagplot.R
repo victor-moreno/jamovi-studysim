@@ -27,12 +27,17 @@ pava <- function(t, w = rep(1, length(t))) {
     rep(vv, nn)
 }
 
-dag_layout <- function(sc, oc, factors, lang = "en") {
+# others: ids of the scenario's other outcomes shown with the main one (the
+# ones a study carries), each a box in the last layer with its own effects
+dag_layout <- function(sc, oc, factors, lang = "en", others = character()) {
     vars <- sc$order
     # an illness-death outcome has no effects of its own: show its after-event ones
-    if (length(oc$effects) == 0 && !is.null(oc$after_event)) oc$effects <- oc$after_event$effects
-    ivs <- intersect(names(oc$effects), names(sc$interventions))
-    eff <- names(oc$effects)
+    effs_of <- function(o) { e <- o$effects; if (length(e) == 0 && !is.null(o$after_event)) e <- o$after_event$effects; e }
+    outs <- c(oc$id, intersect(others, setdiff(names(sc$outcomes), oc$id)))
+    oeff <- lapply(stats::setNames(outs, outs), function(o) effs_of(sc$outcomes[[o]]))
+    oc$effects <- oeff[[oc$id]]
+    ivs <- intersect(unique(unlist(lapply(oeff, names))), names(sc$interventions))
+    eff <- unique(unlist(lapply(oeff, names)))
     depth <- stats::setNames(integer(length(vars)), vars)
     # latent paths and rule dependencies both place a variable after its parents
     links <- rbind(sc$edges[, c("from", "to")], sc$rule_edges %||% data.frame(from = character(), to = character()))
@@ -40,16 +45,16 @@ dag_layout <- function(sc, oc, factors, lang = "en") {
         pa <- links$from[links$to == v]
         if (length(pa)) depth[v] <- max(depth[pa]) + 1L
     }
-    nodes <- data.frame(id = c(ivs, vars, oc$id), layer = c(rep(0L, length(ivs)), depth, max(depth) + 1L),
+    nodes <- data.frame(id = c(ivs, vars, outs), layer = c(rep(0L, length(ivs)), depth, rep(max(depth) + 1L, length(outs))),
                         stringsAsFactors = FALSE)
-    nodes$kind <- ifelse(nodes$id == oc$id, "outcome", ifelse(nodes$id %in% ivs, "intervention",
-                  ifelse(nodes$id %in% factors, "measured", "unmeasured")))
-    nodes$null <- !nodes$id %in% c(eff, oc$id)
+    nodes$kind <- ifelse(nodes$id == oc$id, "outcome", ifelse(nodes$id %in% outs, "outcome2", ifelse(nodes$id %in% ivs, "intervention",
+                  ifelse(nodes$id %in% factors, "measured", "unmeasured"))))
+    nodes$null <- !nodes$id %in% c(eff, outs)
     nodes$label <- dname(nodes$id, lang)
     nodes$hw <- nchar(nodes$label) * DAG_CHAR / 2 + 9
     nodes$hh <- 11
-    # effects enter the outcome box at their own ports: tall enough for them all
-    nodes$hh[nodes$kind == "outcome"] <- max(11, length(eff) * 9)
+    # effects enter an outcome box at their own ports: tall enough for them all
+    for (o in outs) nodes$hh[nodes$id == o] <- max(11, length(oeff[[o]]) * 9)
 
     # all edges with their labels; the directed ones get a chain of nodes
     edges <- list()
@@ -62,12 +67,12 @@ dag_layout <- function(sc, oc, factors, lang = "en") {
     R <- sc$R_exo
     if (length(R) > 1) for (i in seq_len(nrow(R) - 1)) for (j in (i + 1):nrow(R)) if (R[i, j] != 0)
         add(rownames(R)[i], rownames(R)[j], "correlation", sprintf("%.2f", R[i, j]), sign(R[i, j]))
-    if (length(eff)) {
-        lab <- vapply(oc$effects, function(e) {
+    for (o in outs) if (length(oeff[[o]])) {
+        lab <- vapply(oeff[[o]], function(e) {
             v <- if (length(e$value) > 1) paste(signif(e$value[-1], 3), collapse = "/") else signif(e$value, 3)
             paste0(e$measure, " ", v, if (!is.null(e$by)) "*" else "")
         }, "")
-        add(eff, rep(oc$id, length(eff)), "effect", unname(lab), vapply(oc$effects, function(e) sign(sum(e$coef)), 0))
+        add(names(oeff[[o]]), rep(o, length(oeff[[o]])), "effect", unname(lab), vapply(oeff[[o]], function(e) sign(sum(e$coef)), 0))
     }
     edges <- if (length(edges)) do.call(rbind, edges) else NULL
 
@@ -144,13 +149,15 @@ dag_layout <- function(sc, oc, factors, lang = "en") {
 
     # routed points of each edge: box border -> dummies -> box border (or port)
     pts <- list()
-    oy <- nodes$y[nodes$kind == "outcome"]; ohh <- nodes$hh[nodes$kind == "outcome"]
-    ef <- which(edges$type == "effect")
-    if (length(ef)) {
+    port_of <- numeric()
+    for (o in outs) {
+        oy <- nodes$y[nodes$id == o]; ohh <- nodes$hh[nodes$id == o]
+        ef <- which(edges$type == "effect" & edges$to == o)
+        if (!length(ef)) next
         # ports in the order of the points the effects arrive from
         prev <- vapply(ef, function(k) { ch <- chains[[k]]; all$y[all$id == ch[length(ch) - 1]] }, 0)
         port <- if (length(ef) == 1) oy else seq(oy - ohh + 7, oy + ohh - 7, length.out = length(ef))
-        port_of <- stats::setNames(port[rank(prev, ties.method = "first")], ef)
+        port_of <- c(port_of, stats::setNames(port[rank(prev, ties.method = "first")], ef))
     }
     for (k in seq_len(NROW(edges))) {
         ch <- chains[[k]]
@@ -255,9 +262,10 @@ dag_plot <- function(g, w, h, key = FALSE, caption = "") {
                                              label.size = 0, label.padding = grid::unit(0.08, "lines"), fill = "white", colour = "grey25")
     }
     nodes$lt <- ifelse(nodes$kind == "unmeasured", "dashed", "solid")
-    nodes$fill <- ifelse(nodes$kind == "outcome", "#2e5f8f", ifelse(nodes$kind == "intervention", "#f6e3c6", "white"))
-    nodes$tc <- ifelse(nodes$kind == "outcome", "white", ifelse(nodes$null | nodes$kind == "unmeasured", "grey40", "black"))
-    nodes$ff <- ifelse(nodes$null, "italic", ifelse(nodes$kind == "outcome", "bold", "plain"))
+    nodes$fill <- ifelse(nodes$kind == "outcome", "#2e5f8f", ifelse(nodes$kind == "outcome2", "#5f86b0",
+                  ifelse(nodes$kind == "intervention", "#f6e3c6", "white")))
+    nodes$tc <- ifelse(nodes$kind %in% c("outcome", "outcome2"), "white", ifelse(nodes$null | nodes$kind == "unmeasured", "grey40", "black"))
+    nodes$ff <- ifelse(nodes$null, "italic", ifelse(nodes$kind %in% c("outcome", "outcome2"), "bold", "plain"))
     p + ggplot2::geom_tile(data = nodes, ggplot2::aes(x = x, y = flip(y), width = 2 * hw, height = 2 * hh, fill = fill, linetype = lt),
                            colour = "grey30", linewidth = 0.4) +
         ggplot2::geom_text(data = nodes, ggplot2::aes(x = x, y = flip(y), label = label, colour = tc, fontface = ff), size = 3.4) +

@@ -309,7 +309,7 @@ planned_columns <- function(sc, oc, design, factors, opt = list()) {
                   else if (design %in% CASE_DESIGNS) c("case", if (design == "nested_cc") "time")
                   else if (oc$type == "event" && design %in% c("cohort", "prognosis", "rct", "case_cohort", "cluster_rct", "factorial")) c("time", oc$id)
                   else oc$id)
-    if (isTRUE(opt$secondary)) out <- c(out, secondary_columns(sc, oc, design))
+    if (isTRUE(opt$secondary)) out <- c(out, secondary_columns(sc, oc, design, opt$secondary_ids))
     if (design == "diagnostic") out <- c(out, unname(unlist(lapply(oc$markers, marker_cols))), if ((opt$batches %||% 0) >= 2) "batch")
     c(out, intersect(sc$order, factors), bias_columns(sc, oc, design, opt), noise_names(opt$noise %||% 0))
 }
@@ -577,16 +577,30 @@ class_keys <- function(txt) {
 # Writes <key>.csv and <key>_codebook.csv for each key into dir, and
 # register.csv (key, file, rows, effective seed); returns the register.
 # simulate(key) gives a study; codebook(res) its codebook.
-write_class <- function(keys, dir, simulate, codebook, headers = c("key", "file", "rows", "seed")) {
+write_class <- function(keys, dir, simulate, codebook, headers = c("key", "file", "rows", "seed"), lang = "en", format = "auto") {
     files <- make.unique(gsub("[^[:alnum:]_-]+", "_", keys), sep = "_")
     reg <- data.frame(keys, paste0(files, ".csv"), 0L, 0, stringsAsFactors = FALSE)
     for (i in seq_along(keys)) {
         res <- simulate(keys[i])
-        utils::write.csv(res$data, file.path(dir, paste0(files[i], ".csv")), row.names = FALSE, na = "", fileEncoding = "UTF-8")
-        utils::write.csv(codebook(res), file.path(dir, paste0(files[i], "_codebook.csv")), row.names = FALSE, na = "", fileEncoding = "UTF-8")
+        write_data_csv(res$data, file.path(dir, paste0(files[i], ".csv")), lang, format)
+        write_data_csv(codebook(res), file.path(dir, paste0(files[i], "_codebook.csv")), lang, format)
         reg[i, 3] <- nrow(res$data); reg[i, 4] <- res$seed
     }
     names(reg) <- headers
-    utils::write.csv(reg, file.path(dir, "register.csv"), row.names = FALSE, fileEncoding = "UTF-8")
+    write_data_csv(reg, file.path(dir, "register.csv"), lang, format)
     reg
+}
+
+# A CSV a spreadsheet opens correctly: UTF-8 with a byte-order mark (Excel
+# otherwise reads accented letters as another encoding), and in languages that
+# write decimals with a comma, semicolons between fields and decimal commas
+# (Excel's convention there). format: "auto" (by language), "comma", "semicolon"
+write_data_csv <- function(df, path, lang = "en", format = "auto") {
+    semi <- format == "semicolon" || (format == "auto" && lang %in% c("es", "ca"))
+    tmp <- tempfile(fileext = ".csv")
+    on.exit(unlink(tmp))
+    utils::write.table(df, tmp, sep = if (semi) ";" else ",", dec = if (semi) "," else ".", row.names = FALSE,
+                       na = "", qmethod = "double", fileEncoding = "UTF-8")
+    writeBin(c(as.raw(c(0xef, 0xbb, 0xbf)), readBin(tmp, "raw", file.size(tmp))), path)
+    invisible(path)
 }

@@ -60,6 +60,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             studentKey = "",
             teacherCode = "",
             classKeys = "",
+            csvFormat = "auto",
             showDictionary = TRUE,
             showDescriptives = TRUE,
             showDag = TRUE,
@@ -140,7 +141,8 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..secondary <- jmvcore::OptionBool$new(
                 "secondary",
                 secondary,
-                default=FALSE)
+                default=FALSE,
+                hidden=TRUE)
             private$..measured <- jmvcore::OptionArray$new(
                 "measured",
                 measured,
@@ -181,7 +183,11 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         jmvcore::OptionBool$new(
                             "exposure",
                             NULL,
-                            default=FALSE))))
+                            default=FALSE),
+                        jmvcore::OptionString$new(
+                            "role",
+                            NULL,
+                            default=""))))
             private$..n <- jmvcore::OptionInteger$new(
                 "n",
                 n,
@@ -410,6 +416,14 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "classKeys",
                 classKeys,
                 default="")
+            private$..csvFormat <- jmvcore::OptionList$new(
+                "csvFormat",
+                csvFormat,
+                options=list(
+                    "auto",
+                    "comma",
+                    "semicolon"),
+                default="auto")
             private$..showDictionary <- jmvcore::OptionBool$new(
                 "showDictionary",
                 showDictionary,
@@ -505,6 +519,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..studentKey)
             self$.addOption(private$..teacherCode)
             self$.addOption(private$..classKeys)
+            self$.addOption(private$..csvFormat)
             self$.addOption(private$..showDictionary)
             self$.addOption(private$..showDescriptives)
             self$.addOption(private$..showDag)
@@ -571,6 +586,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         studentKey = function() private$..studentKey$value,
         teacherCode = function() private$..teacherCode$value,
         classKeys = function() private$..classKeys$value,
+        csvFormat = function() private$..csvFormat$value,
         showDictionary = function() private$..showDictionary$value,
         showDescriptives = function() private$..showDescriptives$value,
         showDag = function() private$..showDag$value,
@@ -636,6 +652,7 @@ simStudyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..studentKey = NA,
         ..teacherCode = NA,
         ..classKeys = NA,
+        ..csvFormat = NA,
         ..showDictionary = NA,
         ..showDescriptives = NA,
         ..showDag = NA,
@@ -970,14 +987,14 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "scenario",
                     "outcome",
                     "design",
-                    "secondary"),
+                    "secondary",
+                    "measured"),
                 columns=list(
                     list(
                         `name`="outcome", 
                         `title`="Outcome", 
                         `type`="text", 
-                        `combineBelow`=TRUE, 
-                        `visible`="(secondary)"),
+                        `combineBelow`=TRUE),
                     list(
                         `name`="variable", 
                         `title`="Variable", 
@@ -1052,8 +1069,7 @@ simStudyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="outcome", 
                         `title`="Outcome", 
                         `type`="text", 
-                        `combineBelow`=TRUE, 
-                        `visible`="(secondary)"),
+                        `combineBelow`=TRUE),
                     list(
                         `name`="variable", 
                         `title`="Variable", 
@@ -1599,8 +1615,10 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param scenario scenario id
 #' @param outcome outcome id; empty means the scenario's first outcome
 #' @param design study design; must fit the outcome
-#' @param secondary adds the scenario's other outcomes as columns, for the
-#'   same people (cross-sectional, cohort, prognosis and trial designs)
+#' @param secondary adds all the scenario's other outcomes as columns, for the
+#'   same people (cross-sectional, cohort, prognosis and trial designs); in the
+#'   panel, the other outcomes are rows of the Variables list (role "outcome")
+#'   ticked one by one
 #' @param measured one entry per scenario variable, list(var = name, include =
 #'   TRUE/FALSE, exposure = TRUE/FALSE (the variable the biases act on), form =
 #'   "continuous"/"median"/"tertiles"/"quartiles"/"quintiles"/"cuts"/"log2"/"log10"/"scale",
@@ -1699,6 +1717,9 @@ simStudyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   lock)
 #' @param classKeys the keys of a class (e.g. student IDs) separated by
 #'   commas, semicolons or new lines; Export class writes one dataset per key
+#' @param csvFormat how Export CSV, Export codebook and Export class write
+#'   their files (all in UTF-8 with a byte-order mark, so spreadsheets read
+#'   accented letters)
 #' @param showDictionary .
 #' @param showDescriptives .
 #' @param showDag .
@@ -1796,6 +1817,7 @@ simStudy <- function(
     studentKey = "",
     teacherCode = "",
     classKeys = "",
+    csvFormat = "auto",
     showDictionary = TRUE,
     showDescriptives = TRUE,
     showDag = TRUE,
@@ -1870,6 +1892,7 @@ simStudy <- function(
         studentKey = studentKey,
         teacherCode = teacherCode,
         classKeys = classKeys,
+        csvFormat = csvFormat,
         showDictionary = showDictionary,
         showDescriptives = showDescriptives,
         showDag = showDag,

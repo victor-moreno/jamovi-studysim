@@ -33,7 +33,8 @@ simStudyClass <- R6::R6Class(
                 m <- parse_measured(o$measured, sc, self)
                 fac <- m$factors; cats <- m$cats
                 ctx <- list(lib = lib, sc = sc, oc = sc$outcomes[[oid]], design = o$design,
-                            factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats, exposures = m$exposures)
+                            factors = intersect(sc$order, fac), lang = private$.lang(), ok = ok, cats = cats, exposures = m$exposures,
+                            others = setdiff(m$others, oid))
                 ctx$opt <- private$.designOptions(ctx)   # a mistyped number stops here, as a notice
                 ctx$locked <- !key_unlocked(lib, o$teacherCode)
                 ctx
@@ -49,7 +50,9 @@ simStudyClass <- R6::R6Class(
             num <- function(nm, title, lo, hi, int = FALSE, scale = 1) num_opt(self, nm, title, lo, hi, int, scale)
             opt <- list()
             if (d %in% CASE_DESIGNS) opt$ratio <- num("ccRatio", .("Controls per case"), 1, 10, TRUE)
-            opt$secondary <- isTRUE(o$secondary)
+            # the other outcomes ticked in the Variables list (or all of them, from R: secondary = TRUE)
+            opt$secondary <- isTRUE(o$secondary) || length(ctx$others) > 0
+            if (length(ctx$others)) opt$secondary_ids <- ctx$others
             if (d %in% c("cohort", "prognosis", "rct", "nested_cc", "case_cohort", "cluster_rct", "factorial")) {
                 opt$followup <- num("followup", .("Follow-up"), 0.01, 100)
                 opt$loss <- num("loss", .("Loss to follow-up (% per time unit)"), 0, 50, scale = 100)
@@ -134,6 +137,8 @@ simStudyClass <- R6::R6Class(
                     for (r in private$.expectedRows(ctx, oc2, pre))
                         self$results$keyExpected$addRow(rowKey = r$key, values = list(outcome = olab, variable = dname(r$variable, ctx$lang), contrast = r$contrast))
                 }
+                several <- length(private$.keyOutcomes(ctx)) > 1
+                for (nm in c("keyEffects", "keyExpected")) self$results[[nm]]$getColumn("outcome")$setVisible(several)
                 # total effects and the diagram's adjustment only where they differ from the rest
                 ivp <- intersect(names(ctx$sc$interventions), planned_columns(ctx$sc, ctx$oc, ctx$design, ctx$factors, ctx$opt))
                 med <- any(vapply(private$.keyOutcomes(ctx), function(o) any_mediated(ctx$sc, ctx$sc$outcomes[[o]]), TRUE))
@@ -162,8 +167,8 @@ simStudyClass <- R6::R6Class(
 
         # the primary outcome, and the others when the study carries them
         .keyOutcomes = function(ctx) {
-            if (!isTRUE(self$options$secondary)) return(ctx$oc$id)
-            cols <- secondary_columns(ctx$sc, ctx$oc, ctx$design)
+            if (!isTRUE(ctx$opt$secondary)) return(ctx$oc$id)
+            cols <- secondary_columns(ctx$sc, ctx$oc, ctx$design, ctx$opt$secondary_ids)
             c(ctx$oc$id, intersect(setdiff(names(ctx$sc$outcomes), ctx$oc$id), cols))
         },
 
@@ -250,7 +255,7 @@ simStudyClass <- R6::R6Class(
                 if (!length(keys)) stop(.("Write the student keys of the class (separated by commas) before exporting it."), call. = FALSE)
                 dir <- tempfile("class"); dir.create(dir)
                 reg <- write_class(keys, dir, function(k) private$.simulate(ctx, k), function(res) private$.codebook(res),
-                                   c(.("Student key"), .("File"), .("Rows"), .("Seed")))
+                                   c(.("Student key"), .("File"), .("Rows"), .("Seed")), ctx$lang, o$csvFormat)
                 writeLines(private$.keyReport(ctx, opt, keys), file.path(dir, "answer_key.html"), useBytes = TRUE)
                 zip::zip(action$params$fullPath, files = list.files(dir), root = dir)
                 unlink(dir, recursive = TRUE)
@@ -284,7 +289,7 @@ simStudyClass <- R6::R6Class(
             ex <- self$results$keyExpected$state %||% expected_all(sc, oc, ctx$design, opt, ctx$factors, l, ctx$cats)
             if (!is.data.frame(ex)) ex <- do.call(rbind, lapply(names(ex), function(o) { e <- ex[[o]]
                 if (length(ex) > 1) e$contrast <- sprintf("%s: %s", tr_text(sc$outcomes[[o]]$label, l), e$contrast); e }))
-            g <- dag_layout(sc, oc, ctx$factors, l)
+            g <- dag_layout(sc, oc, ctx$factors, l, dag_others(ctx))
             sz <- dag_size(g, "")
             png_file <- tempfile(fileext = ".png")
             grDevices::png(png_file, sz[["w"]] * 2, sz[["h"]] * 2, res = 144)
@@ -392,7 +397,7 @@ simStudyClass <- R6::R6Class(
                 jmvcore::format(.("everybody treated; only people above the {p}th percentile before were enrolled ({n} screened)"), p = f$threshold, n = num(f$screened))
                 else .("everybody treated, measured before and after; no control group"))
             if (ctx$design == "method_comparison") li <- c(li, .("the outcome measured twice in each person, by methods A and B"))
-            if (isTRUE(self$options$secondary) && length(res$secondary))
+            if (length(res$secondary))
                 li <- c(li, jmvcore::format(.("other outcomes of the same people: {list}"), list = paste(vapply(res$secondary, function(x) tr_text(sc$outcomes[[x]]$label, l), ""), collapse = "; ")))
             if (!is.null(f$attending)) li <- c(li, jmvcore::format(.("baseline and {k} follow-up visits; participants seen at each visit: {n}"),
                                                           k = f$visits, n = paste(f$attending, collapse = ", ")))
@@ -597,11 +602,11 @@ simStudyClass <- R6::R6Class(
                 list(data = res$data, title = sprintf("%s - %s", tr_text(ctx$sc$label, ctx$lang), private$.designTitle(ctx$design)))
             })
             private$.once("csvState", "exportCsv", function(action) {
-                utils::write.csv(res$data, action$params$fullPath, row.names = FALSE, na = "", fileEncoding = "UTF-8")
+                write_data_csv(res$data, action$params$fullPath, ctx$lang, self$options$csvFormat)
                 list(filename = paste0(name, ".csv"))
             })
             private$.once("codebookState", "exportCodebook", function(action) {
-                utils::write.csv(private$.codebook(res), action$params$fullPath, row.names = FALSE, na = "", fileEncoding = "UTF-8")
+                write_data_csv(private$.codebook(res), action$params$fullPath, ctx$lang, self$options$csvFormat)
                 list(filename = paste0(name, "_codebook.csv"))
             })
         }
@@ -625,7 +630,7 @@ locked_text <- function(self) .("This library is locked by a teacher code: the a
 
 # in .init(): the image sized to the layout (pixels) and its caption
 dag_init <- function(self, ctx) {
-    g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
+    g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang, dag_others(ctx))
     sz <- dag_size(g, dag_caption(self, dag_values(self, ctx)))
     self$results$dag$setSize(sz[["w"]], sz[["h"]])
 }
@@ -635,10 +640,17 @@ dag_init <- function(self, ctx) {
 dag_fill <- function(self, ctx) {
     img <- self$results$dag
     if (is.null(img$state) || is.null(img$state$g$points)) {
-        g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang)
+        g <- dag_layout(ctx$sc, ctx$oc, ctx$factors, ctx$lang, dag_others(ctx))
         img$setState(list(g = g, w = img$width, h = img$height, key = dag_values(self, ctx),
                           caption = dag_caption(self, dag_values(self, ctx))))
     }
+}
+
+# the other outcomes a study carries, drawn in its diagram (Simulated study only)
+dag_others <- function(ctx) {
+    if (!isTRUE(ctx$opt$secondary) || is.null(ctx$design)) return(character())
+    cols <- secondary_columns(ctx$sc, ctx$oc, ctx$design, ctx$opt$secondary_ids)
+    intersect(names(ctx$sc$outcomes), cols)
 }
 
 dag_render <- function(image) {
@@ -705,6 +717,10 @@ design_title <- function(d, self) {
 parse_measured <- function(measured, sc, self) {
     # no list at all (e.g. called from R): every variable is measured
     if (length(measured) == 0) return(list(factors = sc$order, cats = list()))
+    # rows of the scenario's other outcomes (role "outcome"): ticked = added to the study
+    outrows <- Filter(function(m) identical(m$role, "outcome"), measured)
+    others <- ids_from_names(vapply(Filter(function(m) isTRUE(m$include), outrows), function(m) as.character(m$var), ""), names(sc$outcomes))
+    measured <- Filter(function(m) !identical(m$role, "outcome"), measured)
     inc <- Filter(function(m) isTRUE(m$include), measured)
     fac <- ids_from_names(vapply(inc, function(m) as.character(m$var), ""), sc$order)
     cats <- list()
@@ -718,7 +734,7 @@ parse_measured <- function(measured, sc, self) {
         cats[[id]] <- spec
     }
     ex <- ids_from_names(vapply(Filter(function(m) isTRUE(m$exposure), inc), function(m) as.character(m$var), ""), sc$order)
-    list(factors = intersect(sc$order, fac), cats = cats, exposures = intersect(sc$order, ex))
+    list(factors = intersect(sc$order, fac), cats = cats, exposures = intersect(sc$order, ex), others = others)
 }
 
 # "{events} events in {pt} person-years", in the outcome's time units

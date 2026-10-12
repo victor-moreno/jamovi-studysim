@@ -707,6 +707,7 @@ SECONDARY_DESIGNS <- c("cross_sectional", "cohort", "prognosis", "rct", "cluster
 # outcome's censoring). Stored as .sec_<id> (and .sec_time_<id>).
 secondary_outcomes <- function(sc, oc, design, res, seed, opt) {
     others <- setdiff(names(sc$outcomes), oc$id)
+    if (!is.null(opt$secondary_ids)) others <- intersect(others, opt$secondary_ids)   # the ones ticked in the panel
     if (!design %in% SECONDARY_DESIGNS || length(others) == 0) return(res)
     d <- res$data
     trt <- list()
@@ -738,10 +739,12 @@ secondary_outcomes <- function(sc, oc, design, res, seed, opt) {
 }
 
 # the outcome columns of the secondary outcomes
-secondary_columns <- function(sc, oc, design) {
+secondary_columns <- function(sc, oc, design, which = NULL) {
     if (!design %in% SECONDARY_DESIGNS) return(character())
     followed <- design %in% c("cohort", "prognosis", "rct", "cluster_rct", "factorial")
-    unlist(lapply(setdiff(names(sc$outcomes), oc$id), function(o) {
+    others <- setdiff(names(sc$outcomes), oc$id)
+    if (!is.null(which)) others <- intersect(others, which)
+    unlist(lapply(others, function(o) {
         o2 <- sc$outcomes[[o]]
         if (o2$type == "event" && followed) c(paste0("time_", o), o)
         else if (o2$type == "event" && !is.null(o2$after)) character() else o

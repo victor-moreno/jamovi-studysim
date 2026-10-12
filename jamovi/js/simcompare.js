@@ -9,6 +9,7 @@ var study = require('./simstudy');
 
 var self = {};
 for (var k in study) self[k] = study[k];
+self.noOutcomes = true;   // one outcome per comparison: no rows for the others
 
 self.syncDesigns = function(ui, ok) {
     var cur = S.getOpt(ui, 'designs') || [];

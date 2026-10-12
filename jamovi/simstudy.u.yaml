@@ -24,8 +24,6 @@ children:
         width: large
       - type: ComboBox
         name: design
-      - type: CheckBox
-        name: secondary
   - type: ListBox
     name: measured
     showColumnHeaders: true
@@ -276,6 +274,8 @@ children:
             name: studentKey
             format: string
             width: large
+          - type: ComboBox
+            name: csvFormat
           - type: TextBox
             name: teacherCode
             format: string

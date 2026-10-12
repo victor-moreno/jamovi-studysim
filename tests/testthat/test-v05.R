@@ -274,3 +274,27 @@ test_that("replicate studies give bias, power and coverage", {
   expect_equal(nrow(c2$replicateTable$asDF), 1)
   expect_true(c2$replicatePlot$visible)
 })
+
+test_that("other outcomes ticked in the Variables list are added and drawn", {
+  sc <- load_scenario(builtin_library(), "sprint_blood_pressure")
+  m <- c(lapply(c("death", "kidney_injury", "hypotension", "syncope"), function(o)
+           list(var = o, include = o %in% c("death", "syncope"), form = "continuous", cuts = "", exposure = FALSE, role = "outcome")),
+         lapply(sc$order, function(v) list(var = v, include = TRUE, form = "continuous", cuts = "", exposure = FALSE, role = "")))
+  r <- simStudy(data = data.frame(), scenario = "sprint_blood_pressure", design = "rct", n = 200, measured = m)
+  cols <- r$dictionary$asDF$name
+  expect_true(all(c("death", "syncope") %in% cols))
+  expect_false(any(c("kidney_injury", "hypotension") %in% cols))
+  expect_true(all(c("cvd_event", "death", "syncope") %in% r$dag$state$g$nodes$id))
+  expect_false("hypotension" %in% r$dag$state$g$nodes$id)
+})
+
+test_that("CSV files for spreadsheets: UTF-8 with a BOM, semicolons and decimal commas in Spanish", {
+  d <- data.frame(x = c(1.5, 2), y = factor(c("sí", "no")))
+  f <- tempfile(fileext = ".csv")
+  write_data_csv(d, f, "es")
+  b <- readBin(f, "raw", 3)
+  expect_identical(b, as.raw(c(0xef, 0xbb, 0xbf)))
+  expect_identical(readLines(f, encoding = "UTF-8")[2], "1,5;\"sí\"")
+  write_data_csv(d, f, "es", "comma")
+  expect_identical(readLines(f, encoding = "UTF-8")[2], "1.5,\"sí\"")
+})

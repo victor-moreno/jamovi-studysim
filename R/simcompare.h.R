@@ -117,7 +117,11 @@ simCompareOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         jmvcore::OptionBool$new(
                             "exposure",
                             NULL,
-                            default=FALSE))))
+                            default=FALSE),
+                        jmvcore::OptionString$new(
+                            "role",
+                            NULL,
+                            default=""))))
             private$..n <- jmvcore::OptionInteger$new(
                 "n",
                 n,

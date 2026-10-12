@@ -139,8 +139,12 @@ options:
       title: Other outcomes of the scenario (same people)
       type: Bool
       default: false
+      hidden: true
       description:
-          R: adds the scenario's other outcomes as columns, for the same people (cross-sectional, cohort, prognosis and trial designs)
+          R: >
+              adds all the scenario's other outcomes as columns, for the same people (cross-sectional, cohort,
+              prognosis and trial designs); in the panel, the other outcomes are rows of the Variables list
+              (role "outcome") ticked one by one
 
     - name: measured
       title: Variables
@@ -185,6 +189,9 @@ options:
               - name: exposure
                 type: Bool
                 default: false
+              - name: role
+                type: String
+                default: ""
       description:
           R: >
               one entry per scenario variable, list(var = name, include = TRUE/FALSE, exposure = TRUE/FALSE
@@ -595,6 +602,22 @@ options:
           R: >
               the keys of a class (e.g. student IDs) separated by commas, semicolons or new lines; Export
               class writes one dataset per key
+
+    - name: csvFormat
+      title: CSV files for spreadsheets
+      type: List
+      options:
+          - name: auto
+            title: By the language (semicolons in Spanish and Catalan)
+          - name: comma
+            title: Commas, decimal point
+          - name: semicolon
+            title: Semicolons, decimal comma
+      default: auto
+      description:
+          R: >
+              how Export CSV, Export codebook and Export class write their files (all in UTF-8 with a
+              byte-order mark, so spreadsheets read accented letters)
 
     - name: showDictionary
       title: Data dictionary
