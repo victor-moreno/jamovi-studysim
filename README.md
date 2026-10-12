@@ -1,68 +1,23 @@
 # studysim: generate simulated medical studies for jamovi
 
 A jamovi module for teaching epidemiology and clinical research. Pick a clinical
-**scenario**, an **outcome**, a **study design** that fits it and a sample size, and
-get a plausible dataset in a new jamovi window, with confounders, mediators, effect
-modifiers and null variables built in. A hidden **answer key** gives the true
-parameters and what crude and adjusted analyses of that design should find.
+**scenario**, an **outcome**, a **study design** and a sample size, and get a
+plausible dataset in a new jamovi window. A hidden **answer key** gives the true
+parameters and what the analyses should find.
 
-**Tutorial: <https://victor-moreno.github.io/jamovi-studysim/>**, with a page on
-which jamovi analysis and module fit each design.
+- **Tutorial:** <https://victor-moreno.github.io/jamovi-studysim/>
+- **Scenario catalogue:** <https://victor-moreno.github.io/jamovi-studysim/scenarios.html>
+  (65 scenarios, most replicating a real study)
 
 ## Analyses (menu: Simulate)
 
-- **Simulated study**: scenario → outcome → design; choose the measured
-  variables and group numeric ones; missing data; seed and student keys; data
-  dictionary, descriptives, causal diagram and answer key; *Open dataset* or
-  *Export CSV*. Designs:
-  - observational: cross-sectional, cohort, case-control, matched case-control,
-    nested case-control (risk sets), case-cohort, ecological (regions),
-    prognosis (with competing risks);
-  - trials: randomised (with interim looks), cluster randomised, 2×2 factorial,
-    2×2 crossover, longitudinal with dropout, before-after (single group);
-  - diagnostic accuracy (markers with a target AUC, marker panels for p ≫ n)
-    and method comparison (Bland-Altman);
-  - several outcomes for the same people (linked outcomes, illness-death);
-  - realism: missing data (MCAR, MAR, MNAR), measurement error, detection
-    limits and assay batches, data-entry errors, extra null variables;
-  - biases on purpose: recall bias, controls selected by exposure, a collider,
-    non-adherence (ITT, as treated, per protocol), informative loss to
-    follow-up, immortal time, spectrum and partial verification in diagnostic
-    studies;
-  - an answer key with direct and total effects, crude, fully adjusted and
-    DAG-adjusted expected estimates, absolute effects of trials (risks, NNT,
-    marginal vs conditional ratios) and diagnostic accuracy at a cut-off; an
-    answer-key report, a codebook export, a wide layout for repeated measures,
-    a class export (one dataset per student key, zipped) and a teacher code
-    that locks the key.
-- **Compare designs**: one scenario under several designs drawn from the same
-  population: estimates with 95% CI per design against the truth (optionally the
-  large-study expectation), a forest plot, replicate studies (bias, standard
-  error, power, CI coverage, sampling distribution), and all studies stacked in
-  one dataset with a design column.
-- **Library**: lists, checks, explores and exports scenarios; reads custom
-  libraries in YAML, Excel or JSON.
-- **Derive scenario**: estimates a scenario from a real dataset (marginals, latent
-  correlations, conditional effects; missing covariates by complete cases, mean,
-  single or multiple imputation; codes such as 99 or impossible zeros read as
-  missing; values that do not apply in some people written as rules) and checks
-  it by simulation; an AI prompt and
-  a Claude skill in `ai/` turn it into a teaching scenario.
-
-## Scenarios
-
-65 scenarios, most replicating a real study: their parameters were estimated
-with the module's own *Derive* engine from open patient-level data (R
-packages survival, MASS, datasets, HSAUR3, TH.data, pROC, medicaldata,
-aplore3, NHANES; the UCI repository) or from the author's teaching datasets,
-or taken from the published tables of the study (including papers chosen for
-critical reading); each was
-then given a causal structure and a teaching note (English, Spanish, Catalan).
-The files store parameters only, never data. The format is in
-`inst/library/schema.md`. Effect sizes reproduce the source's main estimates
-as teaching values, not meta-analytic estimates. The
-[scenario catalogue](https://victor-moreno.github.io/jamovi-studysim/scenarios.html)
-explains the method and filters the scenarios by domain, design and topic.
+- **Simulated study**: one dataset from a scenario, outcome and design
+  (observational, trials, diagnostic), with optional realism and biases, and
+  its answer key.
+- **Compare designs**: one scenario under several designs, estimates against
+  the truth.
+- **Library**: lists, checks, explores and exports scenarios.
+- **Derive scenario**: estimates a new scenario from a real dataset.
 
 ## Install
 
